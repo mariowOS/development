@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    font-style: color #FFFFFF;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('wallpaper.png') center/cover no-repeat;
+    opacity: 0;
+    animation: fadeInBG 0.6s ease forwards;
+  }
+
+  .rectangle-main {
+    width: 592px;
+    height: 542px;
+    background-color: #121212;
+    border-radius: 23px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    opacity: 0;
+    animation: shrinkFadeMain 0.6s ease forwards;
+    position: relative;
+  }
+
+  .rectangle-inner {
+    width: 738px;
+    height: 1084px;
+    background-color: #1A1A1A;
+    border-top-left-radius: 23px;
+    border-bottom-left-radius: 23px;
+    opacity: 0;
+    animation: shrinkFadeInner 0.6s ease forwards;
+    position: absolute;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 159px;
+    padding-left: 18px;
+    box-sizing: border-box;
+        font-style: color #FFFFFF;
+  }
+
+  .rectangle-inner .top-image {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    top: 36px;
+    left: 30px;
+  }
+
+  .rectangle-inner h1,
+  .rectangle-inner p {
+    margin: 0;
+    opacity: 0;
+    animation: fadeInText 0.6s ease forwards;
+    animation-delay: 0.6s;
+    font-size: 28px;
+    text-align: left;
+  }
+
+  .rectangle-inner h1 { color: #000; }
+  .rectangle-inner p {  
+    color: #000000; 
+  }
+  .rectangle-inner p .bold { font-weight: 700; }
+
+  .rectangle-inner .options {
+    display: flex;
+    flex-direction: column;
+    margin-top: 75px;
+    opacity: 0;
+    animation: fadeInText 0.6s ease forwards;
+    animation-delay: 1.2s;
+    font-size: 18px;
+    color: #000000;
+  }
+
+  .rectangle-inner .options .option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 11px;
+  }
+
+  .rectangle-main .next-button {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    bottom: 30px;
+    right: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 24px;
+  }
+
+  .rectangle-main .next-button:hover {
+    transform: scale(1.1);
+  }
+
+  /* very cool animations */
+  @keyframes shrinkFadeMain {
+    0% { width: 1922px; height: 1084px; opacity: 0; }
+    100% { width: 961px; height: 542px; opacity: 1; }
+  }
+
+  @keyframes shrinkFadeInner {
+    0% { width: 738px; height: 1084px; opacity: 0; }
+    100% { width: 369px; height: 542px; opacity: 1; }
+  }
+
+  @keyframes fadeInBG {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  @keyframes fadeInText {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="rectangle-main">
+    <div class="rectangle-inner">
+      <div class="top-image"><img src="boot/stars.png"></div>
+
+      <h1>Hello!</h1>
+      <p>Welcome to <span class="bold">mariowOS</span></p>
+
+      <div class="options">
+        <div class="option">
+<img src="boot/lang.png">
+          <span>English</span>
+        </div>
+        <div class="option">
+<img src="boot/access.png">
+          <span>Accessibility</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="center-image"><img src="boot/oobeshape.png"></div>
+
+    <a href="next-page.html" class="next-button"><img src="boot/next.png"></a>
+  </div>
+</body>
+</html>
