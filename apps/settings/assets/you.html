@@ -1,0 +1,64 @@
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+body {
+  margin: 0;
+  color: white;
+  font-family: 'Poppins';
+  padding: 40px;
+}
+
+.container {
+  max-width: 300px;
+  margin: auto;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+  background: #2a2a2a;
+  color: white;
+  font-family: 'Poppins';
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  font-family: 'Poppins';
+}
+
+button:hover {
+  background: #444;
+}
+</style>
+
+<div class="container">
+  <h2>Change Password</h2>
+  <input type="password" id="newPassword" placeholder="New Password">
+  <button onclick="savePassword()">Save</button>
+</div>
+
+<script>
+function savePassword() {
+  const newPass = document.getElementById("newPassword").value.trim();
+
+  if (!newPass) {
+    alert("Password cannot be empty!");
+    return;
+  }
+
+  localStorage.setItem("password", newPass);
+  alert("✅ Password updated!");
+}
+</script>

@@ -1,113 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Lockscreen</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Poppins', sans-serif;
-    overflow: hidden;
-    color: #fff;
-  }
+body {
+  margin: 0;
+  background: url("assets/wallpaper.png");
+  color: white;
+  font-family: 'Poppins';
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-  /* Fullscreen wallpaper */
-  .background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('assets/wallpaper.png');
-    background-size: cover;
-    z-index: 0;
-  }
+.login-box {
+  text-align: center;
+    font-family: 'Poppins';
+}
 
-  /* Foreground content */
-  .lockscreen-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 100px;
-    text-align: center;
-    height: 100%;
-    justify-content: flex-start;
-  }
+.avatar {
+  width: 80px;
+  height: 80px;
+  background: #444;
+  border-radius: 50%;
+  margin: 0 auto 15px auto;
+}
 
-  .date {
-    font-size: 1.5em;
-    color: #ffffff9d;
-    font-weight: bold;
-    font-family: 'Chiron GoRound TC';
-  }
+#username {
+  font-size: 20px;
+  margin: 10px 0;
+    font-family: 'Poppins';
+}
 
-  .clock {
-    font-size: 125px;
-    font-weight: bold;
-    color: #ffffff9d;
-  }
+#loginPassword {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+    font-family: 'Poppins';
+}
 
-  /* Bottom unlock text */
-  .unlock-text {
-    bottom: 150px;
-    position: absolute;
-    font-size: 1em;
-    color: #ffffff;
-    animation: pulse 1.5s infinite alternate;
-  }
+#loginBtn {
+  margin-left: 8px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #ffffff;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+}
 
-  @keyframes pulse {
-    0% { opacity: 0.5; }
-    100% { opacity: 1; }
-  }
+#loginBtn:hover {
+  background: #acacac;
+}
 </style>
-</head>
-<body>
 
-<div class="background"></div>
-
-<div class="lockscreen-content">
-  <div class="date" id="date">Mon, Sep, 03</div>
-  <div class="clock" id="clock">12:00 AM</div>
-  <div class="unlock-text">Press space to unlock</div>
+<div class="login-box">
+  <div class="avatar"></div>
+  <h2 id="username">guest</h2>
+  <input type="password" id="loginPassword" placeholder="Password">
+  <button id="loginBtn">→</button>
 </div>
 
 <script>
-  const dateEl = document.getElementById('date');
-  const clockEl = document.getElementById('clock');
+// default password (first boot only)
+if (!localStorage.getItem("password")) {
+  localStorage.setItem("password", "1234");
+}
 
-  function updateTime() {
-    const now = new Date();
-    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById("loginBtn").addEventListener("click", unlock);
+document.getElementById("loginPassword").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") unlock();
+});
 
-    // Update date
-    dateEl.textContent = `${days[now.getDay()]}, ${months[now.getMonth()]}, ${String(now.getDate()).padStart(2,'0')}`;
+function unlock() {
+  const passInput = document.getElementById("loginPassword").value;
+  const storedPass = localStorage.getItem("password");
 
-    // Update clock in 12-hour format without AM/PM
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2,'0');
-    hours = hours % 12 || 12; // convert 0 to 12 for midnight
-    clockEl.textContent = `${hours}:${minutes}`;
+  if (passInput === storedPass) {
+    window.location.href = "com.mariowos.desktop.html";
+  } else {
+    alert("❌ Wrong password!");
   }
-
-  setInterval(updateTime, 1000);
-  updateTime();
-
-  // Space key unlock
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-      window.location.href = 'com.mariowos.desktop.html';
-    }
-  });
+}
 </script>
 
-</body>
-</html>

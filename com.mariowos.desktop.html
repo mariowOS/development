@@ -23,7 +23,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     body{
       margin:0; padding:0; width:100%; height:100%; overflow:hidden;
       background: url("assets/wallpaper.png");
-      background-size: cover;
+      background-size:cover;
       font-family:'Poppins',sans-serif; color:#fff;
     }
 
@@ -88,13 +88,9 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .2s; white-space:nowrap; }
     .dropdown-item:hover{ background:rgba(255,255,255,.12); }
 
-    #notificationsDropdown {
-  right: 0;       /* align to the right edge of the button */
-  left: auto;     /* disable left alignment */
-  max-width: 300px; /* prevent going too wide */
-  white-space: normal; /* allow wrapping */
-  word-break: break-word; /* bomb long words if needed */
-}
+    #notificationsDropdown { right: 0; left: auto; max-width: 300px; white-space: normal; word-break: break-word; }
+
+.menu-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
 
   </style>
 </head>
@@ -103,16 +99,44 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     <div class="status-left">
       <div class="btn-wrapper">
         <button class="status-btn" id="actionsBtn" title="Menu">···</button>
-        <div class="dropdown" id="actionsDropdown">
-          <a onclick="openPopup('popup7')"><div class="dropdown-item">Messaging</div></a>
-          <a onclick="openPopup('popup2')"><div class="dropdown-item">Browser</div></a>
-          <a onclick="openPopup('popup3')"><div class="dropdown-item">Sandbox</div></a>
-          <a onclick="openPopup('popup1')"><div class="dropdown-item">Settings</div></a>
-          <a onclick="openPopup('popup5')"><div class="dropdown-item">Music</div></a>
-          <div class="dropdown-item">Store</div>
-          <a onclick="openPopup('popup4')"><div class="dropdown-item">Feedback & Bugs</div></a>
-          <a onclick="openPopup('popup6')"><div class="dropdown-item">Notes</div></a>
-        </div>
+<div class="dropdown" id="actionsDropdown">
+  <a onclick="openPopup('popup6')">
+    <div class="dropdown-item">
+      <img src="assets/icons/messaging.png" class="menu-icon"> Messaging
+    </div>
+  </a>
+  <a onclick="openPopup('popup2')">
+    <div class="dropdown-item">
+      <img src="assets/icons/browser.png" class="menu-icon"> Browser
+    </div>
+  </a>
+  <a onclick="openPopup('popup1')">
+    <div class="dropdown-item">
+      <img src="assets/icons/settings.png" class="menu-icon"> Settings
+    </div>
+  </a>
+  <a onclick="openPopup('popup4')">
+    <div class="dropdown-item">
+      <img src="assets/icons/music.png" class="menu-icon"> Music
+    </div>
+  </a>
+  <a onclick="openPopup('popup7')">
+  <div class="dropdown-item">
+    <img src="assets/icons/store.png" class="menu-icon"> Store
+  </div>
+  </a>
+  <a onclick="openPopup('popup3')">
+    <div class="dropdown-item">
+      <img src="assets/icons/feedback.png" class="menu-icon"> Feedback & Bugs
+    </div>
+  </a>
+  <a onclick="openPopup('popup5')">
+    <div class="dropdown-item">
+      <img src="assets/icons/notes.png" class="menu-icon"> Notes
+    </div>
+  </a>
+</div>
+
       </div>
 
       <button class="status-btn" title="Finder">Finder</button>
@@ -165,54 +189,46 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
 
   <div id="popup3" class="popup">
     <div class="popup-header">
-      <span>Sandbox</span>
+      <span>Feedback</span>
       <span class="altf4" onclick="closePopup('popup3')">✖</span>
     </div>
     <div class="popup-content">
-    <iframe src="apps/sandbox/boot.html" class="popup-frame"></iframe>
+      <img src="assets/feedbackbanner.png"><br><br>
+      <a href="https://discord.gg/ftSMbVSkDX"><img src="assets/feedbackbannerds.png"></a><br><br>
     </div>
   </div>
 
   <div id="popup4" class="popup">
     <div class="popup-header">
-      <span>Feedback</span>
-      <span class="altf4" onclick="closePopup('popup4')">✖</span>
-    </div>
-    <div class="popup-content">
-      <img src="assets/feedbackbanner.png"><br><br>
-      Thanks for enrolling your device in mariowOS insider testing!<br><br>
-      These builds are for enthusiasts who want to try new features before being rolled out in stable releases but
-      <b>these builds are NOT suitable for daily usage or for modifying them. They are not stable at all.</b><br><br>
-      You can give us feedback or report bugs in our
-      <a href="https://discord.gg/ftSMbVSkDX">Discord server</a><br><br>
-      Please read forum rules before posting. Thanks!
-    </div>
-  </div>
-
-  <div id="popup5" class="popup">
-    <div class="popup-header">
       <span>Music</span>
-      <span class="altf4" onclick="closePopup('popup5')">✖</span>
+      <span class="altf4" onclick="closePopup('popup4')">✖</span>
     </div>
     <iframe src="apps/music/index.html" class="popup-frame"></iframe>
   </div>
 
-    <div id="popup6" class="popup">
+    <div id="popup5" class="popup">
     <div class="popup-header">
       <span>Notes</span>
-      <span class="altf4" onclick="closePopup('popup6')">✖</span>
+      <span class="altf4" onclick="closePopup('popup5')">✖</span>
     </div>
     <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
   </div>
 
-    <div id="popup7" class="popup">
+    <div id="popup6" class="popup">
     <div class="popup-header">
       <span>Messaging</span>
-      <span class="altf4" onclick="closePopup('popup7')">✖</span>
+      <span class="altf4" onclick="closePopup('popup6')">✖</span>
     </div>
     <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed/" class="popup-frame"></iframe>
   </div>
 
+      <div id="popup7" class="popup">
+    <div class="popup-header">
+      <span>Store</span>
+      <span class="altf4" onclick="closePopup('popup7')">✖</span>
+    </div>
+    <iframe src="https://mariowstech.github.io/mariowOS-landpages/store/" class="popup-frame"></iframe>
+  </div>
 
   <script>
     // HERE BE DRAGONS (and code)

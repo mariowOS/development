@@ -180,10 +180,10 @@
 
 <script>
   const pages = {
-    you: `
-      <h2>mariowOS Profile</h2>
-      <p>coming soon 👀</p>
-    `,
+you: `
+  <h2>mariowOS Profile</h2>
+      <iframe src="assets/you.html" class="popup-frame"></iframe>
+`,
     wallpaper: `
       <h2>Wallpaper & style</h2>
       <p>fixing soon 🥴</p>
@@ -245,6 +245,65 @@
       loadPage(page, firstMatch);
     }
   });
+
+  function saveProfile() {
+  const username = document.getElementById("usernameInput").value.trim();
+  const password = document.getElementById("passwordInput").value.trim();
+  const pfpFile = document.getElementById("pfpUpload").files[0];
+
+  if (username) localStorage.setItem("username", username);
+  if (password) localStorage.setItem("password", password);
+
+  if (pfpFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem("avatar", reader.result);
+      document.getElementById("pfpPreview").src = reader.result;
+    };
+    reader.readAsDataURL(pfpFile);
+  }
+
+  alert("Profile saved! 🔒");
+}
+
+function loadProfileEditor() {
+  const savedUsername = localStorage.getItem("username");
+  const savedPassword = localStorage.getItem("password");
+  const savedAvatar = localStorage.getItem("avatar");
+
+  if (savedUsername) document.getElementById("usernameInput").value = savedUsername;
+  if (savedPassword) document.getElementById("passwordInput").value = savedPassword;
+  if (savedAvatar) document.getElementById("pfpPreview").src = savedAvatar;
+}
+
+function saveFromSettings() {
+  const newUser = document.getElementById("settingsUsername").value.trim();
+  const newPass = document.getElementById("settingsPassword").value.trim();
+
+  if (!newUser || !newPass) {
+    alert("Fields cannot be empty!");
+    return;
+  }
+
+  localStorage.setItem("username", newUser);
+  localStorage.setItem("password", newPass);
+
+  alert("Credentials updated!");
+}
+
+
+function loadPage(page, el) {
+  document.getElementById("content").innerHTML = pages[page];
+
+  if (page === "you") {
+    setTimeout(loadProfileEditor, 50); // give DOM time to render
+  }
+
+  document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
+  if (el) el.classList.add("active");
+}
+
+
 </script>
 
 </body>
