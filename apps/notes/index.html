@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: #181818;
+    color: #fff;
+  }
+
+  .buttons {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+  }
+
+  button {
+    background: none;
+    border: none;
+    color: #006FFF;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 4px 0;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Poppins';
+  }
+
+  button:hover {
+    border-bottom: 1px solid #006FFF;
+  }
+
+  button.clear {
+    color: #aaa;
+  }
+
+  button.clear:hover {
+    border-bottom: 1px solid #aaa;
+  }
+
+.tabs {
+  position: absolute;
+  top: 16px;
+  left: 240px; 
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  max-width: calc(100% - 260px); 
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #555; 
+  border: none;
+  border-radius: 4px; 
+  padding: 4px 12px;
+  color: #fff;
+  font-size: 0.85em;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tab-btn.active {
+  background: #555;
+}
+
+.tab-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #006FFF;
+  border-radius: 2px 0 0 2px;
+}
+  .close-tab {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 2px;
+  }
+
+  .close-tab:hover {
+    color: #ff4c4c;
+  }
+
+  textarea {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    background: #181818;
+    border: none;
+    padding: 16px;
+    font-size: 1em;
+    color: #fff;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+  }
+</style>
+</head>
+<body>
+
+<div class="buttons">
+  <button id="save-btn">Save</button>
+  <button id="new-tab-btn">New</button>
+  <button class="clear" id="clear-btn">Clear</button>
+  <a href="assets/help.html"><button class="clear">Help</button></a>
+</div>
+
+<div class="tabs" id="tabs-container">
+</div>
+
+<textarea id="note-area" placeholder="your cool ideas go here..."></textarea>
+
+<script>
+  const noteArea = document.getElementById('note-area');
+  const saveBtn = document.getElementById('save-btn');
+  const clearBtn = document.getElementById('clear-btn');
+  const newTabBtn = document.getElementById('new-tab-btn');
+  const tabsContainer = document.getElementById('tabs-container');
+
+  let notes = [];
+  let currentIndex = 0;
+
+  function createTab(name="Note") {
+    const id = Date.now().toString();
+    notes.push({id, content: "", name});
+
+    const btn = document.createElement('div');
+    btn.classList.add('tab-btn');
+    btn.dataset.id = id;
+
+    const span = document.createElement('span');
+    span.textContent = name;
+    span.addEventListener('dblclick', () => {
+      const newName = prompt("Rename tab:", span.textContent);
+      if(newName) {
+        span.textContent = newName;
+        notes.find(n => n.id === id).name = newName;
+        saveToLocalStorage();
+      }
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.classList.add('close-tab');
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeTab(id);
+    });
+
+    btn.appendChild(span);
+    btn.appendChild(closeBtn);
+
+    btn.addEventListener('click', () => switchTab(id));
+    btn.setAttribute('draggable', true);
+    btn.addEventListener('dragstart', dragStart);
+    btn.addEventListener('dragover', dragOver);
+    btn.addEventListener('drop', dropTab);
+
+    tabsContainer.appendChild(btn);
+    switchTab(id);
+    saveToLocalStorage();
+  }
+
+  function switchTab(id) {
+    if (notes[currentIndex]) notes[currentIndex].content = noteArea.value;
+
+    const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
+    tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+
+    currentIndex = notes.findIndex(n => n.id === id);
+    noteArea.value = notes[currentIndex].content || "";
+  }
+
+  function closeTab(id) {
+    const index = notes.findIndex(n => n.id === id);
+    if(index === -1) return;
+    notes.splice(index,1);
+    const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
+    if(btn) btn.remove();
+    if(notes.length > 0) switchTab(notes[0].id);
+    else createTab();
+    saveToLocalStorage();
+  }
+
+  function saveToLocalStorage() {
+    localStorage.setItem('multiNotes', JSON.stringify(notes));
+  }
+
+  function loadFromLocalStorage() {
+    const saved = localStorage.getItem('multiNotes');
+    if(saved) {
+      notes = JSON.parse(saved);
+      notes.forEach(n => {
+        const btn = document.createElement('div');
+        btn.classList.add('tab-btn');
+        btn.dataset.id = n.id;
+
+        const span = document.createElement('span');
+        span.textContent = n.name;
+        span.addEventListener('dblclick', () => {
+          const newName = prompt("Rename tab:", span.textContent);
+          if(newName) {
+            span.textContent = newName;
+            notes.find(x => x.id === n.id).name = newName;
+            saveToLocalStorage();
+          }
+        });
+
+        const closeBtn = document.createElement('button');
+        closeBtn.classList.add('close-tab');
+        closeBtn.textContent = '×';
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          closeTab(n.id);
+        });
+
+        btn.appendChild(span);
+        btn.appendChild(closeBtn);
+
+        btn.addEventListener('click', () => switchTab(n.id));
+        btn.setAttribute('draggable', true);
+        btn.addEventListener('dragstart', dragStart);
+        btn.addEventListener('dragover', dragOver);
+        btn.addEventListener('drop', dropTab);
+
+        tabsContainer.appendChild(btn);
+      });
+      switchTab(notes[0].id);
+    } else {
+      createTab();
+    }
+  }
+
+  noteArea.addEventListener('input', () => {
+    if(notes[currentIndex]) {
+      notes[currentIndex].content = noteArea.value;
+      saveToLocalStorage();
+    }
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const text = noteArea.value;
+    if(!text) return alert("Nothing to save!");
+    const now = new Date();
+    const timestamp = now.getFullYear().toString()
+      + String(now.getMonth()+1).padStart(2,'0')
+      + String(now.getDate()).padStart(2,'0') + "_"
+      + String(now.getHours()).padStart(2,'0')
+      + String(now.getMinutes()).padStart(2,'0')
+      + String(now.getSeconds()).padStart(2,'0');
+
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `note_${timestamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    noteArea.value = '';
+    if(notes[currentIndex]) {
+      notes[currentIndex].content = '';
+      saveToLocalStorage();
+    }
+  });
+
+  newTabBtn.addEventListener('click', () => createTab());
+
+  document.addEventListener('keydown', (e) => {
+    if(e.ctrlKey && e.key === 's') { e.preventDefault(); saveBtn.click(); }
+    if(e.ctrlKey && e.key === 'n') { e.preventDefault(); newTabBtn.click(); }
+    if(e.ctrlKey && e.key === 'w') { e.preventDefault(); 
+      const btn = tabsContainer.children[currentIndex];
+      if(btn) { closeTab(notes[currentIndex].id); }
+    }
+  });
+
+  let dragged = null;
+  function dragStart(e){ dragged = e.currentTarget; }
+  function dragOver(e){ e.preventDefault(); }
+  function dropTab(e){
+    e.preventDefault();
+    const target = e.currentTarget;
+    if(dragged && target !== dragged){
+      const draggedIndex = [...tabsContainer.children].indexOf(dragged);
+      const targetIndex = [...tabsContainer.children].indexOf(target);
+      if(draggedIndex < targetIndex){
+        tabsContainer.insertBefore(dragged, target.nextSibling);
+        const note = notes.splice(draggedIndex,1)[0];
+        notes.splice(targetIndex,0,note);
+      } else {
+        tabsContainer.insertBefore(dragged, target);
+        const note = notes.splice(draggedIndex,1)[0];
+        notes.splice(targetIndex,0,note);
+      }
+      saveToLocalStorage();
+    }
+  }
+
+  loadFromLocalStorage();
+</script>
+
+</body>
+</html>

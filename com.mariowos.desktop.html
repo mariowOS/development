@@ -1,0 +1,381 @@
+<!-- 
+!!!! THIS SECTION MUST NOT BE EDITED OR REMOVED. YOU CAN REMOVE ONLY THE DISCLAMERS/SPECIAL SECTION UNDER THIS ONE. !!!! 
+------------------------------------------------------------------------------------------------------------------------- 
+mariowOS DE [αlpha] (C) 2025 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+------------------------------------------------------------------------------------------------------------------------- 
+"chase your dreams. take that risk, nobody can stop you, but only you can." 
+Dedicated to everyone that contribuited making this possible. Thanks a lot 🤍 
+Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos) 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body{
+      margin:0; padding:0; width:100%; height:100%; overflow:hidden;
+      background: url("assets/wallpaper.jpg") no-repeat black;
+      font-family:'Poppins',sans-serif; color:#fff;
+    }
+
+    /* Animations */
+    @keyframes popupIn{from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)}}
+    @keyframes popupOut{from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(0.9)}}
+
+    /* Windows */
+    .popup{
+      display:none; position:fixed; top:20px; left:20px;
+      width:1048px; height:600px; background:#1D1D1D; border:1px solid #2a2a2a;
+      border-radius:10px; opacity:0; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.5);
+      /* keep windows under status bar; they’ll spawn them below it - either statsbar breaks */
+      z-index:50;
+    }
+    .popup.active{ display:block; animation: popupIn .25s ease forwards; }
+    .popup.closing{ animation: popupOut .25s ease forwards; }
+
+    .popup-header{
+      height:32px; background:#121212; display:flex; align-items:center; justify-content:space-between;
+      padding:0 10px; cursor:move; border-bottom:1px solid #2a2a2a; font-size:13px; font-weight:500;
+      user-select:none;
+    }
+    .popup-header .altf4{cursor:pointer; transition:.2s}
+    .popup-header .altf4:hover{color:red}
+
+    .popup-frame{ width:100%; height:calc(100% - 32px); border:none; }
+    .popup-content{ padding:15px; height:calc(100% - 32px); overflow-y:auto; text-align:center; }
+
+    /* Status bar */
+    .status-bar{
+      position:absolute; top:0; left:0; width:100vw; height:56px;
+      display:flex; align-items:center; justify-content:space-between;
+      z-index:100; padding:0 32px; box-sizing:border-box; background:rgba(255,255,255,0);
+    }
+    .status-left,.status-right{display:flex;align-items:center;gap:12px}
+    .status-center {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .5px;
+      background: rgba(26,26,26,.63); padding: 6px 20px; border-radius: 100px; min-width: 260px; text-align: center; pointer-events: none;
+}
+    .status-btn{
+      background:rgba(26,26,26,.63); color:#fff; border:none; border-radius:100px; padding:6px 20px;
+      font-size:13px; font-weight:500; cursor:pointer; outline:none; display:flex; align-items:center; gap:8px; transition:background .2s;
+      font-family:'Poppins';
+    }
+    .status-btn:hover{background:rgba(60,60,60,.9)}
+    .notification{
+      width:28px; height:28px; background:rgba(26,26,26,.63); border:none; border-radius:100px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; margin-right:4px;
+    }
+    .notification svg{ width:22px; height:22px; fill:#fff; opacity:.85 }
+
+    /* Dropdowns */
+    .btn-wrapper{ position:relative; display:inline-block; }
+    .dropdown{
+      position:absolute; top:calc(100% + 6px); left:0; background:rgba(26,26,26,.63); border-radius:12px;
+      min-width:200px; max-height:220px; overflow-y:auto; box-shadow:0 8px 18px rgba(0,0,0,.25);
+      opacity:0; transform:translateY(-10px) scale(.95); pointer-events:none; transition:.25s ease; z-index:200; transform-origin:top center;
+    }
+    .dropdown.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+    .dropdown.activities{ max-height:none; overflow-y:visible; }
+    .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .2s; white-space:nowrap; }
+    .dropdown-item:hover{ background:rgba(255,255,255,.12); }
+
+    #notificationsDropdown {
+  right: 0;       /* align to the right edge of the button */
+  left: auto;     /* disable left alignment */
+  max-width: 300px; /* prevent going too wide */
+  white-space: normal; /* allow wrapping */
+  word-break: break-word; /* bomb long words if needed */
+}
+
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <div class="status-left">
+      <div class="btn-wrapper">
+        <button class="status-btn" id="actionsBtn" title="Menu">···</button>
+        <div class="dropdown" id="actionsDropdown">
+          <a onclick="openPopup('popup7')"><div class="dropdown-item">Messaging</div></a>
+          <a onclick="openPopup('popup2')"><div class="dropdown-item">Browser</div></a>
+          <a onclick="openPopup('popup3')"><div class="dropdown-item">Sandbox</div></a>
+          <a onclick="openPopup('popup1')"><div class="dropdown-item">Settings</div></a>
+          <a onclick="openPopup('popup5')"><div class="dropdown-item">Music</div></a>
+          <div class="dropdown-item">Store</div>
+          <a onclick="openPopup('popup4')"><div class="dropdown-item">Feedback & Bugs</div></a>
+          <a onclick="openPopup('popup6')"><div class="dropdown-item">Notes</div></a>
+        </div>
+      </div>
+
+      <button class="status-btn" title="Finder">Finder</button>
+
+      <div class="btn-wrapper">
+        <button class="status-btn" id="activitiesBtn" title="Activities">Activities</button>
+        <div class="dropdown activities" id="activitiesDropdown">
+          <a href="com.mariowos.desktop.html"><div class="dropdown-item">Refresh desktop</div></a>
+          <a href="com.mariowos.loginui.html"><div class="dropdown-item">Lock Screen</div></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-center" id="center-clock">Loading...</div>
+
+    <div class="status-right">
+  <div class="btn-wrapper">
+    <button class="notification" id="notificationsBtn" title="Notifications">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7A1 1 0 006 20h12a1 1 0 00.7-1.7L18 16z"/>
+      </svg>
+    </button>
+    <div class="dropdown" id="notificationsDropdown">
+      <div class="dropdown-item">No new notifications</div>
+      <a onclick="openPopup('popup2')"><div class="dropdown-item">🧩 Browser is active in background</div></a>
+
+      
+    </div>
+  </div>
+</div>
+
+  <div id="popup1" class="popup">
+    <div class="popup-header">
+      <span>Settings</span>
+      <span class="altf4" onclick="closePopup('popup1')">✖</span>
+    </div>
+    <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup2" class="popup">
+    <div class="popup-header">
+      <span>Browser &nbsp;|&nbsp; <a href="javascript:history.back()"><img src="assets/back.png"></a></span>
+      <span class="altf4" onclick="closePopup('popup2')">✖</span>
+    </div>
+        <iframe src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
+    <div class="popup-content">
+      
+    </div>
+  </div>
+
+  <div id="popup3" class="popup">
+    <div class="popup-header">
+      <span>Sandbox</span>
+      <span class="altf4" onclick="closePopup('popup3')">✖</span>
+    </div>
+    <div class="popup-content">
+    <iframe src="apps/sandbox/boot.html" class="popup-frame"></iframe>
+    </div>
+  </div>
+
+  <div id="popup4" class="popup">
+    <div class="popup-header">
+      <span>Feedback</span>
+      <span class="altf4" onclick="closePopup('popup4')">✖</span>
+    </div>
+    <div class="popup-content">
+      <img src="assets/feedbackbanner.png"><br><br>
+      Thanks for enrolling your device in mariowOS insider testing!<br><br>
+      These builds are for enthusiasts who want to try new features before being rolled out in stable releases but
+      <b>these builds are NOT suitable for daily usage or for modifying them. They are not stable at all.</b><br><br>
+      You can give us feedback or report bugs in our
+      <a href="https://discord.gg/ftSMbVSkDX">Discord server</a><br><br>
+      Please read forum rules before posting. Thanks!
+    </div>
+  </div>
+
+  <div id="popup5" class="popup">
+    <div class="popup-header">
+      <span>Music</span>
+      <span class="altf4" onclick="closePopup('popup5')">✖</span>
+    </div>
+    <iframe src="apps/music/index.html" class="popup-frame"></iframe>
+  </div>
+
+    <div id="popup6" class="popup">
+    <div class="popup-header">
+      <span>Notes</span>
+      <span class="altf4" onclick="closePopup('popup6')">✖</span>
+    </div>
+    <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
+  </div>
+
+    <div id="popup7" class="popup">
+    <div class="popup-header">
+      <span>Messaging</span>
+      <span class="altf4" onclick="closePopup('popup7')">✖</span>
+    </div>
+    <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed/" class="popup-frame"></iframe>
+  </div>
+
+
+  <script>
+    // HERE BE DRAGONS (and code)
+    let popupCounter = 0;
+
+    function openPopup(popupId){
+      const popup = document.getElementById(popupId);
+
+      // restart open animation (if already open)
+      popup.classList.remove("active");
+      void popup.offsetWidth;
+
+      const statusBar = document.querySelector('.status-bar');
+      const STATUSBAR_H = (statusBar && statusBar.offsetHeight) || 56;
+      const TOP_MARGIN = 12;
+      const RESERVED_TOP = STATUSBAR_H + TOP_MARGIN;
+
+      // use computed styles to get width/height even when display:none
+      const cs = getComputedStyle(popup);
+      const popupWidth = parseInt(cs.width, 10) || 1048;
+      const popupHeight = parseInt(cs.height, 10) || 600;
+
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+
+      let perRow = Math.floor((screenWidth - 40) / (popupWidth + 20));
+      if (perRow < 1) perRow = 1;
+
+      let row = Math.floor(popupCounter / perRow);
+      let col = popupCounter % perRow;
+
+      let left = col * (popupWidth + 20) + 20;
+      let top  = RESERVED_TOP + row * (popupHeight + 20);
+
+      // clamp into viewport (below status bar) 
+      left = Math.max(8, Math.min(left, screenWidth - popupWidth - 8));
+      top  = Math.max(RESERVED_TOP, Math.min(top, screenHeight - popupHeight - 8));
+
+      popup.style.left = left + "px";
+      popup.style.top  = top  + "px";
+
+      focusPopup(popup);
+      popup.style.display = "block";
+      popup.classList.add("active");
+      popupCounter++;
+
+      // ensure draggable on this popup (if not already)
+      const header = popup.querySelector(".popup-header");
+      if (header) {
+        makeDraggable(popup, header, RESERVED_TOP);
+      }
+    }
+
+    function closePopup(popupId){
+      const popup = document.getElementById(popupId);
+      popup.classList.remove("active");
+      popup.classList.add("closing");
+      popup.addEventListener("animationend", function handler(){
+        popup.style.display = "none";
+        popup.classList.remove("closing");
+        popup.removeEventListener("animationend", handler);
+      });
+    }
+
+    function getHighestZIndex(elems){
+      let hi = 50;
+      for (let i=0;i<elems.length;i++){
+        const z = parseInt(getComputedStyle(elems[i]).zIndex,10) || 0;
+        if (z > hi) hi = z;
+      }
+      return hi;
+    }
+    function focusPopup(popup){
+      popup.style.zIndex = getHighestZIndex(document.getElementsByClassName("popup")) + 1;
+    }
+
+    // dragging with top clamp so header never hides under the status bar
+    function makeDraggable(el, handle, minTop){
+      let pos1=0,pos2=0,pos3=0,pos4=0;
+      handle.onmousedown = dragMouseDown;
+      handle.ontouchstart = (e)=>dragMouseDown(e.touches[0]);
+
+      function dragMouseDown(e){
+        e.preventDefault();
+        focusPopup(el);
+        pos3 = e.clientX; pos4 = e.clientY;
+        document.onmouseup = closeDrag;
+        document.onmousemove = drag;
+        document.ontouchend = closeDrag;
+        document.ontouchmove = (ev)=>drag(ev.touches[0]);
+      }
+      function drag(e){
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
+
+        const cs = getComputedStyle(el);
+        const w = parseInt(cs.width,10);
+        const h = parseInt(cs.height,10);
+
+        let newTop  = el.offsetTop - pos2;
+        let newLeft = el.offsetLeft - pos1;
+
+        // clamp within viewport; keep header below status bar (either breaks completely or is really hard to find the drag point)
+        const maxLeft = window.innerWidth - w - 8;
+        const maxTop  = window.innerHeight - h - 8;
+
+        newLeft = Math.max(8, Math.min(newLeft, maxLeft));
+        newTop  = Math.max(minTop, Math.min(newTop, maxTop));
+
+        el.style.top  = newTop + "px";
+        el.style.left = newLeft + "px";
+      }
+      function closeDrag(){
+        document.onmouseup = null;
+        document.onmousemove = null;
+        document.ontouchend = null;
+        document.ontouchmove = null;
+      }
+    }
+
+    // make existing popups draggable on load (if any)
+    window.addEventListener('load', ()=>{
+      const statusBar = document.querySelector('.status-bar');
+      const RESERVED_TOP = ((statusBar && statusBar.offsetHeight) || 56) + 12;
+      document.querySelectorAll('.popup').forEach(p=>{
+        const h = p.querySelector('.popup-header');
+        if (h) makeDraggable(p,h,RESERVED_TOP);
+      });
+    });
+
+    // bring to front on header mousedown 
+    document.addEventListener('mousedown', (e)=>{
+      const header = e.target.closest('.popup-header');
+      if (header) focusPopup(header.parentElement);
+    });
+
+    // clock 
+    function updateClock(){
+      const now = new Date();
+      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      let h = now.getHours(), m = now.getMinutes();
+      const ampm = h>=12 ? "PM":"AM";
+      h = h%12; h = h ? h : 12;
+      m = m<10 ? "0"+m : m;
+      const txt = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}, ${h}:${m} ${ampm}`;
+      document.getElementById("center-clock").textContent = txt;
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // dropdowns 
+    function setupDropdown(btnId, ddId){
+      const btn = document.getElementById(btnId);
+      const dd  = document.getElementById(ddId);
+      btn.addEventListener('click', ()=> dd.classList.toggle('open'));
+      document.addEventListener('click', (e)=>{
+        if(!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('open');
+      });
+    }
+    setupDropdown("actionsBtn","actionsDropdown");
+    setupDropdown("activitiesBtn","activitiesDropdown");
+    setupDropdown("notificationsBtn","notificationsDropdown");
+  </script>
+</body>
+</html>

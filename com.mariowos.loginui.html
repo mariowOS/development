@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@200..900&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    color: #fff;
+  }
+
+  /* Fullscreen wallpaper */
+  .background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('assets/wallpaper.jpg') no-repeat center center/cover;
+    z-index: 0;
+  }
+
+  /* Foreground content */
+  .lockscreen-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 100px;
+    text-align: center;
+    height: 100%;
+    justify-content: flex-start;
+  }
+
+  .date {
+    font-size: 1.5em;
+    color: #ffffff9d;
+    font-weight: bold;
+    font-family: 'Chiron GoRound TC';
+  }
+
+  .clock {
+    font-size: 125px;
+    font-weight: bold;
+    color: #ffffff9d;
+  }
+
+  /* Bottom unlock text */
+  .unlock-text {
+    bottom: 150px;
+    position: absolute;
+    font-size: 1em;
+    color: #ffffff;
+    animation: pulse 1.5s infinite alternate;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="background"></div>
+
+<div class="lockscreen-content">
+  <div class="date" id="date">Mon, Sep, 03</div>
+  <div class="clock" id="clock">12:00 AM</div>
+  <div class="unlock-text">Press space to unlock</div>
+</div>
+
+<script>
+  const dateEl = document.getElementById('date');
+  const clockEl = document.getElementById('clock');
+
+  function updateTime() {
+    const now = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // Update date
+    dateEl.textContent = `${days[now.getDay()]}, ${months[now.getMonth()]}, ${String(now.getDate()).padStart(2,'0')}`;
+
+    // Update clock in 12-hour format without AM/PM
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2,'0');
+    hours = hours % 12 || 12; // convert 0 to 12 for midnight
+    clockEl.textContent = `${hours}:${minutes}`;
+  }
+
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // Space key unlock
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      window.location.href = 'com.mariowos.desktop.html';
+    }
+  });
+</script>
+
+</body>
+</html>
