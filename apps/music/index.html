@@ -128,32 +128,14 @@
       <div class="playlist-title">Playlist</div>
       <ul id="playlist"></ul>
     </div>
+    
     <div class="player">
       <div class="player-content">
         <div class="song-info">
           <div class="song-title" id="song-title">Nothing in queue</div>
           <div class="song-artist" id="song-artist">---</div>
         </div>
-<div id="settings-container" style="position: fixed; bottom: 16px; right: 16px; z-index:1000;">
-  <button id="gear-btn" style="background:#333;color:#fff;border:none;width:50px;height:50px;border-radius:50%;font-size:1.5em;cursor:pointer;">⚙️</button>
-  <div id="settings-menu" style="
-        display:none;
-        position:absolute;
-        bottom:60px;
-        right:0;
-        background:#222;
-        border:1px solid #333;
-        border-radius:8px;
-        overflow:hidden;
-        transform: scale(0);
-        transform-origin: bottom right;
-        transition: transform 0.2s ease-in-out;
-        font-family: 'Poppins'
-      ">
-    <button id="clear-playlist" style="width:100%;background:#006FFF;color:#fff;border:none;padding:10px;cursor:pointer;font-family: 'Poppins'">Clear Playlist</button>
-    <button id="about-btn" style="width:100%;background:#444;color:#fff;border:none;padding:10px;cursor:pointer;font-family: 'Poppins'">About</button>
-  </div>
-</div>
+  
         <div class="cover">🎵</div>
       </div>
       <div class="controls">
@@ -171,6 +153,27 @@
 
   <div class="upload">
     <input type="file" id="file-input" multiple accept="audio/wav, audio/mp3, audio/ogg, audio/flac, audio/m4a, audio/webm, audio/aiff" />
+  </div>
+
+  <div id="settings-container" style="position: fixed; bottom: 16px; right: 16px; z-index:1000;">
+    <button id="gear-btn" style="background:#333;color:#fff;border:none;width:50px;height:50px;border-radius:50%;font-size:1.5em;cursor:pointer;">⚙️</button>
+    <div id="settings-menu" style="
+          display:none;
+          position:absolute;
+          bottom:60px;
+          right:0;
+          background:#222;
+          border:1px solid #333;
+          border-radius:8px;
+          overflow:hidden;
+          transform: scale(0);
+          transform-origin: bottom right;
+          transition: transform 0.2s ease-in-out;
+          font-family: 'Poppins'
+        ">
+      <button id="clear-playlist" style="width:100%;background:#006FFF;color:#fff;border:none;padding:10px;cursor:pointer;font-family: 'Poppins'">Clear Playlist</button>
+      <button id="about-btn" style="width:100%;background:#444;color:#fff;border:none;padding:10px;cursor:pointer;font-family: 'Poppins'">About</button>
+    </div>
   </div>
 
   <audio id="audio"></audio>
