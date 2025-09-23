@@ -19,6 +19,12 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://iframe.chat/scripts/main.min.js"></script>
+  <script>
+  chattable.initialize({
+    theme: "Bytechat"
+  });
+  </script>
   <style>
     body{
       margin:0; padding:0; width:100%; height:100%; overflow:hidden;
@@ -219,7 +225,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
       <span>Messaging</span>
       <span class="altf4" onclick="closePopup('popup6')">✖</span>
     </div>
-    <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed/" class="popup-frame"></iframe>
+    <iframe src="https://iframe.chat/embed?chat=mariowOS" class="popup-frame" id="chattable"></iframe>
   </div>
 
       <div id="popup7" class="popup">
@@ -393,6 +399,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     setupDropdown("actionsBtn","actionsDropdown");
     setupDropdown("activitiesBtn","activitiesDropdown");
     setupDropdown("notificationsBtn","notificationsDropdown");
+
   </script>
 </body>
 </html>
