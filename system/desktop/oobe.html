@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    color: #FFFFFF;
+    background: url('/desktop/assets/wallpaper.png') center/cover no-repeat;
+  }
+
+  .rectangle-main {
+    width: 892px;
+    height: 542px;
+    background-color: #121212;
+    border-radius: 23px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+  }
+
+  .rectangle-inner {
+    width: 369px;
+    height: 542px;
+    background-color: #1A1A1A;
+    border-top-left-radius: 23px;
+    border-bottom-left-radius: 23px;
+    position: absolute;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 159px;
+    padding-left: 18px;
+    box-sizing: border-box;
+  }
+
+  .rectangle-inner .top-image { position: absolute; width: 40px; height: 40px; top: 36px; left: 30px; }
+  .rectangle-inner h1, .rectangle-inner p { margin: 0; font-size: 28px; text-align: left; color: #fff; }
+  .rectangle-inner p .bold { font-weight: 700; }
+
+  /* Password form moved to right side */
+  .password-form {
+    position: absolute;
+    right: 190px;
+    top: 159px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: calc(592px - 369px - 40px); /* remaining width minus some padding */
+  }
+
+  .password-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .rectangle-main .next-button {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    bottom: 30px;
+    right: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .next-button {
+    pointer-events: none; /* prevent click when disabled */
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  .next-button.enabled {
+    pointer-events: auto;
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+  <div class="rectangle-main">
+    <div class="rectangle-inner">
+      <div class="top-image"><img src="/desktop/assets/boot/stars.png" width="40" height="40"></div>
+      <h1>Hello!</h1>
+      <p>Welcome to <span class="bold">mariowOS</span></p>
+    </div>
+
+    <!-- Password setup form -->
+    <div class="password-form">
+      <input type="password" id="passwordInput" placeholder="Enter password">
+      <input type="password" id="confirmInput" placeholder="Confirm password">
+    </div>
+
+    <a href="#" class="next-button" id="nextBtn"><img src="/desktop/assets/boot/next.png" width="40" height="40"></a>
+  </div>
+
+<script>
+const passwordInput = document.getElementById("passwordInput");
+const confirmInput = document.getElementById("confirmInput");
+const nextBtn = document.getElementById("nextBtn");
+
+// Enable button only when both fields have value
+function updateButtonState() {
+  if (passwordInput.value && confirmInput.value) {
+    nextBtn.classList.add("enabled");
+  } else {
+    nextBtn.classList.remove("enabled");
+  }
+}
+
+passwordInput.addEventListener("input", updateButtonState);
+confirmInput.addEventListener("input", updateButtonState);
+
+nextBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+  if (!nextBtn.classList.contains("enabled")) return; // safeguard
+
+  const pass = passwordInput.value;
+  const confirm = confirmInput.value;
+
+  if (pass !== confirm) return alert("Passwords do not match!");
+
+  try {
+    const res = await fetch("/set-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ newPassword: pass })
+    });
+    const text = await res.text();
+    alert(text);
+    if (text.includes("✅")) {
+      window.location.href = "/loginui/com.mariowos.loginui.html";
+    }
+  } catch (err) {
+    alert("Error setting password: " + err);
+  }
+});
+</script>
+</body>
+</html>

@@ -6,72 +6,119 @@
   <style>
     body {
       margin: 0;
-      background: url("desktop/assets/wallpaper.png");
-      background-size: cover;
+      background: url("/desktop/assets/wallpaper.png") center/cover no-repeat;
       color: white;
-      font-family: 'Poppins';
+      font-family: 'Poppins', sans-serif;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
       height: 100vh;
     }
 
-    .login-box {
-      text-align: center;
-      background: rgba(0,0,0,0.4);
-      padding: 20px;
-      border-radius: 12px;
+    .date {
+      margin-top: 200px;
+      font-size: 32px;
+      font-weight: 500;
+    }
+
+    .clock {
+      margin-top: 10px;
+      font-size: 72px;
+      font-weight: 600;
     }
 
     .avatar {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       background: #444;
       border-radius: 50%;
-      margin: 0 auto 15px auto;
+      margin: 40px 0 20px 0; /* slightly higher */
     }
 
-    #username {
-      font-size: 20px;
-      margin: 10px 0;
-    }
-
-    input {
-      padding: 8px;
+    #loginPassword {
+      padding: 12px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       outline: none;
+      font-size: 18px;
+      width: 250px;
+      margin-bottom: 90px; /* padded from bottom */
     }
 
-    button {
-      margin-left: 8px;
-      padding: 8px 14px;
+    #loginBtn {
+      padding: 10px 18px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #ffffff;
-      color: rgb(0, 0, 0);
+      color: #000;
       cursor: pointer;
+      font-size: 18px;
+      margin-bottom: 90px; /* same padding as input */
     }
 
-    button:hover {
+    #loginBtn:hover {
       background: #acacac;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <div class="avatar"></div>
-    <h2 id="username">guest</h2>
-    <form method="POST" action="/login">
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit">→</button>
-    </form>
+  <div class="date" id="date"></div>
+  <div class="clock" id="clock"></div>
 
-    <h3>Change Password</h3>
-    <form method="POST" action="/set-password">
-      <input type="password" name="newPassword" placeholder="New password" required>
-      <button type="submit">Save</button>
-    </form>
-  </div>
+  <div class="avatar"></div>
+
+  <input type="password" id="loginPassword" placeholder="Enter password">
+  <button id="loginBtn">→</button>
+
+  <script>
+    // Clock & date
+    function updateDateTime() {
+      const now = new Date();
+      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const dayName = days[now.getDay()];
+      const month = months[now.getMonth()];
+      const dateNum = now.getDate();
+      const year = now.getFullYear();
+
+      document.getElementById("date").textContent = `${dayName}, ${month} ${dateNum}, ${year}`;
+
+      let h = now.getHours();
+      let m = now.getMinutes();
+      h = h < 10 ? "0"+h : h;
+      m = m < 10 ? "0"+m : m;
+      document.getElementById("clock").textContent = `${h}:${m}`;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // Login button
+    const loginBtn = document.getElementById("loginBtn");
+    loginBtn.addEventListener("click", async () => {
+      const password = document.getElementById("loginPassword").value;
+      if (!password) return alert("Please enter a password!");
+
+      try {
+        const res = await fetch("/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ password })
+        });
+        const text = await res.text();
+        if (text.includes("❌")) {
+          alert(text);
+        } else {
+          window.location.href = "/desktop/com.mariowos.desktop.html";
+        }
+      } catch (err) {
+        alert("Login error: " + err);
+      }
+    });
+
+    document.getElementById("loginPassword").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") loginBtn.click();
+    });
+  </script>
 </body>
 </html>
