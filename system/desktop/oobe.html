@@ -49,7 +49,6 @@
   .rectangle-inner h1, .rectangle-inner p { margin: 0; font-size: 28px; text-align: left; color: #fff; }
   .rectangle-inner p .bold { font-weight: 700; }
 
-  /* Password form moved to right side */
   .password-form {
     position: absolute;
     right: 190px;
@@ -57,7 +56,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: calc(592px - 369px - 40px); /* remaining width minus some padding */
+    width: calc(592px - 369px - 40px);
   }
 
   .password-form input[type="password"] {
@@ -67,6 +66,7 @@
     border: none;
     font-size: 16px;
     outline: none;
+    font-family: 'Poppins';
   }
 
   .rectangle-main .next-button {
@@ -81,7 +81,7 @@
     justify-content: center;
   }
   .next-button {
-    pointer-events: none; /* prevent click when disabled */
+    pointer-events: none; 
     opacity: 0.5;
     transition: opacity 0.2s ease;
   }
@@ -94,18 +94,17 @@
 <body>
   <div class="rectangle-main">
     <div class="rectangle-inner">
-      <div class="top-image"><img src="/desktop/assets/boot/stars.png" width="40" height="40"></div>
-      <h1>Hello!</h1>
-      <p>Welcome to <span class="bold">mariowOS</span></p>
+      <div class="top-image"><img src="/desktop/assets/lock.png" width="40" height="40"></div>
+      <h1>Password</h1>
+      <p>Setup your password</p>
     </div>
 
-    <!-- Password setup form -->
     <div class="password-form">
       <input type="password" id="passwordInput" placeholder="Enter password">
       <input type="password" id="confirmInput" placeholder="Confirm password">
     </div>
 
-    <a href="#" class="next-button" id="nextBtn"><img src="/desktop/assets/boot/next.png" width="40" height="40"></a>
+    <a href="#" class="next-button" id="nextBtn"><img src="/desktop/assets/next.png" width="40" height="40"></a>
   </div>
 
 <script>
@@ -113,7 +112,6 @@ const passwordInput = document.getElementById("passwordInput");
 const confirmInput = document.getElementById("confirmInput");
 const nextBtn = document.getElementById("nextBtn");
 
-// Enable button only when both fields have value
 function updateButtonState() {
   if (passwordInput.value && confirmInput.value) {
     nextBtn.classList.add("enabled");
