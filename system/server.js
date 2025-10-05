@@ -24,7 +24,7 @@ if (fs.existsSync(configFile)) {
 // Root route: serve OOBE if no password, else login screen
 app.get("/", (req, res) => {
   if (!config.passwordHash) {
-    res.sendFile(path.join(__dirname, "desktop/oobe.html"));
+    res.sendFile(path.join(__dirname, "desktop/welcome.html"));
   } else {
     res.sendFile(path.join(__dirname, "loginui/com.mariowos.loginui.html"));
   }

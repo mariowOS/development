@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-script {
+            font-family: 'Sacramento', cursive;
+            text-shadow: 
+                1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
+                0 0 8px rgba(0, 0, 0, 0.3); 
+        }
+
+        body {
+            background-image: url('/desktop/assets/oobewp.png');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .ethereal-bg {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-in;
+        }
+
+        .ethereal-bg::before {
+            content: none;
+        }
+
+        @keyframes letterDrop {
+            0% {
+                opacity: 0;
+                transform: translateY(-600px) scale(0.8);
+            }
+            60% {
+                opacity: 1;
+                transform: translateY(20px) scale(1.05); 
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .letter {
+            display: inline-block;
+            opacity: 0;
+            animation: letterDrop 1.2s ease-out forwards;
+        }
+
+        @keyframes buttonBounce {
+            0% {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+            50% {
+                opacity: 0.5;
+                transform: translateY(-15px);
+            }
+            75% {
+                transform: translateY(5px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-bounce-in {
+            animation: buttonBounce 0.8s ease-in-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .fade-out {
+            animation: fadeOut 0.5s ease-in forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-container" class="ethereal-bg relative text-center">
+        <h1 id="welcome-text" class="font-script text-white text-7xl md:text-8xl lg:text-9xl z-10"></h1>
+
+        <div id="action-button" class="absolute bottom-16 opacity-0 z-10">
+            <button id="next-button" class="bg-white text-gray-800 px-8 py-4 rounded-xl shadow-lg transition duration-300 hover:scale-105 active:scale-95" style="border-radius: 999px;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const TEXT_TO_ANIMATE = "welcome";
+        const LETTER_ANIMATION_DURATION_S = 1.2; 
+        const LETTER_STAGGER_DELAY_S = 0.1;
+        const NEXT_PAGE_URL = '/desktop/license.html';
+        const FADE_DURATION_MS = 500;
+
+        const textElement = document.getElementById('welcome-text');
+        const buttonElement = document.getElementById('action-button');
+        const nextButton = document.getElementById('next-button');
+        const mainContainer = document.getElementById('main-container');
+
+        function animateText() {
+            let totalAnimationDelay = 0;
+
+            TEXT_TO_ANIMATE.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.classList.add('letter');
+                const delay = index * LETTER_STAGGER_DELAY_S;
+                span.style.animationDelay = `${delay}s`;
+                textElement.appendChild(span);
+                totalAnimationDelay = delay;
+            });
+
+            const textAnimationFinishTimeMs = (totalAnimationDelay + LETTER_ANIMATION_DURATION_S) * 1000;
+            setTimeout(animateButton, textAnimationFinishTimeMs + 200); 
+        }
+
+        function animateButton() {
+            buttonElement.classList.add('animate-bounce-in');
+        }
+
+        nextButton.addEventListener('click', () => {
+            mainContainer.classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = NEXT_PAGE_URL;
+            }, FADE_DURATION_MS);
+        });
+
+        async function requestFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                }
+            } catch (err) {
+                console.warn("Fullscreen request failed:", err);
+            }
+        }
+
+        window.addEventListener('load', async () => {
+            await requestFullscreen();
+            setTimeout(() => {
+                animateText();
+            }, 500);
+        });
+    </script>
+
+</body>
+</html>
