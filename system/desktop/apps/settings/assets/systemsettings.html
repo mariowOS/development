@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+    body {
+      margin: 0;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: right;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .settings-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      padding-left: 10px;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .setting-icon {
+      width: 36px;
+      height: 36px;
+      filter: invert(1);
+    }
+
+    .setting-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .setting-text h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .setting-text p {
+      margin: 2px 0 0 0;
+      font-size: 13px;
+      color: #bdbdbd;
+    }
+
+    iframe {
+      display: none;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .show-frame iframe {
+      display: block;
+    }
+
+    .show-frame .settings-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <div class="setting-item" onclick="openPage('rules.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/727/727245.png" class="setting-icon">
+      <div class="setting-text">
+        <h2>Rules</h2>
+        <p>Create actions to do at a specific event.</p>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="openPage('time.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/1827/1827504.png" class="setting-icon">
+      <div class="setting-text">
+        <h2>Time & date</h2>
+        <p>Clock and date settings.</p>
+      </div>
+    </div>
+
+    <div class="setting-item" onclick="openPage('reset.html')">
+      <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" class="setting-icon">
+      <div class="setting-text">
+        <h2>Reset options</h2>
+        <p>Data reset, desktop reset, factory reset.</p>
+      </div>
+    </div>
+  </div>
+
+  <iframe id="settings-frame"></iframe>
+
+  <script>
+    function openPage(page) {
+      document.body.classList.add('show-frame');
+      document.getElementById('settings-frame').src = page;
+    }
+  </script>
+</body>
+</html>

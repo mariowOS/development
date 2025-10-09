@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      color: white;
+      font-family: Poppins, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: right;
+      justify-content: right;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      font-size: 4rem;
+      margin: 0;
+    }
+    p {
+      color: #aaa;
+      font-size: 1.2rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="clock"></h1>
+  <p id="date"></p>
+  <h5>ℹ Time and date are managed by host</h5>
+
+  <script>
+    function updateTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
+      document.getElementById("clock").textContent = `${hours}:${minutes} ${ampm}`;
+      document.getElementById("date").textContent = now.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+  </script>
+</body>
+</html>
