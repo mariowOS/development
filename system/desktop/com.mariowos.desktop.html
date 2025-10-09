@@ -27,11 +27,11 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
       font-family:'Poppins',sans-serif; color:#fff;
     }
 
-    /* Animations */
+    /* fancy animations */
     @keyframes popupIn{from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)}}
     @keyframes popupOut{from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(0.9)}}
 
-    /* Windows */
+    /* windows */
     .popup{
       display:none; position:fixed; top:20px; left:20px;
       width:1048px; height:600px; background:#1D1D1D; border:1px solid #2a2a2a;
@@ -53,7 +53,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     .popup-frame{ width:100%; height:calc(100% - 32px); border:none; }
     .popup-content{ padding:15px; height:calc(100% - 32px); overflow-y:auto; text-align:center; }
 
-    /* Status bar */
+    /* status bar */
     .status-bar{
       position:absolute; top:0; left:0; width:100vw; height:56px;
       display:flex; align-items:center; justify-content:space-between;
@@ -76,7 +76,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     }
     .notification svg{ width:22px; height:22px; fill:#fff; opacity:.85 }
 
-    /* Dropdowns */
+    /* dropdowns */
     .btn-wrapper{ position:relative; display:inline-block; }
     .dropdown{
       position:absolute; top:calc(100% + 6px); left:0; background:rgba(26,26,26,.63); border-radius:12px;
@@ -90,8 +90,9 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
 
     #notificationsDropdown { right: 0; left: auto; max-width: 300px; white-space: normal; word-break: break-word; }
 
-.menu-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
+    .menu-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
 
+        a { text-decoration: none; color: #ffffff;}
   </style>
 </head>
 <body>
@@ -181,7 +182,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
       <span>Browser &nbsp;|&nbsp; <a href="javascript:history.back()"><img src="assets/back.png"></a></span>
       <span class="altf4" onclick="closePopup('popup2')">✖</span>
     </div>
-        <iframe src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
+        <iframe src="/proxy?url=https://mariowstech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
     <div class="popup-content">
       
     </div>
@@ -231,7 +232,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
   </div>
 
   <script>
-    // HERE BE DRAGONS (and code)
+    // HERE BE DRAGONS!!
     let popupCounter = 0;
 
     function openPopup(popupId){
