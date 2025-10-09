@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      color: white;
+      font-family: Poppins, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    button {
+      background: #ff3b30;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      font-family: Poppins;
+    }
+    button:hover {
+      background: #e0322a;
+    }
+  </style>
+</head>
+<body>
+  <h3>You're about to reset mariowOS to factory settings.</h3>
+  <p><b>This option is irreversible.</b> Are you sure you want to do that?</p>
+  <button id="reset">Yes</button>
+  <p id="status" style="margin-top: 15px; color: #aaa;"></p>
+
+  <script>
+    document.getElementById("reset").addEventListener("click", async () => {
+      document.getElementById("status").textContent = "Resetting...";
+      try {
+        await fetch("/system-reset");
+        document.getElementById("status").textContent = "✅ System restored!";
+        setTimeout(() => location.href = "/", 1500);
+      } catch {
+        document.getElementById("status").textContent = "❌ Failed to reset!";
+      }
+    });
+  </script>
+</body>
+</html>

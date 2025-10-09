@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      color: white;
+      font-family: Poppins, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      justify-content: left;
+      height: 100vh;
+      margin: 0;
+    }
+    select, input, button {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      font-family: Poppins, sans-serif;
+    }
+    button {
+      background: #4400ff;
+      color: white;
+      cursor: pointer;
+      font-family: Poppins, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <input type="time" id="ruleTime">
+  <select id="action">
+    <option value="alert">Show alert</option>
+    <option value="refresh">Refresh page</option>
+  </select>
+  <button onclick="setRule()">Create rule</button>
+
+  <script>
+    let timer;
+
+    function setRule() {
+      clearInterval(timer);
+      const time = document.getElementById("ruleTime").value;
+      const action = document.getElementById("action").value;
+      if (!time) return alert("Please select a time");
+
+      timer = setInterval(() => {
+        const now = new Date();
+        const current = now.toTimeString().slice(0,5);
+        if (current === time) {
+          clearInterval(timer);
+          if (action === "alert") alert("Rule triggered!");
+          else if (action === "refresh") location.reload();
+        }
+      }, 1000);
+      alert(`Rule set for ${time}`);
+    }
+  </script>
+</body>
+</html>
