@@ -75,7 +75,8 @@ body {
   flex:1;
   height:100%;
   padding:0 20px;
-  background:transparent;
+  background:rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
   border:none;
   outline:none;
   color:white;
@@ -133,6 +134,11 @@ body {
   .unlock-pill { width:calc(100% - 40px); height:44px; }
   .avatar { width:52px; height:52px; }
 }
+
+/*Button same color as image*/
+#loginBtn {
+  background-color:#d9d9d9;}
+
 </style>
 </head>
 <body>
