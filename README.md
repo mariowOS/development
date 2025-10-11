@@ -9,7 +9,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
 ‼ This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 
-**WARNING: This code isn't meant in any way to be used as a main system. it's _NOT_ ready for production!**
+**WARNING: This code isn't meant in any way to be used as a main system. it's NOT ready for production!**
 
 ### Clone repository
 
