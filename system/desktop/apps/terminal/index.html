@@ -1,1 +1,73 @@
-ciao davide 👋
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <title>Terminale</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+    <div name="app" class="terminal-app">
+            <div id="readonly">MariowOS [Versione 0.07 Insider Preview] <br>
+    (c) MariowOS corporation. <br>All rights reserved.</div>
+        <textarea id="userinput" placeholder="Place your commands here..." ></textarea>
+    </div>
+        
+    </div>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+        }
+
+        html, body {
+            height: 100%;
+            background: #181818;
+            overflow: hidden;
+        }
+
+        
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+    
+        .terminal-app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            padding: 10px;
+            gap: 8px;
+        }
+
+        
+        #readonly {
+            flex: 1 1 auto;
+            padding: 10px;
+            background: #181818;
+            border-radius: 6px;
+            border: 1px solid #333;
+            overflow-y: auto;
+            resize: none;
+            user-select: none;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        
+        #userinput {
+            flex: 0 0 50px;
+            padding: 8px 10px;
+            background: #181818;
+            border: 1px solid #333;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            resize: none;
+            font-size: 14px;
+        }
+    </style>
+    </body>
+</html>
