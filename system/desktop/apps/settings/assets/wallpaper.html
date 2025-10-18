@@ -43,6 +43,28 @@
       color: #a0a0a0;
       font-size: 14px;
     }
+    .options {
+  display: flex;
+  gap: 50px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  border: 2px solid #444;
+  padding: 20px;
+  border-radius: 15px;
+}
+.options img {
+  width: 130px;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+}
+.options img:hover {
+  transform: scale(1.05);
+}
+
   </style>
 </head>
 <body>
@@ -52,6 +74,13 @@
       <button type="submit">Upload</button>
     </form>
     <div class="status" id="status"></div>
+  </div>
+  <div class="options">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option1.jpg" alt="option1">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option2.jpg" alt="option2">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option3.jpg" alt="option3">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option4.jpg" alt="option4">
+    
   </div>
 
   <script>

@@ -9,6 +9,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 "chase your dreams. take that risk, nobody can stop you, but only you can." 
 Dedicated to everyone that contribuited making this possible. Thanks a lot 🤍 
 Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos) 
+                 _             ___  ___
+  _ __  __ _ _ _(_)_____ __ __/ _ \/ __|
+ | '  \/ _` | '_| / _ \ V  V / (_) \__ \
+ |_|_|_\__,_|_| |_\___/\_/\_/ \___/|___/
+
 -->
 
 <!DOCTYPE html>
@@ -83,16 +88,37 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
       min-width:200px; max-height:220px; overflow-y:auto; box-shadow:0 8px 18px rgba(0,0,0,.25);
       opacity:0; transform:translateY(-10px) scale(.95); pointer-events:none; transition:.25s ease; z-index:200; transform-origin:top center;
     }
-    .dropdown.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
-    .dropdown.activities{ max-height:none; overflow-y:visible; }
-    .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .2s; white-space:nowrap; }
-    .dropdown-item:hover{ background:rgba(255,255,255,.12); }
+    .dropdown.open{ 
+      opacity:1;
+       transform:translateY(0) scale(1);
+        pointer-events:auto; 
+    }
+    .dropdown.activities{
+       max-height:none; 
+       overflow-y:visible; 
+       }
+    .dropdown-item{ 
+      padding:10px 16px;
+       font-size:14px;
+        color:#fff;
+         cursor:pointer;
+          transition:background .2s;
+           white-space:nowrap; 
+        }
+    .dropdown-item:hover{
+       background:rgba(255,255,255,.12);
+      }
 
     #notificationsDropdown { right: 0; left: auto; max-width: 300px; white-space: normal; word-break: break-word; }
 
     .menu-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
-    ::-webkit-scrollbar{ background-color:#5c3941; }
-    ::-webkit-scrollbar-thumb{ background-color:rgba(255,255,255,.2); border-radius:15px; border:3px solid #5c3941; }
+    ::-webkit-scrollbar{ 
+      background:rgba(255, 255, 255, 0.03);
+    }
+    ::-webkit-scrollbar-thumb{
+       background-color:rgba(255,255,255,.2);
+        border-radius:50px;
+          }
     a { text-decoration: none; color: #ffffff; }
   </style>
 </head>
@@ -100,7 +126,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
   <div class="status-bar">
     <div class="status-left">
       <div class="btn-wrapper">
-        <button class="status-btn" id="actionsBtn" title="Menu">···</button>
+        <button class="status-btn" id="actionsBtn" title="Menu">App</button>
 <div class="dropdown" id="actionsDropdown">
   <a onclick="openPopup('popup6')">
     <div class="dropdown-item">
