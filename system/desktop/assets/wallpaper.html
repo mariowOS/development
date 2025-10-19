@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      color: white;
+      font-family: Poppins, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: left;
+      justify-content: left;
+      height: 100vh;
+      margin: 0;
+    }
+    .upload-box {
+      padding: 20px 40px;
+      border-radius: 15px;
+      text-align: left;
+    }
+    input[type="file"] {
+      margin-top: 15px;
+    }
+    button {
+      margin-top: 15px;
+      background: #bebebe;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background: #5e5e5e;
+    }
+    .status {
+      margin-top: 15px;
+      color: #a0a0a0;
+      font-size: 14px;
+    }
+    .options {
+  display: flex;
+  gap: 50px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  border: 2px solid #444;
+  padding: 20px;
+  border-radius: 15px;
+}
+.options img {
+  width: 130px;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+}
+.options img:hover {
+  transform: scale(1.05);
+}
+
+  </style>
+</head>
+<body>
+  <div class="upload-box">
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="wallpaper" accept="image/png" required>
+      <button type="submit">Upload</button>
+    </form>
+    <div class="status" id="status"></div>
+  </div>
+  <div class="options">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option1.jpg" alt="option1">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option2.jpg" alt="option2">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option3.jpg" alt="option3">
+    <img src="https://raw.githubusercontent.com/mariowOS/development/refs/heads/main/system/desktop/assets/option4.jpg" alt="option4">
+    
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const statusEl = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      statusEl.textContent = "Uploading...";
+      try {
+        const res = await fetch("/upload-wallpaper", {
+          method: "POST",
+          body: formData,
+        });
+        const text = await res.text();
+        statusEl.textContent = text;
+      } catch (err) {
+        statusEl.textContent = "❌ Upload failed!";
+      }
+    });
+  </script>
+</body>
+</html>
