@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="it">
-    <head>
-        <title>Terminale</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body>
-    <div name="app" class="terminal-app">
-            <div id="readonly">MariowOS [Versione 0.07 Insider Preview] <br>
-    (c) MariowOS corporation. <br>All rights reserved.</div>
-        <textarea id="userinput" placeholder="Place your commands here..." ></textarea>
-    </div>
-        
-    </div>
+<html lang="en">
+<head>
+    <title>Terminal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
+        @font-face {
+            font-family: 'Unifont Ex Mono';
+            src: url('unifont-ex-mono.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Raster', monospace !important;
+            font-family: 'Unifont Ex Mono', monospace !important;
             color: #fff;
         }
 
@@ -28,12 +27,10 @@
             overflow: hidden;
         }
 
-        
         ::-webkit-scrollbar {
             display: none;
         }
 
-    
         .terminal-app {
             display: flex;
             flex-direction: column;
@@ -43,7 +40,6 @@
             gap: 8px;
         }
 
-        
         #readonly {
             flex: 1 1 auto;
             padding: 10px;
@@ -58,7 +54,6 @@
             color: #f2f2f2;
         }
 
-        
         #userinput {
             flex: 0 0 50px;
             padding: 8px 10px;
@@ -70,86 +65,96 @@
             font-size: 14px;
             color: #f2f2f2;
         }
+
         #userinput:focus {
             outline: none;
             border-color: #555;
         }
     </style>
-    </body>
+</head>
+<body>
+    <div name="app" class="terminal-app">
+        <div id="readonly">
+            MariowOS [Version 0.07 Insider Preview] <br>
+            (c) MariowOS Corporation. <br>All rights reserved.
+        </div>
+        <textarea id="userinput" placeholder="Type your commands here..."></textarea>
+    </div>
 
     <script>
-  const output = document.getElementById("readonly");
-  const input = document.getElementById("userinput");
+        const output = document.getElementById("readonly");
+        const input = document.getElementById("userinput");
 
-  // Dizionario dei comandi
-  const commands = {
-    help: () => {
-      return `Comandi disponibili:<br>
-      help - Mostra questo messaggio di aiuto<br>
-      about - Informazioni su MariowOS Terminale<br>
-      clear - Pulisce lo schermo del terminale<br>
-      echo - Visualizza un messaggio<br>
-      math - Esegue un'operazione matematica semplice<br>
-      exit - Chiude il terminale`;
-    },
+        // Command dictionary
+        const commands = {
+            help: () => {
+                return `Available commands:<br>
+                help - Show this help message<br>
+                about - Information about MariowOS Terminal<br>
+                clear - Clear the terminal screen<br>
+                echo - Display a message<br>
+                math - Perform a simple math operation<br>
+                exit - Close the terminal`;
+            },
 
-    about: () => {
-      return `MariowOS Terminale Versione 0.07 Insider Preview<br>
-      (c) MariowOS corporation. Tutti i diritti riservati.`;
-    },
+            about: () => {
+                return `MariowOS Terminal Version 0.07 Insider Preview<br>
+                (c) MariowOS Corporation. All rights reserved.`;
+            },
 
-    clear: () => {
-      output.innerHTML = "";
-      return "";
-    },
+            clear: () => {
+                output.innerHTML = "";
+                return "";
+            },
 
-    echo: (args) => args.join(" "),
+            echo: (args) => args.join(" "),
 
-    math: (args) => {
-      try {
-        const result = eval(args.join(" "));
-        return `Risultato: ${result}`;
-      } catch {
-        return "Errore: operazione matematica non valida.";
-      }
-    },
+            math: (args) => {
+                try {
+                    const result = eval(args.join(" "));
+                    return `Result: ${result}`;
+                } catch {
+                    return "Error: invalid math operation.";
+                }
+            },
 
-    exit: () => {
-      print("Chiusura terminale...");
-      window.close();
-      return "";
-    }
-  };
+            exit: () => {
+                print("Closing terminal...");
+                window.close();
+                return "";
+            }
+        };
 
-  // Gestore dell'invio
-  input.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      const line = input.value.trim();
-      if (line === "") return;
+        // Handle Enter key
+        input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const line = input.value.trim();
+                if (line === "") return;
 
-      print(`> ${line}`);
-      handleCommand(line);
-      input.value = "";
-    }
-  });
+                print(`> ${line}`);
+                handleCommand(line);
+                input.value = "";
+            }
+        });
 
-  function handleCommand(line) {
-    const parts = line.split(" ");
-    const cmd = parts[0].toLowerCase();
-    const args = parts.slice(1);
+        function handleCommand(line) {
+            const parts = line.split(" ");
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
 
-    if (commands[cmd]) {
-      const result = commands[cmd](args);
-      if (result !== "") print(result);
-    } else {
-      print(`Comando non riconosciuto: ${cmd}`);
-    }
-  }
+            if (commands[cmd]) {
+                const result = commands[cmd](args);
+                if (result !== "") print(result);
+            } else {
+                print(`Command not recognized: ${cmd}`);
+            }
+        }
 
-  function print(text) {
-    output.innerHTML += text + "<br>";
-    output.scrollTop = output.scrollHeight;
-  }
-</script>
+        function print(text) {
+            output.innerHTML += text + "<br>";
+            output.scrollTop = output.scrollHeight;
+        }
+    </script>
+</body>
 </html>
