@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>mariowOS 0.7 Terminal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     @font-face {
@@ -66,11 +65,7 @@
     let history = [];
     let historyIndex = -1;
 
-    const introText = `Welcome to the mariowOS 0.7 Terminal!
-This software comes with absolutely NO WARRANTY AT ALL.\n\n`;
-
     // Initialize
-    terminal.textContent = introText;
     let currentInput, currentCursor;
     newPrompt();
 
@@ -150,7 +145,7 @@ echo [text] - Print a message`;
 
         case "about":
           outputLine.innerText = `mariowOS Terminal v0.7
-(c) MariowOS Corporation. All rights reserved.`;
+(C) 2025 mariowstech and the mariowOS team `;
           terminal.appendChild(outputLine);
           break;
 
