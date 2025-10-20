@@ -76,4 +76,80 @@
         }
     </style>
     </body>
+
+    <script>
+  const output = document.getElementById("readonly");
+  const input = document.getElementById("userinput");
+
+  // Dizionario dei comandi
+  const commands = {
+    help: () => {
+      return `Comandi disponibili:<br>
+      help - Mostra questo messaggio di aiuto<br>
+      about - Informazioni su MariowOS Terminale<br>
+      clear - Pulisce lo schermo del terminale<br>
+      echo - Visualizza un messaggio<br>
+      math - Esegue un'operazione matematica semplice<br>
+      exit - Chiude il terminale`;
+    },
+
+    about: () => {
+      return `MariowOS Terminale Versione 0.07 Insider Preview<br>
+      (c) MariowOS corporation. Tutti i diritti riservati.`;
+    },
+
+    clear: () => {
+      output.innerHTML = "";
+      return "";
+    },
+
+    echo: (args) => args.join(" "),
+
+    math: (args) => {
+      try {
+        const result = eval(args.join(" "));
+        return `Risultato: ${result}`;
+      } catch {
+        return "Errore: operazione matematica non valida.";
+      }
+    },
+
+    exit: () => {
+      print("Chiusura terminale...");
+      window.close();
+      return "";
+    }
+  };
+
+  // Gestore dell'invio
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const line = input.value.trim();
+      if (line === "") return;
+
+      print(`> ${line}`);
+      handleCommand(line);
+      input.value = "";
+    }
+  });
+
+  function handleCommand(line) {
+    const parts = line.split(" ");
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+    if (commands[cmd]) {
+      const result = commands[cmd](args);
+      if (result !== "") print(result);
+    } else {
+      print(`Comando non riconosciuto: ${cmd}`);
+    }
+  }
+
+  function print(text) {
+    output.innerHTML += text + "<br>";
+    output.scrollTop = output.scrollHeight;
+  }
+</script>
 </html>
