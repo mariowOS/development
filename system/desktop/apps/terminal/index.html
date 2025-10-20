@@ -1,160 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Terminal</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>mariowOS 0.7 Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    @font-face {
+      font-family: 'Unifont Ex Mono';
+      src: url('unifont-ex-mono.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
 
-    <style>
-        @font-face {
-            font-family: 'Unifont Ex Mono';
-            src: url('unifont-ex-mono.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Unifont Ex Mono', monospace !important;
+      color: #fff;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Unifont Ex Mono', monospace !important;
-            color: #fff;
-        }
+    html, body {
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
 
-        html, body {
-            height: 100%;
-            background: #181818;
-            overflow: hidden;
-        }
+    .terminal {
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      height: 100vh;
+      overflow-y: auto;
+      user-select: none;
+    }
 
-        ::-webkit-scrollbar {
-            display: none;
-        }
+    .user {
+      color: #00ff00;
+    }
 
-        .terminal-app {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-            padding: 10px;
-            gap: 8px;
-        }
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 18px;
+      background: #fff;
+      margin-left: 2px;
+      vertical-align: middle;
+    }
 
-        #readonly {
-            flex: 1 1 auto;
-            padding: 10px;
-            background: #181818;
-            border-radius: 6px;
-            border: 1px solid #333;
-            overflow-y: auto;
-            resize: none;
-            user-select: none;
-            font-size: 14px;
-            pointer-events: none;
-            color: #f2f2f2;
-        }
-
-        #userinput {
-            flex: 0 0 50px;
-            padding: 8px 10px;
-            background: #181818;
-            border: 1px solid #333;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            resize: none;
-            font-size: 14px;
-            color: #f2f2f2;
-        }
-
-        #userinput:focus {
-            outline: none;
-            border-color: #555;
-        }
-    </style>
+    ::selection {
+      background: #fff;
+      color: #000;
+    }
+  </style>
 </head>
 <body>
-    <div name="app" class="terminal-app">
-        <div id="readonly">
-            MariowOS [Version 0.07 Insider Preview] <br>
-            (c) MariowOS Corporation. <br>All rights reserved.
-        </div>
-        <textarea id="userinput" placeholder="Type your commands here..."></textarea>
-    </div>
+  <div class="terminal" id="terminal"></div>
 
-    <script>
-        const output = document.getElementById("readonly");
-        const input = document.getElementById("userinput");
+  <script>
+    const terminal = document.getElementById("terminal");
 
-        // Command dictionary
-        const commands = {
-            help: () => {
-                return `Available commands:<br>
-                help - Show this help message<br>
-                about - Information about MariowOS Terminal<br>
-                clear - Clear the terminal screen<br>
-                echo - Display a message<br>
-                math - Perform a simple math operation<br>
-                exit - Close the terminal`;
-            },
+    let inputBuffer = "";
+    let cursorVisible = true;
+    let history = [];
+    let historyIndex = -1;
 
-            about: () => {
-                return `MariowOS Terminal Version 0.07 Insider Preview<br>
-                (c) MariowOS Corporation. All rights reserved.`;
-            },
+    const introText = `Welcome to the mariowOS 0.7 Terminal!
+This software comes with absolutely NO WARRANTY AT ALL.\n\n`;
 
-            clear: () => {
-                output.innerHTML = "";
-                return "";
-            },
+    // Initialize
+    terminal.textContent = introText;
+    let currentInput, currentCursor;
+    newPrompt();
 
-            echo: (args) => args.join(" "),
+    // Blink cursor
+    setInterval(() => {
+      if (currentCursor)
+        currentCursor.style.visibility = cursorVisible ? "visible" : "hidden";
+      cursorVisible = !cursorVisible;
+    }, 500);
 
-            math: (args) => {
-                try {
-                    const result = eval(args.join(" "));
-                    return `Result: ${result}`;
-                } catch {
-                    return "Error: invalid math operation.";
-                }
-            },
+    // Focus the terminal when clicked
+    terminal.addEventListener("click", () => terminal.focus());
+    window.addEventListener("click", () => terminal.focus());
 
-            exit: () => {
-                print("Closing terminal...");
-                window.close();
-                return "";
-            }
-        };
+    document.addEventListener("keydown", (e) => {
+      e.preventDefault();
+      if (!currentInput) return;
 
-        // Handle Enter key
-        input.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                const line = input.value.trim();
-                if (line === "") return;
-
-                print(`> ${line}`);
-                handleCommand(line);
-                input.value = "";
-            }
-        });
-
-        function handleCommand(line) {
-            const parts = line.split(" ");
-            const cmd = parts[0].toLowerCase();
-            const args = parts.slice(1);
-
-            if (commands[cmd]) {
-                const result = commands[cmd](args);
-                if (result !== "") print(result);
-            } else {
-                print(`Command not recognized: ${cmd}`);
-            }
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        inputBuffer += e.key;
+      } else if (e.key === "Backspace") {
+        inputBuffer = inputBuffer.slice(0, -1);
+      } else if (e.key === "Enter") {
+        const cmd = inputBuffer.trim();
+        executeCommand(cmd);
+        history.push(cmd);
+        historyIndex = history.length;
+        inputBuffer = "";
+        return;
+      } else if (e.key === "ArrowUp") {
+        if (historyIndex > 0) {
+          historyIndex--;
+          inputBuffer = history[historyIndex];
         }
-
-        function print(text) {
-            output.innerHTML += text + "<br>";
-            output.scrollTop = output.scrollHeight;
+      } else if (e.key === "ArrowDown") {
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          inputBuffer = history[historyIndex];
+        } else {
+          historyIndex = history.length;
+          inputBuffer = "";
         }
-    </script>
+      }
+
+      currentInput.textContent = inputBuffer;
+      terminal.scrollTop = terminal.scrollHeight;
+    });
+
+    function newPrompt() {
+      const line = document.createElement("div");
+      line.innerHTML = `<span class="user">user@mariowos</span>:$ <span class="input"></span><span class="cursor"></span>`;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+
+      currentInput = line.querySelector(".input");
+      currentCursor = line.querySelector(".cursor");
+      inputBuffer = "";
+    }
+
+    function executeCommand(cmd) {
+      if (!cmd) {
+        newPrompt();
+        return;
+      }
+
+      const outputLine = document.createElement("div");
+
+      switch (cmd.split(" ")[0]) {
+        case "help":
+          outputLine.innerText = `Available commands:
+help - Show help
+about - About this terminal
+clear - Clear the screen
+echo [text] - Print a message`;
+          terminal.appendChild(outputLine);
+          break;
+
+        case "about":
+          outputLine.innerText = `mariowOS Terminal v0.7
+(c) MariowOS Corporation. All rights reserved.`;
+          terminal.appendChild(outputLine);
+          break;
+
+        case "clear":
+          terminal.textContent = introText;
+          currentInput = null;
+          currentCursor = null;
+          inputBuffer = "";
+          newPrompt(); // only once
+          return;
+
+        case "echo":
+          outputLine.innerText = cmd.slice(5);
+          terminal.appendChild(outputLine);
+          break;
+
+        default:
+          outputLine.innerText = `Command not found: ${cmd}`;
+          terminal.appendChild(outputLine);
+      }
+
+      terminal.scrollTop = terminal.scrollHeight;
+      newPrompt();
+    }
+  </script>
 </body>
 </html>
