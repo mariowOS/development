@@ -33,6 +33,13 @@
       height: 100vh;
       overflow-y: auto;
       user-select: none;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      text-shadow: 0 0 3px #0f0;
+    }
+
+    .terminal::-webkit-scrollbar {
+      display: none;
     }
 
     .user {
@@ -43,7 +50,7 @@
       display: inline-block;
       width: 8px;
       height: 18px;
-      background: #fff;
+      background: #00ff00;
       margin-left: 2px;
       vertical-align: middle;
     }
@@ -55,10 +62,16 @@
   </style>
 </head>
 <body>
-  <div class="terminal" id="terminal"></div>
+  <div class="terminal" id="terminal" tabindex="0"></div>
 
   <script>
     const terminal = document.getElementById("terminal");
+
+    const introText = `MariowOS [Versione 0.7 INSIDER]
+Type 'help' for commands.
+
+`;
+    terminal.textContent = introText;
 
     let inputBuffer = "";
     let cursorVisible = true;
@@ -76,12 +89,18 @@
       cursorVisible = !cursorVisible;
     }, 500);
 
-    // Focus the terminal when clicked
+    // Focus terminal when clicked
     terminal.addEventListener("click", () => terminal.focus());
     window.addEventListener("click", () => terminal.focus());
 
     document.addEventListener("keydown", (e) => {
-      e.preventDefault();
+      if (
+        ["Backspace", "Enter", "ArrowUp", "ArrowDown"].includes(e.key) ||
+        (e.key.length === 1 && !e.ctrlKey && !e.metaKey)
+      ) {
+        e.preventDefault();
+      }
+
       if (!currentInput) return;
 
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
@@ -139,13 +158,14 @@
 help - Show help
 about - About this terminal
 clear - Clear the screen
-echo [text] - Print a message`;
+echo [text] - Print a message
+math [expr] - Simple math calculator`;
           terminal.appendChild(outputLine);
           break;
 
         case "about":
           outputLine.innerText = `mariowOS Terminal v0.7
-(C) 2025 mariowstech and the mariowOS team `;
+(C) 2025 mariowstech and the mariowOS team`;
           terminal.appendChild(outputLine);
           break;
 
@@ -154,11 +174,22 @@ echo [text] - Print a message`;
           currentInput = null;
           currentCursor = null;
           inputBuffer = "";
-          newPrompt(); // only once
+          newPrompt();
           return;
 
         case "echo":
           outputLine.innerText = cmd.slice(5);
+          terminal.appendChild(outputLine);
+          break;
+
+        case "math":
+          try {
+            const expr = cmd.slice(5);
+            const result = eval(expr);
+            outputLine.innerText = `${expr} = ${result}`;
+          } catch {
+            outputLine.innerText = "Errore: espressione non valida.";
+          }
           terminal.appendChild(outputLine);
           break;
 
