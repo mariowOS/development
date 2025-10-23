@@ -9,6 +9,8 @@ const PORT = 3000;
 
 const multer = require("multer");
 
+const os = require("os");
+
 // middleware to parse POST data
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -63,6 +65,81 @@ app.post("/login", async (req, res) => {
 // serve desktop HTML directly (only for internal links)
 app.get("/desktop/com.mariowos.desktop.html", (req, res) => {
   res.sendFile(path.join(__dirname, "desktop/com.mariowos.desktop.html"));
+});
+
+// keyring command
+const keysFile = path.join(__dirname, "keys.json");
+
+app.post("/save-key", express.json(), (req, res) => {
+  const { key } = req.body;
+  if (!key) return res.status(400).send("No key provided!");
+
+  let keys = [];
+  if (fs.existsSync(keysFile)) {
+    try {
+      keys = JSON.parse(fs.readFileSync(keysFile, "utf8"));
+    } catch (e) {
+      keys = [];
+    }
+  }
+
+  keys.push({ key, date: new Date().toISOString() });
+  fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2));
+
+  res.send(`Key "${key}" saved to keyring!`);
+});
+
+// List all keys
+app.get("/list-keys", (req, res) => {
+  if (!fs.existsSync(keysFile)) return res.json([]);
+  try {
+    const keys = JSON.parse(fs.readFileSync(keysFile, "utf8"));
+    res.json(keys);
+  } catch (err) {
+    res.status(500).json([]);
+  }
+});
+
+// Delete a key
+app.post("/delete-key", express.json(), (req, res) => {
+  const { key } = req.body;
+  if (!key) return res.status(400).send("❌ No key specified!");
+
+  if (!fs.existsSync(keysFile)) return res.send("❌ No keys found!");
+
+  let keys = [];
+  try {
+    keys = JSON.parse(fs.readFileSync(keysFile, "utf8"));
+  } catch (e) {
+    return res.send("❌ Key file corrupted.");
+  }
+
+  const originalLength = keys.length;
+  keys = keys.filter((k) => k.key !== key);
+
+  if (keys.length === originalLength) {
+    return res.send(`❌ Key "${key}" not found.`);
+  }
+
+  fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2));
+  res.send(`✅ Key "${key}" deleted from keyring.`);
+});
+
+app.get("/sysinfo", (req, res) => {
+  try {
+    const cpus = os.cpus();
+    const sysInfo = {
+      OS: "mariowOS v0.7",
+      Kernel: os.type() + " " + os.release(),
+      Uptime: os.uptime(), // seconds
+      CPU: `${cpus[0].model} (${cpus.length} cores)`,
+      RAM: `${Math.round(os.totalmem() / 1024 / 1024)} MB`,
+      FreeRAM: `${Math.round(os.freemem() / 1024 / 1024)} MB`,
+    };
+    res.json(sysInfo);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to get system info" });
+  }
 });
 
 app.listen(PORT, () => {
