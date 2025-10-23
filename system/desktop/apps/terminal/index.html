@@ -4,21 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-      @font-face {
-  font-family: 'UnifontExMono';
-  src: url('http://stgiga.github.io/UnifontEX/UnifontExMono.eot'); /* IE9 Compat Modes */
-  src: url('http://stgiga.github.io/UnifontEX/UnifontExMono.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('https://stgiga.github.io/UnifontEX/UnifontExMono.woff') format('woff'), /* Pretty Modern Browsers */
-       url('https://stgiga.github.io/UnifontEX/UnifontExMono.ttf')  format('truetype'), /* Safari, Android, iOS */
-       url('http://stgiga.github.io/UnifontEX/UnifontExMono.woff2') format('woff2'), /* Super Modern Browsers */
-       url('http://stgiga.github.io/UnifontEX/UnifontExMono.svg#UnifontExMono') format('svg'); /* Legacy iOS */
-}
+    @font-face {
+      font-family: 'Unifont Ex Mono';
+      src: url('unifont-ex-mono.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    font-family: UnifontExMono, sans-serif;
+      font-family: 'Unifont Ex Mono', monospace !important;
       color: #fff;
     }
 
@@ -38,6 +35,7 @@
       user-select: none;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      text-shadow: 0 0 3px #0f0;
     }
 
     .terminal::-webkit-scrollbar {
@@ -68,6 +66,7 @@
 
   <script>
     const terminal = document.getElementById("terminal");
+
     let inputBuffer = "";
     let cursorVisible = true;
     let history = [];
@@ -149,13 +148,12 @@
 
       switch (cmd.split(" ")[0]) {
         case "help":
-          outputLine.innerText = `== mariowOS Terminal commands ==
-  help - Show this menu
-  about - About this terminal
-  clear - Clear the terminal
-  echo [text]- Print a message
-  math [expr] - Calculate a math expression
-  addkey [key] - Add a new key to your keyring.`;
+          outputLine.innerText = `Available commands:
+help - Show help
+about - About this terminal
+clear - Clear the screen
+echo [text] - Print a message
+math [expr] - Simple math calculator`;
           terminal.appendChild(outputLine);
           break;
 
@@ -184,147 +182,13 @@
             const result = eval(expr);
             outputLine.innerText = `${expr} = ${result}`;
           } catch {
-            outputLine.innerText = "E: Invalid operation. Check syntax.";
+            outputLine.innerText = "Errore: espressione non valida.";
           }
           terminal.appendChild(outputLine);
           break;
 
-        case "update":
-          outputLine.innerText = "[KR] Refreshed keyring configuration successfully.";
-          terminal.appendChild(outputLine);
-          break;
-
-case "fetch":
-  fetch("/sysinfo")
-    .then((res) => res.json())
-    .then((info) => {
-      if (info.error) throw new Error(info.error);
-
-      const hours = Math.floor(info.Uptime / 3600);
-      const minutes = Math.floor((info.Uptime % 3600) / 60);
-
-      const fetchOutput = document.createElement("div");
-      fetchOutput.innerText = `
-                                 👤 user@mariowos
-    @@@                          OS: ${info.OS}
-  @@@@@@@        @@@@            Host kernel: ${info.Kernel}
- @@@@@@@@@@      @@@@@           Uptime: ${hours}h ${minutes}m
-    @@@@        @@@@@@@          CPU: ${info.CPU}
-     @@       @@@@@@@@@@@        RAM: ${info.RAM} (Free: ${info.FreeRAM})
-          @@@@@@@@@@@@@@@@@@@    
-        @@@@@@@@@@@@@@@@@@@@@@   💻 Desktop Info
-          @@@@@@@@@@@@@@@@@@     Terminal: mariowOS Terminal
-              @@@@@@@@@@         Shell: Tiles Shell (v2 Reloaded) 
-                @@@@@@@          Icons: mariowOS Icons (/assets/icons)
-      @@@        @@@@@           
-    @@@@@@@       @@@            💾 Advanced Info
-   @@@@@@@@@                     Build: INSIDERS-8PRE_PUSH_unsigned
-      @@@                        Build date: 10/22/2025 5:40PM
-       @                         Backend: mwos@mariowos (✞)
-`;
-      terminal.appendChild(fetchOutput);
-      terminal.scrollTop = terminal.scrollHeight;
-
-      newPrompt();
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to fetch system info.";
-      terminal.appendChild(errLine);
-      newPrompt();
-    });
-  break;
-
-
-case "addkey":
-  const keyValue = cmd.slice(7).trim();
-  if (!keyValue) {
-    outputLine.innerText = "E: Please specify a key to add.";
-    terminal.appendChild(outputLine);
-    newPrompt(); // prompt here because no fetch
-    break;
-  }
-
-  fetch("/save-key", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key: keyValue }),
-  })
-    .then((res) => res.text())
-    .then((msg) => {
-      const resultLine = document.createElement("div");
-      resultLine.innerText = msg;
-      terminal.appendChild(resultLine);
-      newPrompt(); // <-- move prompt here
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to save key.";
-      terminal.appendChild(errLine);
-      newPrompt(); // <-- move prompt here
-    });
-  break;
-
-case "listkeys":
-  fetch("/list-keys")
-    .then((res) => res.json())
-    .then((keys) => {
-      const listOutput = document.createElement("div");
-      if (keys.length === 0) {
-        listOutput.innerText = "🔑 No keys saved.";
-      } else {
-        listOutput.innerText =
-          "== Saved Keys ==\n" +
-          keys
-            .map(
-              (k, i) =>
-                `${i + 1}. ${k.key} (added ${new Date(k.date).toLocaleString()})`
-            )
-            .join("\n");
-      }
-      terminal.appendChild(listOutput);
-      newPrompt(); // <-- prompt after output
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to list keys.";
-      terminal.appendChild(errLine);
-      newPrompt(); // <-- prompt after error
-    });
-  break;
-
-case "delkey":
-  const keyToDelete = cmd.slice(7).trim();
-  if (!keyToDelete) {
-    outputLine.innerText = "E: Please specify a key to delete.";
-    terminal.appendChild(outputLine);
-    newPrompt(); // prompt here because no fetch
-    break;
-  }
-
-  fetch("/delete-key", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key: keyToDelete }),
-  })
-    .then((res) => res.text())
-    .then((msg) => {
-      const resultLine = document.createElement("div");
-      resultLine.innerText = msg;
-      terminal.appendChild(resultLine);
-      newPrompt(); // <-- prompt after output
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to delete key.";
-      terminal.appendChild(errLine);
-      newPrompt(); // <-- prompt after error
-    });
-  break;
-
-
         default:
-          outputLine.innerText = `E: ${cmd} command not found.`;
+          outputLine.innerText = `Command not found: ${cmd}`;
           terminal.appendChild(outputLine);
       }
 
