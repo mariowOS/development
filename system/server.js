@@ -72,7 +72,7 @@ const keysFile = path.join(__dirname, "keys.json");
 
 app.post("/save-key", express.json(), (req, res) => {
   const { key } = req.body;
-  if (!key) return res.status(400).send("No key provided!");
+  if (!key) return res.status(400).send("[KEYRING] E: No key provided!");
 
   let keys = [];
   if (fs.existsSync(keysFile)) {
@@ -86,7 +86,7 @@ app.post("/save-key", express.json(), (req, res) => {
   keys.push({ key, date: new Date().toISOString() });
   fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2));
 
-  res.send(`Key "${key}" saved to keyring!`);
+  res.send(`[KEYRING] Key "${key}" saved to keyring!`);
 });
 
 // List all keys
@@ -103,28 +103,46 @@ app.get("/list-keys", (req, res) => {
 // Delete a key
 app.post("/delete-key", express.json(), (req, res) => {
   const { key } = req.body;
-  if (!key) return res.status(400).send("❌ No key specified!");
+  if (!key) return res.status(400).send("[KEYRING] E: No key specified!");
 
-  if (!fs.existsSync(keysFile)) return res.send("❌ No keys found!");
+  if (!fs.existsSync(keysFile)) return res.send("[KEYRING] E: No keys found!");
 
   let keys = [];
   try {
     keys = JSON.parse(fs.readFileSync(keysFile, "utf8"));
   } catch (e) {
-    return res.send("❌ Key file corrupted.");
+    return res.send("[KEYRING] E: Key file corrupted.");
   }
 
   const originalLength = keys.length;
   keys = keys.filter((k) => k.key !== key);
 
   if (keys.length === originalLength) {
-    return res.send(`❌ Key "${key}" not found.`);
+    return res.send(`[KEYRING] E: Key "${key}" not found.`);
   }
 
   fs.writeFileSync(keysFile, JSON.stringify(keys, null, 2));
-  res.send(`✅ Key "${key}" deleted from keyring.`);
+  res.send(`[KEYRING] Key "${key}" deleted from keyring.`);
 });
 
+app.get("/sysinfo", (req, res) => {
+  try {
+    const cpus = os.cpus();
+    const sysInfo = {
+      OS: "mariowOS v0.7",
+      Kernel: os.type() + " " + os.release(),
+      Uptime: os.uptime(), // seconds
+      CPU: `${cpus[0].model} (${cpus.length} cores)`,
+      RAM: `${Math.round(os.totalmem() / 1024 / 1024)} MB`,
+      FreeRAM: `${Math.round(os.freemem() / 1024 / 1024)} MB`,
+    };
+    res.json(sysInfo);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to get system info" });
+  }
+});
+
+// system info endpoint - fetch command
 app.get("/sysinfo", (req, res) => {
   try {
     const cpus = os.cpus();
