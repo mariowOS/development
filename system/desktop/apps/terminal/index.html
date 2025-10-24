@@ -164,7 +164,7 @@ math [expr] - Simple math calculator`;
           break;
 
         case "clear":
-          terminal.textContent = introText;
+          terminal.innerHTML = "";
           currentInput = null;
           currentCursor = null;
           inputBuffer = "";
