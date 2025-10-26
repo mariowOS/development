@@ -147,18 +147,18 @@
 
       switch (cmd.split(" ")[0]) {
         case "help":
-          outputLine.innerText = `Available commands:
-help - Show help
-about - About this terminal
-clear - Clear the screen
-echo [text] - Print a message
-math [expr] - Simple math calculator`;
+        outputLine.innerText = `Commands:
+        help - Show help                          addkey - adds a key into the system's keyring
+        about - About this terminal               delkey - deletes a key from the system's keyring
+        clear - Clear the screen                  listkeys - list all the keys in the system's keyring 
+        echo [text] - Print a message             fetch - show system information
+        math [expr] - Simple math calculator      lili - show lili command`;
           terminal.appendChild(outputLine);
           break;
 
         case "about":
-          outputLine.innerText = `mariowOS Terminal v0.7
-™ mariowstech and the mariowOS team`;
+          outputLine.innerText = `mariowOS Terminal PRE1.261025
+          ™ mariowstech and the mariowOS team`;
           terminal.appendChild(outputLine);
           break;
 
@@ -183,6 +183,11 @@ math [expr] - Simple math calculator`;
           } catch {
             outputLine.innerText = "E: Invalid expression, check syntax.";
           }
+          terminal.appendChild(outputLine);
+          break;
+
+          case "lili":
+          outputLine.innerText = `lili ti amo!!!`;
           terminal.appendChild(outputLine);
           break;
 
