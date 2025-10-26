@@ -8,7 +8,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 ------------------------------------------------------------------------------------------------------------------------- 
 "chase your dreams. take that risk, nobody can stop you, but only you can." 
 Dedicated to everyone that contribuited making this possible. Thanks a lot 🤍 
-Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
+Questions? https://discord.gg/YDVxw6jfbH
 -->
 
 <!DOCTYPE html>
@@ -31,7 +31,7 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
     @keyframes popupIn{from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)}}
     @keyframes popupOut{from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(0.9)}}
 
-    /* windows */
+    /* windowing system */
     .popup{
       display:none; position:fixed; top:20px; left:20px;
       width:1048px; height:600px; background:#1D1D1D; border:1px solid #2a2a2a;
@@ -39,9 +39,11 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
       /* keep windows under status bar; they’ll spawn them below it - either statsbar breaks */
       z-index:50;
     }
+    /* windows animations (open/closing) */
     .popup.active{ display:block; animation: popupIn .25s ease forwards; }
     .popup.closing{ animation: popupOut .25s ease forwards; }
 
+    /* windows title bar */
     .popup-header{
       height:32px; background:#121212; display:flex; align-items:center; justify-content:space-between;
       padding:0 10px; cursor:move; border-bottom:1px solid #2a2a2a; font-size:13px; font-weight:500;
@@ -92,28 +94,17 @@ Need help? https://discord.gg/YDVxw6jfbH (or https://tinyurl.com/mariowos)
        max-height:none; 
        overflow-y:visible; 
        }
-    .dropdown-item{ 
-      padding:10px 16px;
-       font-size:14px;
-        color:#fff;
-         cursor:pointer;
-          transition:background .2s;
-           white-space:nowrap; 
-        }
-    .dropdown-item:hover{
-       background:rgba(255,255,255,.12);
-      }
+    .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .2s; white-space:nowrap; }
+
+    .dropdown-item:hover{ background:rgba(255,255,255,.12); }
 
     #notificationsDropdown { right: 0; left: auto; max-width: 300px; white-space: normal; word-break: break-word; }
 
     .menu-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
-    ::-webkit-scrollbar{ 
-      background:rgba(255, 255, 255, 0.03);
-    }
-    ::-webkit-scrollbar-thumb{
-       background-color:rgba(255,255,255,.2);
-        border-radius:50px;
-          }
+
+    ::-webkit-scrollbar{ background:rgba(255, 255, 255, 0.03); }
+    ::-webkit-scrollbar-thumb{ background-color:rgba(255,255,255,.2); border-radius:50px; }
+    
     a { text-decoration: none; color: #ffffff; }
   </style>
 </head>
