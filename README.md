@@ -1,4 +1,4 @@
-<img width="1167" height="512" alt="image" src="https://github.com/user-attachments/assets/e11797f0-1b31-46a2-b383-ec0ab6ac5a21" />
+<img width="1167" height="360" alt="Frame 340" src="https://github.com/user-attachments/assets/75bb4aad-f059-44b1-9c6e-77df29639fc2" />
 
 # ⚒ Main development repository
 
