@@ -1,3 +1,8 @@
+// mariowOS Backend (kernel/server.js) - (C) 2025 mariowstech and the mariowOS team 
+// Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+// Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+// This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
@@ -18,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/desktop", express.static(path.join(__dirname, "desktop")));
 app.use("/loginui", express.static(path.join(__dirname, "loginui")));
 
-// load or initialize password configuration file
+// load or initialize password configuration file 
 let config = { passwordHash: null };
 const configFile = path.join(__dirname, "config.json");
 if (fs.existsSync(configFile)) {
@@ -49,7 +54,8 @@ app.post("/set-password", async (req, res) => {
   }
 });
 
-// POST route to verify password (from lockscreen)
+// fuckass route to verify password (from lockscreen)
+// this route sucks ass but i'm too lazy to fix it, fuck you
 app.post("/login", async (req, res) => {
   const { password } = req.body;
   if (!config.passwordHash) return res.send("❌ No password set!");
@@ -67,7 +73,7 @@ app.get("/desktop/com.mariowos.desktop.html", (req, res) => {
   res.sendFile(path.join(__dirname, "desktop/com.mariowos.desktop.html"));
 });
 
-// keyring command
+// keyring host commands
 const keysFile = path.join(__dirname, "keys.json");
 
 app.post("/save-key", express.json(), (req, res) => {
@@ -89,7 +95,7 @@ app.post("/save-key", express.json(), (req, res) => {
   res.send(`[KEYRING] Key "${key}" saved to keyring!`);
 });
 
-// List all keys
+// list all keys
 app.get("/list-keys", (req, res) => {
   if (!fs.existsSync(keysFile)) return res.json([]);
   try {
@@ -100,7 +106,7 @@ app.get("/list-keys", (req, res) => {
   }
 });
 
-// Delete a key
+// delete a key
 app.post("/delete-key", express.json(), (req, res) => {
   const { key } = req.body;
   if (!key) return res.status(400).send("[KEYRING] E: No key specified!");
@@ -142,14 +148,14 @@ app.get("/sysinfo", (req, res) => {
   }
 });
 
-// system info endpoint - fetch command
+// system info endpoint - fetch command (ask system info to host)
 app.get("/sysinfo", (req, res) => {
   try {
     const cpus = os.cpus();
     const sysInfo = {
       OS: "mariowOS v0.7",
       Kernel: os.type() + " " + os.release(),
-      Uptime: os.uptime(), // seconds
+      Uptime: os.uptime(), // shown in seconds
       CPU: `${cpus[0].model} (${cpus.length} cores)`,
       RAM: `${Math.round(os.totalmem() / 1024 / 1024)} MB`,
       FreeRAM: `${Math.round(os.freemem() / 1024 / 1024)} MB`,
@@ -161,34 +167,35 @@ app.get("/sysinfo", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`mariowOS is running at http://localhost:${PORT}`);
 });
 
-// clear password url. For testing and for reset 
+// clear password route
+// this is for testing and it's the route used for resetting
 app.get("/clear-password", (req, res) => {
   config.passwordHash = null;
   fs.writeFileSync(configFile, JSON.stringify(config));
-  res.send("✅ Password cleared! You can now access the OOBE page again.");
+  res.send("password file successfully cleared. you can now open http://localhost:3000 again");
 });
 
-// wallpaper upload
+// handler for wallpaper upload
 const uploadDir = path.join(__dirname, "desktop", "assets");
 
-// storage configuration (multer)
+// storage configuration (using multer)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, "wallpaper.png"), // always rename
+  filename: (req, file, cb) => cb(null, "wallpaper.png"), // always rename else it will fuck itself up
 });
 
-// file filter to allow only PNGs
+// file filter to allow only PNGs 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === "image/png") cb(null, true);
-  else cb(new Error("❌ Only .png files are allowed!"));
+  else cb(new Error("Only .png files are allowed!")); // i'm too lazy to write a variable for all of the single image files.
 };
 
 const upload = multer({ storage, fileFilter });
 
-// handler for wallpaper upload
+// actually upload the wallpaper
 app.post("/upload-wallpaper", upload.single("wallpaper"), (req, res) => {
-  res.send("✅ Wallpaper updated successfully!");
+  res.send("Wallpaper updated successfully!");
 });

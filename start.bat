@@ -1,5 +1,7 @@
+rem fuck this shit
+
 echo off
-title mariowOS start.bat
+title mariowOS server handler
 cls
 cd boot
 type ver
