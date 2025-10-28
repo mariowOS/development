@@ -175,7 +175,7 @@ app.listen(PORT, () => {
 app.get("/clear-password", (req, res) => {
   config.passwordHash = null;
   fs.writeFileSync(configFile, JSON.stringify(config));
-  res.send("password file successfully cleared. you can now open http://localhost:3000 again");
+  res.send("config.js cleared. you can now exit fallback mode (finder > exit fallback mode) ");
 });
 
 // handler for wallpaper upload

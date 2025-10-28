@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: #1e1e1e;
+    color: white;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    background: #181818;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    overflow-y: auto; /* <-- FIX */
+  }
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+
+  .sidebar h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .search {
+    margin-top: 12px;
+  }
+
+  .search input {
+    width: 90%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #2a2a2a;
+    color: white;
+    font-family: inherit;
+  }
+
+  .menu {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .menu-item {
+    background: #2a2a2a;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu-item:hover {
+    background: #3a3a3a;
+  }
+
+  .menu-item.active {
+    background: #4a4a4a;
+  }
+
+  .menu-item .title {
+    font-weight: 500;
+    font-size: 15px;
+  }
+
+  .menu-item .subtitle {
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  /* Content area */
+  .content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .content h2 {
+    margin-top: 0;
+  }
+
+    .content p {
+    margin-top: 0;
+    text-align: center; font-family: 'Poppins', sans-serif;
+  }
+
+      .content div {
+    margin-top: 0;
+    text-align: center; font-family: 'Poppins', sans-serif;
+    color: #272727;
+  }
+
+        .content h3 {
+    margin-top: 230px;
+    text-align: center; font-family: 'Poppins', sans-serif;
+    color: #272727;
+  }
+
+
+  /* Draggable window fix */
+  .window {
+    position: absolute;
+    will-change: transform; /* GPU accelerate */
+  }
+
+    .popup-frame {
+      width: 100%;
+      height: calc(90% - 32px);
+      border: none;
+    }
+    
+    a {
+  text-decoration: none;
+  color: #3F84FC;
+   }
+
+</style>
+</head>
+<body>
+  <div class="sidebar">
+    <h1>Settings</h1>
+    <div class="search">
+      <input type="text" placeholder="🔍 Search...">
+    </div>
+    <div class="menu">
+      <div class="menu-item" onclick="loadPage('system', this)">
+        <div class="title">System</div>
+        <div class="subtitle">Rules, backup, time, reset</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <h3>did you break something?</h3>
+  </div>
+
+<script>
+  const pages = {
+    system: `
+      <h2>System</h2>
+      <iframe src="assets/systemsettings.html" class="popup-frame"></iframe>
+    `
+  };
+
+  function loadPage(page, el) {
+    document.getElementById("content").innerHTML = pages[page];
+
+    // update active state
+    document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
+    if (el) el.classList.add("active");
+  }
+
+  // 🔍 Search filtering + auto-open first result
+  const searchInput = document.querySelector(".search input");
+  const menuItems = document.querySelectorAll(".menu-item");
+
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+    let firstMatch = null;
+
+    menuItems.forEach(item => {
+      const title = item.querySelector(".title").textContent.toLowerCase();
+      const subtitle = item.querySelector(".subtitle").textContent.toLowerCase();
+
+      if (title.includes(query) || subtitle.includes(query)) {
+        item.style.display = "flex";
+        if (!firstMatch) firstMatch = item; // remember first visible
+      } else {
+        item.style.display = "none";
+      }
+    });
+
+    // auto-load first match
+    if (firstMatch) {
+      const page = firstMatch.getAttribute("onclick").match(/'([^']+)'/)[1];
+      loadPage(page, firstMatch);
+    }
+  });
+
+  function saveProfile() {
+  const username = document.getElementById("usernameInput").value.trim();
+  const password = document.getElementById("passwordInput").value.trim();
+  const pfpFile = document.getElementById("pfpUpload").files[0];
+
+  if (username) localStorage.setItem("username", username);
+  if (password) localStorage.setItem("password", password);
+
+  if (pfpFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      localStorage.setItem("avatar", reader.result);
+      document.getElementById("pfpPreview").src = reader.result;
+    };
+    reader.readAsDataURL(pfpFile);
+  }
+
+  alert("Profile saved! 🔒");
+}
+
+function loadProfileEditor() {
+  const savedUsername = localStorage.getItem("username");
+  const savedPassword = localStorage.getItem("password");
+  const savedAvatar = localStorage.getItem("avatar");
+
+  if (savedUsername) document.getElementById("usernameInput").value = savedUsername;
+  if (savedPassword) document.getElementById("passwordInput").value = savedPassword;
+  if (savedAvatar) document.getElementById("pfpPreview").src = savedAvatar;
+}
+
+function saveFromSettings() {
+  const newUser = document.getElementById("settingsUsername").value.trim();
+  const newPass = document.getElementById("settingsPassword").value.trim();
+
+  if (!newUser || !newPass) {
+    alert("Fields cannot be empty!");
+    return;
+  }
+
+  localStorage.setItem("username", newUser);
+  localStorage.setItem("password", newPass);
+
+  alert("Credentials updated!");
+}
+
+
+function loadPage(page, el) {
+  document.getElementById("content").innerHTML = pages[page];
+
+  if (page === "you") {
+    setTimeout(loadProfileEditor, 50); // give DOM time to render
+  }
+
+  document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
+  if (el) el.classList.add("active");
+}
+
+
+</script>
+
+</body>
+</html>

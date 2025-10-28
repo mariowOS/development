@@ -148,20 +148,64 @@ body {
   .avatar { width:52px; height:52px; }
 }
 
-/*Button same color as image*/
 #loginBtn {
-  background-color:#d9d9d9;}
+  background-color:#d9d9d9;
+}
 
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.popup {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 30px 40px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px);
+}
+.popup h1 {
+  margin-top: 0;
+  font-weight: 600;
+  font-size: 26px;
+  color: #000000;
+}
+.popup p {
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 15px;
+  margin: 12px 0 24px;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+.popup-buttons button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Poppins';
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.popup-buttons button:hover { transform: scale(1.04); }
+#closePopup { background: #bdbdbd; color: #fff; }
+#redirectPopup { background: #002fff; color: #ffffff; }
 </style>
 </head>
 <body>
-  <!-- Date & time -->
   <div class="datetime" aria-hidden="true">
     <div class="date" id="date">Loading…</div>
     <div class="time" id="time">00:00</div>
   </div>
 
-  <!-- Center area -->
   <div class="center-stack" role="main">
     <div class="avatar" aria-hidden="true"></div>
     <div class="unlock-pill" id="unlockPill" aria-label="Unlock">
@@ -169,6 +213,17 @@ body {
       <button id="loginBtn" title="Unlock" aria-label="Unlock">
         <img src="/desktop/assets/next.png" alt="→">
       </button>
+    </div>
+  </div>
+
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+      <h1>Enter fallback mode?</h1>
+      <p>Fallback mode is useful if you screwed something up and have no way to recover. To exit this mode, you can press Finder > Exit fallback mode</p>
+      <div class="popup-buttons">
+        <button id="closePopup">No</button>
+        <button id="redirectPopup">Yes</button>
+      </div>
     </div>
   </div>
 
@@ -221,6 +276,25 @@ function showWrong() {
   passwordInput.focus();
 }
 window.addEventListener('load', () => passwordInput.focus());
+
+const popupOverlay = document.getElementById('popupOverlay');
+const closePopup = document.getElementById('closePopup');
+const redirectPopup = document.getElementById('redirectPopup');
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !popupOverlay.style.display) {
+    e.preventDefault();
+    popupOverlay.style.display = 'flex';
+  }
+});
+
+closePopup.addEventListener('click', () => {
+  popupOverlay.style.display = 'none';
+});
+
+redirectPopup.addEventListener('click', () => {
+  window.location.href = '/desktop/fallback/com.mariowos.desktop.html';
+});
 </script>
 </body>
 </html>
