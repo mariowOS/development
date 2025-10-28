@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 600px;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+  background: transparent;
+}
+
+.page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  opacity: 1;
+  background: transparent;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.text-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.text-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.banner {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.banner .title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.banner .desc {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="page" id="mainPage">
+    <div class="item">
+      <div class="text-title">Rules</div>
+      <div class="text-desc">Create actions to do at a specific event.</div>
+    </div>
+
+    <div class="item">
+      <div class="text-title">Time & date</div>
+      <div class="text-desc">Clock and date settings</div>
+    </div>
+
+    <div class="item" id="resetBtn">
+      <div class="text-title">Reset options</div>
+      <div class="text-desc">Data reset, desktop reset, factory reset</div>
+    </div>
+  </div>
+
+  <div class="page hidden" id="resetPage" style="transform: translateX(100%);">
+    <div class="header">
+      <span class="back-btn" id="goBack">←</span>
+      <span>System › Reset</span>
+    </div>
+
+    <div class="banner">
+      <div class="title">If you’re changing device click here to open move wizard</div>
+      <div class="desc">
+        You can choose what to keep and what to trash. You can then reset this PC.
+        You can also back up your data before resetting your device.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="text-title">Reset settings</div>
+      <div class="text-desc">Only resets settings to default options</div>
+    </div>
+
+    <div class="item">
+      <div class="text-title">Reset desktop (refresh)</div>
+      <div class="text-desc">Clears every customization option, doesn’t clear data</div>
+    </div>
+
+    <div class="item">
+      <div class="text-title">Factory reset</div>
+      <div class="text-desc">Clears data and everything, starts fresh</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const mainPage = document.getElementById('mainPage');
+const resetPage = document.getElementById('resetPage');
+const resetBtn = document.getElementById('resetBtn');
+const goBack = document.getElementById('goBack');
+
+resetBtn.addEventListener('click', () => {
+  resetPage.classList.remove('hidden');
+  mainPage.style.transform = 'translateX(-100%)';
+  resetPage.style.transform = 'translateX(0)';
+});
+
+goBack.addEventListener('click', () => {
+  mainPage.style.transform = 'translateX(0)';
+  resetPage.style.transform = 'translateX(100%)';
+});
+
+resetPage.addEventListener('transitionend', () => {
+  if (resetPage.style.transform === 'translateX(100%)') {
+    resetPage.classList.add('hidden');
+  }
+});
+</script>
+
+</body>
+</html>
+
