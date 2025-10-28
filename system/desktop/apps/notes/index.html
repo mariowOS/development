@@ -13,63 +13,56 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Poppins', sans-serif;
-  background: #181818;
-  color: #fff;
-  overflow: hidden;
-}
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: #181818;
+    color: #fff;
+  }
 
-#note-area::placeholder {
-  color: #c9c9c9ff;
-  opacity: 0.6;
-  font-weight: 300;
-}
+  .buttons {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+  }
 
-.buttons {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  display: flex;
-  gap: 12px;
-  align-items: center;  
-  z-index: 10;
-  user-select: none;
-}
+  button {
+    background: none;
+    border: none;
+    color: #006FFF;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 4px 0;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Poppins';
+  }
 
-button {
-  background: none;
-  border: none;
-  color: #006FFF;
-  font-size: 1em;
-  cursor: pointer;
-  padding: 4px 0;
-  border-bottom: 1px solid transparent;
-  transition: all 0.2s;
-  font-family: 'Poppins';
-  font-weight: 500;
-}
-button:hover {
-  border-bottom: 1px solid #006FFF;
-}
-button.clear {
-  color: #aaa;
-}
-button.clear:hover {
-  border-bottom: 1px solid #aaa;
-}
+  button:hover {
+    border-bottom: 1px solid #006FFF;
+  }
+
+  button.clear {
+    color: #aaa;
+  }
+
+  button.clear:hover {
+    border-bottom: 1px solid #aaa;
+  }
 
 .tabs {
-  position: fixed;
-  top: 50px;
-  left: 16px; 
+  position: absolute;
+  top: 16px;
+  left: 240px; 
   display: flex;
-  gap: 10px;
+  gap: 8px;
   z-index: 10;
-  max-width: calc(100% - 16px); 
+  max-width: calc(100% - 260px); 
   overflow-x: auto;
   padding-bottom: 2px;
 }
@@ -77,10 +70,12 @@ button.clear:hover {
 .tabs::-webkit-scrollbar {
   height: 6px;
 }
+
 .tabs::-webkit-scrollbar-thumb {
-  background: #aaaaaaff;
+  background: #444;
   border-radius: 3px;
 }
+
 .tabs::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -100,11 +95,11 @@ button.clear:hover {
   transition: all 0.2s;
   position: relative;
 }
+
 .tab-btn.active {
-  background: #333;
-  color: #fff;
-  font-weight: 600;
+  background: #555;
 }
+
 .tab-btn.active::before {
   content: '';
   position: absolute;
@@ -112,51 +107,37 @@ button.clear:hover {
   top: 0;
   width: 4px;
   height: 100%;
+  background: #006FFF;
   border-radius: 2px 0 0 2px;
 }
+  .close-tab {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 2px;
+  }
 
+  .close-tab:hover {
+    color: #ff4c4c;
+  }
 
-.close-tab {
-  background: none;
-  border: none;
-  color: #aaa;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0 2px;
-}
-.close-tab:hover {
-  color: #ff4c4c;
-}
-
-
-textarea {
-  position: absolute;
-  top: 80px;
-  left: 0;
-  width: 100%;
-  height: calc(100% - 80px);
-  background: rgba(35,35,35,0.8);
-  backdrop-filter: blur(2px);
-  border: none;
-  padding: 16px;
-  font-size: 1em;
-  color: #fff;
-  resize: none;
-  outline: none;
-  box-sizing: border-box;
-  overflow-y: auto; 
-  border-radius: 8px;
-}
-
-textarea::-webkit-scrollbar {
-  width: 8px;
-  background-color: #222;
-}
-textarea::-webkit-scrollbar-thumb {
-  background-color: #aaaaaaff;
-  border-radius: 4px;
-}
-
+  textarea {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    background: #181818;
+    border: none;
+    padding: 16px;
+    font-size: 1em;
+    color: #fff;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+  }
 </style>
 </head>
 <body>
