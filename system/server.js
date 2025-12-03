@@ -135,7 +135,7 @@ app.get("/sysinfo", (req, res) => {
   try {
     const cpus = os.cpus();
     const sysInfo = {
-      OS: "mariowOS v0.7",
+      OS: "mariowOS v0.9",
       Kernel: os.type() + " " + os.release(),
       Uptime: os.uptime(), // seconds
       CPU: `${cpus[0].model} (${cpus.length} cores)`,

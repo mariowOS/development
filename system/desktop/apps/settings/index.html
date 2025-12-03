@@ -24,7 +24,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     overflow: hidden;
   }
 
-  /* Sidebar */
+  /* trashass sidebar, make it prettier if you can */
   .sidebar {
     width: 260px;
     background: #181818;
@@ -101,7 +101,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     color: #aaa;
   }
 
-  /* Content area */
+  /* content area */
   .content {
     flex: 1;
     padding: 20px;
@@ -129,7 +129,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   }
 
 
-  /* Draggable window fix */
+  /* draggable window fix */
   .window {
     position: absolute;
     will-change: transform; /* GPU accelerate */
@@ -155,6 +155,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       <input type="text" placeholder="🔍 Search...">
     </div>
     <div class="menu">
+    <!-- menu items, title and subtitles are keywords that are used for searching for a setting, make sure to give a sense to this, else go fuck yourself -->
       <div class="menu-item active" onclick="loadPage('you', this)">
         <div class="title">You</div>
         <div class="subtitle">Your profile</div>
@@ -190,7 +191,8 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     <h3>what's cooking good looking?</h3>
   </div>
 
-<script>
+<script> 
+// page display logic (use iframes for complex pages)
   const pages = {
 you: `
   <h2>mariowOS Profile</h2>
@@ -230,7 +232,7 @@ you: `
     if (el) el.classList.add("active");
   }
 
-  // 🔍 Search filtering + auto-open first result
+  // search filtering and auto-open first result else it would look bad and unprofessional
   const searchInput = document.querySelector(".search input");
   const menuItems = document.querySelectorAll(".menu-item");
 
@@ -257,6 +259,8 @@ you: `
     }
   });
 
+  // seriously, let alone touching this part, it doesn't work.
+
   function saveProfile() {
   const username = document.getElementById("usernameInput").value.trim();
   const password = document.getElementById("passwordInput").value.trim();
@@ -274,7 +278,7 @@ you: `
     reader.readAsDataURL(pfpFile);
   }
 
-  alert("Profile saved! 🔒");
+  alert("Profile saved!");
 }
 
 function loadProfileEditor() {
@@ -302,6 +306,7 @@ function saveFromSettings() {
   alert("Credentials updated!");
 }
 
+// inital render for inital page (the empty one that says "what's cooking good looking?")
 
 function loadPage(page, el) {
   document.getElementById("content").innerHTML = pages[page];
@@ -319,3 +324,5 @@ function loadPage(page, el) {
 
 </body>
 </html>
+
+<!-- think of a funny quote -->

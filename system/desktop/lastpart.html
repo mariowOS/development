@@ -152,6 +152,8 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
             }, FADE_DURATION_MS);
         });
 
+        // doesn't work, thank those sketchy sites that auto f11'd your page without permission
+        // restriction added in chrome 15 and firefox 43 
         async function requestFullscreen() {
             try {
                 if (!document.fullscreenElement) {

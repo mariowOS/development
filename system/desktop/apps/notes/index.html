@@ -13,6 +13,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* no i will not document this, fuck you */
   html, body {
     margin: 0;
     padding: 0;
@@ -142,6 +143,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 </head>
 <body>
 
+<!-- fancy buttons -->
 <div class="buttons">
   <button id="save-btn">Save</button>
   <button id="new-tab-btn">New</button>
@@ -155,6 +157,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 <textarea id="note-area" placeholder="your cool ideas go here..."></textarea>
 
 <script>
+  // get constants 
   const noteArea = document.getElementById('note-area');
   const saveBtn = document.getElementById('save-btn');
   const clearBtn = document.getElementById('clear-btn');
@@ -164,6 +167,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   let notes = [];
   let currentIndex = 0;
 
+  // create tab function 
   function createTab(name="Note") {
     const id = Date.now().toString();
     notes.push({id, content: "", name});
@@ -183,6 +187,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       }
     });
 
+    // call close tab function logic
     const closeBtn = document.createElement('button');
     closeBtn.classList.add('close-tab');
     closeBtn.textContent = '×';
@@ -191,6 +196,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       closeTab(id);
     });
 
+    // tab controls
     btn.appendChild(span);
     btn.appendChild(closeBtn);
 
@@ -204,7 +210,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     switchTab(id);
     saveToLocalStorage();
   }
-
+  // tab switcher function, don't mind why it's integrated like this please it didn't work if i didn't do it this way for some reason
   function switchTab(id) {
     if (notes[currentIndex]) notes[currentIndex].content = noteArea.value;
 
@@ -216,6 +222,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     noteArea.value = notes[currentIndex].content || "";
   }
 
+  // close tab function logic
   function closeTab(id) {
     const index = notes.findIndex(n => n.id === id);
     if(index === -1) return;
@@ -227,10 +234,12 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     saveToLocalStorage();
   }
 
+  // call the funtion to download the note as .txt
   function saveToLocalStorage() {
     localStorage.setItem('multiNotes', JSON.stringify(notes));
   }
-
+  
+  // function to load any file with a .txt extension
   function loadFromLocalStorage() {
     const saved = localStorage.getItem('multiNotes');
     if(saved) {
@@ -240,6 +249,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
         btn.classList.add('tab-btn');
         btn.dataset.id = n.id;
 
+        // tab rename logic
         const span = document.createElement('span');
         span.textContent = n.name;
         span.addEventListener('dblclick', () => {
@@ -251,6 +261,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
           }
         });
 
+        // tab close logic (again)
         const closeBtn = document.createElement('button');
         closeBtn.classList.add('close-tab');
         closeBtn.textContent = '×';
@@ -261,7 +272,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
         btn.appendChild(span);
         btn.appendChild(closeBtn);
-
+        // listeners
         btn.addEventListener('click', () => switchTab(n.id));
         btn.setAttribute('draggable', true);
         btn.addEventListener('dragstart', dragStart);
@@ -283,6 +294,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
   });
 
+  // save file logic (WARNING: PLEASE DON'T TOUCH THIS PART IF YOU DON'T KNOW HOW BLOBS AND ATTRIBUTES WORK)
   saveBtn.addEventListener('click', () => {
     const text = noteArea.value;
     if(!text) return alert("Nothing to save!");
@@ -294,9 +306,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       + String(now.getMinutes()).padStart(2,'0')
       + String(now.getSeconds()).padStart(2,'0');
 
+    // trigger download
     const blob = new Blob([text], {type:'text/plain'});
     const url = URL.createObjectURL(blob);
 
+    // file naming logic (append time and .txt extension to it)
     const a = document.createElement('a');
     a.href = url;
     a.download = `note_${timestamp}.txt`;
@@ -314,8 +328,10 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
   });
 
+  // create tab logic
   newTabBtn.addEventListener('click', () => createTab());
 
+  // keyboard shortcuts logic and listeners (CTRL+S to save, CTRL+N for new tab, CTRL+W to bomb current tab)
   document.addEventListener('keydown', (e) => {
     if(e.ctrlKey && e.key === 's') { e.preventDefault(); saveBtn.click(); }
     if(e.ctrlKey && e.key === 'n') { e.preventDefault(); newTabBtn.click(); }
@@ -325,6 +341,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
   });
 
+  // drag tabs logic - works but is janky as hell sorry cuties
   let dragged = null;
   function dragStart(e){ dragged = e.currentTarget; }
   function dragOver(e){ e.preventDefault(); }
@@ -352,3 +369,5 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
 </body>
 </html>
+
+<!-- hell is over! -->
