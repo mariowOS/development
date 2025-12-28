@@ -171,7 +171,7 @@ app.listen(PORT, () => {
 });
 
 // clear password route
-// this is for testing and it's the route used for resetting
+// this is for testing and it's the route used for resetting, come on exploit this you piece of shit
 app.get("/clear-password", (req, res) => {
   config.passwordHash = null;
   fs.writeFileSync(configFile, JSON.stringify(config));
