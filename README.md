@@ -1,6 +1,6 @@
 <img width="1167" height="360" alt="Frame 340" src="https://github.com/user-attachments/assets/75bb4aad-f059-44b1-9c6e-77df29639fc2" />
 
-# ⚒ Main development repository
+## A work-in-progress clean, fast, smooth web-based OS experience.
 
 This is the main development repo, which contains the whole code that we work on prior compressing to stable images for generic devices.
 
