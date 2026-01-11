@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Settings Saved</title>
+	<style>
+    * {
+        box-sizing: border-box;
+        color: #fff;
+    }
+		body {
+            font-family: Arial, sans-serif; 
+            background:#1e1e1e;
+            display: flex; 
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+            overflow:hidden;
+            margin:0 
+                 }
+		.card { 
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+            max-width:600px;
+            padding:24px; 
+            border-radius:8px;
+            background: #1e1e1e;}
+            
+		p{
+            color: #fff;
+            font-size:20px;
+        }
+        #edit-link {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+
+        }
+        #edit-link:hover {
+            background-color: #0056b3;
+            cursor: pointer;
+            animation: hoverEffect .3s;
+        }
+        
+        @keyframes hoverEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+	</style>
+</head>
+<body>
+	<div class="card">
+		<h2><b>Your account</b></h2>
+		<p id="u-username">Username: —</p>
+		<p id="u-email">Email: —</p>
+		<p id="u-language">Language: —</p>
+		
+		<p><button id="edit-link" onclick="clearSettings()">change settings</button></p>
+        
+	</div>
+	<script>
+		// Populate page with settings from server; if none, go back to editor
+		(async function(){
+			try {
+				const r = await fetch('/get-settings');
+				if (!r.ok) throw new Error('Network');
+				const cfg = await r.json();
+				if (!cfg || (!cfg.username && !cfg.email && !cfg.language && !cfg.theme)) {
+					// no settings yet, go back
+					window.location.href = 'you.html';
+					return;
+				}
+				document.getElementById('u-username').textContent = 'Username: ' + (cfg.username || '—');
+				document.getElementById('u-email').textContent = 'Email: ' + (cfg.email || '—');
+				document.getElementById('u-language').textContent = 'Language: ' + (cfg.language || '—');
+				
+			} catch (e) {
+				console.warn('Failed to load settings:', e);
+			}
+		})();
+
+		async function clearSettings() {
+			try {
+				const r = await fetch('/clear-settings', { method: 'POST' });
+				if (!r.ok) throw new Error('Network');
+				const data = await r.json();
+				if (data.success) {
+					// go to editor; server will no longer redirect
+					window.location.href = 'you.html';
+				} else {
+					alert('Errore durante il reset: ' + (data.error || 'unknown'));
+				}
+			} catch (e) {
+				console.error('clearSettings failed', e);
+				alert('Errore di rete durante il reset delle impostazioni');
+			}
+		}
+	</script>
+</body>
+</html>

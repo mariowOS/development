@@ -18,6 +18,18 @@ const os = require("os");
 
 // middleware to parse POST data
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+// If settings already exist, redirect direct requests for the editor page to the confirmation page
+app.get('/desktop/apps/settings/assets/you.html', (req, res, next) => {
+  try {
+    if (config && config.username && config.email) {
+      return res.redirect('/desktop/apps/settings/assets/youafter.html');
+    }
+  } catch (e) {
+    // ignore and fall through to static
+  }
+  next();
+});
 
 // serve static folders
 app.use("/desktop", express.static(path.join(__dirname, "desktop")));
@@ -51,6 +63,43 @@ app.post("/set-password", async (req, res) => {
     res.send("✅ Password updated!");
   } catch (err) {
     res.status(500).send("❌ Error setting password");
+  }
+});
+
+// POST route to save user settings
+app.post("/save-settings", (req, res) => {
+  const { username, email, language, theme } = req.body;
+  
+  try {
+    // Update config object with new settings
+    config.username = username;
+    config.email = email;
+    config.language = language;
+    config.theme = theme;
+    
+    // Write updated config to file
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+    
+    // Send success response
+    res.json({ success: true, message: "Settings saved successfully!" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Error saving settings" });
+  }
+});
+
+// Fallback GET for easier debugging: return JSON instead of HTML for non-POST requests
+app.get("/save-settings", (req, res) => {
+  res.json({ success: false, error: "Use POST to save settings" });
+});
+
+// GET route to return current settings (hide passwordHash)
+app.get('/get-settings', (req, res) => {
+  try {
+    const safe = Object.assign({}, config);
+    if (safe.passwordHash) delete safe.passwordHash;
+    res.json(safe);
+  } catch (err) {
+    res.status(500).json({});
   }
 });
 
@@ -166,12 +215,26 @@ app.get("/sysinfo", (req, res) => {
   }
 });
 
+// POST route to clear user settings (keep passwordHash)
+app.post('/clear-settings', (req, res) => {
+  try {
+    if (config) {
+      delete config.username;
+      delete config.email;
+      delete config.language;
+      delete config.theme;
+      fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+    }
+    res.json({ success: true, message: 'Settings cleared' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Error clearing settings' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`mariowOS is running at http://localhost:${PORT}`);
 });
 
-// clear password route
-// this is for testing and it's the route used for resetting, come on exploit this you piece of shit
 app.get("/clear-password", (req, res) => {
   config.passwordHash = null;
   fs.writeFileSync(configFile, JSON.stringify(config));
