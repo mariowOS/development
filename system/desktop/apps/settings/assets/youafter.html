@@ -9,6 +9,14 @@
         box-sizing: border-box;
         color: #fff;
     }
+    /* Hide scrollbar but allow scrolling */
+    *::-webkit-scrollbar {
+        display: none;
+    }
+    * {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
 		body {
             font-family: Arial, sans-serif; 
             background:#1e1e1e;
@@ -29,6 +37,9 @@
 		p{
             color: #fff;
             font-size:20px;
+        }
+        h1 {
+            color: #fff;
         }
         #edit-link {
             background-color: #007bff;
