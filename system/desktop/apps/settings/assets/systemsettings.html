@@ -16,7 +16,11 @@ body {
   margin: 0;
   padding: 40px;
   background: transparent;
-  overflow-x: hidden;
+  overflow-y: hidden;
+  display: fixed;
+  justify-content: center;
+  align-items: center;
+
 }
 
 .container {
@@ -103,6 +107,10 @@ body {
   color: #bbb;
   margin-top: 4px;
 }
+
+html::-webkit-scrollbar {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -110,12 +118,12 @@ body {
 <div class="container">
 
   <div class="page" id="mainPage">
-    <div class="item">
+    <div class="item" id="rulesBtn">
       <div class="text-title">Rules</div>
       <div class="text-desc">Create actions to do at a specific event.</div>
     </div>
 
-    <div class="item">
+    <div class="item" id="timeBtn">
       <div class="text-title">Time & date</div>
       <div class="text-desc">Clock and date settings</div>
     </div>
@@ -123,6 +131,64 @@ body {
     <div class="item" id="resetBtn">
       <div class="text-title">Reset options</div>
       <div class="text-desc">Data reset, desktop reset, factory reset</div>
+    </div>
+  </div>
+
+  <div class="page hidden" id="rulesPage" style="transform: translateX(100%);">
+    <div class="header">
+      <span class="back-btn" id="goBackRules">←</span>
+      <span>System › Rules</span>
+    </div>
+
+    <div class="banner">
+      <div class="title">Create custom rules</div>
+      <div class="desc">
+        Set up automated actions based on specific events and conditions on your system.
+      </div>
+    </div>
+
+    <div class="item" onclick="navigateToFile('new-rule.html')">
+      <div class="text-title">New rule</div>
+      <div class="text-desc">Create a new automation rule</div>
+    </div>
+
+    <div class="item" onclick="navigateToFile('manage-rules.html')">
+      <div class="text-title">Manage rules</div>
+      <div class="text-desc">View and edit existing rules</div>
+    </div>
+
+    <div class="item" onclick="navigateToFile('rule-templates.html')">
+      <div class="text-title">Rule templates</div>
+      <div class="text-desc">Use predefined rule templates</div>
+    </div>
+  </div>
+
+  <div class="page hidden" id="timePage" style="transform: translateX(100%);">
+    <div class="header">
+      <span class="back-btn" id="goBackTime">←</span>
+      <span>System › Time & Date</span>
+    </div>
+
+    <div class="banner">
+      <div class="title">Date and time settings</div>
+      <div class="desc">
+        Adjust your system clock, time zone, and date format preferences.
+      </div>
+    </div>
+
+    <div class="item" onclick="navigateToFile('set-time-manually.html')">
+      <div class="text-title">Set time manually</div>
+      <div class="text-desc">Manually set the system time</div>
+    </div>
+
+    <div class="item" onclick="navigateToFile('time-zone.html')">
+      <div class="text-title">Time zone</div>
+      <div class="text-desc">Change your time zone</div>
+    </div>
+
+    <div class="item" onclick="navigateToFile('date-time-format.html')">
+      <div class="text-title">Date & time format</div>
+      <div class="text-desc">Customize date and time display</div>
     </div>
   </div>
 
@@ -140,17 +206,17 @@ body {
       </div>
     </div>
 
-    <div class="item">
+    <div class="item" onclick="navigateToFile('reset-settings.html')">
       <div class="text-title">Reset settings</div>
       <div class="text-desc">Only resets settings to default options</div>
     </div>
 
-    <div class="item">
+    <div class="item" onclick="navigateToFile('reset-desktop.html')">
       <div class="text-title">Reset desktop (refresh)</div>
-      <div class="text-desc">Clears every customization option, doesn’t clear data</div>
+      <div class="text-desc">Clears every customization option, doesn't clear data</div>
     </div>
 
-    <div class="item">
+    <div class="item" onclick="navigateToFile('factory-reset.html')">
       <div class="text-title">Factory reset</div>
       <div class="text-desc">Clears data and everything, starts fresh</div>
     </div>
@@ -160,19 +226,67 @@ body {
 
 <script>
 const mainPage = document.getElementById('mainPage');
+const rulesPage = document.getElementById('rulesPage');
+const timePage = document.getElementById('timePage');
 const resetPage = document.getElementById('resetPage');
+
+const rulesBtn = document.getElementById('rulesBtn');
+const timeBtn = document.getElementById('timeBtn');
 const resetBtn = document.getElementById('resetBtn');
+
+const goBackRules = document.getElementById('goBackRules');
+const goBackTime = document.getElementById('goBackTime');
 const goBack = document.getElementById('goBack');
 
-resetBtn.addEventListener('click', () => {
-  resetPage.classList.remove('hidden');
+function navigateToPage(page) {
   mainPage.style.transform = 'translateX(-100%)';
-  resetPage.style.transform = 'translateX(0)';
+  page.classList.remove('hidden');
+  page.style.transform = 'translateX(0)';
+}
+
+function goBackToMain(page) {
+  mainPage.style.transform = 'translateX(0)';
+  page.style.transform = 'translateX(100%)';
+}
+
+function navigateToFile(fileName) {
+  window.location.href = fileName;
+}
+
+rulesBtn.addEventListener('click', () => {
+  navigateToPage(rulesPage);
+});
+
+timeBtn.addEventListener('click', () => {
+  navigateToPage(timePage);
+});
+
+resetBtn.addEventListener('click', () => {
+  navigateToPage(resetPage);
+});
+
+goBackRules.addEventListener('click', () => {
+  goBackToMain(rulesPage);
+});
+
+goBackTime.addEventListener('click', () => {
+  goBackToMain(timePage);
 });
 
 goBack.addEventListener('click', () => {
-  mainPage.style.transform = 'translateX(0)';
-  resetPage.style.transform = 'translateX(100%)';
+  goBackToMain(resetPage);
+});
+
+rulesPage.addEventListener('transitionend', () => {
+  if (rulesPage.style.transform === 'translateX(100%)') {
+    rulesPage.classList.add('hidden');
+  }
+});
+
+timePage.addEventListener('transitionend', () => {
+  if (timePage.style.transform === 'translateX(100%)') {
+    timePage.classList.add('hidden');
+  }
 });
 
 resetPage.addEventListener('transitionend', () => {
@@ -180,6 +294,8 @@ resetPage.addEventListener('transitionend', () => {
     resetPage.classList.add('hidden');
   }
 });
+
+
 </script>
 
 </body>

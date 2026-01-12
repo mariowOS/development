@@ -1,60 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Changelog - mariowOS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Poppins', sans-serif;
-            background: #1e1e1e;
-            color: white;
-        }
-        h1, h2, h3 {
-            font-weight: 600;
-        }
-        a {
-            color: #4ea1ff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .version {
-            margin-top: 20px;
-        }
-        ul {
-            margin-top: 10px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog</title>
 
-                p {
-            color: #ffffff;
-            text-decoration: none;
-        }
-    </style>
-<p><a href="javascript:history.back()">Go back to settings</a></p>
-<h2>0.7 changelog</h2>
-<h3>animations are really cool</h3>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<h3>• 🧩 apps</h3>
-<p>none</p>
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-<h3>• 🛠️ system</h3>
-<p>- added setup</p>
-<p>- changed wallpaper again absolutely not stolen from apple</p>
-<p>- boot process fixed</p>
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
 
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-<h3>• ❌ removed</h3>
-<p>none</p>
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
 
-<h3>• 🙃 known bugs</h3>
-<p>- missing boot process for linux</p>
-<p>&nbsp;</p>
-<p>report any bugs using the feedback app!</p>
- </html>
+.back-btn:hover {
+  color: #fff;
+}
+
+.changelog-entry {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.version-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4ea1ff;
+  margin-bottom: 10px;
+}
+
+.entry-item {
+  font-size: 13px;
+  color: #bbb;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.entry-item.added {
+  color: #9eff99;
+}
+
+.entry-item.fixed {
+  color: #99ccff;
+}
+
+.entry-item.removed {
+  color: #ff9999;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Changelog</span>
+  </div>
+
+  <div class="changelog-entry">
+    <div class="version-title">Version 1.0.0 - January 2026</div>
+    <div class="entry-item added">✓ Initial release of MarioWOS desktop</div>
+    <div class="entry-item added">✓ Settings application with full system configuration</div>
+    <div class="entry-item added">✓ Automation rules and scheduling system</div>
+    <div class="entry-item added">✓ Time and date management</div>
+    <div class="entry-item added">✓ System reset and recovery options</div>
+  </div>
+
+  <div class="changelog-entry">
+    <div class="version-title">Version 0.9.0 - December 2025</div>
+    <div class="entry-item added">✓ Beta testing phase completed</div>
+    <div class="entry-item fixed">↻ Fixed animation timing issues</div>
+    <div class="entry-item fixed">↻ Improved responsive design</div>
+  </div>
+
+  <div class="changelog-entry">
+    <div class="version-title">Version 0.7.0 - Early 2025</div>
+    <div class="entry-item added">✓ Added core system components</div>
+    <div class="entry-item added">✓ Desktop environment initialization</div>
+    <div class="entry-item added">✓ Boot sequence implementation</div>
+    <div class="entry-item removed">✗ Removed legacy components</div>
+  </div>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+
+goBack.addEventListener('click', () => {
+  window.history.back();
+});
+</script>
+
+</body>
+</html>

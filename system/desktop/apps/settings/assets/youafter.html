@@ -1,118 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Settings Saved</title>
-	<style>
-    * {
-        box-sizing: border-box;
-        color: #fff;
-    }
-    /* Hide scrollbar but allow scrolling */
-    *::-webkit-scrollbar {
-        display: none;
-    }
-    * {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
-		body {
-            font-family: Arial, sans-serif; 
-            background:#1e1e1e;
-            display: flex; 
-            align-items:center;
-            justify-content:center;
-            height:100vh;
-            overflow:hidden;
-            margin:0 
-                 }
-		.card { 
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
-            max-width:600px;
-            padding:24px; 
-            border-radius:8px;
-            background: #1e1e1e;}
-            
-		p{
-            color: #fff;
-            font-size:20px;
-        }
-        h1 {
-            color: #fff;
-        }
-        #edit-link {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Account</title>
 
-        }
-        #edit-link:hover {
-            background-color: #0056b3;
-            cursor: pointer;
-            animation: hoverEffect .3s;
-        }
-        
-        @keyframes hoverEffect {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-	</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.account-card {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.account-info {
+  font-size: 13px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.account-info .label {
+  font-weight: 500;
+  color: #fff;
+}
+
+.account-info .value {
+  color: #aaa;
+  margin-left: 8px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  background: rgba(74,144,226,0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+button:hover {
+  background: rgba(74,144,226,1);
+}
+
+button.secondary {
+  background: rgba(255,100,100,0.1);
+  border: 1px solid rgba(255,100,100,0.3);
+  color: #ff9999;
+}
+
+button.secondary:hover {
+  background: rgba(255,100,100,0.2);
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
 </head>
 <body>
-	<div class="card">
-		<h2><b>Your account</b></h2>
-		<p id="u-username">Username: —</p>
-		<p id="u-email">Email: —</p>
-		<p id="u-language">Language: —</p>
-		
-		<p><button id="edit-link" onclick="clearSettings()">change settings</button></p>
-        
-	</div>
-	<script>
-		// Populate page with settings from server; if none, go back to editor
-		(async function(){
-			try {
-				const r = await fetch('/get-settings');
-				if (!r.ok) throw new Error('Network');
-				const cfg = await r.json();
-				if (!cfg || (!cfg.username && !cfg.email && !cfg.language && !cfg.theme)) {
-					// no settings yet, go back
-					window.location.href = 'you.html';
-					return;
-				}
-				document.getElementById('u-username').textContent = 'Username: ' + (cfg.username || '—');
-				document.getElementById('u-email').textContent = 'Email: ' + (cfg.email || '—');
-				document.getElementById('u-language').textContent = 'Language: ' + (cfg.language || '—');
-				
-			} catch (e) {
-				console.warn('Failed to load settings:', e);
-			}
-		})();
 
-		async function clearSettings() {
-			try {
-				const r = await fetch('/clear-settings', { method: 'POST' });
-				if (!r.ok) throw new Error('Network');
-				const data = await r.json();
-				if (data.success) {
-					// go to editor; server will no longer redirect
-					window.location.href = 'you.html';
-				} else {
-					alert('Errore durante il reset: ' + (data.error || 'unknown'));
-				}
-			} catch (e) {
-				console.error('clearSettings failed', e);
-				alert('Errore di rete durante il reset delle impostazioni');
-			}
-		}
-	</script>
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Your Account</span>
+  </div>
+
+  <div class="account-card">
+    <div class="account-info">
+      <span class="label">Username:</span>
+      <span class="value" id="u-username">—</span>
+    </div>
+    <div class="account-info">
+      <span class="label">Email:</span>
+      <span class="value" id="u-email">—</span>
+    </div>
+    <div class="account-info">
+      <span class="label">Language:</span>
+      <span class="value" id="u-language">—</span>
+    </div>
+    <div class="account-info">
+      <span class="label">Theme:</span>
+      <span class="value" id="u-theme">—</span>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button onclick="editSettings()">Edit Settings</button>
+    <button class="secondary" onclick="clearSettings()">Reset</button>
+  </div>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+
+goBack.addEventListener('click', () => {
+  window.history.back();
+});
+
+(async function(){
+  try {
+    const r = await fetch('/get-settings');
+    if (!r.ok) throw new Error('Network');
+    const cfg = await r.json();
+    
+    if (!cfg || (!cfg.username && !cfg.email && !cfg.language && !cfg.theme)) {
+      window.location.href = 'you.html';
+      return;
+    }
+    
+    document.getElementById('u-username').textContent = cfg.username || '—';
+    document.getElementById('u-email').textContent = cfg.email || '—';
+    document.getElementById('u-language').textContent = cfg.language || '—';
+    document.getElementById('u-theme').textContent = cfg.theme || '—';
+  } catch (e) {
+    console.warn('Failed to load settings:', e);
+  }
+})();
+
+function editSettings() {
+  window.location.href = 'you.html';
+}
+
+async function clearSettings() {
+  if (!confirm('Are you sure you want to reset your settings?')) return;
+  
+  try {
+    const r = await fetch('/clear-settings', { method: 'POST' });
+    if (!r.ok) throw new Error('Network');
+    const data = await r.json();
+    if (data.success) {
+      window.location.href = 'you.html';
+    } else {
+      alert('Error resetting settings: ' + (data.error || 'unknown'));
+    }
+  } catch (e) {
+    console.error('clearSettings failed', e);
+    alert('Network error while resetting settings');
+  }
+}
+</script>
+
 </body>
 </html>

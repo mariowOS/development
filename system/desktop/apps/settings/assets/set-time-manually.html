@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set Time Manually</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #1e1e1e;
+  color: white;
+  overflow-y: auto;
+}   
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.header {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.back-btn:hover {
+  color: #fff;
+}
+.setting-group {
+  margin-bottom: 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 15px;
+}
+.setting-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.setting-group input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.setting-group input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(74,144,226,0.5);
+}
+button {
+  width: 100%;
+  padding: 12px;
+  background: rgba(74,144,226,0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button:hover {
+  background: rgba(74,144,226,1);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="back-btn" onclick="window.history.back();">←</div>
+    Set Time Manually
+  </div>
+  
+  <div class="setting-group">
+    <label for="timeInput">Select Time:</label>
+    <input type="time" id="timeInput">
+  </div>
+  <div class="setting-group">
+    <button onclick="setTime()">Set System Time</button>
+  </div>
+</div>
+
+<script>
+// Initialize time input with current time
+window.addEventListener('load', function() {
+  const timeInput = document.getElementById('timeInput');
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  timeInput.value = `${hours}:${minutes}`;
+});
+
+function setTime() {
+  const timeInput = document.getElementById('timeInput');
+  
+  if (!timeInput.value) {
+    alert('Please select a time');
+    return;
+  }
+
+  const [hours, minutes] = timeInput.value.split(':');
+  const h = parseInt(hours, 10);
+  const m = parseInt(minutes, 10);
+
+  // Calculate offset from current time
+  const now = new Date();
+  const offsetMs = (h - now.getHours()) * 3600000 + (m - now.getMinutes()) * 60000;
+  
+  // Store in sessionStorage for desktop to read
+  sessionStorage.setItem('systemTimeOffset', offsetMs);
+  
+  alert(`System time set to: ${hours}:${minutes}`);
+  
+  // Go back to settings
+  setTimeout(function() {
+    window.history.back();
+  }, 500);
+}
+</script>
+
+</body>
+</html>

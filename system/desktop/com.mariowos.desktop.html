@@ -394,9 +394,23 @@ Questions? https://discord.gg/YDVxw6jfbH
       if (header) focusPopup(header.parentElement);
     });
 
-    // cock 
+    // clock with custom time offset support
+    let systemTimeOffset = 0;
+    let timezoneOffset = 0;
+    
     function updateClock(){
-      const now = new Date();
+      let now = new Date();
+      
+      // Apply time offset if stored in sessionStorage
+      if (systemTimeOffset !== 0) {
+        now = new Date(now.getTime() + systemTimeOffset);
+      }
+      
+      // Apply timezone offset (in hours, convert to milliseconds)
+      if (timezoneOffset !== 0) {
+        now = new Date(now.getTime() + (timezoneOffset * 3600000));
+      }
+      
       const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
       const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
       let h = now.getHours(), m = now.getMinutes();
@@ -406,7 +420,24 @@ Questions? https://discord.gg/YDVxw6jfbH
       const txt = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}, ${h}:${m} ${ampm}`;
       document.getElementById("center-clock").textContent = txt;
     }
-    setInterval(updateClock, 1000); updateClock();
+    
+    // Check for time offset updates every second
+    function checkTimeOffset(){
+      const stored = localStorage.getItem('systemTimeOffset');
+      if (stored !== null) {
+        systemTimeOffset = parseInt(stored, 10);
+      }
+      const tzStored = localStorage.getItem('timezoneOffset');
+      if (tzStored !== null) {
+        timezoneOffset = parseFloat(tzStored);
+      }
+    }
+    
+    setInterval(() => {
+      checkTimeOffset();
+      updateClock();
+    }, 1000);
+    updateClock();
 
     // dropdowns 
     function setupDropdown(btnId, ddId){

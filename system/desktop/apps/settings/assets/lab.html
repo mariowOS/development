@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimental Lab</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.warning-banner {
+  background: rgba(255,150,50,0.1);
+  border: 1px solid rgba(255,150,50,0.3);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.warning-banner .title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffbb77;
+}
+
+.warning-banner .desc {
+  font-size: 13px;
+  color: #cc8855;
+  margin-top: 4px;
+}
+
+.item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.text-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.text-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Experimental Lab</span>
+  </div>
+
+  <div class="warning-banner">
+    <div class="title">⚠️ Experimental Features</div>
+    <div class="desc">
+      This section contains experimental and unstable features. Use with caution as they may cause unexpected behavior or system instability.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="text-title">Dark mode experiments</div>
+    <div class="text-desc">Test new dark mode variations and themes</div>
+  </div>
+
+  <div class="item">
+    <div class="text-title">Performance tuning</div>
+    <div class="text-desc">Advanced performance optimization settings</div>
+  </div>
+
+  <div class="item">
+    <div class="text-title">New animations</div>
+    <div class="text-desc">Preview experimental animation effects</div>
+  </div>
+
+  <div class="item">
+    <div class="text-title">Developer options</div>
+    <div class="text-desc">Enable advanced debugging and development features</div>
+  </div>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+
+goBack.addEventListener('click', () => {
+  window.history.back();
+});
+</script>
+
+</body>
+</html>

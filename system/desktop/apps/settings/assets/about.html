@@ -1,24 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .center-image {
-            height: auto;
-            border-radius: 12px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Settings</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.info-box {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.info-box .title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.info-box .content {
+  font-size: 13px;
+  color: #bbb;
+  line-height: 1.6;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.info-row .label {
+  font-weight: 500;
+  color: #fff;
+}
+
+.info-row .value {
+  color: #aaa;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
 </head>
 <body>
-    <div style="text-align: center;">
-        <img src="branding.png" class="center-image">
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>Settings › About</span>
+  </div>
+
+  <div class="info-box">
+    <div class="title">MarioWOS Settings</div>
+    <div class="content">
+      The Settings application provides a centralized location to manage all system configuration and preferences for your MarioWOS environment.
     </div>
+  </div>
+
+  <div class="info-box">
+    <div class="title">Version Information</div>
+    <div class="info-row">
+      <span class="label">Settings Version:</span>
+      <span class="value">1.0.0</span>
+    </div>
+    <div class="info-row">
+      <span class="label">System Version:</span>
+      <span class="value">MarioWOS 1.0</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Build Date:</span>
+      <span class="value">January 2026</span>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="title">Features</div>
+    <div class="content">
+      • System rules and automation<br>
+      • Time and date management<br>
+      • Reset and recovery options<br>
+      • Desktop customization<br>
+      • User preferences<br>
+      • Advanced system settings
+    </div>
+  </div>
+
+  <div class="info-box">
+    <div class="title">Credits</div>
+    <div class="content">
+      Developed with passion for MarioWOS desktop environment.
+    </div>
+  </div>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+
+goBack.addEventListener('click', () => {
+  window.history.back();
+});
+</script>
+
 </body>
 </html>

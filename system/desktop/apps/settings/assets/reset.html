@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Options</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.banner {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.banner .title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.banner .desc {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+.warning-banner {
+  background: rgba(255,100,100,0.1);
+  border: 1px solid rgba(255,100,100,0.3);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.warning-banner .title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #ff9999;
+}
+
+.warning-banner .desc {
+  font-size: 13px;
+  color: #cc7777;
+  margin-top: 4px;
+}
+
+.item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.item.dangerous {
+  background: rgba(255,100,100,0.1);
+  border: 1px solid rgba(255,100,100,0.3);
+}
+
+.item.dangerous:hover {
+  background: rgba(255,100,100,0.2);
+}
+
+.text-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.text-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+.item.dangerous .text-title {
+  color: #ff9999;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Reset</span>
+  </div>
+
+  <div class="warning-banner">
+    <div class="title">Attention: If you're changing device</div>
+    <div class="desc">
+      Click "Reset settings" to open the device move wizard. Choose what to keep and what to remove. You can also back up your data before resetting.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="text-title">Reset settings</div>
+    <div class="text-desc">Only resets settings to default options</div>
+  </div>
+
+  <div class="item">
+    <div class="text-title">Reset desktop (refresh)</div>
+    <div class="text-desc">Clears every customization option, doesn't clear data</div>
+  </div>
+
+  <div class="item dangerous">
+    <div class="text-title">Factory reset</div>
+    <div class="text-desc">Clears all data and everything, starts fresh - cannot be undone</div>
+  </div>
+
+  <div class="item dangerous">
+    <div class="text-title">Full system wipe</div>
+    <div class="text-desc">Complete data destruction and system reset - requires confirmation</div>
+  </div>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+
+goBack.addEventListener('click', () => {
+  window.history.back();
+});
+</script>
+
+</body>
+</html>

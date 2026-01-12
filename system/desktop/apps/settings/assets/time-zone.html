@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Zone Settings</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #1e1e1e;
+  color: white;
+  overflow-y: auto;
+}   
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.header {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.back-btn:hover {
+  color: #fff;
+}
+.setting-group {
+  margin-bottom: 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 15px;
+}
+.setting-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.setting-group select {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.setting-group select:focus {
+  outline: none;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(74,144,226,0.5);
+}
+.setting-group select option {
+  background: #2a2a2a;
+  color: white;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  background: rgba(74,144,226,0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button:hover {
+  background: rgba(74,144,226,1);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="back-btn" onclick="window.history.back();">←</div>
+    Time Zone
+  </div>
+  
+  <div class="setting-group">
+    <label for="timezoneSelect">Select Time Zone:</label>
+    <select id="timezoneSelect" onchange="updatePreviewClock()">
+      <option value="0">UTC+0 (London, GMT)</option>
+      <option value="1">UTC+1 (Rome, Berlin, Paris)</option>
+      <option value="2">UTC+2 (Cairo, Helsinki)</option>
+      <option value="3">UTC+3 (Moscow, Dubai)</option>
+      <option value="4">UTC+4 (Dubai, Baku)</option>
+      <option value="5">UTC+5 (Pakistan, India)</option>
+      <option value="5.5">UTC+5:30 (India Standard Time)</option>
+      <option value="6">UTC+6 (Bangladesh)</option>
+      <option value="7">UTC+7 (Bangkok, Jakarta)</option>
+      <option value="8">UTC+8 (Singapore, Hong Kong)</option>
+      <option value="9">UTC+9 (Tokyo, Seoul)</option>
+      <option value="10">UTC+10 (Sydney)</option>
+      <option value="11">UTC+11 (Solomon Islands)</option>
+      <option value="12">UTC+12 (New Zealand)</option>
+      <option value="-1">UTC-1 (Azores)</option>
+      <option value="-2">UTC-2 (Mid-Atlantic)</option>
+      <option value="-3">UTC-3 (Buenos Aires, São Paulo)</option>
+      <option value="-4">UTC-4 (New York, Toronto)</option>
+      <option value="-5">UTC-5 (Eastern Time)</option>
+      <option value="-6">UTC-6 (Chicago, Mexico City)</option>
+      <option value="-7">UTC-7 (Denver, Arizona)</option>
+      <option value="-8">UTC-8 (Los Angeles, Seattle)</option>
+      <option value="-9">UTC-9 (Anchorage)</option>
+      <option value="-10">UTC-10 (Hawaii)</option>
+      <option value="-11">UTC-11 (Samoa)</option>
+      <option value="-12">UTC-12 (Baker Island)</option>
+    </select>
+  </div>
+
+  <div class="setting-group">
+    <label>Preview Time:</label>
+    <div style="font-size: 32px; font-weight: 600; text-align: center; padding: 15px; background: rgba(74,144,226,0.2); border-radius: 8px;" id="previewClock">
+      --:--
+    </div>
+  </div>
+  <div class="setting-group">
+    <button onclick="setTimeZone()">Set Time Zone</button>
+  </div>
+</div>
+
+<script>
+// Load saved timezone on page load
+window.addEventListener('load', function() {
+  const saved = localStorage.getItem('timezoneOffset');
+  if (saved !== null) {
+    document.getElementById('timezoneSelect').value = saved;
+  }
+  updatePreviewClock();
+  setInterval(updatePreviewClock, 1000);
+});
+
+function updatePreviewClock() {
+  const select = document.getElementById('timezoneSelect');
+  const offset = parseFloat(select.value);
+  
+  let now = new Date();
+  
+  // Apply timezone offset (in hours, convert to milliseconds)
+  now = new Date(now.getTime() + (offset * 3600000));
+  
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  let h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+  const ampm = h>=12 ? "PM":"AM";
+  h = h%12; h = h ? h : 12;
+  m = m<10 ? "0"+m : m;
+  s = s<10 ? "0"+s : s;
+  
+  const txt = `${h}:${m}:${s} ${ampm}`;
+  document.getElementById("previewClock").textContent = txt;
+}
+
+function setTimeZone() {
+  const select = document.getElementById('timezoneSelect');
+  const offset = parseFloat(select.value);
+  
+  // Store timezone offset in hours
+  localStorage.setItem('timezoneOffset', offset);
+  
+  alert(`Time zone set to UTC${offset >= 0 ? '+' : ''}${offset}`);
+  
+  // Go back
+  setTimeout(function() {
+    window.history.back();
+  }, 500);
+}
+</script>
+
+</body>
+</html>
