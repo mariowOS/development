@@ -231,6 +231,32 @@ app.post('/clear-settings', (req, res) => {
   }
 });
 
+// FACTORY RESET ENDPOINT - Reset everything to original state
+app.post("/api/system/factory-reset", express.json(), (req, res) => {
+  try {
+    console.log("[FACTORY RESET] Starting reset process...");
+    
+    // Reset config.json completely - passwordHash = null for fresh OOBE
+    const originalConfig = { passwordHash: null };
+    fs.writeFileSync(configFile, JSON.stringify(originalConfig, null, 2));
+    
+    // UPDATE IN-MEMORY CONFIG IMMEDIATELY
+    config = originalConfig;
+    console.log("[FACTORY RESET] Config updated in memory to:", config);
+    
+    // Clear keys.json completely
+    fs.writeFileSync(keysFile, JSON.stringify([], null, 2));
+    console.log("[FACTORY RESET] Keys.json cleared");
+    console.log("[FACTORY RESET] All data has been cleared. passwordHash is now:", config.passwordHash);
+    
+    // Success response
+    res.json({ success: true, message: "System has been fully reset to factory defaults", config: config });
+  } catch (err) {
+    console.error("[FACTORY RESET] Error:", err);
+    res.status(500).json({ success: false, error: "Error during factory reset: " + err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`mariowOS is running at http://localhost:${PORT}`);
 });

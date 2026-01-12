@@ -399,39 +399,49 @@ Questions? https://discord.gg/YDVxw6jfbH
     let timezoneOffset = 0;
     
     function updateClock(){
-      let now = new Date();
-      
-      // Apply time offset if stored in sessionStorage
-      if (systemTimeOffset !== 0) {
-        now = new Date(now.getTime() + systemTimeOffset);
-      }
-      
-      // Apply timezone offset (in hours, convert to milliseconds)
-      if (timezoneOffset !== 0) {
-        now = new Date(now.getTime() + (timezoneOffset * 3600000));
-      }
-      
-      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      let h = now.getHours(), m = now.getMinutes();
-      const ampm = h>=12 ? "PM":"AM";
-      h = h%12; h = h ? h : 12;
-      m = m<10 ? "0"+m : m;
-      const txt = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}, ${h}:${m} ${ampm}`;
-      document.getElementById("center-clock").textContent = txt;
-    }
-    
+  const now = new Date();
+
+  // UTC reale (fonte di verità)
+  let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
+
+  // Se è attiva una timezone → orologio affidabile
+  if (timezoneOffset !== null) {
+    utcMs += timezoneOffset * 3600000;
+  }
+  // Altrimenti, se manual time è attivo → simulazione
+  else if (manualTimeEnabled) {
+    utcMs += systemTimeOffset;
+  }
+
+  const d = new Date(utcMs);
+
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  let h = d.getUTCHours();
+  let m = d.getUTCMinutes();
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  m = m < 10 ? "0" + m : m;
+
+  document.getElementById("center-clock").textContent =
+    `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
+}
+
+
+    let manualTimeEnabled = false;
+
     // Check for time offset updates every second
     function checkTimeOffset(){
-      const stored = localStorage.getItem('systemTimeOffset');
-      if (stored !== null) {
-        systemTimeOffset = parseInt(stored, 10);
-      }
-      const tzStored = localStorage.getItem('timezoneOffset');
-      if (tzStored !== null) {
-        timezoneOffset = parseFloat(tzStored);
-      }
-    }
+  const tz = localStorage.getItem('timezoneOffset');
+  const manual = localStorage.getItem('manualTimeEnabled');
+  const offset = localStorage.getItem('systemTimeOffset');
+
+  timezoneOffset = tz !== null ? parseFloat(tz) : null;
+  systemTimeOffset = offset !== null ? parseInt(offset, 10) : 0;
+  manualTimeEnabled = manual === 'true';
+}
+
     
     setInterval(() => {
       checkTimeOffset();

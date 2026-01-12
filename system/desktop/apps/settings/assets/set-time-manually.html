@@ -126,7 +126,11 @@ function setTime() {
   const offsetMs = (h - now.getHours()) * 3600000 + (m - now.getMinutes()) * 60000;
   
   // Store in sessionStorage for desktop to read
-  sessionStorage.setItem('systemTimeOffset', offsetMs);
+  localStorage.setItem('systemTimeOffset', offsetMs);
+  localStorage.setItem('manualTimeEnabled', 'true');
+  localStorage.removeItem('timezoneOffset');
+
+
   
   alert(`System time set to: ${hours}:${minutes}`);
   

@@ -102,33 +102,36 @@ button:hover {
   <div class="setting-group">
     <label for="timezoneSelect">Select Time Zone:</label>
     <select id="timezoneSelect" onchange="updatePreviewClock()">
-      <option value="0">UTC+0 (London, GMT)</option>
-      <option value="1">UTC+1 (Rome, Berlin, Paris)</option>
-      <option value="2">UTC+2 (Cairo, Helsinki)</option>
-      <option value="3">UTC+3 (Moscow, Dubai)</option>
-      <option value="4">UTC+4 (Dubai, Baku)</option>
-      <option value="5">UTC+5 (Pakistan, India)</option>
-      <option value="5.5">UTC+5:30 (India Standard Time)</option>
-      <option value="6">UTC+6 (Bangladesh)</option>
-      <option value="7">UTC+7 (Bangkok, Jakarta)</option>
-      <option value="8">UTC+8 (Singapore, Hong Kong)</option>
-      <option value="9">UTC+9 (Tokyo, Seoul)</option>
-      <option value="10">UTC+10 (Sydney)</option>
-      <option value="11">UTC+11 (Solomon Islands)</option>
-      <option value="12">UTC+12 (New Zealand)</option>
-      <option value="-1">UTC-1 (Azores)</option>
-      <option value="-2">UTC-2 (Mid-Atlantic)</option>
-      <option value="-3">UTC-3 (Buenos Aires, São Paulo)</option>
-      <option value="-4">UTC-4 (New York, Toronto)</option>
-      <option value="-5">UTC-5 (Eastern Time)</option>
-      <option value="-6">UTC-6 (Chicago, Mexico City)</option>
-      <option value="-7">UTC-7 (Denver, Arizona)</option>
-      <option value="-8">UTC-8 (Los Angeles, Seattle)</option>
-      <option value="-9">UTC-9 (Anchorage)</option>
-      <option value="-10">UTC-10 (Hawaii)</option>
-      <option value="-11">UTC-11 (Samoa)</option>
-      <option value="-12">UTC-12 (Baker Island)</option>
-    </select>
+  <option value="0">UTC±0 (Greenwich Mean Time)</option>
+
+  <option value="1">UTC+1 (CET – Winter Time)</option>
+  <option value="2">UTC+2 (EET / CEST – Summer Time)</option>
+  <option value="3">UTC+3</option>
+  <option value="4">UTC+4</option>
+  <option value="5">UTC+5</option>
+  <option value="5.5">UTC+5:30</option>
+  <option value="6">UTC+6</option>
+  <option value="7">UTC+7</option>
+  <option value="8">UTC+8</option>
+  <option value="9">UTC+9</option>
+  <option value="10">UTC+10</option>
+  <option value="11">UTC+11</option>
+  <option value="12">UTC+12</option>
+
+  <option value="-1">UTC−1</option>
+  <option value="-2">UTC−2</option>
+  <option value="-3">UTC−3</option>
+  <option value="-4">UTC−4</option>
+  <option value="-5">UTC−5</option>
+  <option value="-6">UTC−6</option>
+  <option value="-7">UTC−7</option>
+  <option value="-8">UTC−8</option>
+  <option value="-9">UTC−9</option>
+  <option value="-10">UTC−10</option>
+  <option value="-11">UTC−11</option>
+  <option value="-12">UTC−12</option>
+</select>
+
   </div>
 
   <div class="setting-group">
@@ -159,12 +162,17 @@ function updatePreviewClock() {
   
   let now = new Date();
   
+  // Convert to UTC first by removing the browser's timezone offset
+  let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
+  
   // Apply timezone offset (in hours, convert to milliseconds)
-  now = new Date(now.getTime() + (offset * 3600000));
+  utcMs = utcMs + (offset * 3600000);
+  
+  let displayTime = new Date(utcMs);
   
   const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  let h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+  let h = displayTime.getUTCHours(), m = displayTime.getUTCMinutes(), s = displayTime.getUTCSeconds();
   const ampm = h>=12 ? "PM":"AM";
   h = h%12; h = h ? h : 12;
   m = m<10 ? "0"+m : m;
@@ -180,6 +188,11 @@ function setTimeZone() {
   
   // Store timezone offset in hours
   localStorage.setItem('timezoneOffset', offset);
+  
+  // Reset manual time offset when setting timezone
+  // Each timezone is a reliable clock unaffected by manual changes
+  localStorage.setItem('systemTimeOffset', 0);
+  localStorage.setItem('manualTimeEnabled', 'false');
   
   alert(`Time zone set to UTC${offset >= 0 ? '+' : ''}${offset}`);
   
