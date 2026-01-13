@@ -169,28 +169,32 @@ function goBack() {
 }
 
 
-<script>
-function goBack() {
-  window.history.back();
-}
+window.addEventListener("DOMContentLoaded", () => {
+    const btn = document.querySelector(".btn-danger");
+    if (!btn) return console.error("Bottone reset non trovato!");
 
-function performReset() {
-  const resetBackground = document.getElementById("resetBackground").checked;
+    btn.addEventListener("click", () => {
+        // Imposta il wallpaper factory
+        const wallpaperPath = "../../../assets/wallpaper.factory.png";
+        localStorage.setItem("wallpaper", wallpaperPath);
 
-  if (resetBackground) {
-    if (window.parent && typeof window.parent.resetDesktopWallpaper === "function") {
-      window.parent.resetDesktopWallpaper();
-    } else {
-      console.error("Desktop API not available");
-    }
-  }
+        // Aggiorna immediatamente il desktop se aperto nella stessa pagina
+        const desktop = window.opener || window.parent; // se il reset è in un iframe o finestra popup
+        if (desktop && desktop.document.body) {
+            desktop.document.body.style.backgroundImage = `url('${wallpaperPath}')`;
+        }
 
-  alert("Desktop has been restored to factory defaults.");
-  goBack();
-}
+        // Ricarica la pagina per applicare eventuali altre modifiche
+        location.reload();
+    });
+});
+
+
 </script>
 
-</script>
+
+
+
 
 
 

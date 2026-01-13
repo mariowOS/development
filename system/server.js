@@ -3,11 +3,26 @@
 // Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
 // This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 
+
+const nodemailer = require("nodemailer");
 const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const path = require("path");
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: "", //da creare
+    pass: "" // app password, da inserire
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
 
 const app = express();
 const PORT = 3000;
@@ -67,24 +82,47 @@ app.post("/set-password", async (req, res) => {
 });
 
 // POST route to save user settings
-app.post("/save-settings", (req, res) => {
+app.post("/save-settings", async (req, res) => {
   const { username, email, language, theme } = req.body;
-  
+
+  if (!username || !email) {
+    return res.status(400).json({ success: false, error: "Username e email richiesti" });
+  }
+
   try {
-    // Update config object with new settings
+    // Salva le impostazioni
     config.username = username;
     config.email = email;
     config.language = language;
     config.theme = theme;
-    
-    // Write updated config to file
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
-    
-    // Send success response
-    res.json({ success: true, message: "Settings saved successfully!" });
+
+
+    // Contenuto della mail
+    const mailOptions = {
+      from: '"mariowOS" <davide.carosi10@gmail.com>',
+      to: email,
+      subject: "Conferma iscrizione mariowOS",
+      text: `Ciao ${username}, grazie per aver salvato le tue impostazioni.\nConferma cliccando qui: http://localhost:${PORT}/confirm`,
+      html: `<p>Ciao <b>${username}</b>,</p>
+             <p>Grazie per aver salvato le tue impostazioni.</p>
+             <p>Conferma cliccando <a href="http://localhost:${PORT}/confirm">qui</a></p>`
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Email inviata a:", email);
+
+    res.json({ success: true, message: "Settings salvati e email inviata!" });
+
   } catch (err) {
-    res.status(500).json({ success: false, error: "Error saving settings" });
+    console.error("Errore:", err);
+    res.status(500).json({ success: false, error: "Errore salvataggio settings o invio email" });
   }
+});
+
+// Route per conferma email
+app.get("/confirm", (req, res) => {
+  res.send("<h2>Email confermata! Grazie per aver confermato il tuo account mariowOS.</h2>");
 });
 
 // Fallback GET for easier debugging: return JSON instead of HTML for non-POST requests

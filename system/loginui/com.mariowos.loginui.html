@@ -308,6 +308,13 @@ fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
         document.body.style.backgroundPosition = 'center';
       }
     });
+window.addEventListener("DOMContentLoaded", () => {
+    let wallpaper = localStorage.getItem("wallpaper");
+    if (!wallpaper) wallpaper = "../../../assets/wallpaper.factory.png";
+
+    document.body.style.backgroundImage = `url('${wallpaper}')`;
+});
+
 </script>
 </body>
 </html>

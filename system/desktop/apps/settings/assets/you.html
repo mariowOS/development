@@ -132,27 +132,6 @@ html::-webkit-scrollbar {
     <input type="email" id="email" placeholder="Enter your email address">
   </div>
 
-  <div class="setting-group">
-    <label for="language">Language</label>
-    <select id="language">
-      <option value="">Select language</option>
-      <option value="en">English</option>
-      <option value="es">Spanish</option>
-      <option value="fr">French</option>
-      <option value="de">German</option>
-      <option value="it">Italian</option>
-    </select>
-  </div>
-
-  <div class="setting-group">
-    <label for="theme">Theme</label>
-    <select id="theme">
-      <option value="">Select theme</option>
-      <option value="dark">Dark</option>
-      <option value="light">Light</option>
-      <option value="auto">Auto</option>
-    </select>
-  </div>
 
   <button onclick="saveSettings()">Save Settings</button>
 </div>
@@ -173,10 +152,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (cfg.username) document.getElementById('username').value = cfg.username;
     if (cfg.email) document.getElementById('email').value = cfg.email;
-    if (cfg.language) document.getElementById('language').value = cfg.language;
-    if (cfg.theme) document.getElementById('theme').value = cfg.theme;
 
-    const isComplete = cfg.username?.trim() && cfg.email?.trim() && cfg.language?.trim() && cfg.theme?.trim();
+    const isComplete = cfg.username?.trim() && cfg.email?.trim();
     if (isComplete) {
       window.location.replace('youafter.html');
     }
@@ -188,8 +165,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 function saveSettings() {
   const username = document.getElementById('username').value.trim();
   const email = document.getElementById('email').value.trim();
-  const language = document.getElementById('language').value;
-  const theme = document.getElementById('theme').value;
 
   if (!username || !email) {
     alert('Username and Email cannot be empty.');
@@ -201,7 +176,7 @@ function saveSettings() {
     return;
   }
 
-  const settings = { username, email, language, theme };
+  const settings = { username, email};
 
   fetch('/save-settings', {
     method: 'POST',

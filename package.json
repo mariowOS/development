@@ -1,0 +1,17 @@
+{
+  "name": "development",
+  "version": "1.0.0",
+  "description": "<img width=\"1167\" height=\"360\" alt=\"Frame 340\" src=\"https://github.com/user-attachments/assets/75bb4aad-f059-44b1-9c6e-77df29639fc2\" />",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.12"
+  }
+}

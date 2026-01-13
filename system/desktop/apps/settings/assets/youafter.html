@@ -127,15 +127,6 @@ html::-webkit-scrollbar {
       <span class="label">Email:</span>
       <span class="value" id="u-email">—</span>
     </div>
-    <div class="account-info">
-      <span class="label">Language:</span>
-      <span class="value" id="u-language">—</span>
-    </div>
-    <div class="account-info">
-      <span class="label">Theme:</span>
-      <span class="value" id="u-theme">—</span>
-    </div>
-  </div>
 
   <div class="button-group">
     <button onclick="editSettings()">Edit Settings</button>
@@ -163,8 +154,6 @@ goBack.addEventListener('click', () => {
     
     document.getElementById('u-username').textContent = cfg.username || '—';
     document.getElementById('u-email').textContent = cfg.email || '—';
-    document.getElementById('u-language').textContent = cfg.language || '—';
-    document.getElementById('u-theme').textContent = cfg.theme || '—';
   } catch (e) {
     console.warn('Failed to load settings:', e);
   }
