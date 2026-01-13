@@ -4,12 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wallpaper Settings</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
+/* === STILE ORIGINALE === */
 body {
   font-family: 'Poppins', sans-serif;
   color: #fff;
@@ -22,50 +21,16 @@ body {
   justify-content: center;
 }
 
-.container {
-  max-width: 600px;
-  width: 100%;
-  position: relative;
-  background: transparent;
-}
+.container { max-width: 600px; width: 100%; position: relative; background: transparent; }
 
-.header {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.header { font-size: 22px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
 
-.back-btn {
-  font-size: 18px;
-  color: #bbb;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
+.back-btn { font-size: 18px; color: #bbb; cursor: pointer; transition: color 0.15s ease; }
+.back-btn:hover { color: #fff; }
 
-.back-btn:hover {
-  color: #fff;
-}
-
-.banner {
-  background: rgba(30,30,30,0.7);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 15px;
-}
-
-.banner .title {
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.banner .desc {
-  font-size: 13px;
-  color: #bbb;
-  margin-top: 4px;
-}
+.banner { background: rgba(30,30,30,0.7); border-radius: 10px; padding: 18px; margin-bottom: 15px; }
+.banner .title { font-size: 15px; font-weight: 500; }
+.banner .desc { font-size: 13px; color: #bbb; margin-top: 4px; }
 
 .upload-section {
   background: rgba(255,255,255,0.05);
@@ -75,57 +40,24 @@ body {
   margin-bottom: 15px;
   text-align: center;
 }
-
-.upload-section input[type="file"] {
-  margin: 10px 0;
-}
-
+.upload-section input[type="file"] { margin: 10px 0; }
 .upload-section button {
   background: rgba(74,144,226,0.8);
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Poppins', sans-serif;
-  transition: background 0.15s;
+  color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
+  font-family: 'Poppins'; transition: background 0.15s;
 }
+.upload-section button:hover { background: rgba(74,144,226,1); }
 
-.upload-section button:hover {
-  background: rgba(74,144,226,1);
-}
+.item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s; }
+.item:hover { background: rgba(255,255,255,0.1); }
 
-.item {
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
+.text-title { font-size: 16px; font-weight: 500; }
+.text-desc { font-size: 13px; color: #aaa; margin-top: 3px; }
 
-.item:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-.text-title {
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.text-desc {
-  font-size: 13px;
-  color: #aaa;
-  margin-top: 3px;
-}
-
-html::-webkit-scrollbar {
-  display: none;
-}
+html::-webkit-scrollbar{ display: none; }
 </style>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
     <span class="back-btn" id="goBack">←</span>
@@ -134,60 +66,56 @@ html::-webkit-scrollbar {
 
   <div class="banner">
     <div class="title">Customize your wallpaper</div>
-    <div class="desc">
-      Choose from predefined wallpapers or upload your own custom wallpaper image.
-    </div>
+    <div class="desc">Choose from predefined wallpapers or upload your own custom wallpaper image.</div>
   </div>
 
   <div class="upload-section">
-    <div style="font-size: 13px; margin-bottom: 10px;">Upload custom wallpaper</div>
-    <input type="file" id="wallpaperFile" accept="image/*">
-    <button onclick="uploadWallpaper()">Apply</button>
+    <div style="font-size: 13px; margin-bottom: 10px;">Upload custom wallpaper (PNG)</div>
+    <input type="file" id="wallpaperFile" accept="image/png">
+    <button id="applyBtn">Apply</button>
     <div id="status" style="margin-top: 10px; font-size: 12px; color: #aaa;"></div>
   </div>
 
-  <div class="item">
-    <div class="text-title">Default</div>
-    <div class="text-desc">Solid color background</div>
-  </div>
-
-  <div class="item">
-    <div class="text-title">Gradient Blue</div>
-    <div class="text-desc">Blue gradient wallpaper</div>
-  </div>
-
-  <div class="item">
-    <div class="text-title">Gradient Purple</div>
-    <div class="text-desc">Purple gradient wallpaper</div>
-  </div>
-
-  <div class="item">
-    <div class="text-title">Abstract Pattern</div>
-    <div class="text-desc">Modern abstract pattern</div>
-  </div>
 </div>
 
 <script>
-const goBack = document.getElementById('goBack');
+document.getElementById("goBack").onclick = () => window.history.back();
 
-goBack.addEventListener('click', () => {
-  window.history.back();
-});
+document.getElementById("applyBtn").onclick = async () => {
+  const fileInput = document.getElementById("wallpaperFile");
+  const status = document.getElementById("status");
 
-function uploadWallpaper() {
-  const file = document.getElementById('wallpaperFile').files[0];
-  const statusEl = document.getElementById('status');
-  
-  if (!file) {
-    statusEl.textContent = 'Please select a file';
-    statusEl.style.color = '#ff9999';
+  if (!fileInput.files.length) {
+    status.textContent = "Please select a PNG image.";
+    status.style.color = "#ff9999";
     return;
   }
-  
-  statusEl.textContent = 'Wallpaper will be applied';
-  statusEl.style.color = '#99ff99';
-}
-</script>
 
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append("wallpaper", file);
+
+  status.textContent = "Uploading wallpaper...";
+  status.style.color = "#aaa";
+
+  try {
+    const res = await fetch("/upload-wallpaper", { method: "POST", body: formData });
+    if (!res.ok) throw new Error("Upload failed");
+
+    status.textContent = "Wallpaper applied successfully.";
+    status.style.color = "#99ff99";
+
+    // aggiorna subito lo sfondo del desktop
+    if (window.parent && typeof window.parent.applyUserWallpaper === "function") {
+      window.parent.applyUserWallpaper();
+    }
+
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Error uploading wallpaper.";
+    status.style.color = "#ff9999";
+  }
+};
+</script>
 </body>
 </html>

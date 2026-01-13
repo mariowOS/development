@@ -295,6 +295,19 @@ closePopup.addEventListener('click', () => {
 redirectPopup.addEventListener('click', () => {
   window.location.href = '/desktop/fallback/com.mariowos.desktop.html';
 });
+
+fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
+    .then(res => {
+      if (res.ok) {
+        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      } else {
+        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      }
+    });
 </script>
 </body>
 </html>

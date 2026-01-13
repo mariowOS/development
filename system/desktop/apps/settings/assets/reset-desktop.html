@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factory Reset</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #1e1e1e;
+  color: white;
+  overflow-y: auto;
+}   
+
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.header {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.warning-banner {
+  background: rgba(220, 53, 69, 0.15);
+  border: 2px solid #dc3545;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #ff6b6b;
+}
+
+.warning-banner h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warning-banner p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+.setting-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  margin: 0;
+  cursor: pointer;
+  flex: 1;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: rgba(74,144,226,0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+button:hover {
+  background: rgba(74,144,226,1);
+}
+
+button.btn-danger {
+  background: rgba(220, 53, 69, 0.8);
+}
+
+button.btn-danger:hover {
+  background: rgba(220, 53, 69, 1);
+}
+
+button.btn-secondary {
+  background: rgba(108, 117, 125, 0.8);
+}
+
+button.btn-secondary:hover {
+  background: rgba(108, 117, 125, 1);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="back-btn" onclick="goBack()">←</div>
+    Desktop Reset
+  </div>
+  <div class="warning-banner">
+      <h3>Warning</h3>
+      <p>Desktop reset will take back <strong>background to original state. </strong>. This action <strong>CANNOT be undone</strong>.</p>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="resetBackground" disabled checked>
+      <label for="resetBackground">Reset Background to Default</label>
+    </div>
+
+    <div class="button-row">
+      <button class="btn-secondary" onclick="goBack()">Cancel</button>
+      <button class="btn-danger" onclick="performReset()">Reset Desktop</button>
+    </div>
+</div>
+<script>
+function goBack() {
+  window.history.back();
+}
+
+
+<script>
+function goBack() {
+  window.history.back();
+}
+
+function performReset() {
+  const resetBackground = document.getElementById("resetBackground").checked;
+
+  if (resetBackground) {
+    if (window.parent && typeof window.parent.resetDesktopWallpaper === "function") {
+      window.parent.resetDesktopWallpaper();
+    } else {
+      console.error("Desktop API not available");
+    }
+  }
+
+  alert("Desktop has been restored to factory defaults.");
+  goBack();
+}
+</script>
+
+</script>
+
+
+
+
+</body>
+</html>

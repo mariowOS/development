@@ -270,19 +270,34 @@ app.get("/clear-password", (req, res) => {
 // handler for wallpaper upload
 const uploadDir = path.join(__dirname, "desktop", "assets");
 
+
 // storage configuration (using multer)
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, "wallpaper.png"), // always rename else it will fuck itself up
+  destination: (req, file, cb) => cb(null, path.join(__dirname,"desktop/assets")),
+  filename: (req, file, cb) => cb(null, "wallpaper.user.png") // qui salvato sempre come user wallpaper
+});
+const upload = multer({ storage, fileFilter: (req,file,cb)=> file.mimetype === "image/png" ? cb(null,true) : cb(new Error("Only PNG!")) });
+
+app.post("/upload-wallpaper", upload.single("wallpaper"), (req,res)=>{
+  res.send("Wallpaper uploaded!");
 });
 
-// file filter to allow only PNGs 
+
+// file filter to accept only PNG and JPG files
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "image/png") cb(null, true);
-  else cb(new Error("Only .png files are allowed!")); // i'm too lazy to write a variable for all of the single image files.
+  // Lista dei MIME type consentiti
+  const allowedTypes = ["image/png", "image/jpeg"];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true); // accetta il file
+  } else {
+    cb(new Error("Only PNG and JPG files are allowed!"), false); // rifiuta il file
+  }
 };
 
-const upload = multer({ storage, fileFilter });
+
+
+
 
 // actually upload the wallpaper
 app.post("/upload-wallpaper", upload.single("wallpaper"), (req, res) => {

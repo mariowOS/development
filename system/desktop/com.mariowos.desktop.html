@@ -22,7 +22,7 @@ Questions? https://discord.gg/YDVxw6jfbH
   <style>
     body{
       margin:0; padding:0; width:100%; height:100%; overflow:hidden;
-      background: url("assets/wallpaper.png") center/cover no-repeat fixed;
+      background: url("assets/wallpaper.factory.png") center/cover no-repeat fixed;
       background-size:cover;
       font-family:'Poppins',sans-serif; color:#fff;
     }
@@ -461,6 +461,41 @@ Questions? https://discord.gg/YDVxw6jfbH
     setupDropdown("actionsBtn","actionsDropdown");
     setupDropdown("activitiesBtn","activitiesDropdown");
     setupDropdown("notificationsBtn","notificationsDropdown");
+    const DEFAULT_WALLPAPER = 'url("assets/wallpaper.png")';
+
+    function resetDesktopWallpaper() {
+      document.body.style.backgroundImage = DEFAULT_WALLPAPER;
+      localStorage.removeItem("desktopWallpaper");
+      console.log("Desktop wallpaper reset to default");
+    }
+
+    window.addEventListener("load", () => {
+  fetch("assets/wallpaper.user.png", { method: "HEAD" })
+    .then(res => {
+      if (res.ok) {
+        document.body.style.backgroundImage =
+          'url("assets/wallpaper.user.png")';
+      }
+    });
+});
+function applyUserWallpaper() {
+  fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
+    .then(res => {
+      if (res.ok) {
+        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      } else {
+        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+      }
+    });
+}
+
+// chiamalo al load
+window.addEventListener("load", applyUserWallpaper);
+
+
+
 
   </script>
 </body>
