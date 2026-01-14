@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Settings</title>
+<title>Verify Email</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,8 +63,7 @@ body {
   margin-bottom: 8px;
 }
 
-.setting-group input,
-.setting-group select {
+.setting-group input {
   width: 100%;
   padding: 10px 12px;
   background: rgba(255,255,255,0.05);
@@ -76,19 +75,13 @@ body {
   transition: border-color 0.15s ease;
 }
 
-.setting-group input:focus,
-.setting-group select:focus {
+.setting-group input:focus {
   outline: none;
   border-color: rgba(74,144,226,0.8);
 }
 
 .setting-group input::placeholder {
   color: #888;
-}
-
-.setting-group select option {
-  background: #2a2a2a;
-  color: #fff;
 }
 
 button {
@@ -109,6 +102,12 @@ button:hover {
   background: rgba(74,144,226,1);
 }
 
+.error {
+  color: #ff9999;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
 html::-webkit-scrollbar {
   display: none;
 }
@@ -119,21 +118,21 @@ html::-webkit-scrollbar {
 <div class="container">
   <div class="header">
     <span class="back-btn" id="goBack">←</span>
-    <span>System › User Settings</span>
+    <span>System › Verify Email</span>
   </div>
 
   <div class="setting-group">
-    <label for="username">Username</label>
-    <input type="text" id="username" placeholder="Enter your username">
+    <label for="code">Enter the 6-digit verification code sent to your email</label>
+    <input type="text" id="code" placeholder="123456" maxlength="6">
+    <div id="error" class="error"></div>
   </div>
 
   <div class="setting-group">
-    <label for="email">Email</label>
-    <input type="email" id="email" placeholder="Enter your email address">
+    <label for="avatar">Optional: Upload your avatar (PNG or JPG)</label>
+    <input type="file" id="avatar" accept="image/png,image/jpeg">
   </div>
 
-
-  <button onclick="saveSettings()">Save Settings</button>
+  <button onclick="verifyCode()">Verify Code</button>
 </div>
 
 <script>
@@ -143,62 +142,66 @@ goBack.addEventListener('click', () => {
   window.history.back();
 });
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function verifyCode() {
+  const code = document.getElementById('code').value.trim();
+  const avatarFile = document.getElementById('avatar').files[0];
+  const errorDiv = document.getElementById('error');
+
+  if (!code || code.length !== 6) {
+    errorDiv.textContent = 'Please enter a valid 6-digit code.';
+    return;
+  }
+
+  errorDiv.textContent = '';
+
+  // If avatar is selected, upload it first
+  if (avatarFile) {
+  const formData = new FormData();
+  formData.append('avatar', avatarFile);
+
   try {
-    const resp = await fetch('/get-settings');
-    if (!resp.ok) return;
+    const uploadResponse = await fetch('/upload-avatar', {
+      method: 'POST',
+      body: formData
+    });
 
-    const cfg = await resp.json();
-
-    if (cfg.username) document.getElementById('username').value = cfg.username;
-    if (cfg.email) document.getElementById('email').value = cfg.email;
-
-    const isComplete = cfg.username?.trim() && cfg.email?.trim();
-    if (isComplete) {
-      window.location.replace('youafter.html');
+    if (!uploadResponse.ok) {
+      throw new Error('Upload failed (' + uploadResponse.status + ')');
     }
+
+    const contentType = uploadResponse.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Server response is not JSON');
+    }
+
+    const uploadData = await uploadResponse.json();
+    if (!uploadData.success) {
+      throw new Error(uploadData.error || 'Upload error');
+    }
+
   } catch (err) {
-    console.warn('Settings check failed:', err);
-  }
-});
-
-function saveSettings() {
-  const username = document.getElementById('username').value.trim();
-  const email = document.getElementById('email').value.trim();
-
-  if (!username || !email) {
-    alert('Username and Email cannot be empty.');
+    errorDiv.textContent = 'Error uploading avatar: ' + err.message;
     return;
   }
+}
+453223
 
-  if (username.length > 30 || email.length > 50) {
-    alert('Username is too long. Maximum 30 characters allowed.');
-    return;
-  }
-
-  const settings = { username, email};
-
-  fetch('/save-settings', {
+  // Now verify the code
+  fetch('/verify-code', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(settings)
+    body: JSON.stringify({ code })
   })
   .then(async response => {
-    const ct = response.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) {
-      alert('Server error: non-JSON response');
-      return;
-    }
-
     const data = await response.json();
     if (data.success) {
-      window.location.href = 'youcode.html';
+      window.location.href = 'youafter.html';
     } else {
-      alert('Error: ' + (data.error || 'Unknown error'));
+      errorDiv.textContent = data.error || 'Invalid code.';
     }
   })
   .catch(err => {
-    alert('Error saving settings: ' + err.message);
+    errorDiv.textContent = 'Error verifying code: ' + err.message;
   });
 }
 </script>

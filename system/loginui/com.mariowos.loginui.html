@@ -64,6 +64,7 @@ body {
   border-radius:50%;
   background:url("/desktop/assets/avatar.png") center/cover no-repeat;
   box-shadow:0 6px 18px rgba(0,0,0,0.55), inset 0 -4px 10px rgba(0,0,0,0.12);
+  transition: background-image 0.3s ease;
 }
 
 .unlock-pill {
@@ -208,11 +209,22 @@ body {
 
   <div class="center-stack" role="main">
     <div class="avatar" aria-hidden="true"></div>
-    <div class="unlock-pill" id="unlockPill" aria-label="Unlock">
-      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password">
-      <button id="loginBtn" title="Unlock" aria-label="Unlock">
-        <img src="/desktop/assets/next.png" alt="→">
-      </button>
+    <div class="w-full max-w-xs space-y-4">
+      <div>
+        <label for="loginUsername" class="block text-sm font-medium text-white mb-2">Username</label>
+        <div class="unlock-pill" aria-label="Username">
+          <input id="loginUsername" type="text" autocomplete="username" placeholder="Enter username" aria-label="Username" class="w-full">
+        </div>
+      </div>
+      <div>
+        <label for="loginPassword" class="block text-sm font-medium text-white mb-2">Password</label>
+        <div class="unlock-pill" id="unlockPill" aria-label="Unlock">
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" class="w-full">
+          <button id="loginBtn" title="Unlock" aria-label="Unlock">
+            <img src="/desktop/assets/next.png" alt="→">
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -239,8 +251,13 @@ updateDateTime();
 setInterval(updateDateTime, 1000);
 
 const loginBtn = document.getElementById('loginBtn');
+const usernameInput = document.getElementById('loginUsername');
 const passwordInput = document.getElementById('loginPassword');
 const unlockPill = document.getElementById('unlockPill');
+
+usernameInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') passwordInput.focus();
+});
 
 passwordInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') attemptUnlock();
@@ -249,13 +266,14 @@ loginBtn.addEventListener('click', attemptUnlock);
 
 let wrongTimeout = null;
 async function attemptUnlock() {
+  const username = usernameInput.value.trim();
   const pass = passwordInput.value.trim();
-  if (!pass) return;
+  if (!username || !pass) return;
   try {
     const resp = await fetch('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ password: pass })
+      body: new URLSearchParams({ username: username, password: pass })
     });
     const text = await resp.text();
     const lowered = text.toLowerCase();
@@ -275,7 +293,7 @@ function showWrong() {
   wrongTimeout = setTimeout(() => unlockPill.classList.remove('wrong'), 1000);
   passwordInput.focus();
 }
-window.addEventListener('load', () => passwordInput.focus());
+window.addEventListener('load', () => usernameInput.focus());
 
 const popupOverlay = document.getElementById('popupOverlay');
 const closePopup = document.getElementById('closePopup');
@@ -313,6 +331,17 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!wallpaper) wallpaper = "../../../assets/wallpaper.factory.png";
 
     document.body.style.backgroundImage = `url('${wallpaper}')`;
+
+    // Check for user avatar
+    fetch("/desktop/assets/avatar.user.png", { method: "HEAD" })
+        .then(res => {
+            if (res.ok) {
+                document.querySelector('.avatar').style.backgroundImage = 'url("/desktop/assets/avatar.user.png?ts=' + Date.now() + '")';
+            }
+        })
+        .catch(() => {
+            // Keep default avatar.png
+        });
 });
 
 </script>

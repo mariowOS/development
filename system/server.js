@@ -15,8 +15,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: "", //da creare
-    pass: "" // app password, da inserire
+    user: "confirmation.mariowos@gmail.com", //da creare
+    pass: "eapv psur ruuk yrrf" // app password, da inserire
   },
   tls: {
     rejectUnauthorized: false
@@ -30,6 +30,19 @@ const PORT = 3000;
 const multer = require("multer");
 
 const os = require("os");
+
+// multer configuration for avatar upload
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, "desktop/assets")),
+  filename: (req, file, cb) => cb(null, "avatar.user.png")
+});
+const avatarUpload = multer({ storage: avatarStorage, fileFilter: (req, file, cb) => {
+  if (file.mimetype === "image/png" || file.mimetype === "image/jpeg") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only PNG and JPG files are allowed!"), false);
+  }
+}});
 
 // middleware to parse POST data
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -68,20 +81,22 @@ app.get("/", (req, res) => {
 
 // POST route to set password (from OOBE page)
 app.post("/set-password", async (req, res) => {
-  const { newPassword } = req.body;
+  const { username, newPassword } = req.body;
   if (!newPassword) return res.send("❌ No password provided!");
+  if (!username) return res.send("❌ No username provided!");
 
   try {
     const hash = await bcrypt.hash(newPassword, 10);
+    config.username = username;
     config.passwordHash = hash;
     fs.writeFileSync(configFile, JSON.stringify(config));
-    res.send("✅ Password updated!");
+    res.send("✅ Password and username updated!");
   } catch (err) {
     res.status(500).send("❌ Error setting password");
   }
 });
 
-// POST route to save user settings
+// POST route to save user settings (with email verification)
 app.post("/save-settings", async (req, res) => {
   const { username, email, language, theme } = req.body;
 
@@ -90,33 +105,92 @@ app.post("/save-settings", async (req, res) => {
   }
 
   try {
-    // Salva le impostazioni
-    config.username = username;
-    config.email = email;
-    config.language = language;
-    config.theme = theme;
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    // Store temporarily (do not save permanent settings yet)
+    config.tempUsername = username;
+    config.tempEmail = email;
+    config.tempLanguage = language;
+    config.tempTheme = theme;
+    config.verificationCode = verificationCode;
+    config.codeExpiresAt = codeExpiresAt;
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
 
-
-    // Contenuto della mail
+    // Contenuto della mail with code
     const mailOptions = {
       from: '"mariowOS" <davide.carosi10@gmail.com>',
       to: email,
-      subject: "Conferma iscrizione mariowOS",
-      text: `Ciao ${username}, grazie per aver salvato le tue impostazioni.\nConferma cliccando qui: http://localhost:${PORT}/confirm`,
+      subject: "Codice di verifica mariowOS",
+      text: `Ciao ${username}, il tuo codice di verifica è: ${verificationCode}\nInseriscilo nella pagina di verifica per completare la configurazione.`,
       html: `<p>Ciao <b>${username}</b>,</p>
-             <p>Grazie per aver salvato le tue impostazioni.</p>
-             <p>Conferma cliccando <a href="http://localhost:${PORT}/confirm">qui</a></p>`
+             <p>Il tuo codice di verifica è: <b>${verificationCode}</b></p>
+             <p>Inseriscilo nella pagina di verifica per completare la configurazione.</p>`
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Email inviata a:", email);
+    console.log("Email inviata a:", email, "con codice:", verificationCode);
 
-    res.json({ success: true, message: "Settings salvati e email inviata!" });
+    res.json({ success: true, message: "Codice di verifica inviato via email!" });
 
   } catch (err) {
     console.error("Errore:", err);
-    res.status(500).json({ success: false, error: "Errore salvataggio settings o invio email" });
+    res.status(500).json({ success: false, error: "Errore invio email" });
+  }
+});
+
+// POST route to verify code
+app.post("/verify-code", (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ success: false, error: "Codice richiesto" });
+  }
+
+  try {
+    if (!config.verificationCode || !config.codeExpiresAt) {
+      return res.status(400).json({ success: false, error: "Nessun codice di verifica attivo" });
+    }
+
+    if (Date.now() > config.codeExpiresAt) {
+      // Clear expired code
+      delete config.verificationCode;
+      delete config.codeExpiresAt;
+      delete config.tempUsername;
+      delete config.tempEmail;
+      delete config.tempLanguage;
+      delete config.tempTheme;
+      fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+      return res.status(400).json({ success: false, error: "Codice scaduto" });
+    }
+
+    if (code !== config.verificationCode) {
+      return res.status(400).json({ success: false, error: "Codice non valido" });
+    }
+
+    // Code is valid, save settings permanently
+    config.username = config.tempUsername;
+    config.email = config.tempEmail;
+    config.language = config.tempLanguage;
+    config.theme = config.tempTheme;
+    config.verified = true;
+
+    // Clear temporary data
+    delete config.verificationCode;
+    delete config.codeExpiresAt;
+    delete config.tempUsername;
+    delete config.tempEmail;
+    delete config.tempLanguage;
+    delete config.tempTheme;
+
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+    res.json({ success: true, message: "Impostazioni verificate e salvate!" });
+
+  } catch (err) {
+    console.error("Errore verifica codice:", err);
+    res.status(500).json({ success: false, error: "Errore verifica codice" });
   }
 });
 
@@ -141,16 +215,35 @@ app.get('/get-settings', (req, res) => {
   }
 });
 
-// fuckass route to verify password (from lockscreen)
-// this route sucks ass but i'm too lazy to fix it, fuck you
+// route to verify username and password (from lockscreen)
 app.post("/login", async (req, res) => {
-  const { password } = req.body;
-  if (!config.passwordHash) return res.send("❌ No password set!");
+  const { username, password } = req.body;
+  console.log("Login attempt:", { username, password });
 
-  const match = await bcrypt.compare(password, config.passwordHash);
+  // Reload config to ensure it's up to date
+  let currentConfig = { passwordHash: null };
+  if (fs.existsSync(configFile)) {
+    currentConfig = JSON.parse(fs.readFileSync(configFile, "utf8"));
+  }
+  console.log("currentConfig.username:", currentConfig.username, "currentConfig.passwordHash exists:", !!currentConfig.passwordHash);
+
+  if (!currentConfig.username || !currentConfig.passwordHash) {
+    console.log("No username or password set in config");
+    return res.send("❌ No username or password set!");
+  }
+
+  if (username !== currentConfig.username) {
+    console.log("Wrong username:", username, "expected:", currentConfig.username);
+    return res.send("❌ Wrong username!");
+  }
+
+  const match = await bcrypt.compare(password, currentConfig.passwordHash);
+  console.log("Password match:", match);
   if (match) {
+    console.log("Login successful, sending desktop");
     res.sendFile(path.join(__dirname, "desktop/com.mariowos.desktop.html"));
   } else {
+    console.log("Wrong password");
     res.send("❌ Wrong password!");
   }
 });
@@ -235,23 +328,7 @@ app.get("/sysinfo", (req, res) => {
   }
 });
 
-// system info endpoint - fetch command (ask system info to host)
-app.get("/sysinfo", (req, res) => {
-  try {
-    const cpus = os.cpus();
-    const sysInfo = {
-      OS: "mariowOS v0.7",
-      Kernel: os.type() + " " + os.release(),
-      Uptime: os.uptime(), // shown in seconds
-      CPU: `${cpus[0].model} (${cpus.length} cores)`,
-      RAM: `${Math.round(os.totalmem() / 1024 / 1024)} MB`,
-      FreeRAM: `${Math.round(os.freemem() / 1024 / 1024)} MB`,
-    };
-    res.json(sysInfo);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to get system info" });
-  }
-});
+
 
 // POST route to clear user settings (keep passwordHash)
 app.post('/clear-settings', (req, res) => {
@@ -261,6 +338,14 @@ app.post('/clear-settings', (req, res) => {
       delete config.email;
       delete config.language;
       delete config.theme;
+      delete config.verified;
+      // Also clear any temporary verification data
+      delete config.tempUsername;
+      delete config.tempEmail;
+      delete config.tempLanguage;
+      delete config.tempTheme;
+      delete config.verificationCode;
+      delete config.codeExpiresAt;
       fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
     }
     res.json({ success: true, message: 'Settings cleared' });
@@ -316,9 +401,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage, fileFilter: (req,file,cb)=> file.mimetype === "image/png" ? cb(null,true) : cb(new Error("Only PNG!")) });
 
-app.post("/upload-wallpaper", upload.single("wallpaper"), (req,res)=>{
-  res.send("Wallpaper uploaded!");
-});
+
 
 
 // file filter to accept only PNG and JPG files
@@ -340,4 +423,25 @@ const fileFilter = (req, file, cb) => {
 // actually upload the wallpaper
 app.post("/upload-wallpaper", upload.single("wallpaper"), (req, res) => {
   res.send("Wallpaper updated successfully!");
+});
+
+// POST route to upload avatar
+app.post("/upload-avatar", avatarUpload.single("avatar"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, error: "No avatar file provided" });
+  }
+  res.json({ success: true, message: "Avatar uploaded successfully!" });
+});
+
+// POST route to reset avatar to default
+app.post("/reset-avatar", (req, res) => {
+  try {
+    const avatarPath = path.join(__dirname, "desktop/assets/avatar.user.png");
+    if (fs.existsSync(avatarPath)) {
+      fs.unlinkSync(avatarPath);
+    }
+    res.json({ success: true, message: "Avatar reset to default!" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Error resetting avatar" });
+  }
 });

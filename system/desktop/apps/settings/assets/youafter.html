@@ -129,7 +129,7 @@ html::-webkit-scrollbar {
     </div>
 
   <div class="button-group">
-    <button onclick="editSettings()">Edit Settings</button>
+    <button onclick="resetAvatar()">Reset Avatar</button>
     <button class="secondary" onclick="clearSettings()">Reset</button>
   </div>
 </div>
@@ -163,9 +163,28 @@ function editSettings() {
   window.location.href = 'you.html';
 }
 
+async function resetAvatar() {
+  if (!confirm('Are you sure you want to reset your avatar to default?')) return;
+
+  try {
+    const r = await fetch('/reset-avatar', { method: 'POST' });
+    if (!r.ok) throw new Error('Network');
+    const data = await r.json();
+    if (data.success) {
+      alert('Avatar reset to default successfully!');
+      // Optionally refresh the page or update UI
+    } else {
+      alert('Error resetting avatar: ' + (data.error || 'unknown'));
+    }
+  } catch (e) {
+    console.error('resetAvatar failed', e);
+    alert('Network error while resetting avatar');
+  }
+}
+
 async function clearSettings() {
   if (!confirm('Are you sure you want to reset your settings?')) return;
-  
+
   try {
     const r = await fetch('/clear-settings', { method: 'POST' });
     if (!r.ok) throw new Error('Network');

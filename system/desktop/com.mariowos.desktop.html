@@ -495,7 +495,57 @@ function applyUserWallpaper() {
 window.addEventListener("load", applyUserWallpaper);
 
 
+window.addEventListener("message", (e) => {
+  if (e.data.type === "load-youafter") {
+    const settingsPopup = document.getElementById("popup1"); // popup Settings
+    const iframe = settingsPopup.querySelector("iframe");
+    iframe.src = "apps/settings/assets/youafter.html";
+  }
+});
 
+// ───── Gestione messaggi iframe (youafter / you.html) ─────
+window.addEventListener('message', async (e) => {
+  // opzionale: filtrare per origine se vuoi sicurezza
+  // if (e.origin !== "http://localhost:3000") return;
+
+  // L'iframe chiede di resettare solo username/email
+  if (e.data.type === 'clear-settings') {
+    try {
+      // Leggi il config corrente
+      const configPath = '/config.json'; // percorso corretto sul server
+      const res = await fetch(configPath);
+      const cfg = await res.json();
+
+      // Conserva solo passwordHash
+      const newCfg = { passwordHash: cfg.passwordHash };
+
+      // Scrivi di nuovo config.json (qui serve endpoint sul server!)
+      await fetch('/clear-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCfg)
+      });
+
+      // Invia conferma all'iframe
+      e.source.postMessage({ type: 'settings-cleared' }, '*');
+
+    } catch (err) {
+      console.error('Errore reset impostazioni:', err);
+      e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*');
+    }
+  }
+
+  // L'iframe chiede i dati
+  if (e.data.type === 'get-settings') {
+    try {
+      const res = await fetch('/get-settings');
+      const cfg = await res.json();
+      e.source.postMessage({ type: 'settings', data: cfg }, '*');
+    } catch (err) {
+      console.error('Errore get-settings:', err);
+    }
+  }
+});
 
   </script>
 </body>
