@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rule History</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.banner {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.banner .title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.banner .desc {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+.history-item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+}
+
+.history-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.history-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+.history-time {
+  font-size: 12px;
+  color: #888;
+  margin-top: 5px;
+}
+
+.btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  margin-top: 10px;
+  transition: background 0.15s;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Rules › Rule History</span>
+  </div>
+
+  <div class="banner">
+    <div class="title">Execution History</div>
+    <div class="desc">
+      View the history of executed automation rules.
+    </div>
+  </div>
+
+  <div id="historyContainer">
+    <!-- History will be loaded here -->
+  </div>
+
+  <button class="btn" id="clearHistoryBtn">Clear History</button>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+const historyContainer = document.getElementById('historyContainer');
+const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+function loadHistory() {
+  const history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
+  historyContainer.innerHTML = '';
+
+  if (history.length === 0) {
+    historyContainer.innerHTML = '<p style="color: #aaa; text-align: center;">No history found.</p>';
+    return;
+  }
+
+  // Sort by timestamp descending
+  history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  history.forEach(item => {
+    const historyItem = document.createElement('div');
+    historyItem.className = 'history-item';
+    const date = new Date(item.timestamp).toLocaleString();
+    historyItem.innerHTML = `
+      <div class="history-title">${item.ruleName} - ${item.action}</div>
+      <div class="history-desc">Action performed</div>
+      <div class="history-time">${date}</div>
+    `;
+    historyContainer.appendChild(historyItem);
+  });
+}
+
+clearHistoryBtn.addEventListener('click', () => {
+  if (confirm('Are you sure you want to clear all history?')) {
+    localStorage.removeItem('ruleHistory');
+    loadHistory();
+  }
+});
+
+goBack.addEventListener('click', () => {
+  window.location.href = 'rules.html';
+});
+
+// Load history on page load
+loadHistory();
+</script>
+
+</body>
+</html>

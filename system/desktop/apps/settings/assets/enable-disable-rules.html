@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enable/Disable Rules</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.banner {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.banner .title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.banner .desc {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+.toggle-container {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toggle-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background: #ccc;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-switch.active {
+  background: #4CAF50;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch.active .toggle-slider {
+  transform: translateX(26px);
+}
+
+.btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  margin-top: 20px;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Rules › Enable/Disable Rules</span>
+  </div>
+
+  <div class="banner">
+    <div class="title">Control All Rules</div>
+    <div class="desc">
+      Temporarily enable or disable all automation rules.
+    </div>
+  </div>
+
+  <div class="toggle-container">
+    <div class="toggle-label">All Rules Enabled</div>
+    <div class="toggle-switch active" id="rulesToggle">
+      <div class="toggle-slider"></div>
+    </div>
+  </div>
+
+  <button class="btn" id="saveBtn">Save Changes</button>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+const rulesToggle = document.getElementById('rulesToggle');
+const saveBtn = document.getElementById('saveBtn');
+const label = rulesToggle.previousElementSibling;
+
+function loadToggleState() {
+  const allRulesEnabled = localStorage.getItem('allRulesEnabled') !== 'false'; // Default to true
+  if (allRulesEnabled) {
+    rulesToggle.classList.add('active');
+    label.textContent = 'All Rules Enabled';
+  } else {
+    rulesToggle.classList.remove('active');
+    label.textContent = 'All Rules Disabled';
+  }
+}
+
+goBack.addEventListener('click', () => {
+  window.location.href = 'rules.html';
+});
+
+rulesToggle.addEventListener('click', () => {
+  rulesToggle.classList.toggle('active');
+  label.textContent = rulesToggle.classList.contains('active') ? 'All Rules Enabled' : 'All Rules Disabled';
+});
+
+saveBtn.addEventListener('click', () => {
+  const allRulesEnabled = rulesToggle.classList.contains('active');
+  localStorage.setItem('allRulesEnabled', allRulesEnabled);
+
+  // Add to history
+  let history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
+  history.push({
+    id: Date.now(),
+    ruleName: 'All Rules',
+    action: allRulesEnabled ? 'Enabled' : 'Disabled',
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem('ruleHistory', JSON.stringify(history));
+
+  alert('Changes saved!');
+});
+
+// Load state on page load
+loadToggleState();
+</script>
+
+</body>
+</html>

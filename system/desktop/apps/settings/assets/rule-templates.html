@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rule Templates</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.banner {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.banner .title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.banner .desc {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+.template-item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.template-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.template-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.template-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+.btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  transition: background 0.15s;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="back-btn" id="goBack">←</span>
+    <span>System › Rules › Rule Templates</span>
+  </div>
+
+  <div class="banner">
+    <div class="title">Predefined Rule Templates</div>
+    <div class="desc">
+      Choose from common automation templates to get started quickly.
+    </div>
+  </div>
+
+  <div class="template-item">
+    <div class="template-title">Daily Backup Reminder</div>
+    <div class="template-desc">Reminds you to backup files every day at 6 PM</div>
+    <button class="btn" data-template="backup">Use Template</button>
+  </div>
+
+  <div class="template-item">
+    <div class="template-title">Low Battery Alert</div>
+    <div class="template-desc">Notifies when battery is below 20%</div>
+    <button class="btn" data-template="battery">Use Template</button>
+  </div>
+
+  <div class="template-item">
+    <div class="template-title">Auto Shutdown</div>
+    <div class="template-desc">Shuts down the system at midnight</div>
+    <button class="btn" data-template="shutdown">Use Template</button>
+  </div>
+
+  <div class="template-item">
+    <div class="template-title">App Launch on Startup</div>
+    <div class="template-desc">Launches specified apps when system starts</div>
+    <button class="btn" data-template="startup">Use Template</button>
+  </div>
+</div>
+
+<script>
+const goBack = document.getElementById('goBack');
+
+const templates = {
+  backup: { name: 'Daily Backup Reminder', trigger: 'Time-based', action: 'Send notification' },
+  battery: { name: 'Low Battery Alert', trigger: 'Condition-based', action: 'Send notification' },
+  shutdown: { name: 'Auto Shutdown', trigger: 'Time-based', action: 'Shutdown system' },
+  startup: { name: 'App Launch on Startup', trigger: 'Event-based', action: 'Run command' }
+};
+
+function useTemplate(templateKey) {
+  const template = templates[templateKey];
+  if (!template) return;
+
+  const rule = {
+    id: Date.now(),
+    name: template.name,
+    trigger: template.trigger,
+    action: template.action,
+    enabled: true,
+    created: new Date().toISOString()
+  };
+
+  let rules = JSON.parse(localStorage.getItem('rules')) || [];
+  rules.push(rule);
+  localStorage.setItem('rules', JSON.stringify(rules));
+
+  // Add to history
+  let history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
+  history.push({
+    id: Date.now(),
+    ruleName: template.name,
+    action: 'Created from template',
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem('ruleHistory', JSON.stringify(history));
+
+  alert(`Template "${template.name}" applied successfully!`);
+  window.location.href = 'rules.html';
+}
+
+document.querySelectorAll('.btn[data-template]').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const templateKey = e.target.dataset.template;
+    useTemplate(templateKey);
+  });
+});
+
+goBack.addEventListener('click', () => {
+  window.location.href = 'rules.html';
+});
+</script>
+
+</body>
+</html>

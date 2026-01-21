@@ -1,0 +1,335 @@
+<!-- 
+mariowOS Weather - (C) 2025 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1b1b1b 100%);
+      user-select: none;
+      overflow: hidden;
+    }
+
+    .weather-app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+    }
+
+    .location-input {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(34, 34, 34, 0.9);
+      border-radius: 8px;
+    }
+
+    .location-input input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: rgba(50, 50, 50, 0.5);
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .location-input input:focus {
+      outline: none;
+      background: rgba(50, 50, 50, 0.8);
+    }
+
+    .current-weather {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(34, 34, 34, 0.9);
+      border-radius: 8px;
+    }
+
+    .weather-icon {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    .temperature {
+      font-size: 48px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .description {
+      font-size: 18px;
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+
+    .location {
+      font-size: 16px;
+      opacity: 0.7;
+    }
+
+    .weather-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .detail-card {
+      background: rgba(34, 34, 34, 0.9);
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .detail-value {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .detail-label {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .forecast {
+      flex: 1;
+      background: rgba(34, 34, 34, 0.9);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .forecast-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 15px;
+    }
+
+    .forecast-day {
+      text-align: center;
+      padding: 15px;
+      background: rgba(50, 50, 50, 0.5);
+      border-radius: 8px;
+    }
+
+    .forecast-date {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 5px;
+    }
+
+    .forecast-icon {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    .forecast-temp {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .forecast-desc {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      opacity: 0.7;
+    }
+
+    .error {
+      text-align: center;
+      padding: 40px;
+      color: #ff6b6b;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-app">
+    <div class="location-input">
+      <input type="text" id="location-input" placeholder="Enter city name (e.g., London, Paris, Tokyo)">
+    </div>
+
+    <div id="weather-content">
+      <div class="current-weather">
+        <div class="weather-icon">☀️</div>
+        <div class="temperature">--°C</div>
+        <div class="description">Loading weather data...</div>
+        <div class="location">Please enter a location</div>
+      </div>
+
+      <div class="weather-details">
+        <div class="detail-card">
+          <div class="detail-value">--%</div>
+          <div class="detail-label">Humidity</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-value">-- km/h</div>
+          <div class="detail-label">Wind Speed</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-value">-- hPa</div>
+          <div class="detail-label">Pressure</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-value">-- km</div>
+          <div class="detail-label">Visibility</div>
+        </div>
+      </div>
+
+      <div class="forecast">
+        <div class="forecast-title">5-Day Forecast</div>
+        <div class="forecast-grid" id="forecast-grid">
+          <!-- Forecast will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const locationInput = document.getElementById('location-input');
+    const weatherContent = document.getElementById('weather-content');
+
+    // Sample weather data (in a real app, this would come from an API)
+    const sampleWeatherData = {
+      "London": {
+        current: {
+          temp: 15,
+          description: "Partly cloudy",
+          icon: "⛅",
+          humidity: 65,
+          windSpeed: 12,
+          pressure: 1013,
+          visibility: 10,
+          location: "London, UK"
+        },
+        forecast: [
+          { date: "Today", temp: 15, description: "Partly cloudy", icon: "⛅" },
+          { date: "Tomorrow", temp: 17, description: "Sunny", icon: "☀️" },
+          { date: "Wed", temp: 14, description: "Rainy", icon: "🌧️" },
+          { date: "Thu", temp: 16, description: "Cloudy", icon: "☁️" },
+          { date: "Fri", temp: 18, description: "Sunny", icon: "☀️" }
+        ]
+      },
+      "Paris": {
+        current: {
+          temp: 18,
+          description: "Sunny",
+          icon: "☀️",
+          humidity: 55,
+          windSpeed: 8,
+          pressure: 1015,
+          visibility: 12,
+          location: "Paris, France"
+        },
+        forecast: [
+          { date: "Today", temp: 18, description: "Sunny", icon: "☀️" },
+          { date: "Tomorrow", temp: 20, description: "Partly cloudy", icon: "⛅" },
+          { date: "Wed", temp: 16, description: "Rainy", icon: "🌧️" },
+          { date: "Thu", temp: 19, description: "Sunny", icon: "☀️" },
+          { date: "Fri", temp: 21, description: "Sunny", icon: "☀️" }
+        ]
+      },
+      "Tokyo": {
+        current: {
+          temp: 22,
+          description: "Clear sky",
+          icon: "☀️",
+          humidity: 70,
+          windSpeed: 15,
+          pressure: 1010,
+          visibility: 8,
+          location: "Tokyo, Japan"
+        },
+        forecast: [
+          { date: "Today", temp: 22, description: "Clear sky", icon: "☀️" },
+          { date: "Tomorrow", temp: 24, description: "Sunny", icon: "☀️" },
+          { date: "Wed", temp: 20, description: "Cloudy", icon: "☁️" },
+          { date: "Thu", temp: 23, description: "Partly cloudy", icon: "⛅" },
+          { date: "Fri", temp: 25, description: "Sunny", icon: "☀️" }
+        ]
+      }
+    };
+
+    function updateWeather(city) {
+      const data = sampleWeatherData[city] || sampleWeatherData["London"];
+
+      // Update current weather
+      document.querySelector('.weather-icon').textContent = data.current.icon;
+      document.querySelector('.temperature').textContent = `${data.current.temp}°C`;
+      document.querySelector('.description').textContent = data.current.description;
+      document.querySelector('.location').textContent = data.current.location;
+
+      // Update details
+      const details = document.querySelectorAll('.detail-value');
+      details[0].textContent = `${data.current.humidity}%`;
+      details[1].textContent = `${data.current.windSpeed} km/h`;
+      details[2].textContent = `${data.current.pressure} hPa`;
+      details[3].textContent = `${data.current.visibility} km`;
+
+      // Update forecast
+      const forecastGrid = document.getElementById('forecast-grid');
+      forecastGrid.innerHTML = '';
+
+      data.forecast.forEach(day => {
+        const forecastDay = document.createElement('div');
+        forecastDay.className = 'forecast-day';
+        forecastDay.innerHTML = `
+          <div class="forecast-date">${day.date}</div>
+          <div class="forecast-icon">${day.icon}</div>
+          <div class="forecast-temp">${day.temp}°C</div>
+          <div class="forecast-desc">${day.description}</div>
+        `;
+        forecastGrid.appendChild(forecastDay);
+      });
+    }
+
+    function handleLocationInput() {
+      const city = locationInput.value.trim();
+      if (city) {
+        updateWeather(city);
+      }
+    }
+
+    locationInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleLocationInput();
+      }
+    });
+
+    locationInput.addEventListener('blur', handleLocationInput);
+
+    // Initialize with default city
+    updateWeather('London');
+  </script>
+</body>
+</html>

@@ -76,6 +76,9 @@ body {
   margin-bottom: 8px;
   cursor: pointer;
   transition: background 0.15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .item:hover {
@@ -91,6 +94,36 @@ body {
   font-size: 13px;
   color: #aaa;
   margin-top: 3px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background: #333;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-switch.active {
+  background: #4CAF50;
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch.active::after {
+  transform: translateX(26px);
 }
 
 html::-webkit-scrollbar {
@@ -113,24 +146,36 @@ html::-webkit-scrollbar {
     </div>
   </div>
 
-  <div class="item">
-    <div class="text-title">Dark mode experiments</div>
-    <div class="text-desc">Test new dark mode variations and themes</div>
+  <div class="item" id="darkModeItem">
+    <div>
+      <div class="text-title">Dark mode experiments</div>
+      <div class="text-desc">Test new dark mode variations and themes</div>
+    </div>
+    <div class="toggle-switch" id="darkModeToggle" onclick="toggleFeature('darkMode')"></div>
   </div>
 
-  <div class="item">
-    <div class="text-title">Performance tuning</div>
-    <div class="text-desc">Advanced performance optimization settings</div>
+  <div class="item" id="performanceItem">
+    <div>
+      <div class="text-title">Performance tuning</div>
+      <div class="text-desc">Advanced performance optimization settings</div>
+    </div>
+    <div class="toggle-switch" id="performanceToggle" onclick="toggleFeature('performance')"></div>
   </div>
 
-  <div class="item">
-    <div class="text-title">New animations</div>
-    <div class="text-desc">Preview experimental animation effects</div>
+  <div class="item" id="animationsItem">
+    <div>
+      <div class="text-title">New animations</div>
+      <div class="text-desc">Preview experimental animation effects</div>
+    </div>
+    <div class="toggle-switch" id="animationsToggle" onclick="toggleFeature('animations')"></div>
   </div>
 
-  <div class="item">
-    <div class="text-title">Developer options</div>
-    <div class="text-desc">Enable advanced debugging and development features</div>
+  <div class="item" id="developerItem">
+    <div>
+      <div class="text-title">Developer options</div>
+      <div class="text-desc">Enable advanced debugging and development features</div>
+    </div>
+    <div class="toggle-switch" id="developerToggle" onclick="toggleFeature('developer')"></div>
   </div>
 </div>
 
@@ -140,6 +185,27 @@ const goBack = document.getElementById('goBack');
 goBack.addEventListener('click', () => {
   window.history.back();
 });
+
+// Experimental features functions
+function toggleDarkModeExperiments() {
+  alert('Dark mode experiments toggled! This feature is under development.');
+  // Here you could toggle dark mode variations
+}
+
+function togglePerformanceTuning() {
+  alert('Performance tuning enabled! Advanced optimizations applied.');
+  // Here you could apply performance settings
+}
+
+function toggleNewAnimations() {
+  alert('New animations preview enabled! Experimental effects activated.');
+  // Here you could enable new animation effects
+}
+
+function toggleDeveloperOptions() {
+  alert('Developer options enabled! Debugging features activated.');
+  // Here you could enable developer tools
+}
 </script>
 
 </body>
