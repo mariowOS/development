@@ -215,29 +215,24 @@ app.get('/get-settings', (req, res) => {
   }
 });
 
-// route to verify username and password (from lockscreen)
+// route to verify password (from lockscreen)
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  console.log("Login attempt:", { username, password });
+  const {password } = req.body;
+  console.log("Login attempt:", {password });
 
   // Reload config to ensure it's up to date
   let currentConfig = { passwordHash: null };
   if (fs.existsSync(configFile)) {
     currentConfig = JSON.parse(fs.readFileSync(configFile, "utf8"));
   }
-  console.log("currentConfig.username:", currentConfig.username, "currentConfig.passwordHash exists:", !!currentConfig.passwordHash);
+  console.log("currentConfig.passwordHash exists:", !!currentConfig.passwordHash);
 
-  if (!currentConfig.username || !currentConfig.passwordHash) {
+  if (!currentConfig.passwordHash) {
     console.log("No username or password set in config");
     return res.send("❌ No username or password set!");
   }
 
-  if (username !== currentConfig.username) {
-    console.log("Wrong username:", username, "expected:", currentConfig.username);
-    return res.send("❌ Wrong username!");
-  }
-
-  const match = await bcrypt.compare(password, currentConfig.passwordHash);
+const match = await bcrypt.compare(password, currentConfig.passwordHash);
   console.log("Password match:", match);
   if (match) {
     console.log("Login successful, sending desktop");

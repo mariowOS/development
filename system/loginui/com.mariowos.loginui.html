@@ -209,15 +209,7 @@ body {
 
   <div class="center-stack" role="main">
     <div class="avatar" aria-hidden="true"></div>
-    <div class="w-full max-w-xs space-y-4">
-      <div>
-        <label for="loginUsername" class="block text-sm font-medium text-white mb-2">Username</label>
-        <div class="unlock-pill" aria-label="Username">
-          <input id="loginUsername" type="text" autocomplete="username" placeholder="Enter username" aria-label="Username" class="w-full">
-        </div>
-      </div>
-      <div>
-        <label for="loginPassword" class="block text-sm font-medium text-white mb-2">Password</label>
+            <label for="loginPassword" class="block text-sm font-medium text-white mb-2">Password</label>
         <div class="unlock-pill" id="unlockPill" aria-label="Unlock">
           <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" class="w-full">
           <button id="loginBtn" title="Unlock" aria-label="Unlock">
@@ -251,13 +243,8 @@ updateDateTime();
 setInterval(updateDateTime, 1000);
 
 const loginBtn = document.getElementById('loginBtn');
-const usernameInput = document.getElementById('loginUsername');
 const passwordInput = document.getElementById('loginPassword');
 const unlockPill = document.getElementById('unlockPill');
-
-usernameInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') passwordInput.focus();
-});
 
 passwordInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') attemptUnlock();
@@ -266,14 +253,13 @@ loginBtn.addEventListener('click', attemptUnlock);
 
 let wrongTimeout = null;
 async function attemptUnlock() {
-  const username = usernameInput.value.trim();
   const pass = passwordInput.value.trim();
-  if (!username || !pass) return;
+  if (!pass) return;
   try {
     const resp = await fetch('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ username: username, password: pass })
+      body: new URLSearchParams({ password: pass })
     });
     const text = await resp.text();
     const lowered = text.toLowerCase();
@@ -293,7 +279,7 @@ function showWrong() {
   wrongTimeout = setTimeout(() => unlockPill.classList.remove('wrong'), 1000);
   passwordInput.focus();
 }
-window.addEventListener('load', () => usernameInput.focus());
+window.addEventListener('load', () => passwordInput.focus());
 
 const popupOverlay = document.getElementById('popupOverlay');
 const closePopup = document.getElementById('closePopup');
