@@ -401,14 +401,14 @@ Questions? https://discord.gg/YDVxw6jfbH
     function updateClock(){
   const now = new Date();
 
-  // UTC reale (fonte di verità)
+  // UTC reference time
   let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
 
-  // Se è attiva una timezone → orologio affidabile
+  // if timezone offset is set → override
   if (timezoneOffset !== null) {
     utcMs += timezoneOffset * 3600000;
   }
-  // Altrimenti, se manual time è attivo → simulazione
+  // else, if manual time is enabled → apply system offset
   else if (manualTimeEnabled) {
     utcMs += systemTimeOffset;
   }
@@ -431,7 +431,7 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     let manualTimeEnabled = false;
 
-    // Check for time offset updates every second
+    // check for time offset updates every second
     function checkTimeOffset(){
   const tz = localStorage.getItem('timezoneOffset');
   const manual = localStorage.getItem('manualTimeEnabled');
@@ -491,58 +491,58 @@ function applyUserWallpaper() {
     });
 }
 
-// chiamalo al load
+// call the function on load
 window.addEventListener("load", applyUserWallpaper);
 
 
 window.addEventListener("message", (e) => {
   if (e.data.type === "load-youafter") {
-    const settingsPopup = document.getElementById("popup1"); // popup Settings
+    const settingsPopup = document.getElementById("popup1"); // popup
     const iframe = settingsPopup.querySelector("iframe");
     iframe.src = "apps/settings/assets/youafter.html";
   }
 });
 
-// ───── Gestione messaggi iframe (youafter / you.html) ─────
+  // ───── iframemsgs (youafter / you.html) ─────
 window.addEventListener('message', async (e) => {
-  // opzionale: filtrare per origine se vuoi sicurezza
+  // optional: filter by origin if you want security
   // if (e.origin !== "http://localhost:3000") return;
 
-  // L'iframe chiede di resettare solo username/email
+  // iframe asks to reset only username/email
   if (e.data.type === 'clear-settings') {
     try {
-      // Leggi il config corrente
-      const configPath = '/config.json'; // percorso corretto sul server
+      // read current config
+      const configPath = '/config.json'; // right path to config
       const res = await fetch(configPath);
       const cfg = await res.json();
 
-      // Conserva solo passwordHash
+      // keep passwordHash
       const newCfg = { passwordHash: cfg.passwordHash };
 
-      // Scrivi di nuovo config.json (qui serve endpoint sul server!)
+      // write new config (here an endpoint on the server is needed!)
       await fetch('/clear-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCfg)
       });
 
-      // Invia conferma all'iframe
+      // send confirmation back to iframe
       e.source.postMessage({ type: 'settings-cleared' }, '*');
 
     } catch (err) {
-      console.error('Errore reset impostazioni:', err);
+      console.error('E: Reset settings:', err);
       e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*');
     }
   }
 
-  // L'iframe chiede i dati
+  // iframe asks for current settings
   if (e.data.type === 'get-settings') {
     try {
       const res = await fetch('/get-settings');
       const cfg = await res.json();
       e.source.postMessage({ type: 'settings', data: cfg }, '*');
     } catch (err) {
-      console.error('Errore get-settings:', err);
+      console.error('E: get-settings:', err);
     }
   }
 });
