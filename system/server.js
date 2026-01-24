@@ -101,7 +101,7 @@ app.post("/save-settings", async (req, res) => {
   const { username, email, language, theme } = req.body;
 
   if (!username || !email) {
-    return res.status(400).json({ success: false, error: "Username e email richiesti" });
+    return res.status(400).json({ success: false, error: "Username and email required" });
   }
 
   try {
@@ -122,21 +122,21 @@ app.post("/save-settings", async (req, res) => {
     const mailOptions = {
       from: '"mariowOS" <davide.carosi10@gmail.com>',
       to: email,
-      subject: "Codice di verifica mariowOS",
-      text: `Ciao ${username}, il tuo codice di verifica è: ${verificationCode}\nInseriscilo nella pagina di verifica per completare la configurazione.`,
-      html: `<p>Ciao <b>${username}</b>,</p>
-             <p>Il tuo codice di verifica è: <b>${verificationCode}</b></p>
-             <p>Inseriscilo nella pagina di verifica per completare la configurazione.</p>`
+      subject: "mariowOS - Verification code",
+      text: `Hello ${username}, your verification code is: ${verificationCode}\nPlease enter it on the verification page to complete your setup.`,
+      html: `<p>Hello <b>${username}</b>,</p>
+             <p>Your verification code is: <b>${verificationCode}</b></p>
+             <p>Please enter it on the verification page to complete your setup.</p>`
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Email inviata a:", email, "con codice:", verificationCode);
+    console.log("Mail sent to:", email, "with code:", verificationCode);
 
-    res.json({ success: true, message: "Codice di verifica inviato via email!" });
+    res.json({ success: true, message: "Verification code sent via email!" });
 
   } catch (err) {
-    console.error("Errore:", err);
-    res.status(500).json({ success: false, error: "Errore invio email" });
+    console.error("E:", err);
+    res.status(500).json({ success: false, error: "Error sending email, is it right?" });
   }
 });
 
@@ -145,12 +145,12 @@ app.post("/verify-code", (req, res) => {
   const { code } = req.body;
 
   if (!code) {
-    return res.status(400).json({ success: false, error: "Codice richiesto" });
+    return res.status(400).json({ success: false, error: "Code required" });
   }
 
   try {
     if (!config.verificationCode || !config.codeExpiresAt) {
-      return res.status(400).json({ success: false, error: "Nessun codice di verifica attivo" });
+      return res.status(400).json({ success: false, error: "No verification code active" });
     }
 
     if (Date.now() > config.codeExpiresAt) {
@@ -162,11 +162,11 @@ app.post("/verify-code", (req, res) => {
       delete config.tempLanguage;
       delete config.tempTheme;
       fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
-      return res.status(400).json({ success: false, error: "Codice scaduto" });
+      return res.status(400).json({ success: false, error: "Expired code" });
     }
 
     if (code !== config.verificationCode) {
-      return res.status(400).json({ success: false, error: "Codice non valido" });
+      return res.status(400).json({ success: false, error: "Unvalid code" });
     }
 
     // Code is valid, save settings permanently
@@ -186,17 +186,17 @@ app.post("/verify-code", (req, res) => {
 
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
 
-    res.json({ success: true, message: "Impostazioni verificate e salvate!" });
+    res.json({ success: true, message: "Settings verified and saved!" });
 
   } catch (err) {
-    console.error("Errore verifica codice:", err);
-    res.status(500).json({ success: false, error: "Errore verifica codice" });
+    console.error("Error verifying code:", err);
+    res.status(500).json({ success: false, error: "Error verifying code" });
   }
 });
 
 // Route per conferma email
 app.get("/confirm", (req, res) => {
-  res.send("<h2>Email confermata! Grazie per aver confermato il tuo account mariowOS.</h2>");
+  res.send("<h2>Email confirmed! Thank you for confirming your mariowOS account.</h2>");
 });
 
 // Fallback GET for easier debugging: return JSON instead of HTML for non-POST requests
