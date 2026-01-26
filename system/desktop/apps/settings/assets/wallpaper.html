@@ -59,15 +59,6 @@ html::-webkit-scrollbar{ display: none; }
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <span class="back-btn" id="goBack">←</span>
-    <span>System › Wallpaper</span>
-  </div>
-
-  <div class="banner">
-    <div class="title">Customize your wallpaper</div>
-    <div class="desc">Choose from predefined wallpapers or upload your own custom wallpaper image.</div>
-  </div>
 
   <div class="upload-section">
     <div style="font-size: 13px; margin-bottom: 10px;">Upload custom wallpaper (PNG)</div>
@@ -105,7 +96,7 @@ document.getElementById("applyBtn").onclick = async () => {
     status.textContent = "Wallpaper applied successfully.";
     status.style.color = "#99ff99";
 
-    // aggiorna subito lo sfondo del desktop
+    // update wallpaper in parent window then shit out an error if the wallpaper shits itself
     if (window.parent && typeof window.parent.applyUserWallpaper === "function") {
       window.parent.applyUserWallpaper();
     }

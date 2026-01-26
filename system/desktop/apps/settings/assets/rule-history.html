@@ -116,11 +116,6 @@ html::-webkit-scrollbar {
 <body>
 
 <div class="container">
-  <div class="header">
-    <span class="back-btn" id="goBack">←</span>
-    <span>System › Rules › Rule History</span>
-  </div>
-
   <div class="banner">
     <div class="title">Execution History</div>
     <div class="desc">
@@ -129,7 +124,7 @@ html::-webkit-scrollbar {
   </div>
 
   <div id="historyContainer">
-    <!-- History will be loaded here -->
+    <!-- history load position -->
   </div>
 
   <button class="btn" id="clearHistoryBtn">Clear History</button>
@@ -149,7 +144,7 @@ function loadHistory() {
     return;
   }
 
-  // Sort by timestamp descending
+  // sorting 
   history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
   history.forEach(item => {
@@ -176,7 +171,7 @@ goBack.addEventListener('click', () => {
   window.location.href = 'rules.html';
 });
 
-// Load history on page load
+// rembember history on load (if this shit isnt suffering from alzheimer)
 loadHistory();
 </script>
 

@@ -116,10 +116,6 @@ html::-webkit-scrollbar {
 <body>
 
 <div class="container">
-  <div class="header">
-    <span class="back-btn" id="goBack">←</span>
-    <span>System › Rules › New Rule</span>
-  </div>
 
   <div class="banner">
     <div class="title">Create a New Rule</div>
@@ -149,8 +145,7 @@ html::-webkit-scrollbar {
       <select id="action">
         <option value="">Select an action</option>
         <option value="notify">Send notification</option>
-        <option value="run">Run command</option>
-        <option value="shutdown">Shutdown system</option>
+        <option value="run">Run command</option> 
       </select>
     </div>
 
@@ -173,7 +168,7 @@ form.addEventListener('submit', (e) => {
   const action = document.getElementById('action').value;
 
   if (!ruleName || !trigger || !action) {
-    alert('Please fill in all fields.');
+    alert('Please fill in all fields.'); // bitch
     return;
   }
 
@@ -190,7 +185,7 @@ form.addEventListener('submit', (e) => {
   rules.push(rule);
   localStorage.setItem('rules', JSON.stringify(rules));
 
-  // Add to history
+  // add to history and then redirect
   let history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
   history.push({
     id: Date.now(),

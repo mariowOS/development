@@ -116,10 +116,6 @@ html::-webkit-scrollbar {
 <body>
 
 <div class="container">
-  <div class="header">
-    <span class="back-btn" id="goBack">←</span>
-    <span>System › Verify Email</span>
-  </div>
 
   <div class="setting-group">
     <label for="code">Enter the 6-digit verification code sent to your email</label>
@@ -154,7 +150,6 @@ async function verifyCode() {
 
   errorDiv.textContent = '';
 
-  // If avatar is selected, upload it first
   if (avatarFile) {
   const formData = new FormData();
   formData.append('avatar', avatarFile);
@@ -186,7 +181,6 @@ async function verifyCode() {
 }
 453223
 
-  // Now verify the code
   fetch('/verify-code', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

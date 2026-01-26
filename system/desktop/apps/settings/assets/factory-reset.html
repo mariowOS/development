@@ -24,7 +24,6 @@ body {
   padding: 20px;
   background: #1e1e1e;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .header {
@@ -168,39 +167,35 @@ button.btn-secondary:hover {
 <body>
 
 <div class="container">
-  <div class="header">
-    <div class="back-btn" onclick="goBack()">←</div>
-    Factory Reset
-  </div>
   
-  <!-- STAGE 1: Initial Warning -->
+  <!-- initial warning -->
   <div class="stage-1 active">
     <div class="warning-banner">
-      <h3>⚠️ CRITICAL WARNING</h3>
-      <p>Factory reset will erase <strong>ALL settings, preferences, and customizations</strong>. This action <strong>CANNOT be undone</strong>.</p>
+      <h3>⚠️ WARNING!</h3>
+      <p>Factory reset is an <strong>irreversible action</strong> that will erase <strong>ALL settings, preferences, and customizations</strong>.</p>
     </div>
 
     <div class="setting-group">
-      <label>What will be reset:</label>
+      <label>What will be removed:</label>
       <div class="checkbox-group">
         <input type="checkbox" id="check1" disabled checked>
-        <label for="check1">✓ Time zone settings</label>
+        <label for="check1">Time zone settings</label>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="check2" disabled checked>
-        <label for="check2">✓ Manual time offsets</label>
+        <label for="check2">Manual time offsets</label>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="check3" disabled checked>
-        <label for="check3">✓ User preferences</label>
+        <label for="check3">User preferences</label>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="check4" disabled checked>
-        <label for="check4">✓ Wallpaper and themes</label>
+        <label for="check4">Wallpaper and themes</label>
       </div>
       <div class="checkbox-group">
         <input type="checkbox" id="check5" disabled checked>
-        <label for="check5">✓ All localStorage data</label>
+        <label for="check5">All indexDB data</label>
       </div>
     </div>
 
@@ -210,11 +205,11 @@ button.btn-secondary:hover {
     </div>
   </div>
 
-  <!-- STAGE 2: Double Confirmation -->
+  <!-- double confirmation before destroying everything -->
   <div class="stage-2">
     <div class="warning-banner">
       <h3>⚠️ FINAL CONFIRMATION</h3>
-      <p>Type "FACTORY RESET" below to confirm you want to permanently erase all settings.</p>
+      <p>Type "FACTORY RESET" below to continue.</p>
     </div>
 
     <div class="setting-group">
@@ -233,7 +228,7 @@ button.btn-secondary:hover {
     </div>
 
     <div class="confirmation-text">
-      ⚠️ Once reset is complete, all your customizations will be permanently deleted and the system will be restored to default settings.
+      ⚠️ Remember that everything will be erased and all settings will be restored to factory defaults. This action cannot be undone.
     </div>
 
     <div class="button-row">
@@ -281,11 +276,11 @@ function checkConfirmation() {
 function executeFactoryReset() {
   // ANNIHILATE ALL DATA - COMPLETE SYSTEM RESET
   
-  // Clear all browser storage
+  // clear all browser storage
   localStorage.clear();
   sessionStorage.clear();
   
-  // Clear IndexedDB (if any apps use it)
+  // clear IndexedDB (if any apps that depend on it were used (music as an example))
   if (window.indexedDB) {
     indexedDB.databases().then(dbs => {
       dbs.forEach(db => {
@@ -294,13 +289,13 @@ function executeFactoryReset() {
     }).catch(err => console.log('No IndexedDB to clear'));
   }
   
-  // Clear cookies
+  // clear all cookies
   document.cookie.split(";").forEach(function(c) { 
     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
   });
   
-  // Send factory reset command to server
-  // Server will reset config.json, keys.json, and system state to original defaults
+  // WARNING: attempting to modify this will cause a slowness in your mind
+  // server will reset config.json, keys.json, and system state to original defaults
   fetch('/api/system/factory-reset', {
     method: 'POST',
     headers: {
@@ -313,9 +308,9 @@ function executeFactoryReset() {
   }).then(response => {
     if (response.ok) {
       return response.json().then(data => {
-        alert('Factory reset complete! The system has been fully restored to factory defaults.\n\nRestarting to welcome screen...');
+        alert('Factory reset complete!\n\nClick ok to continue...');
         
-        // Navigate to root (will serve welcome.html since passwordHash is now null)
+        // navigate to root (will serve welcome.html since passwordHash is now null)
         setTimeout(function() {
           // Use window.top to navigate at the top level, breaking out of iframe
           if (window.self !== window.top) {
@@ -337,7 +332,7 @@ function executeFactoryReset() {
     }
   }).catch(err => {
     console.error('Factory reset error:', err);
-    alert('Factory reset encountered a network error. Restarting anyway...');
+    alert('Factory reset encountered a network error. Retrying anyway...');
     setTimeout(function() {
       if (window.self !== window.top) {
         window.top.location.href = '/';
@@ -348,7 +343,8 @@ function executeFactoryReset() {
   });
 }
 
-// Prevent paste in confirmation field (for security)
+// prevent paste in confirmation field (for security, we want user to type it manually)
+// if they paste it, it will not be recognized as valid. 
 document.addEventListener('DOMContentLoaded', function() {
   const input = document.getElementById('confirmInput');
   input.addEventListener('paste', function(e) {

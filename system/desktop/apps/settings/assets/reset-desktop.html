@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Factory Reset</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -24,7 +22,6 @@ body {
   padding: 20px;
   background: #1e1e1e;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .header {
@@ -144,18 +141,14 @@ button.btn-secondary:hover {
 <body>
 
 <div class="container">
-  <div class="header">
-    <div class="back-btn" onclick="goBack()">←</div>
-    Desktop Reset
-  </div>
   <div class="warning-banner">
       <h3>Warning</h3>
-      <p>Desktop reset will take back <strong>background to original state. </strong>. This action <strong>CANNOT be undone</strong>.</p>
+      <p>You're about to reset your desktop. It will restore the <strong>desktop to it's original state</strong>. This will <strong>NOT</strong> affect your personal data.</p>
     </div>
 
     <div class="checkbox-group">
       <input type="checkbox" id="resetBackground" disabled checked>
-      <label for="resetBackground">Reset Background to Default</label>
+      <label for="resetBackground">Reset desktop to default</label>
     </div>
 
     <div class="button-row">
@@ -168,36 +161,25 @@ function goBack() {
   window.history.back();
 }
 
-
 window.addEventListener("DOMContentLoaded", () => {
     const btn = document.querySelector(".btn-danger");
     if (!btn) return console.error("Bottone reset non trovato!");
 
     btn.addEventListener("click", () => {
-        // Imposta il wallpaper factory
+        // reset the wallpaper to default
         const wallpaperPath = "../../../assets/wallpaper.factory.png";
         localStorage.setItem("wallpaper", wallpaperPath);
 
-        // Aggiorna immediatamente il desktop se aperto nella stessa pagina
-        const desktop = window.opener || window.parent; // se il reset è in un iframe o finestra popup
+        // refresh the desktop background if open in the same window (not in an iframe)
+        const desktop = window.opener || window.parent; // if the reset is originated from an iframe or a popup
         if (desktop && desktop.document.body) {
             desktop.document.body.style.backgroundImage = `url('${wallpaperPath}')`;
         }
 
-        // Ricarica la pagina per applicare eventuali altre modifiche
+        // refresh the desktop to apply changes
         location.reload();
     });
 });
-
-
 </script>
-
-
-
-
-
-
-
-
 </body>
 </html>

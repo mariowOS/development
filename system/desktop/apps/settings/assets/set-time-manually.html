@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Set Time Manually</title>
 <style>
 body {
   margin: 0;
@@ -17,8 +16,7 @@ body {
   margin: 40px auto;
   padding: 20px;
   background: #1e1e1e;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  border-radius: 10px
 }
 .header {
   font-size: 24px;
@@ -85,10 +83,6 @@ button:hover {
 <body>
 
 <div class="container">
-  <div class="header">
-    <div class="back-btn" onclick="window.history.back();">←</div>
-    Set Time Manually
-  </div>
   
   <div class="setting-group">
     <label for="timeInput">Select Time:</label>
@@ -100,7 +94,7 @@ button:hover {
 </div>
 
 <script>
-// Initialize time input with current time
+// initialize time input with current time
 window.addEventListener('load', function() {
   const timeInput = document.getElementById('timeInput');
   const now = new Date();
@@ -121,11 +115,11 @@ function setTime() {
   const h = parseInt(hours, 10);
   const m = parseInt(minutes, 10);
 
-  // Calculate offset from current time
+  // calculate offset from current time
   const now = new Date();
   const offsetMs = (h - now.getHours()) * 3600000 + (m - now.getMinutes()) * 60000;
   
-  // Store in sessionStorage for desktop to read
+  // store in sessionStorage (aka localDB) for desktop to read
   localStorage.setItem('systemTimeOffset', offsetMs);
   localStorage.setItem('manualTimeEnabled', 'true');
   localStorage.removeItem('timezoneOffset');
@@ -134,7 +128,7 @@ function setTime() {
   
   alert(`System time set to: ${hours}:${minutes}`);
   
-  // Go back to settings
+  // fart
   setTimeout(function() {
     window.history.back();
   }, 500);

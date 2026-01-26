@@ -23,7 +23,6 @@ body {
   padding: 20px;
   background: #1e1e1e;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 .header {
   font-size: 24px;
@@ -76,7 +75,7 @@ body {
 button {
   width: 100%;
   padding: 12px;
-  background: rgba(74,144,226,0.8);
+  background: rgba(25, 25, 26, 0.8);
   color: white;
   border: none;
   border-radius: 8px;
@@ -87,56 +86,50 @@ button {
   transition: background 0.15s;
 }
 button:hover {
-  background: rgba(74,144,226,1);
+  background: rgb(21, 22, 22);
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="header">
-    <div class="back-btn" onclick="window.history.back();">←</div>
-    Time Zone
-  </div>
   
   <div class="setting-group">
     <label for="timezoneSelect">Select Time Zone:</label>
     <select id="timezoneSelect" onchange="updatePreviewClock()">
+  <option value="-12">UTC−12 (International Date Line West)</option>
+  <option value="-11">UTC−11 (Samoa Time)</option>      
+  <option value="-10">UTC−10 (Hawaii Time)</option>
+  <option value="-9">UTC−9 (Alaska Time)</option>
+  <option value="-8">UTC−8 (Pacific Time)</option>
+  <option value="-7">UTC−7 (Mountain Time)</option>
+  <option value="-6">UTC−6 (Central Time)</option>
+  <option value="-5">UTC−5 (Eastern Time)</option>
+  <option value="-4">UTC−4 (Atlantic Time)</option>
+  <option value="-3">UTC−3 (Buenos Aires Time)</option>
+  <option value="-2">UTC−2 (Fernando de Noronha Time)</option>
+  <option value="-1">UTC−1 (Azores Time)</option>
   <option value="0">UTC±0 (Greenwich Mean Time)</option>
-
   <option value="1">UTC+1 (CET – Winter Time)</option>
   <option value="2">UTC+2 (EET / CEST – Summer Time)</option>
-  <option value="3">UTC+3</option>
-  <option value="4">UTC+4</option>
-  <option value="5">UTC+5</option>
-  <option value="5.5">UTC+5:30</option>
-  <option value="6">UTC+6</option>
-  <option value="7">UTC+7</option>
-  <option value="8">UTC+8</option>
-  <option value="9">UTC+9</option>
-  <option value="10">UTC+10</option>
-  <option value="11">UTC+11</option>
-  <option value="12">UTC+12</option>
-
-  <option value="-1">UTC−1</option>
-  <option value="-2">UTC−2</option>
-  <option value="-3">UTC−3</option>
-  <option value="-4">UTC−4</option>
-  <option value="-5">UTC−5</option>
-  <option value="-6">UTC−6</option>
-  <option value="-7">UTC−7</option>
-  <option value="-8">UTC−8</option>
-  <option value="-9">UTC−9</option>
-  <option value="-10">UTC−10</option>
-  <option value="-11">UTC−11</option>
-  <option value="-12">UTC−12</option>
+  <option value="3">UTC+3 (Eastern European Time)</option>
+  <option value="4">UTC+4 (Gulf Standard Time)</option>
+  <option value="5">UTC+5 (Pakistan Standard Time)</option>
+  <option value="5.5">UTC+5:30 (India Standard Time)</option>
+  <option value="6">UTC+6 (Bangladesh Standard Time)</option>
+  <option value="7">UTC+7 (Indochina Time)</option>
+  <option value="8">UTC+8 (China Standard Time)</option>
+  <option value="9">UTC+9 (Japan Standard Time)</option>
+  <option value="10">UTC+10 (Australian Eastern Time)</option>
+  <option value="11">UTC+11 (Solomon Islands Time)</option>
+  <option value="12">UTC+12 (New Zealand Standard Time)</option>
 </select>
 
   </div>
 
   <div class="setting-group">
     <label>Preview Time:</label>
-    <div style="font-size: 32px; font-weight: 600; text-align: center; padding: 15px; background: rgba(74,144,226,0.2); border-radius: 8px;" id="previewClock">
+    <div style="font-size: 32px; font-weight: 600; text-align: center; padding: 15px; background: rgba(65, 75, 85, 0.2); border-radius: 8px;" id="previewClock">
       --:--
     </div>
   </div>
