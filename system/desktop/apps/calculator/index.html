@@ -1,0 +1,234 @@
+<!-- mariowOS calculator app, license is always the same so don't stress.-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>mariowOS Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #121212;
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calculator {
+            width: 350px;
+            background: #1e1e1e;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .display {
+            background: #000000;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: right;
+            font-size: 2.8rem;
+            font-weight: 300;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            word-break: normal;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            background: #333333;
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.6rem;
+            font-weight: 500;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            background: #404040;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        button.operator {
+            background: #006FFF;
+            color: #ffffff;
+        }
+
+        button.operator:hover {
+            background: #0078ff;
+        }
+
+        button.equals {
+            background: #1db954;
+            color: #ffffff;
+            grid-column: span 4;
+        }
+
+        button.equals:hover {
+            background: #1ed760;
+        }
+
+        button.clear {
+            background: #ff4c4c;
+            color: #ffffff;
+        }
+
+        button.clear:hover {
+            background: #ff6666;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                width: 90%;
+                max-width: 350px;
+                transform: none;
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(29, 185, 84, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(29, 185, 84, 0.8), 0 0 30px rgba(29, 185, 84, 0.6); }
+        }
+
+        button.equals:active {
+            animation: glow 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button>7</button>
+<button>8</button>
+<button>9</button>
+<button class="operator">/</button>
+
+<button>4</button>
+<button>5</button>
+<button>6</button>
+<button class="operator">*</button>
+
+<button>1</button>
+<button>2</button>
+<button>3</button>
+<button class="operator">-</button>
+
+<button class="clear">C</button>
+<button>0</button>
+<button>.</button>
+<button class="operator">+</button>
+
+<button class="equals">=</button>
+
+        </div>
+    </div>
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+
+        function updateDisplay() {
+            display.textContent = currentInput || '0';
+        }
+
+        function handleInput(value) {
+            if (value === 'C' || value === 'c') {
+                currentInput = '';
+                operator = '';
+                previousInput = '';
+            } else if (value === '=' || value === 'Enter') {
+                if (previousInput && operator && currentInput) {
+                    try {
+                        currentInput = eval(previousInput + operator + currentInput).toString();
+                    } catch {
+                        currentInput = 'Error';
+                    }
+                    operator = '';
+                    previousInput = '';
+                }
+            } else if (['+', '-', '*', '/'].includes(value)) {
+                if (currentInput) {
+                    operator = value;
+                    previousInput = currentInput;
+                    currentInput = '';
+                }
+            } else if ((value >= '0' && value <= '9') || value === '.') {
+                currentInput += value;
+            }
+            updateDisplay();
+        }
+
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', () => {
+                handleInput(button.textContent);
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.key >= '0' && e.key <= '9') || e.key === '.' || ['+', '-', '*', '/'].includes(e.key) || e.key === 'Enter' || e.key === 'c' || e.key === 'C') {
+                e.preventDefault();
+                handleInput(e.key);
+            }
+        });
+    </script>
+</body>
+</html>
