@@ -120,7 +120,7 @@ app.post("/save-settings", async (req, res) => {
 
     // Contenuto della mail with code
     const mailOptions = {
-      from: '"mariowOS" <davide.carosi10@gmail.com>',
+      from: '"mariowOS" <confirmation.mariowos@gmail.com>',
       to: email,
       subject: "mariowOS - Verification code",
       text: `Hello ${username}, your verification code is: ${verificationCode}\nPlease enter it on the verification page to complete your setup.`,
@@ -212,6 +212,116 @@ app.get('/get-settings', (req, res) => {
     res.json(safe);
   } catch (err) {
     res.status(500).json({});
+  }
+});
+
+// POST route for forgot password - send reset code via email
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ success: false, error: "Email is required" });
+  }
+
+  // Reload config to ensure it's up to date
+  let currentConfig = { passwordHash: null, email: null };
+  if (fs.existsSync(configFile)) {
+    currentConfig = JSON.parse(fs.readFileSync(configFile, "utf8"));
+  }
+
+  // Check if the email matches the one in config
+  if (!currentConfig.email || currentConfig.email !== email) {
+    return res.status(400).json({ success: false, error: "Email not found in our records" });
+  }
+
+  try {
+    // Generate 6-digit reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const codeExpiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+    // Store the reset code temporarily
+    currentConfig.resetCode = resetCode;
+    currentConfig.resetCodeExpiresAt = codeExpiresAt;
+    fs.writeFileSync(configFile, JSON.stringify(currentConfig, null, 2));
+
+    // Send email with reset code
+    const mailOptions = {
+      from: '"mariowOS" <davide.carosi10@gmail.com>',
+      to: email,
+      subject: "mariowOS - Password Reset Code",
+      text: `Hello, your password reset code is: ${resetCode}\nThis code will expire in 15 minutes.`,
+      html: `<p>Hello,</p>
+             <p>Your password reset code is: <b>${resetCode}</b></p>
+             <p>This code will expire in 15 minutes.</p>
+             <p>If you didn't request a password reset, please ignore this email.</p>`
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Password reset code sent to:", email, "with code:", resetCode);
+
+    res.json({ success: true, message: "Reset code sent to your email!" });
+
+  } catch (err) {
+    console.error("Error sending reset email:", err);
+    res.status(500).json({ success: false, error: "Error sending email" });
+  }
+});
+
+// POST route to reset password with code verification
+app.post("/reset-password", async (req, res) => {
+  const { email, code, newPassword } = req.body;
+
+  if (!email || !code || !newPassword) {
+    return res.status(400).json({ success: false, error: "Email, code, and new password are required" });
+  }
+
+  // Reload config to ensure it's up to date
+  let currentConfig = { passwordHash: null, email: null };
+  if (fs.existsSync(configFile)) {
+    currentConfig = JSON.parse(fs.readFileSync(configFile, "utf8"));
+  }
+
+  // Check if email matches
+  if (!currentConfig.email || currentConfig.email !== email) {
+    return res.status(400).json({ success: false, error: "Invalid email" });
+  }
+
+  // Check if reset code exists and is valid
+  if (!currentConfig.resetCode || !currentConfig.resetCodeExpiresAt) {
+    return res.status(400).json({ success: false, error: "No reset code active. Please request a new one." });
+  }
+
+  // Check if code has expired
+  if (Date.now() > currentConfig.resetCodeExpiresAt) {
+    // Clear expired code
+    delete currentConfig.resetCode;
+    delete currentConfig.resetCodeExpiresAt;
+    fs.writeFileSync(configFile, JSON.stringify(currentConfig, null, 2));
+    return res.status(400).json({ success: false, error: "Reset code has expired. Please request a new one." });
+  }
+
+  // Verify the code
+  if (code !== currentConfig.resetCode) {
+    return res.status(400).json({ success: false, error: "Invalid reset code" });
+  }
+
+  try {
+    // Hash the new password
+    const hash = await bcrypt.hash(newPassword, 10);
+    currentConfig.passwordHash = hash;
+
+    // Clear reset code
+    delete currentConfig.resetCode;
+    delete currentConfig.resetCodeExpiresAt;
+
+    fs.writeFileSync(configFile, JSON.stringify(currentConfig, null, 2));
+
+    console.log("Password reset successful for:", email);
+    res.json({ success: true, message: "Password reset successful!" });
+
+  } catch (err) {
+    console.error("Error resetting password:", err);
+    res.status(500).json({ success: false, error: "Error resetting password" });
   }
 });
 
