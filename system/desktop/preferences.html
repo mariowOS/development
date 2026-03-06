@@ -32,6 +32,7 @@
             gap: 60px;
         }
 
+        /* --- Animazione Testi (One UI Style) --- */
         .text-group {
             display: flex;
             flex-direction: column;
@@ -54,6 +55,7 @@
             to { opacity: 1; filter: blur(0px); transform: translateX(0); }
         }
 
+        /* --- Box Destra --- */
         .right-section {
             flex: 1;
             display: flex;
@@ -80,6 +82,7 @@
 
         .info-box h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
 
+        /* --- Toggle Switch Personalizzato --- */
         .toggle-container {
             background-color: #ffffff;
             color: #000;
@@ -116,9 +119,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .toggle-container.active .switch { background-color: #0033ff; } 
+        /* Stato Attivo del Toggle */
+        .toggle-container.active .switch { background-color: #0033ff; } /* Blu One UI */
         .toggle-container.active .circle { transform: translateX(22px); }
 
+        /* --- Bottone Avanti --- */
         .btn-link {
             position: fixed;
             bottom: 40px;
@@ -158,14 +163,28 @@
 
     <div class="container">
         <div class="text-group">
-            <h1 class="split-text" data-delay="0">Hello!</h1>
-            <div class="gray-text split-text" data-delay="0.2">Ciao!</div>
-            <div class="gray-text split-text" data-delay="0.4">Buna!</div>
-            <div class="gray-text split-text" data-delay="0.6">你好!</div>
+            <h1 class="split-text" data-delay="0">Privacy</h1>
+            <div class="gray-text split-text" data-delay="0.2">Riservatezza</div>
+            <div class="gray-text split-text" data-delay="0.4">Confidențialitate</div>
+            <div class="gray-text split-text" data-delay="0.6">保密性</div>
+        </div>
+
+        <div class="right-section">
+            <div class="info-box">
+                <h2>Help improve mariowOS anonymously?</h2>
+                <p>You can help improve mariowOS by sending anonymous crash reports and system statuses. We don’t want your data, we aren’t microsoft.</p>
+            </div>
+
+            <div class="toggle-container" id="mainToggle">
+                <span class="toggle-label">Send anonymous reports</span>
+                <div class="switch">
+                    <div class="circle"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <a href="/desktop/license.html" class="btn-link">
+    <a href="updates.html" class="btn-link">
         <div class="arrow-button">
             <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
         </div>

@@ -145,7 +145,6 @@
 
         @keyframes fadeIn { to { opacity: 1; } }
 
-        /* Mobile */
         @media (max-width: 900px) {
             .container { flex-direction: column; align-items: flex-start; gap: 40px; }
             h1 { font-size: 3.5rem; }
@@ -158,21 +157,34 @@
 
     <div class="container">
         <div class="text-group">
-            <h1 class="split-text" data-delay="0">Hello!</h1>
-            <div class="gray-text split-text" data-delay="0.2">Ciao!</div>
-            <div class="gray-text split-text" data-delay="0.4">Buna!</div>
-            <div class="gray-text split-text" data-delay="0.6">你好!</div>
+            <h1 class="split-text" data-delay="0">Updates</h1>
+            <div class="gray-text split-text" data-delay="0.2">Aggiornamenti</div>
+            <div class="gray-text split-text" data-delay="0.4">Actualizări</div>
+            <div class="gray-text split-text" data-delay="0.6">更新</div>
+        </div>
+
+        <div class="right-section">
+            <div class="info-box">
+                <h2>Update mariowOS loader along system?</h2>
+                <p>You can choose to opt out of this feature if you’re using an old version of node.js or kernel modules. Required updates and modules are still going to download. </p>
+            </div>
+
+            <div class="toggle-container" id="mainToggle">
+                <span class="toggle-label">Update</span>
+                <div class="switch">
+                    <div class="circle"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <a href="/desktop/license.html" class="btn-link">
+    <a href="lastpart.html" class="btn-link">
         <div class="arrow-button">
             <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
         </div>
     </a>
 
     <script>
-        // Animazione lettere
         document.querySelectorAll('.split-text').forEach(element => {
             const text = element.innerText;
             const baseDelay = parseFloat(element.getAttribute('data-delay'));
@@ -186,7 +198,6 @@
             });
         });
 
-        // Logica Toggle Interattivo
         const toggle = document.getElementById('mainToggle');
         toggle.addEventListener('click', () => {
             toggle.classList.toggle('active');

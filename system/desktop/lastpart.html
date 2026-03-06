@@ -1,176 +1,196 @@
-<!-- 
-mariowOS OOBE (Out Of Box Experience) - (C) 2025 mariowstech and the mariowOS team 
-Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
-Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
-This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
--->
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Sacramento:wght@400&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>mariowOS Setup</title>
     <style>
-        html {
-            font-family: 'Inter', sans-serif;
-        }
-        .font-script {
-            font-family: 'Sacramento', cursive;
-            text-shadow: 
-                1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
-                0 0 8px rgba(0, 0, 0, 0.3); 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            background-image: url('/desktop/assets/oobewp.png');
-            background-size: cover;
-            background-position: center;
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        .ethereal-bg {
-            position: relative;
-            width: 100vw;
+            background-color: #000;
+            color: #fff;
             height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            transition: opacity 0.5s ease-in;
+            justify-content: center;
+            overflow: hidden;
         }
 
-        .ethereal-bg::before {
-            content: none;
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 60px;
         }
 
-        @keyframes letterDrop {
-            0% {
-                opacity: 0;
-                transform: translateY(-600px) scale(0.8);
-            }
-            60% {
-                opacity: 1;
-                transform: translateY(20px) scale(1.05); 
-            }
-            100% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
+        .text-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
         }
+
+        h1 { font-size: 5.5rem; font-weight: 800; letter-spacing: -2px; line-height: 0.9; }
+        .gray-text { font-size: 3.8rem; font-weight: 700; color: #333; letter-spacing: -1.5px; line-height: 0.9; }
 
         .letter {
             display: inline-block;
             opacity: 0;
-            animation: letterDrop 1.2s ease-out forwards;
+            filter: blur(15px);
+            transform: translateX(-30px);
+            animation: letterIn 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
 
-        @keyframes buttonBounce {
-            0% {
-                opacity: 0;
-                transform: translateY(100px);
-            }
-            50% {
-                opacity: 0.5;
-                transform: translateY(-15px);
-            }
-            75% {
-                transform: translateY(5px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes letterIn {
+            to { opacity: 1; filter: blur(0px); transform: translateX(0); }
         }
 
-        .animate-bounce-in {
-            animation: buttonBounce 0.8s ease-in-out forwards;
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            opacity: 0;
+            animation: fadeInRight 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            animation-delay: 0.8s;
         }
-        
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+
+        @keyframes fadeInRight {
+            0% { opacity: 0; transform: scale(0.95) translateX(30px); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1) translateX(0); filter: blur(0px); }
         }
-        .fade-out {
-            animation: fadeOut 0.5s ease-in forwards;
+
+        .info-box {
+            background-color: #ffffff;
+            color: #000;
+            padding: 30px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .info-box h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+
+        .toggle-container {
+            background-color: #ffffff;
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .toggle-label { font-weight: 600; font-size: 1rem; }
+
+        .switch {
+            width: 50px;
+            height: 28px;
+            background-color: #ccc;
+            border-radius: 20px;
+            position: relative;
+            transition: background-color 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .circle {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-container.active .switch { background-color: #0033ff; } 
+        .toggle-container.active .circle { transform: translateX(22px); }
+
+        .btn-link {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            text-decoration: none;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 1.8s;
+        }
+
+        .arrow-button {
+            background: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+
+        .arrow-button:hover { transform: scale(1.1); }
+        .arrow-button svg { width: 35px; height: 35px; fill: black; }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; align-items: flex-start; gap: 40px; }
+            h1 { font-size: 3.5rem; }
+            .gray-text { font-size: 2.2rem; }
+            .right-section { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="main-container" class="ethereal-bg relative text-center">
-        <h1 id="welcome-text" class="font-script text-white text-7xl md:text-8xl lg:text-9xl z-10"></h1>
-
-        <div id="action-button" class="absolute bottom-16 opacity-0 z-10">
-            <button id="next-button" class="bg-white text-gray-800 px-8 py-4 rounded-xl shadow-lg transition duration-300 hover:scale-105 active:scale-95" style="border-radius: 999px;">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-            </button>
+    <div class="container">
+        <div class="text-group">
+            <h1 class="split-text" data-delay="0">Done!</h1>
+            <div class="gray-text split-text" data-delay="0.2">Fatto!</div>
+            <div class="gray-text split-text" data-delay="0.4">Făcut!</div>
+            <div class="gray-text split-text" data-delay="0.6">完毕!</div>
         </div>
     </div>
 
+    <a href="/loginui/com.mariowos.loginui.html" class="btn-link">
+        <div class="arrow-button">
+            <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </div>
+    </a>
+
     <script>
-        const TEXT_TO_ANIMATE = "done!";
-        const LETTER_ANIMATION_DURATION_S = 1.2; 
-        const LETTER_STAGGER_DELAY_S = 0.1;
-        const NEXT_PAGE_URL = '/loginui/com.mariowos.loginui.html';
-        const FADE_DURATION_MS = 500;
-
-        const textElement = document.getElementById('welcome-text');
-        const buttonElement = document.getElementById('action-button');
-        const nextButton = document.getElementById('next-button');
-        const mainContainer = document.getElementById('main-container');
-
-        function animateText() {
-            let totalAnimationDelay = 0;
-
-            TEXT_TO_ANIMATE.split('').forEach((char, index) => {
+        // Animazione lettere
+        document.querySelectorAll('.split-text').forEach(element => {
+            const text = element.innerText;
+            const baseDelay = parseFloat(element.getAttribute('data-delay'));
+            element.innerHTML = ''; 
+            [...text].forEach((char, index) => {
                 const span = document.createElement('span');
-                span.textContent = char;
+                span.innerText = char === " " ? "\u00A0" : char; 
                 span.classList.add('letter');
-                const delay = index * LETTER_STAGGER_DELAY_S;
-                span.style.animationDelay = `${delay}s`;
-                textElement.appendChild(span);
-                totalAnimationDelay = delay;
+                span.style.animationDelay = `${baseDelay + (index * 0.04)}s`;
+                element.appendChild(span);
             });
-
-            const textAnimationFinishTimeMs = (totalAnimationDelay + LETTER_ANIMATION_DURATION_S) * 1000;
-            setTimeout(animateButton, textAnimationFinishTimeMs + 200); 
-        }
-
-        function animateButton() {
-            buttonElement.classList.add('animate-bounce-in');
-        }
-
-        nextButton.addEventListener('click', () => {
-            mainContainer.classList.add('fade-out');
-            setTimeout(() => {
-                window.location.href = NEXT_PAGE_URL;
-            }, FADE_DURATION_MS);
         });
 
-        // doesn't work, thank those sketchy sites that auto f11'd your page without permission
-        // restriction added in chrome 15 and firefox 43 
-        async function requestFullscreen() {
-            try {
-                if (!document.fullscreenElement) {
-                    await document.documentElement.requestFullscreen();
-                }
-            } catch (err) {
-                console.warn("Fullscreen request failed:", err);
-            }
-        }
-
-        window.addEventListener('load', async () => {
-            await requestFullscreen();
-            setTimeout(() => {
-                animateText();
-            }, 500);
+        // Logica Toggle Interattivo
+        const toggle = document.getElementById('mainToggle');
+        toggle.addEventListener('click', () => {
+            toggle.classList.toggle('active');
         });
     </script>
-
 </body>
 </html>
