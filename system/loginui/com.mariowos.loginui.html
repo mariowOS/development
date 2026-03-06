@@ -94,6 +94,29 @@ body {
   font-family: 'Poppins';
 }
 
+#forgotPassword {
+  flex:1;
+  height:100%;
+  padding:0 20px;
+  background:rgba(20, 18, 18, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius:999px;
+  text-decoration:none;
+
+  border:none;
+  outline:none;
+  color:#eee;
+  font-size:18px;
+  font-family: 'Poppins';
+}
+
+#forgotPassword:hover {
+  background:rgba(20, 18, 18, 0.15);
+  transition: background 0.3s ease;
+  color: #e0e0e0;
+  animation-duration: 0.3s;
+}
+
 .unlock-pill button {
   width:56px;
   height:100%;
@@ -330,6 +353,53 @@ window.addEventListener("DOMContentLoaded", () => {
             // Keep default avatar.png
         });
 });
+
+// ===== Forced Light Mode System =====
+function applyForcedLightMode() {
+  let lightModeStyle = document.getElementById('forced-light-mode-styles');
+  if (!lightModeStyle) {
+    lightModeStyle = document.createElement('style');
+    lightModeStyle.id = 'forced-light-mode-styles';
+    document.head.appendChild(lightModeStyle);
+  }
+  lightModeStyle.textContent = `
+    html body { background: #f5f5f5 !important; color: #1a1a1a !important; }
+    body { background: #f5f5f5 !important; }
+    .datetime .date { color: #1a1a1a !important; text-shadow: none !important; }
+    .datetime .time { color: #1a1a1a !important; text-shadow: none !important; }
+    .avatar { box-shadow: 0 6px 18px rgba(0,0,0,0.2), inset 0 -4px 10px rgba(0,0,0,0.08) !important; }
+    .unlock-pill { background: rgba(255,255,255,0.95) !important; border: 1px solid #ddd !important; box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; }
+    .unlock-pill input { background: rgba(255,255,255,0.95) !important; color: #1a1a1a !important; }
+    .unlock-pill input::placeholder { color: #999 !important; }
+    #loginBtn { background-color: #e0e0e0 !important; }
+    #loginBtn:hover { background-color: #ccc !important; }
+    #loginBtn img { filter: invert(1) !important; }
+    #forgotPassword { color: #0066cc !important; }
+    label { color: #1a1a1a !important; }
+    .popup-overlay { background: rgba(0, 0, 0, 0.3) !important; }
+    .popup { background: #ffffff !important; }
+    .popup h1 { color: #1a1a1a !important; }
+    .popup p { color: #666666 !important; }
+  `;
+}
+
+function removeForcedLightMode() {
+  const lightModeStyle = document.getElementById('forced-light-mode-styles');
+  if (lightModeStyle) { lightModeStyle.remove(); }
+}
+
+function checkForcedLightMode() {
+  if (localStorage.getItem('forcedLightMode') === 'true') { applyForcedLightMode(); }
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'forcedLightMode') {
+    if (e.newValue === 'true') { applyForcedLightMode(); } 
+    else { removeForcedLightMode(); }
+  }
+});
+
+window.addEventListener('load', checkForcedLightMode);
 
 </script>
 </body>
