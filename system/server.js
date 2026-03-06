@@ -120,14 +120,71 @@ app.post("/save-settings", async (req, res) => {
 
     // Contenuto della mail with code
     const mailOptions = {
-      from: '"mariowOS" <confirmation.mariowos@gmail.com>',
-      to: email,
-      subject: "mariowOS - Verification code",
-      text: `Hello ${username}, your verification code is: ${verificationCode}\nPlease enter it on the verification page to complete your setup.`,
-      html: `<p>Hello <b>${username}</b>,</p>
-             <p>Your verification code is: <b>${verificationCode}</b></p>
-             <p>Please enter it on the verification page to complete your setup.</p>`
-    };
+  from: {
+    name: "mariowOS",
+    address: process.env.MAIL_USER,
+  },
+  to: email,
+  subject: "mariowOS - Verification code",
+  text: `Hello ${username}, your verification code is: ${verificationCode}`,
+  html: `
+  <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      
+      <tr>
+        <td align="center" style="padding-bottom: 20px;">
+          <h2 style="margin: 0; color: #2c3e50;">mariowOS</h2>
+          <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">
+            Account verification
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="color: #2c3e50; font-size: 16px;">
+          Hello <strong>${username}</strong>,
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding: 20px 0; color: #555; font-size: 15px;">
+          Use the following verification code to complete your setup:
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center">
+          <div style="
+            display: inline-block;
+            background: #f1f3f5;
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            padding: 15px 25px;
+            border-radius: 8px;
+          ">
+            ${verificationCode}
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding-top: 25px; color: #7f8c8d; font-size: 14px;">
+          This code will expire shortly. If you didn’t request it, you can ignore this email.
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding-top: 30px; color: #bdc3c7; font-size: 12px;" align="center">
+          © ${new Date().getFullYear()} mariowOS
+        </td>
+      </tr>
+
+    </table>
+  </div>
+  `,
+};
 
     await transporter.sendMail(mailOptions);
     console.log("Mail sent to:", email, "with code:", verificationCode);
@@ -246,15 +303,71 @@ app.post("/forgot-password", async (req, res) => {
 
     // Send email with reset code
     const mailOptions = {
-      from: '"mariowOS" <davide.carosi10@gmail.com>',
-      to: email,
-      subject: "mariowOS - Password Reset Code",
-      text: `Hello, your password reset code is: ${resetCode}\nThis code will expire in 15 minutes.`,
-      html: `<p>Hello,</p>
-             <p>Your password reset code is: <b>${resetCode}</b></p>
-             <p>This code will expire in 15 minutes.</p>
-             <p>If you didn't request a password reset, please ignore this email.</p>`
-    };
+  from: {
+    name: "mariowOS",
+    address: process.env.MAIL_USER,
+  },
+  to: email,
+  subject: "mariowOS - Verification code",
+  text: `Hello ${username}, your verification code is: ${verificationCode}`,
+  html: `
+  <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      
+      <tr>
+        <td align="center" style="padding-bottom: 20px;">
+          <h2 style="margin: 0; color: #2c3e50;">mariowOS</h2>
+          <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">
+            Account verification
+          </p>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="color: #2c3e50; font-size: 16px;">
+          Hello <strong>${username}</strong>,
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding: 20px 0; color: #555; font-size: 15px;">
+          Use the following verification code to complete your setup:
+        </td>
+      </tr>
+
+      <tr>
+        <td align="center">
+          <div style="
+            display: inline-block;
+            background: #f1f3f5;
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            padding: 15px 25px;
+            border-radius: 8px;
+          ">
+            ${verificationCode}
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding-top: 25px; color: #7f8c8d; font-size: 14px;">
+          This code will expire shortly. If you didn’t request it, you can ignore this email.
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding-top: 30px; color: #bdc3c7; font-size: 12px;" align="center">
+          © ${new Date().getFullYear()} mariowOS
+        </td>
+      </tr>
+
+    </table>
+  </div>
+  `,
+};
 
     await transporter.sendMail(mailOptions);
     console.log("Password reset code sent to:", email, "with code:", resetCode);
