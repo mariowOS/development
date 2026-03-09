@@ -39,7 +39,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       /* keep windows under status bar; they’ll spawn them below it - either statsbar breaks */
       z-index:50;
     }
-    /* windows animations (open/closing) */
+    /* get keyframes classes for windows animations (open/closing) */
     .popup.active{ display:block; animation: popupIn .25s ease forwards; }
     .popup.closing{ animation: popupOut .25s ease forwards; }
 
@@ -78,7 +78,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     }
     .notification svg{ width:22px; height:22px; fill:#fff; opacity:.85 }
 
-    /* dropdowns (i drop down when i see her eyes) */
+    /* dropdowns on the statsbar menu (i drop down when i see her eyes) */
     .btn-wrapper{ position:relative; display:inline-block; }
     .dropdown{
       position:absolute; top:calc(100% + 6px); left:0; background:rgba(26,26,26,.63); border-radius:12px;
@@ -112,7 +112,7 @@ Questions? https://discord.gg/YDVxw6jfbH
   <div class="status-bar">   <!-- status bar -->
     <div class="status-left"> 
       <div class="btn-wrapper">
-        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button>   <!-- app launcher sub-menu -->
+        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button> <!-- app launcher sub-menu -->
 <div class="dropdown" id="actionsDropdown"> <!-- trash app dropdown for launching my ass developed apps -->
   <a onclick="openPopup('popup6')">
     <div class="dropdown-item">
@@ -156,7 +156,7 @@ Questions? https://discord.gg/YDVxw6jfbH
   </a>
   <a onclick="openPopup('popup9')">
     <div class="dropdown-item">
-      <img src="assets/icons/calculator.png" class="menu-icon"> calculator
+      <img src="assets/icons/calculator.png" class="menu-icon"> Calculator
     </div>
   </a>
 </div>
@@ -249,7 +249,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       <div id="popup7" class="popup">
     <div class="popup-header">
       <span>Store</span>
-      <span class="altf4" onclick="closePopup('popup7')">✖</span> <!-- todo: fix store and add keystore for it by default (addkey ABAB001) -->
+      <span class="altf4" onclick="closePopup('popup7')">✖</span> <!-- todo: fix store and add keystore for it by default (run "addkey S0T00" in terminal to add the key manually) -->
     </div>
     <iframe src="https://mariowstech.github.io/mariowOS-landpages/store/" class="popup-frame"></iframe>
   </div>
