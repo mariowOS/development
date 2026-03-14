@@ -3,6 +3,8 @@
 // Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
 // This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 
+const cron = require('node-cron');
+
 
 const nodemailer = require("nodemailer");
 const express = require("express");
@@ -68,6 +70,68 @@ let config = { passwordHash: null };
 const configFile = path.join(__dirname, "config.json");
 if (fs.existsSync(configFile)) {
   config = JSON.parse(fs.readFileSync(configFile, "utf8"));
+}
+
+// Keep a reference to the scheduled daily email task so it can be rescheduled cleanly
+let dailyEmailTask = null;
+
+async function sendDiscordFlagsEmail() {
+  if (!config.email) return;
+
+  try {
+    const mailOptions = {
+      from: {
+        name: "mariowOS",
+        address: "confirmation.mariowos@gmail.com",
+      },
+      to: config.email,
+      subject: "mariowOS Daily Issue Flags - Discord",
+      html: `
+<div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
+  <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <tr>
+      <td align="center" style="padding-bottom: 20px;">
+        <h2 style="margin: 0; color: #2c3e50;">mariowOS</h2>
+        <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">Daily Issue Flags Update</p>
+      </td> 
+    </tr>
+    <tr>
+      <td style="color: #2c3e50; font-size: 16px;">
+        Hello <strong>${config.username || 'User'}</strong>,
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 20px 0; color: #555; font-size: 15px;">
+        Check the latest issue flags and problems on our Discord server:
+      </td>
+    </tr>
+    <tr>
+      <td align="center" style="padding: 20px 0;">
+        <a href="https://discord.gg/placeholder-issueflags" style="background: #5865F2; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Join Discord Flags Channel</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top: 25px; color: #7f8c8d; font-size: 14px;">
+        This is an automated daily report. You can disable it anytime in Preferences.
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top: 30px; color: #bdc3c7; font-size: 12px;" align="center">
+        © ${new Date().getFullYear()} mariowOS
+      </td>
+    </tr>
+  </table>
+</div>`
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Daily Discord flags email sent to', config.email);
+
+    config.lastSent = Date.now();
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+  } catch (err) {
+    console.error('Failed to send daily email:', err);
+  }
 }
 
 // serve OOBE if no password, else login screen
@@ -198,7 +262,7 @@ app.post("/save-settings", async (req, res) => {
 });
 
 // POST route to verify code
-app.post("/verify-code", (req, res) => {
+app.post("/verify-code", async (req, res) => {
   const { code } = req.body;
 
   if (!code) {
@@ -233,6 +297,11 @@ app.post("/verify-code", (req, res) => {
     config.theme = config.tempTheme;
     config.verified = true;
 
+    // Enable daily reports by default when user verifies email
+    if (typeof config.sendReports !== 'boolean') {
+      config.sendReports = true;
+    }
+
     // Clear temporary data
     delete config.verificationCode;
     delete config.codeExpiresAt;
@@ -242,6 +311,10 @@ app.post("/verify-code", (req, res) => {
     delete config.tempTheme;
 
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+    // Send the first report immediately, then schedule daily
+    await sendDiscordFlagsEmail();
+    scheduleDailyEmail();
 
     res.json({ success: true, message: "Settings verified and saved!" });
 
@@ -314,13 +387,13 @@ app.post("/forgot-password", async (req, res) => {
   <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 40px 0;">
     <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
       
-      <tr>
+      <tr>s
         <td align="center" style="padding-bottom: 20px;">
           <h2 style="margin: 0; color: #2c3e50;">mariowOS</h2>
           <p style="margin: 5px 0 0; color: #7f8c8d; font-size: 14px;">
             Account verification
           </p>
-        </td>
+        </td> 
       </tr>
 
       <tr>
@@ -598,8 +671,70 @@ app.post("/api/system/factory-reset", express.json(), (req, res) => {
   }
 });
 
+// Preferences API endpoints
+app.get('/api/preferences', (req, res) => {
+  res.json({ sendReports: !!config.sendReports });
+});
+
+app.post('/api/preferences', express.json(), (req, res) => {
+  const { sendReports } = req.body;
+  if (typeof sendReports !== 'boolean') {
+    return res.status(400).json({ error: 'sendReports must be boolean' });
+  }
+  config.sendReports = sendReports;
+  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+  res.json({ success: true, sendReports });
+
+  // (Re)schedule cron if needed
+  scheduleDailyEmail();
+});
+
+function scheduleDailyEmail() {
+  // Stop previous scheduled task so we don't double-schedule
+  if (dailyEmailTask) {
+    dailyEmailTask.stop();
+    dailyEmailTask = null;
+  }
+
+  if (config.email && config.sendReports) {
+    // Daily 09:00 Europe/Rome: '0 9 * * *'
+    dailyEmailTask = cron.schedule('0 9 * * *', async () => {
+      await sendDiscordFlagsEmail();
+    }, { timezone: "Europe/Rome" });
+
+    console.log('Daily Discord email cron scheduled');
+  } else {
+    console.log('Cron not scheduled: no email or reports disabled');
+  }
+}
+
+// Initial schedule
+scheduleDailyEmail();
+
 app.listen(PORT, () => {
   console.log(`mariowOS is running at http://localhost:${PORT}`);
+});
+
+// POST route to save reports preference
+app.post("/save-reports-preference", (req, res) => {
+  const { sendReports } = req.body;
+
+  if (typeof sendReports !== 'boolean') {
+    return res.status(400).json({ success: false, error: "sendReports must be boolean" });
+  }
+
+  try {
+    config.sendReports = sendReports;
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+    // Reschedule the cron job
+    scheduleDailyEmail();
+
+    res.json({ success: true, message: "Reports preference saved!" });
+  } catch (err) {
+    console.error("Error saving reports preference:", err);
+    res.status(500).json({ success: false, error: "Error saving preference" });
+  }
 });
 
 app.get("/clear-password", (req, res) => {

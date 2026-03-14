@@ -1,3 +1,5 @@
 {
-  "passwordHash": null
+  "passwordHash": "$2b$10$GsPltV0vs90WCgMne0sWYOQmfa9oJRyDVsDY0W/I87XHDIyaZSERq",
+  "username": "davide",
+  "sendReports": false
 }

@@ -171,12 +171,12 @@
 
         <div class="right-section">
             <div class="info-box">
-                <h2>Help improve mariowOS anonymously?</h2>
-                <p>You can help improve mariowOS by sending anonymous crash reports and system statuses. We don’t want your data, we aren’t microsoft.</p>
+                <h2>Help improve mariowOS daily?</h2>
+                <p>Receive daily emails with links to Discord flags and issue updates. Stay updated on the latest problems and features.</p>
             </div>
 
             <div class="toggle-container" id="mainToggle">
-                <span class="toggle-label">Send anonymous reports</span>
+                <span class="toggle-label">Send daily Discord flags emails</span>
                 <div class="switch">
                     <div class="circle"></div>
                 </div>
@@ -207,8 +207,39 @@
 
         // Logica Toggle Interattivo
         const toggle = document.getElementById('mainToggle');
+
+        // Load initial state
+        fetch('/api/preferences')
+            .then(response => response.json())
+            .then(data => {
+                if (data.sendReports) {
+                    toggle.classList.add('active');
+                }
+            })
+            .catch(err => console.error('Error loading preferences:', err));
+
         toggle.addEventListener('click', () => {
-            toggle.classList.toggle('active');
+            const isActive = toggle.classList.toggle('active');
+            // Save preference
+            fetch('/api/preferences', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sendReports: isActive })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error saving preference:', data.error);
+                    // Revert toggle if the server explicitly rejects it
+                    toggle.classList.toggle('active');
+                }
+            })
+            .catch(err => {
+                console.error('Error saving preference:', err);
+                // Keep UI state even if saving fails; user can try again later
+            });
         });
     </script>
 </body>
