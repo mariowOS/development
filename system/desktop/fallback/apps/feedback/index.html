@@ -1,0 +1,92 @@
+<!-- o beppino giovane devoto 💘 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'MS Sans Serif', Arial, sans-serif;
+            background-color: #c0c0c0;
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #dfdfdf;
+            border-right: 2px solid #ffffff;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .sidebar h3 {
+            font-size: 12px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        .sidebar a {
+            display: block;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            background-color: #c0c0c0;
+            color: #000;
+            text-decoration: none;
+            font-size: 12px;
+            border: 1px solid #dfdfdf;
+        }
+        .sidebar a:hover {
+            background-color: #000080;
+            color: #ffffff;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #c0c0c0;
+        }
+        .titlebar {
+            background: linear-gradient(to right, #000080, #1084d7);
+            color: #ffffff;
+            padding: 4px 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+            background-color: #c0c0c0;
+            overflow-y: auto;
+        }
+        .main h1 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        .main p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #000;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Topics</h3>
+        <a href="#overview">This</a>
+        <a href="#getting-started">app</a>
+        <a href="#contact">is</a>
+        <a href="#faq">ass</a>
+    </div>
+    <div class="content">
+        <div class="main">
+            <h1>What's this?</h1>
+            <p>This mode helps you recover from a broken desktop or corrupted configuration files.<br>
+            You can access settings to reset your configuration or you can use the browser to access the repository and download the latest desktop.<br>
+            Or, you can access the <a href="https://github.com/mariowOS/archive">archive</a> and download a full update package.</p>
+            <p>&nbsp;</p>
+            <p>You can exit this mode at any time by clicking the "Exit Fallback mode" option in the Finder menu.</p>
+        </div>
+    </div>
+</body>
+</html>
