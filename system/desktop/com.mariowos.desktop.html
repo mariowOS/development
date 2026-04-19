@@ -36,10 +36,8 @@ Questions? https://discord.gg/YDVxw6jfbH
       display:none; position:fixed; top:20px; left:20px;
       width:1048px; height:600px; background:#1D1D1D; border:1px solid #2a2a2a;
       border-radius:10px; opacity:0; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.5);
-      /* keep windows under status bar; they’ll spawn them below it - either statsbar breaks */
       z-index:50;
     }
-    /* get keyframes classes for windows animations (open/closing) */
     .popup.active{ display:block; animation: popupIn .25s ease forwards; }
     .popup.closing{ animation: popupOut .25s ease forwards; }
 
@@ -65,7 +63,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     .status-center {
       position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .5px;
       background: rgba(26,26,26,.63); padding: 6px 20px; border-radius: 100px; min-width: 260px; text-align: center; pointer-events: none;
-}
+    }
     .status-btn{
       background:rgba(26,26,26,.63); color:#fff; border:none; border-radius:100px; padding:6px 20px;
       font-size:13px; font-weight:500; cursor:pointer; outline:none; display:flex; align-items:center; gap:8px; transition:background .2s;
@@ -78,24 +76,16 @@ Questions? https://discord.gg/YDVxw6jfbH
     }
     .notification svg{ width:22px; height:22px; fill:#fff; opacity:.85 }
 
-    /* dropdowns on the statsbar menu (i drop down when i see her eyes) */
+    /* dropdowns */
     .btn-wrapper{ position:relative; display:inline-block; }
     .dropdown{
       position:absolute; top:calc(100% + 6px); left:0; background:rgba(26,26,26,.63); border-radius:12px;
       min-width:200px; max-height:220px; overflow-y:auto; box-shadow:0 8px 18px rgba(0,0,0,.25);
       opacity:0; transform:translateY(-10px) scale(.95); pointer-events:none; transition:.25s ease; z-index:200; transform-origin:top center;
     }
-    .dropdown.open{ 
-      opacity:1;
-       transform:translateY(0) scale(1);
-        pointer-events:auto; 
-    }
-    .dropdown.activities{
-       max-height:none; 
-       overflow-y:visible; 
-       }
+    .dropdown.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+    .dropdown.activities{ max-height:none; overflow-y:visible; }
     .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .2s; white-space:nowrap; }
-
     .dropdown-item:hover{ background:rgba(255,255,255,.12); }
 
     #notificationsDropdown { right: 0; left: auto; max-width: 300px; white-space: normal; word-break: break-word; }
@@ -106,67 +96,95 @@ Questions? https://discord.gg/YDVxw6jfbH
     ::-webkit-scrollbar-thumb{ background-color:rgba(255,255,255,.2); border-radius:50px; }
     
     a { text-decoration: none; color: #ffffff; }
+
+    /* ── Browser URL bar ── */
+    #browserUrl {
+      flex: 1;
+      background: rgba(255,255,255,.07);
+      border: 1px solid #3a3a3a;
+      border-radius: 7px;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 10px;
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color .2s;
+    }
+    #browserUrl:focus { border-color: #666; }
+    .browser-nav-btn {
+      background: rgba(255,255,255,.08);
+      border: none;
+      color: #aaa;
+      border-radius: 5px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      transition: background .2s, color .2s;
+      flex-shrink: 0;
+    }
+    .browser-nav-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
   </style>
 </head>
 <body>
-  <div class="status-bar">   <!-- status bar -->
+  <div class="status-bar">
     <div class="status-left"> 
       <div class="btn-wrapper">
-        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button> <!-- app launcher sub-menu -->
-<div class="dropdown" id="actionsDropdown"> <!-- trash app dropdown for launching my ass developed apps -->
-  <a onclick="openPopup('popup6')">
-    <div class="dropdown-item">
-      <img src="assets/icons/messaging.png" class="menu-icon"> Messaging
-    </div>
-  </a>
-  <a onclick="openPopup('popup2')">
-    <div class="dropdown-item">
-      <img src="assets/icons/browser.png" class="menu-icon"> Browser
-    </div>
-  </a>
-  <a onclick="openPopup('popup1')">
-    <div class="dropdown-item">
-      <img src="assets/icons/settings.png" class="menu-icon"> Settings
-    </div>
-  </a>
-  <a onclick="openPopup('popup4')">
-    <div class="dropdown-item">
-      <img src="assets/icons/music.png" class="menu-icon"> Music
-    </div>
-  </a>
-  <a onclick="openPopup('popup7')">
-  <div class="dropdown-item">
-    <img src="assets/icons/store.png" class="menu-icon"> Store
-  </div>
-  </a>
-  <a onclick="openPopup('popup3')">
-    <div class="dropdown-item">
-      <img src="assets/icons/feedback.png" class="menu-icon"> Feedback & Bugs
-    </div>
-  </a>
-  <a onclick="openPopup('popup5')">
-    <div class="dropdown-item">
-      <img src="assets/icons/notes.png" class="menu-icon"> Notes
-    </div>
-  </a>
-  <a onclick="openPopup('popup8')">
-    <div class="dropdown-item">
-      <img src="assets/icons/terminal.png" class="menu-icon"> Terminal
-    </div>
-  </a>
-  <a onclick="openPopup('popup9')">
-    <div class="dropdown-item">
-      <img src="assets/icons/calculator.png" class="menu-icon"> Calculator
-    </div>
-  </a>
-</div>
-
+        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button>
+        <div class="dropdown" id="actionsDropdown">
+          <a onclick="openPopup('popup6')">
+            <div class="dropdown-item">
+              <img src="assets/icons/messaging.png" class="menu-icon"> Messaging
+            </div>
+          </a>
+          <a onclick="openPopup('popup2')">
+            <div class="dropdown-item">
+              <img src="assets/icons/browser.png" class="menu-icon"> Browser
+            </div>
+          </a>
+          <a onclick="openPopup('popup1')">
+            <div class="dropdown-item">
+              <img src="assets/icons/settings.png" class="menu-icon"> Settings
+            </div>
+          </a>
+          <a onclick="openPopup('popup4')">
+            <div class="dropdown-item">
+              <img src="assets/icons/music.png" class="menu-icon"> Music
+            </div>
+          </a>
+          <a onclick="openPopup('popup7')">
+            <div class="dropdown-item">
+              <img src="assets/icons/store.png" class="menu-icon"> Store
+            </div>
+          </a>
+          <a onclick="openPopup('popup3')">
+            <div class="dropdown-item">
+              <img src="assets/icons/feedback.png" class="menu-icon"> Feedback & Bugs
+            </div>
+          </a>
+          <a onclick="openPopup('popup5')">
+            <div class="dropdown-item">
+              <img src="assets/icons/notes.png" class="menu-icon"> Notes
+            </div>
+          </a>
+          <a onclick="openPopup('popup8')">
+            <div class="dropdown-item">
+              <img src="assets/icons/terminal.png" class="menu-icon"> Terminal
+            </div>
+          </a>
+          <a onclick="openPopup('popup9')">
+            <div class="dropdown-item">
+              <img src="assets/icons/calculator.png" class="menu-icon"> Calculator
+            </div>
+          </a>
+        </div>
       </div>
 
-      <button class="status-btn" title="Finder">···</button>   <!-- the most useful button ever! -->
+      <button class="status-btn" title="Finder">···</button>
 
       <div class="btn-wrapper">
-        <button class="status-btn" id="activitiesBtn" title="Activities">Finder</button>   <!-- options -->
+        <button class="status-btn" id="activitiesBtn" title="Activities">Finder</button>
         <div class="dropdown activities" id="activitiesDropdown">
           <a href="com.mariowos.desktop.html"><div class="dropdown-item">Refresh desktop</div></a>
           <a href="/loginui/com.mariowos.loginui.html"><div class="dropdown-item">Lock Screen</div></a>
@@ -174,24 +192,24 @@ Questions? https://discord.gg/YDVxw6jfbH
       </div>
     </div>
 
-    <div class="status-center" id="center-clock">Thursday 1 January, 12:00 AM</div>  <!-- jan 1 1970 a placeholder in case the clock fails to refresh or your pc is just ass -->
+    <div class="status-center" id="center-clock">Thursday 1 January, 12:00 AM</div>
 
     <div class="status-right">
-  <div class="btn-wrapper">
-    <button class="notification" id="notificationsBtn" title="Notifications">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7A1 1 0 006 20h12a1 1 0 00.7-1.7L18 16z"/>
-      </svg>
-    </button>
-    <div class="dropdown" id="notificationsDropdown">
-      <div class="dropdown-item">No new notifications</div>
-      <a onclick="openPopup('popup2')"><div class="dropdown-item">🧩 Browser is active in background</div></a>
-
-      
+      <div class="btn-wrapper">
+        <button class="notification" id="notificationsBtn" title="Notifications">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7A1 1 0 006 20h12a1 1 0 00.7-1.7L18 16z"/>
+          </svg>
+        </button>
+        <div class="dropdown" id="notificationsDropdown">
+          <div class="dropdown-item">No new notifications</div>
+          <a onclick="openPopup('popup2')"><div class="dropdown-item">🧩 Browser is active in background</div></a>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
+  <!-- popup1: Settings -->
   <div id="popup1" class="popup">
     <div class="popup-header">
       <span>Settings</span> 
@@ -200,17 +218,95 @@ Questions? https://discord.gg/YDVxw6jfbH
     <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
   </div>
 
+  <!-- popup2: Browser — MODIFICATO -->
   <div id="popup2" class="popup">
-    <div class="popup-header">
-      <span>Browser &nbsp;|&nbsp; <a href="javascript:history.back()"><img src="assets/back.png"></a></span>
-      <span class="altf4" onclick="closePopup('popup2')">✖</span> 
+    <div class="popup-header" style="gap: 8px;">
+      <span style="white-space: nowrap; font-size: 12px; flex-shrink: 0;">Browser</span>
+      <div style="display: flex; align-items: center; gap: 5px; flex: 1;">
+        <button class="browser-nav-btn" onclick="browserNav('back')"   title="Indietro">‹</button>
+        <button class="browser-nav-btn" onclick="browserNav('fwd')"    title="Avanti">›</button>
+        <button class="browser-nav-btn" onclick="browserNav('reload')" title="Ricarica">↺</button>
+        <input id="browserUrl" type="text"
+          placeholder="Cerca con Google o inserisci un URL..."
+          onkeydown="if(event.key==='Enter') openAdvancedSearch(this.value)" />
+        <button class="browser-nav-btn" onclick="openAdvancedSearch(document.getElementById('browserUrl').value)" title="Ricerca Avanzata">⚙</button>
+      </div>
+      <span class="altf4" onclick="closePopup('popup2')" style="flex-shrink: 0;">✖</span>
     </div>
-        <iframe src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
-    <div class="popup-content">
-      
+    <iframe id="browserFrame"
+      src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/"
+      class="popup-frame"></iframe>
+  </div>
+
+  <!-- Popup Ricerca Avanzata Google -->
+  <div id="popupAdvancedSearch" class="popup" style="width: 600px; height: auto; max-height: 500px;">
+    <div class="popup-header">
+      <span>Ricerca Avanzata Google</span>
+      <span class="altf4" onclick="closePopup('popupAdvancedSearch')">✖</span>
+    </div>
+    <div class="popup-content" style="padding: 20px;">
+      <form id="advancedSearchForm" onsubmit="performAdvancedSearch(event)">
+        <div style="margin-bottom: 20px;">
+          <label for="advSearchQuery" style="display: block; margin-bottom: 8px; font-weight: 500;">Cosa desideri cercare?</label>
+          <input type="text" id="advSearchQuery" placeholder="Inserisci il termine di ricerca..."
+            style="width: 100%; padding: 10px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; font-family: 'Poppins'; box-sizing: border-box;" />
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <p style="margin: 0 0 12px 0; font-weight: 500;">Tipo di ricerca:</p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="searchType" value="web" checked />
+              <span>🌐 Web</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="searchType" value="images" />
+              <span>🖼️ Immagini</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="searchType" value="news" />
+              <span>📰 Notizie</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="searchType" value="videos" />
+              <span>🎥 Video</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="searchType" value="books" />
+              <span>📚 Libri</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="searchType" value="shopping" />
+              <span>🛒 Shopping</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <p style="margin: 0 0 12px 0; font-weight: 500;">Opzioni aggiuntive:</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="checkbox" id="safeSearch" />
+              <span>Ricerca Sicura</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="closePopup('popupAdvancedSearch')" 
+            style="padding: 8px 16px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; transition: background .2s;">
+            Annulla
+          </button>
+          <button type="submit" 
+            style="padding: 8px 16px; background: rgba(100,200,255,.6); border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; font-weight: 500; transition: background .2s;">
+            Cerca su Google
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
+  <!-- popup3: Feedback -->
   <div id="popup3" class="popup">
     <div class="popup-header">
       <span>Feedback</span>
@@ -222,15 +318,17 @@ Questions? https://discord.gg/YDVxw6jfbH
     </div>
   </div>
 
+  <!-- popup4: Music -->
   <div id="popup4" class="popup">
     <div class="popup-header">
       <span>Music</span>
-      <span class="altf4" onclick="closePopup('popup4')">✖</span> <!-- erty bugfix this!!! -->
+      <span class="altf4" onclick="closePopup('popup4')">✖</span>
     </div>
     <iframe src="apps/music/index.html" class="popup-frame"></iframe>
   </div>
 
-    <div id="popup5" class="popup">
+  <!-- popup5: Notes -->
+  <div id="popup5" class="popup">
     <div class="popup-header">
       <span>Notes</span>
       <span class="altf4" onclick="closePopup('popup5')">✖</span> 
@@ -238,22 +336,25 @@ Questions? https://discord.gg/YDVxw6jfbH
     <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
   </div>
 
-    <div id="popup6" class="popup">
+  <!-- popup6: Messaging -->
+  <div id="popup6" class="popup">
     <div class="popup-header">
       <span>Messaging</span>
-      <span class="altf4" onclick="closePopup('popup6')">✖</span> <!-- messaging service: can be replaced only if you can get around the xframe login limitations (cookies) -->
+      <span class="altf4" onclick="closePopup('popup6')">✖</span>
     </div>
     <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed" class="popup-frame" id="chattable"></iframe>
   </div>
 
-      <div id="popup7" class="popup">
+  <!-- popup7: Store -->
+  <div id="popup7" class="popup">
     <div class="popup-header">
       <span>Store</span>
-      <span class="altf4" onclick="closePopup('popup7')">✖</span> <!-- todo: fix store and add keystore for it by default (run "addkey S0T00" in terminal to add the key manually) -->
+      <span class="altf4" onclick="closePopup('popup7')">✖</span>
     </div>
     <iframe src="https://mariowstech.github.io/mariowOS-landpages/store/" class="popup-frame"></iframe>
   </div>
 
+  <!-- popup8: Terminal -->
   <div id="popup8" class="popup">
     <div class="popup-header">
       <span>Terminal</span>
@@ -262,6 +363,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     <iframe src="apps/terminal/index.html" class="popup-frame"></iframe>
   </div>
 
+  <!-- popup9: Calculator -->
   <div id="popup9" class="popup" style="width: 400px; height: 550px;">
     <div class="popup-header">
       <span>Calculator</span>
@@ -276,8 +378,6 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     function openPopup(popupId){
       const popup = document.getElementById(popupId);
-
-      // restart open animation (if already open)
       popup.classList.remove("active");
       void popup.offsetWidth;
 
@@ -286,7 +386,6 @@ Questions? https://discord.gg/YDVxw6jfbH
       const TOP_MARGIN = 12;
       const RESERVED_TOP = STATUSBAR_H + TOP_MARGIN;
 
-      // use computed styles to get width/height even when display:none
       const cs = getComputedStyle(popup);
       const popupWidth = parseInt(cs.width, 10) || 1048;
       const popupHeight = parseInt(cs.height, 10) || 600;
@@ -303,7 +402,6 @@ Questions? https://discord.gg/YDVxw6jfbH
       let left = col * (popupWidth + 20) + 20;
       let top  = RESERVED_TOP + row * (popupHeight + 20);
 
-      // clamp into viewport (below status bar) 
       left = Math.max(8, Math.min(left, screenWidth - popupWidth - 8));
       top  = Math.max(RESERVED_TOP, Math.min(top, screenHeight - popupHeight - 8));
 
@@ -315,11 +413,8 @@ Questions? https://discord.gg/YDVxw6jfbH
       popup.classList.add("active");
       popupCounter++;
 
-      // ensure draggable on this popup (if not already)
       const header = popup.querySelector(".popup-header");
-      if (header) {
-        makeDraggable(popup, header, RESERVED_TOP);
-      }
+      if (header) makeDraggable(popup, header, RESERVED_TOP);
     }
 
     function closePopup(popupId){
@@ -345,7 +440,6 @@ Questions? https://discord.gg/YDVxw6jfbH
       popup.style.zIndex = getHighestZIndex(document.getElementsByClassName("popup")) + 1;
     }
 
-    // dragging with top clamp so header never hides under the status bar
     function makeDraggable(el, handle, minTop){
       let pos1=0,pos2=0,pos3=0,pos4=0;
       handle.onmousedown = dragMouseDown;
@@ -373,7 +467,6 @@ Questions? https://discord.gg/YDVxw6jfbH
         let newTop  = el.offsetTop - pos2;
         let newLeft = el.offsetLeft - pos1;
 
-        // clamp within viewport; keep header below status bar (either it shits itself or is really hard to find the drag point)
         const maxLeft = window.innerWidth - w - 8;
         const maxTop  = window.innerHeight - h - 8;
 
@@ -391,7 +484,6 @@ Questions? https://discord.gg/YDVxw6jfbH
       }
     }
 
-    // make existing popups draggable on load (if any)
     window.addEventListener('load', ()=>{
       const statusBar = document.querySelector('.status-bar');
       const RESERVED_TOP = ((statusBar && statusBar.offsetHeight) || 56) + 12;
@@ -401,68 +493,132 @@ Questions? https://discord.gg/YDVxw6jfbH
       });
     });
 
-    // bring to front on header mousedown 
     document.addEventListener('mousedown', (e)=>{
       const header = e.target.closest('.popup-header');
       if (header) focusPopup(header.parentElement);
     });
 
-    // clock with custom time offset support
+    // ── Browser: naviga o cerca su Google ──────────────────────────────────
+    function browserGo(val) {
+      val = val.trim();
+      if (!val) return;
+      const isUrl = /^https?:\/\//i.test(val) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(val);
+      const url = isUrl
+        ? (val.startsWith('http') ? val : 'https://' + val)
+        : 'https://www.google.com/search?q=' + encodeURIComponent(val);
+      document.getElementById('browserFrame').src = url;
+      document.getElementById('browserUrl').value = url;
+    }
+
+    function openAdvancedSearch(query) {
+      query = query.trim();
+      if (!query) return;
+      
+      // Controlla se è un URL
+      const isUrl = /^https?:\/\//i.test(query) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(query);
+      
+      if (isUrl) {
+        // Se è un URL, naviga direttamente
+        const url = query.startsWith('http') ? query : 'https://' + query;
+        document.getElementById('browserFrame').src = url;
+        document.getElementById('browserUrl').value = url;
+      } else {
+        // Se è un testo di ricerca, apri il form avanzato
+        document.getElementById('advSearchQuery').value = query;
+        openPopup('popupAdvancedSearch');
+      }
+    }
+
+    function performAdvancedSearch(event) {
+      event.preventDefault();
+      
+      const query = document.getElementById('advSearchQuery').value.trim();
+      if (!query) return;
+      
+      const searchType = document.querySelector('input[name="searchType"]:checked').value;
+      const safeSearch = document.getElementById('safeSearch').checked;
+      
+      let googleUrl = '';
+      const encodedQuery = encodeURIComponent(query);
+      
+      // Mappa dei tipi di ricerca con parametri Google
+      const searchTypeMap = {
+        'web': `https://www.google.com/search?q=${encodedQuery}`,
+        'images': `https://www.google.com/search?q=${encodedQuery}&tbm=isch`,
+        'news': `https://www.google.com/search?q=${encodedQuery}&tbm=nws`,
+        'videos': `https://www.google.com/search?q=${encodedQuery}&tbm=vid`,
+        'books': `https://www.google.com/search?q=${encodedQuery}&tbm=bks`,
+        'shopping': `https://www.google.com/search?q=${encodedQuery}&tbm=shop`
+      };
+      
+      googleUrl = searchTypeMap[searchType] || searchTypeMap['web'];
+      
+      // Aggiungi safe search se selezionato
+      if (safeSearch) {
+        googleUrl += '&safe=active';
+      }
+      
+      // Naviga nel browser e chiudi il popup
+      document.getElementById('browserFrame').src = googleUrl;
+      document.getElementById('browserUrl').value = googleUrl;
+      closePopup('popupAdvancedSearch');
+    }
+
+    function browserNav(action) {
+      const f = document.getElementById('browserFrame');
+      try {
+        if (action === 'back')   f.contentWindow.history.back();
+        if (action === 'fwd')    f.contentWindow.history.forward();
+        if (action === 'reload') f.contentWindow.location.reload();
+      } catch(e) {
+        // cross-origin: ricarica semplicemente l'iframe
+        if (action === 'reload') f.src = f.src;
+      }
+    }
+    // ───────────────────────────────────────────────────────────────────────
+
+    // clock
     let systemTimeOffset = 0;
     let timezoneOffset = 0;
     
     function updateClock(){
-  const now = new Date();
-
-  // UTC reference time
-  let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
-
-  // if timezone offset is set → override
-  if (timezoneOffset !== null) {
-    utcMs += timezoneOffset * 3600000;
-  }
-  // else, if manual time is enabled → apply system offset
-  else if (manualTimeEnabled) {
-    utcMs += systemTimeOffset;
-  }
-
-  const d = new Date(utcMs);
-
-  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-  let h = d.getUTCHours();
-  let m = d.getUTCMinutes();
-  const ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-  m = m < 10 ? "0" + m : m;
-
-  document.getElementById("center-clock").textContent =
-    `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
-}
-
+      const now = new Date();
+      let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
+      if (timezoneOffset !== null) {
+        utcMs += timezoneOffset * 3600000;
+      } else if (manualTimeEnabled) {
+        utcMs += systemTimeOffset;
+      }
+      const d = new Date(utcMs);
+      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      let h = d.getUTCHours();
+      let m = d.getUTCMinutes();
+      const ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12 || 12;
+      m = m < 10 ? "0" + m : m;
+      document.getElementById("center-clock").textContent =
+        `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
+    }
 
     let manualTimeEnabled = false;
 
-    // check for time offset updates every second
     function checkTimeOffset(){
-  const tz = localStorage.getItem('timezoneOffset');
-  const manual = localStorage.getItem('manualTimeEnabled');
-  const offset = localStorage.getItem('systemTimeOffset');
+      const tz = localStorage.getItem('timezoneOffset');
+      const manual = localStorage.getItem('manualTimeEnabled');
+      const offset = localStorage.getItem('systemTimeOffset');
+      timezoneOffset = tz !== null ? parseFloat(tz) : null;
+      systemTimeOffset = offset !== null ? parseInt(offset, 10) : 0;
+      manualTimeEnabled = manual === 'true';
+    }
 
-  timezoneOffset = tz !== null ? parseFloat(tz) : null;
-  systemTimeOffset = offset !== null ? parseInt(offset, 10) : 0;
-  manualTimeEnabled = manual === 'true';
-}
-
-    
     setInterval(() => {
       checkTimeOffset();
       updateClock();
     }, 1000);
     updateClock();
 
-    // dropdowns 
+    // dropdowns
     function setupDropdown(btnId, ddId){
       const btn = document.getElementById(btnId);
       const dd  = document.getElementById(ddId);
@@ -474,92 +630,70 @@ Questions? https://discord.gg/YDVxw6jfbH
     setupDropdown("actionsBtn","actionsDropdown");
     setupDropdown("activitiesBtn","activitiesDropdown");
     setupDropdown("notificationsBtn","notificationsDropdown");
-    const DEFAULT_WALLPAPER = 'url("assets/wallpaper.png")';
 
+    const DEFAULT_WALLPAPER = 'url("assets/wallpaper.png")';
     function resetDesktopWallpaper() {
       document.body.style.backgroundImage = DEFAULT_WALLPAPER;
       localStorage.removeItem("desktopWallpaper");
-      console.log("Desktop wallpaper reset to default");
     }
 
     window.addEventListener("load", () => {
-  fetch("assets/wallpaper.user.png", { method: "HEAD" })
-    .then(res => {
-      if (res.ok) {
-        document.body.style.backgroundImage =
-          'url("assets/wallpaper.user.png")';
+      fetch("assets/wallpaper.user.png", { method: "HEAD" })
+        .then(res => {
+          if (res.ok) document.body.style.backgroundImage = 'url("assets/wallpaper.user.png")';
+        });
+    });
+
+    function applyUserWallpaper() {
+      fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
+        .then(res => {
+          if (res.ok) {
+            document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+          } else {
+            document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+          }
+        });
+    }
+    window.addEventListener("load", applyUserWallpaper);
+
+    window.addEventListener("message", (e) => {
+      if (e.data.type === "load-youafter") {
+        const settingsPopup = document.getElementById("popup1");
+        const iframe = settingsPopup.querySelector("iframe");
+        iframe.src = "apps/settings/assets/youafter.html";
       }
     });
-});
-function applyUserWallpaper() {
-  fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
-    .then(res => {
-      if (res.ok) {
-        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-      } else {
-        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+
+    window.addEventListener('message', async (e) => {
+      if (e.data.type === 'clear-settings') {
+        try {
+          const configPath = '/config.json';
+          const res = await fetch(configPath);
+          const cfg = await res.json();
+          const newCfg = { passwordHash: cfg.passwordHash };
+          await fetch('/clear-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newCfg)
+          });
+          e.source.postMessage({ type: 'settings-cleared' }, '*');
+        } catch (err) {
+          console.error('E: Reset settings:', err);
+          e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*');
+        }
+      }
+      if (e.data.type === 'get-settings') {
+        try {
+          const res = await fetch('/get-settings');
+          const cfg = await res.json();
+          e.source.postMessage({ type: 'settings', data: cfg }, '*');
+        } catch (err) {
+          console.error('E: get-settings:', err);
+        }
       }
     });
-}
-
-// call the function on load
-window.addEventListener("load", applyUserWallpaper);
-
-
-window.addEventListener("message", (e) => {
-  if (e.data.type === "load-youafter") {
-    const settingsPopup = document.getElementById("popup1"); // popup
-    const iframe = settingsPopup.querySelector("iframe");
-    iframe.src = "apps/settings/assets/youafter.html";
-  }
-});
-
-  // ───── iframemsgs (youafter / you.html) ─────
-window.addEventListener('message', async (e) => {
-  // optional: filter by origin if you want security
-  // if (e.origin !== "http://localhost:3000") return;
-
-  // iframe asks to reset only username/email
-  if (e.data.type === 'clear-settings') {
-    try {
-      // read current config
-      const configPath = '/config.json'; // right path to config
-      const res = await fetch(configPath);
-      const cfg = await res.json();
-
-      // keep passwordHash
-      const newCfg = { passwordHash: cfg.passwordHash };
-
-      // write new config (here an endpoint on the server is needed!)
-      await fetch('/clear-settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCfg)
-      });
-
-      // send confirmation back to iframe
-      e.source.postMessage({ type: 'settings-cleared' }, '*');
-
-    } catch (err) {
-      console.error('E: Reset settings:', err);
-      e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*');
-    }
-  }
-
-  // iframe asks for current settings
-  if (e.data.type === 'get-settings') {
-    try {
-      const res = await fetch('/get-settings');
-      const cfg = await res.json();
-      e.source.postMessage({ type: 'settings', data: cfg }, '*');
-    } catch (err) {
-      console.error('E: get-settings:', err);
-    }
-  }
-});
-
   </script>
 </body>
 </html>

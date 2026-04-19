@@ -154,13 +154,16 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
   <div id="popup2" class="popup">
     <div class="popup-header">
-      <span>Browser &nbsp;|&nbsp; <a href="javascript:history.back()"><img src="assets/back.png"></a></span>
-      <span class="altf4" onclick="closePopup('popup2')">✖</span>
+      <span>Browser</span>
+      <span class="altf4" onclick="closePopup('popup2')">✖</span> 
     </div>
-        <iframe src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
-    <div class="popup-content">
-      
+    <div style="padding: 10px; background: #1a1a1a; border-bottom: 1px solid #333;">
+      <button onclick="goBack()" style="margin-right: 5px; padding: 5px 10px; background: #333; color: white; border: none; border-radius: 3px; cursor: pointer;">← Back</button>
+      <button onclick="goHome()" style="margin-right: 10px; padding: 5px 10px; background: #333; color: white; border: none; border-radius: 3px; cursor: pointer;">Home</button>
+      <button onclick="reloadIframe()" style="margin-right: 10px; padding: 5px 10px; background: #333; color: white; border: none; border-radius: 3px; cursor: pointer;">⟳ Reload</button>
+      <button onclick="loadURL()" style="margin-left: 5px; padding: 5px 10px; background: #4a90e2; color: white; border: none; border-radius: 3px; cursor: pointer;">Go</button>
     </div>
+    <iframe id="browserFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-downloads" class="popup-frame" onload="onIframeLoad()" onerror="onIframeError()"></iframe>
   </div>
 
   <div id="popup3" class="popup">
@@ -333,6 +336,44 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
     setupDropdown("actionsBtn","actionsDropdown");
     setupDropdown("activitiesBtn","activitiesDropdown");
+function goBack() {
+  const iframe = document.getElementById('browserFrame');
+  try {
+    iframe.contentWindow.history.back();
+  } catch (e) {
+    console.log('Cannot go back');
+  }
+}
+
+function goHome() {
+document.getElementById('urlInput').value = 'https://mariowstech.github.io/mariowOS-landpages/browser-homepage/';
+  loadURL();
+}
+
+function loadURL() {
+  let query = document.getElementById('urlInput').value.trim();
+  if (query) {
+    const iframe = document.getElementById('browserFrame');
+    if (!query.startsWith('http://') && !query.startsWith('https://')) {
+      query = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+    iframe.src = query;
+  }
+}
+
+function reloadIframe() {
+  const iframe = document.getElementById('browserFrame');
+  iframe.src = iframe.src;
+}
+
+function onIframeLoad() {
+  console.log('Browser iframe loaded');
+}
+
+function onIframeError() {
+  console.log('Browser iframe failed to load');
+}
+
     setupDropdown("notificationsBtn","notificationsDropdown");
 
   </script>
