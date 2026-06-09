@@ -23,13 +23,46 @@ Questions? https://discord.gg/YDVxw6jfbH
     body{
       margin:0; padding:0; width:100%; height:100%; overflow:hidden;
       background: url("assets/wallpaper.factory.png") center/cover no-repeat fixed;
-      background-size:cover;
+      background-color:#000; /* fallback */
       font-family:'Poppins',sans-serif; color:#fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* fancy animations */
-    @keyframes popupIn{from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)}}
-    @keyframes popupOut{from{opacity:1;transform:scale(1)} to{opacity:0;transform:scale(0.9)}}
+    /* lilium engine-accelerated anims */
+    /* GPU accelerated unlike older ones which relied on compositor only */
+    @keyframes popupIn {
+      from { opacity: 0; transform: scale3d(0.95, 0.95, 1); }
+      to { opacity: 1; transform: scale3d(1, 1, 1); }
+    }
+    @keyframes popupOut {
+      from { opacity: 1; transform: scale3d(1, 1, 1); }
+      to { opacity: 0; transform: scale3d(0.95, 0.95, 1); }
+    }
+
+    /* Animazione di avvio fluida */
+    @keyframes statusBarEntry {
+      from {
+        opacity: 0;
+        transform: translate3d(0, -15px, 0);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+    
+    /* Animazione specifica per il centro che preserva il translate3d di base */
+    @keyframes statusBarCenterEntry {
+      from {
+        opacity: 0;
+        transform: translate3d(-50%, -100%, 0);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(-50%, -50%, 0);
+      }
+    }
 
     /* windowing system */
     .popup{
@@ -37,92 +70,98 @@ Questions? https://discord.gg/YDVxw6jfbH
       width:1048px; height:600px; background:#1D1D1D; border:1px solid #2a2a2a;
       border-radius:10px; opacity:0; overflow:hidden; box-shadow:0 6px 20px rgba(0,0,0,.5);
       z-index:50;
+      will-change: transform, opacity;
+      transform: translate3d(0,0,0);
     }
-    .popup.active{ display:block; animation: popupIn .25s ease forwards; }
-    .popup.closing{ animation: popupOut .25s ease forwards; }
+    .popup.active{ display:block; animation: popupIn .18s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .popup.closing{ animation: popupOut .15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
     /* windows title bar */
     .popup-header{
-      height:32px; background:#1212129f; display:flex; align-items:center; justify-content:space-between;
+      height:32px; background:rgba(18, 18, 18, 0.29); display:flex; align-items:center; justify-content:space-between;
       padding:0 10px; cursor:move; border-bottom:1px solid #2a2a2a; font-size:13px; font-weight:500;
-      user-select:none;
+      user-select:none; -webkit-user-select:none;
     }
-    .popup-header .altf4{cursor:pointer; transition:.2s}
-    .popup-header .altf4:hover{color:red}
+    .popup-header .altf4{cursor:pointer; transition:color .2s ease}
+    .popup-header .altf4:hover{color:#ff453a}
 
     .popup-frame{ width:100%; height:calc(100% - 32px); border:none; }
-    .popup-content{ padding:15px; height:calc(100% - 32px); overflow-y:auto; text-align:center; }
+    .popup-content{ padding:15px; height:calc(100% - 32px); overflow-y:auto; text-align:center; box-sizing: border-box; }
 
     /* status bar */
     .status-bar{
       position:absolute; top:0; left:0; width:100vw; height:56px;
       display:flex; align-items:center; justify-content:space-between;
-      z-index:100; padding:0 32px; box-sizing:border-box; background:rgba(255,255,255,0);
+      z-index:100; padding:0 32px; box-sizing:border-box; background:transparent;
     }
     .status-left,.status-right{display:flex;align-items:center;gap:12px}
-    .status-center {
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .5px;
-      background: rgba(26,26,26,.63); padding: 6px 20px; border-radius: 100px; min-width: 260px; text-align: center; pointer-events: none;
+    
+    /* Applichiamo lo staggered effect in modo pulito mantenendo inline-block e flex */
+    .status-left .btn-wrapper:nth-child(1) {
+      animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
     }
+    .status-left > .status-btn {
+      animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+    }
+    .status-left .btn-wrapper:nth-child(3) {
+      animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.26s both;
+    }
+    
+    .status-center {
+      position: absolute; left: 50%; top: 50%; color: #fff; font-weight: 600; font-size: 14px; letter-spacing: .5px;
+      background: rgba(26, 26, 26, 0.624); padding: 6px 20px; border-radius: 100px; min-width: 260px; text-align: center; pointer-events: none;
+      /* Animazione dedicata al centro per evitare conflitti con left 50% */
+      animation: statusBarCenterEntry 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+    }
+    
+    .status-right .btn-wrapper {
+      animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+    }
+
     .status-btn{
-      background:rgba(26,26,26,.63); color:#fff; border:none; border-radius:100px; padding:6px 20px;
-      font-size:13px; font-weight:500; cursor:pointer; outline:none; display:flex; align-items:center; gap:8px; transition:background .2s;
+      background:rgba(26, 26, 26, 0.624); color:#fff; border:none; border-radius:100px; padding:6px 20px;
+      font-size:13px; font-weight:500; cursor:pointer; outline:none; display:flex; align-items:center; gap:8px; transition:background .2s ease;
       font-family:'Poppins';
     }
-    .status-btn:hover{background:rgba(60,60,60,.9)}
+    .status-btn:hover{background:rgba(26, 26, 26, 0.813)}
     .notification{
-      width:28px; height:28px; background:rgba(26,26,26,.63); border:none; border-radius:100px; cursor:pointer;
+      width:28px; height:28px; background:rgba(26, 26, 26, 0.624); border:none; border-radius:100px; cursor:pointer;
       display:flex; align-items:center; justify-content:center; margin-right:4px;
     }
     .notification svg{ width:22px; height:22px; fill:#fff; opacity:.85 }
 
-    /* dropdowns */
+    /* dropdowns (i drop down harder when i see her eyes) */
     .btn-wrapper{ position:relative; display:inline-block; }
     .dropdown{
-      position:absolute; top:calc(100% + 6px); left:0; background:rgba(26,26,26,.63); border-radius:12px;
+      position:absolute; top:calc(100% + 6px); left:0; background:rgba(26, 26, 26, 0.444); border-radius:12px;
       min-width:200px; max-height:220px; overflow-y:auto; box-shadow:0 8px 18px rgba(0,0,0,.25);
-      opacity:0; transform:translateY(-10px) scale(.95); pointer-events:none; transition:.25s ease; z-index:200; transform-origin:top center;
+      opacity:0; transform: translate3d(0, -10px, 0) scale3d(.95, .95, 1); pointer-events:none; 
+      transition: transform .2s cubic-bezier(0.16, 1, 0.3, 1), opacity .2s ease; z-index:200; transform-origin:top center;
+      will-change: transform, opacity;
     }
-    .dropdown.open{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+    .dropdown.open{ opacity:1; transform: translate3d(0, 0, 0) scale3d(1, 1, 1); pointer-events:auto; }
     .dropdown.activities{ max-height:none; overflow-y:visible; }
-    .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .2s; white-space:nowrap; }
-    .dropdown-item:hover{ background:rgba(255,255,255,.12); }
+    .dropdown-item{ padding:10px 16px; font-size:14px; color:#fff; cursor:pointer; transition:background .15s ease; white-space:nowrap; }
+    .dropdown-item:hover{ background:rgba(255, 255, 255, 0.049); }
 
     #notificationsDropdown { right: 0; left: auto; max-width: 300px; white-space: normal; word-break: break-word; }
-
     .menu-icon { width: 20px; height: 20px; margin-right: 8px; vertical-align: middle; }
 
-    ::-webkit-scrollbar{ background:rgba(255, 255, 255, 0.03); }
+    ::-webkit-scrollbar{ background:rgba(255, 255, 255, 0.03); width: 8px; }
     ::-webkit-scrollbar-thumb{ background-color:rgba(255,255,255,.2); border-radius:50px; }
-    
     a { text-decoration: none; color: #ffffff; }
 
-    /* ── Browser URL bar ── */
+    /* browser URL bar */
     #browserUrl {
-      flex: 1;
-      background: rgba(255,255,255,.07);
-      border: 1px solid #3a3a3a;
-      border-radius: 7px;
-      color: #fff;
-      font-size: 12px;
-      padding: 4px 10px;
-      outline: none;
-      font-family: 'Poppins', sans-serif;
-      transition: border-color .2s;
+      flex: 1; background: rgba(255,255,255,.07); border: 1px solid #3a3a3a;
+      border-radius: 7px; color: #fff; font-size: 12px; padding: 4px 10px; outline: none;
+      font-family: 'Poppins', sans-serif; transition: border-color .2s ease;
     }
     #browserUrl:focus { border-color: #666; }
     .browser-nav-btn {
-      background: rgba(255,255,255,.08);
-      border: none;
-      color: #aaa;
-      border-radius: 5px;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      transition: background .2s, color .2s;
-      flex-shrink: 0;
+      background: rgba(255,255,255,.08); border: none; color: #aaa; border-radius: 5px;
+      width: 24px; height: 24px; cursor: pointer; font-size: 14px; line-height: 1;
+      transition: background .2s, color .2s; flex-shrink: 0;
     }
     .browser-nav-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
   </style>
@@ -133,51 +172,15 @@ Questions? https://discord.gg/YDVxw6jfbH
       <div class="btn-wrapper">
         <button class="status-btn" id="actionsBtn" title="Menu">Activities</button>
         <div class="dropdown" id="actionsDropdown">
-          <a onclick="openPopup('popup6')">
-            <div class="dropdown-item">
-              <img src="assets/icons/messaging.png" class="menu-icon"> Messaging
-            </div>
-          </a>
-          <a onclick="openPopup('popup2')">
-            <div class="dropdown-item">
-              <img src="assets/icons/browser.png" class="menu-icon"> Browser
-            </div>
-          </a>
-          <a onclick="openPopup('popup1')">
-            <div class="dropdown-item">
-              <img src="assets/icons/settings.png" class="menu-icon"> Settings
-            </div>
-          </a>
-          <a onclick="openPopup('popup4')">
-            <div class="dropdown-item">
-              <img src="assets/icons/music.png" class="menu-icon"> Music
-            </div>
-          </a>
-          <a onclick="openPopup('popup7')">
-            <div class="dropdown-item">
-              <img src="assets/icons/store.png" class="menu-icon"> Store
-            </div>
-          </a>
-          <a onclick="openPopup('popup3')">
-            <div class="dropdown-item">
-              <img src="assets/icons/feedback.png" class="menu-icon"> Feedback & Bugs
-            </div>
-          </a>
-          <a onclick="openPopup('popup5')">
-            <div class="dropdown-item">
-              <img src="assets/icons/notes.png" class="menu-icon"> Notes
-            </div>
-          </a>
-          <a onclick="openPopup('popup8')">
-            <div class="dropdown-item">
-              <img src="assets/icons/terminal.png" class="menu-icon"> Terminal
-            </div>
-          </a>
-          <a onclick="openPopup('popup9')">
-            <div class="dropdown-item">
-              <img src="assets/icons/calculator.png" class="menu-icon"> Calculator
-            </div>
-          </a>
+          <a onclick="openPopup('popup6')"><div class="dropdown-item"><img src="assets/icons/messaging.png" class="menu-icon"> Messaging</div></a>
+          <a onclick="openPopup('popup2')"><div class="dropdown-item"><img src="assets/icons/browser.png" class="menu-icon"> Browser</div></a>
+          <a onclick="openPopup('popup1')"><div class="dropdown-item"><img src="assets/icons/settings.png" class="menu-icon"> Settings</div></a>
+          <a onclick="openPopup('popup4')"><div class="dropdown-item"><img src="assets/icons/music.png" class="menu-icon"> Music</div></a>
+          <a onclick="openPopup('popup7')"><div class="dropdown-item"><img src="assets/icons/store.png" class="menu-icon"> Store</div></a>
+          <a onclick="openPopup('popup3')"><div class="dropdown-item"><img src="assets/icons/feedback.png" class="menu-icon"> Help</div></a>
+          <a onclick="openPopup('popup5')"><div class="dropdown-item"><img src="assets/icons/notes.png" class="menu-icon"> Notes</div></a>
+          <a onclick="openPopup('popup8')"><div class="dropdown-item"><img src="assets/icons/terminal.png" class="menu-icon"> Terminal</div></a>
+          <a onclick="openPopup('popup9')"><div class="dropdown-item"><img src="assets/icons/calculator.png" class="menu-icon"> Calculator</div></a>
         </div>
       </div>
 
@@ -203,199 +206,114 @@ Questions? https://discord.gg/YDVxw6jfbH
         </button>
         <div class="dropdown" id="notificationsDropdown">
           <div class="dropdown-item">No new notifications</div>
-          <a onclick="openPopup('popup2')"><div class="dropdown-item">🧩 Browser is active in background</div></a>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- popup1: Settings -->
   <div id="popup1" class="popup">
-    <div class="popup-header">
-      <span>Settings</span> 
-      <span class="altf4" onclick="closePopup('popup1')">✖</span> 
-    </div>
+    <div class="popup-header"><span>Settings</span><span class="altf4" onclick="closePopup('popup1')">✖</span></div>
     <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
   </div>
 
-  <!-- popup2: Browser — MODIFICATO -->
   <div id="popup2" class="popup">
     <div class="popup-header" style="gap: 8px;">
       <span style="white-space: nowrap; font-size: 12px; flex-shrink: 0;">Browser</span>
       <div style="display: flex; align-items: center; gap: 5px; flex: 1;">
-        <button class="browser-nav-btn" onclick="browserNav('back')"   title="Indietro">‹</button>
-        <button class="browser-nav-btn" onclick="browserNav('fwd')"    title="Avanti">›</button>
-        <button class="browser-nav-btn" onclick="browserNav('reload')" title="Ricarica">↺</button>
-        <input id="browserUrl" type="text"
-          placeholder="Cerca con Google o inserisci un URL..."
-          onkeydown="if(event.key==='Enter') openAdvancedSearch(this.value)" />
-        <button class="browser-nav-btn" onclick="openAdvancedSearch(document.getElementById('browserUrl').value)" title="Ricerca Avanzata">⚙</button>
+        <button class="browser-nav-btn" onclick="browserNav('back')" title="Back">‹</button>
+        <button class="browser-nav-btn" onclick="browserNav('fwd')" title="Forward">›</button>
+        <button class="browser-nav-btn" onclick="browserNav('reload')" title="Reload">↺</button>
+        <input id="browserUrl" type="text" placeholder="Search with Google or enter a URL..." onkeydown="if(event.key==='Enter') openAdvancedSearch(this.value)" />
+        <button class="browser-nav-btn" onclick="openAdvancedSearch(document.getElementById('browserUrl').value)" title="Advanced Search">⚙</button>
       </div>
       <span class="altf4" onclick="closePopup('popup2')" style="flex-shrink: 0;">✖</span>
     </div>
-    <iframe id="browserFrame"
-      src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/"
-      class="popup-frame"></iframe>
+    <iframe id="browserFrame" src="https://mariowstech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
   </div>
 
-  <!-- Popup Ricerca Avanzata Google -->
   <div id="popupAdvancedSearch" class="popup" style="width: 600px; height: auto; max-height: 500px;">
-    <div class="popup-header">
-      <span>Ricerca Avanzata Google</span>
-      <span class="altf4" onclick="closePopup('popupAdvancedSearch')">✖</span>
-    </div>
+    <div class="popup-header"><span>Where to next?</span><span class="altf4" onclick="closePopup('popupAdvancedSearch')">✖</span></div>
     <div class="popup-content" style="padding: 20px;">
       <form id="advancedSearchForm" onsubmit="performAdvancedSearch(event)">
         <div style="margin-bottom: 20px;">
-          <label for="advSearchQuery" style="display: block; margin-bottom: 8px; font-weight: 500;">Cosa desideri cercare?</label>
-          <input type="text" id="advSearchQuery" placeholder="Inserisci il termine di ricerca..."
-            style="width: 100%; padding: 10px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; font-family: 'Poppins'; box-sizing: border-box;" />
+          <label for="advSearchQuery" style="display: block; margin-bottom: 8px; font-weight: 500;">Where to next?</label>
+          <input type="text" id="advSearchQuery" placeholder="Enter search term..." style="width: 100%; padding: 10px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; font-family: 'Poppins'; box-sizing: border-box;" />
         </div>
-
         <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 12px 0; font-weight: 500;">Tipo di ricerca:</p>
+          <p style="margin: 0 0 12px 0; font-weight: 500;">Search type:</p>
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="radio" name="searchType" value="web" checked />
-              <span>🌐 Web</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="radio" name="searchType" value="images" />
-              <span>🖼️ Immagini</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="radio" name="searchType" value="news" />
-              <span>📰 Notizie</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="radio" name="searchType" value="videos" />
-              <span>🎥 Video</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="radio" name="searchType" value="books" />
-              <span>📚 Libri</span>
-            </label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="radio" name="searchType" value="shopping" />
-              <span>🛒 Shopping</span>
-            </label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="web" checked /><span>🌐 Web</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="images" /><span>🖼️ Images</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="news" /><span>📰 News</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="videos" /><span>🎥 Videos</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="books" /><span>📚 Books</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="shopping" /><span>🛒 Shopping</span></label>
           </div>
         </div>
-
         <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 12px 0; font-weight: 500;">Opzioni aggiuntive:</p>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-              <input type="checkbox" id="safeSearch" />
-              <span>Ricerca Sicura</span>
-            </label>
-          </div>
+          <p style="margin: 0 0 12px 0; font-weight: 500;">Advanced options:</p>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="checkbox" id="safeSearch" /><span>Safe Search</span></label>
         </div>
-
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button type="button" onclick="closePopup('popupAdvancedSearch')" 
-            style="padding: 8px 16px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; transition: background .2s;">
-            Annulla
-          </button>
-          <button type="submit" 
-            style="padding: 8px 16px; background: rgba(100,200,255,.6); border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; font-weight: 500; transition: background .2s;">
-            Cerca su Google
-          </button>
+          <button type="button" onclick="closePopup('popupAdvancedSearch')" style="padding: 8px 16px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins';">Cancel</button>
+          <button type="submit" style="padding: 8px 16px; background: rgba(100,200,255,.6); border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; font-weight: 500;">Search on Google</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- popup3: Feedback -->
   <div id="popup3" class="popup">
-    <div class="popup-header">
-      <span>Feedback</span>
-      <span class="altf4" onclick="closePopup('popup3')">✖</span>
-    </div>
-    <div class="popup-content">
-      <img src="assets/feedbackbanner.png" height="457px" width="1010px"><br><br>
-      <a href="https://discord.gg/ftSMbVSkDX"><img src="assets/feedbackbannerds.png"></a><br><br>
-    </div>
+    <div class="popup-header"><span>Help</span><span class="altf4" onclick="closePopup('popup3')">✖</span></div>
+    <iframe src="apps/help/index.html" class="popup-frame"></iframe>
   </div>
 
-  <!-- popup4: Music -->
   <div id="popup4" class="popup">
-    <div class="popup-header">
-      <span>Music</span>
-      <span class="altf4" onclick="closePopup('popup4')">✖</span>
-    </div>
+    <div class="popup-header"><span>Music</span><span class="altf4" onclick="closePopup('popup4')">✖</span></div>
     <iframe src="apps/music/index.html" class="popup-frame"></iframe>
   </div>
 
-  <!-- popup5: Notes -->
   <div id="popup5" class="popup">
-    <div class="popup-header">
-      <span>Notes</span>
-      <span class="altf4" onclick="closePopup('popup5')">✖</span> 
-    </div>
+    <div class="popup-header"><span>Notes</span><span class="altf4" onclick="closePopup('popup5')">✖</span></div>
     <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
   </div>
 
-  <!-- popup6: Messaging -->
   <div id="popup6" class="popup">
-    <div class="popup-header">
-      <span>Messaging</span>
-      <span class="altf4" onclick="closePopup('popup6')">✖</span>
-    </div>
+    <div class="popup-header"><span>Messaging</span><span class="altf4" onclick="closePopup('popup6')">✖</span></div>
     <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed" class="popup-frame" id="chattable"></iframe>
   </div>
 
-  <!-- popup7: Store -->
   <div id="popup7" class="popup">
-    <div class="popup-header">
-      <span>Store</span>
-      <span class="altf4" onclick="closePopup('popup7')">✖</span>
-    </div>
+    <div class="popup-header"><span>Store</span><span class="altf4" onclick="closePopup('popup7')">✖</span></div>
     <iframe src="https://mariowstech.github.io/mariowOS-landpages/store/" class="popup-frame"></iframe>
   </div>
 
-  <!-- popup8: Terminal -->
   <div id="popup8" class="popup">
-    <div class="popup-header">
-      <span>Terminal</span>
-      <span class="altf4" onclick="closePopup('popup8')">✖</span>
-    </div>
+    <div class="popup-header"><span>Terminal</span><span class="altf4" onclick="closePopup('popup8')">✖</span></div>
     <iframe src="apps/terminal/index.html" class="popup-frame"></iframe>
   </div>
 
-  <!-- popup9: Calculator -->
   <div id="popup9" class="popup" style="width: 400px; height: 550px;">
-    <div class="popup-header">
-      <span>Calculator</span>
-      <span class="altf4" onclick="closePopup('popup9')">✖</span>
-    </div>
+    <div class="popup-header"><span>Calculator</span><span class="altf4" onclick="closePopup('popup9')">✖</span></div>
     <iframe src="apps/calculator/index.html" class="popup-frame"></iframe>
   </div>
 
   <script>
-    // HERE BE DRAGONS!!
     let popupCounter = 0;
+    const statusBar = document.querySelector('.status-bar');
+    const STATUSBAR_H = 56;
+    const RESERVED_TOP = STATUSBAR_H + 12;
 
     function openPopup(popupId){
       const popup = document.getElementById(popupId);
-      popup.classList.remove("active");
-      void popup.offsetWidth;
-
-      const statusBar = document.querySelector('.status-bar');
-      const STATUSBAR_H = (statusBar && statusBar.offsetHeight) || 56;
-      const TOP_MARGIN = 12;
-      const RESERVED_TOP = STATUSBAR_H + TOP_MARGIN;
+      popup.classList.remove("closing");
 
       const cs = getComputedStyle(popup);
       const popupWidth = parseInt(cs.width, 10) || 1048;
       const popupHeight = parseInt(cs.height, 10) || 600;
-
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
 
-      let perRow = Math.floor((screenWidth - 40) / (popupWidth + 20));
-      if (perRow < 1) perRow = 1;
-
+      let perRow = Math.floor((screenWidth - 40) / (popupWidth + 20)) || 1;
       let row = Math.floor(popupCounter / perRow);
       let col = popupCounter % perRow;
 
@@ -414,61 +332,62 @@ Questions? https://discord.gg/YDVxw6jfbH
       popupCounter++;
 
       const header = popup.querySelector(".popup-header");
-      if (header) makeDraggable(popup, header, RESERVED_TOP);
+      if (header && !header.dataset.dragSetup) {
+        makeDraggable(popup, header, RESERVED_TOP);
+        header.dataset.dragSetup = "true";
+      }
     }
 
     function closePopup(popupId){
       const popup = document.getElementById(popupId);
       popup.classList.remove("active");
       popup.classList.add("closing");
-      popup.addEventListener("animationend", function handler(){
+      
+      const onAnimationEnd = () => {
         popup.style.display = "none";
         popup.classList.remove("closing");
-        popup.removeEventListener("animationend", handler);
-      });
+        popup.removeEventListener("animationend", onAnimationEnd);
+      };
+      popup.addEventListener("animationend", onAnimationEnd);
     }
 
     function getHighestZIndex(elems){
       let hi = 50;
-      for (let i=0;i<elems.length;i++){
-        const z = parseInt(getComputedStyle(elems[i]).zIndex,10) || 0;
+      for (let i = 0; i < elems.length; i++){
+        const z = parseInt(elems[i].style.zIndex, 10) || 0;
         if (z > hi) hi = z;
       }
       return hi;
     }
+
     function focusPopup(popup){
-      popup.style.zIndex = getHighestZIndex(document.getElementsByClassName("popup")) + 1;
+      const activePopups = document.getElementsByClassName("popup");
+      popup.style.zIndex = getHighestZIndex(activePopups) + 1;
     }
 
     function makeDraggable(el, handle, minTop){
-      let pos1=0,pos2=0,pos3=0,pos4=0;
+      let pos1=0, pos2=0, pos3=0, pos4=0;
       handle.onmousedown = dragMouseDown;
-      handle.ontouchstart = (e)=>dragMouseDown(e.touches[0]);
+      handle.ontouchstart = (e) => dragMouseDown(e.touches[0]);
 
       function dragMouseDown(e){
-        e.preventDefault();
         focusPopup(el);
         pos3 = e.clientX; pos4 = e.clientY;
         document.onmouseup = closeDrag;
         document.onmousemove = drag;
         document.ontouchend = closeDrag;
-        document.ontouchmove = (ev)=>drag(ev.touches[0]);
+        document.ontouchmove = (ev) => drag(ev.touches[0]);
       }
-      function drag(e){
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
 
-        const cs = getComputedStyle(el);
-        const w = parseInt(cs.width,10);
-        const h = parseInt(cs.height,10);
+      function drag(e){
+        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
 
         let newTop  = el.offsetTop - pos2;
         let newLeft = el.offsetLeft - pos1;
 
-        const maxLeft = window.innerWidth - w - 8;
-        const maxTop  = window.innerHeight - h - 8;
+        const maxLeft = window.innerWidth - el.offsetWidth - 8;
+        const maxTop  = window.innerHeight - el.offsetHeight - 8;
 
         newLeft = Math.max(8, Math.min(newLeft, maxLeft));
         newTop  = Math.max(minTop, Math.min(newTop, maxTop));
@@ -476,54 +395,27 @@ Questions? https://discord.gg/YDVxw6jfbH
         el.style.top  = newTop + "px";
         el.style.left = newLeft + "px";
       }
+
       function closeDrag(){
-        document.onmouseup = null;
-        document.onmousemove = null;
-        document.ontouchend = null;
-        document.ontouchmove = null;
+        document.onmouseup = null; document.onmousemove = null;
+        document.ontouchend = null; document.ontouchmove = null;
       }
     }
-
-    window.addEventListener('load', ()=>{
-      const statusBar = document.querySelector('.status-bar');
-      const RESERVED_TOP = ((statusBar && statusBar.offsetHeight) || 56) + 12;
-      document.querySelectorAll('.popup').forEach(p=>{
-        const h = p.querySelector('.popup-header');
-        if (h) makeDraggable(p,h,RESERVED_TOP);
-      });
-    });
 
     document.addEventListener('mousedown', (e)=>{
       const header = e.target.closest('.popup-header');
       if (header) focusPopup(header.parentElement);
     });
 
-    // ── Browser: naviga o cerca su Google ──────────────────────────────────
-    function browserGo(val) {
-      val = val.trim();
-      if (!val) return;
-      const isUrl = /^https?:\/\//i.test(val) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(val);
-      const url = isUrl
-        ? (val.startsWith('http') ? val : 'https://' + val)
-        : 'https://www.google.com/search?q=' + encodeURIComponent(val);
-      document.getElementById('browserFrame').src = url;
-      document.getElementById('browserUrl').value = url;
-    }
-
+    // Browser Actions
     function openAdvancedSearch(query) {
       query = query.trim();
       if (!query) return;
-      
-      // Controlla se è un URL
-      const isUrl = /^https?:\/\//i.test(query) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(query);
-      
-      if (isUrl) {
-        // Se è un URL, naviga direttamente
+      if (/^https?:\/\//i.test(query) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(query)) {
         const url = query.startsWith('http') ? query : 'https://' + query;
         document.getElementById('browserFrame').src = url;
         document.getElementById('browserUrl').value = url;
       } else {
-        // Se è un testo di ricerca, apri il form avanzato
         document.getElementById('advSearchQuery').value = query;
         openPopup('popupAdvancedSearch');
       }
@@ -531,17 +423,13 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     function performAdvancedSearch(event) {
       event.preventDefault();
-      
       const query = document.getElementById('advSearchQuery').value.trim();
       if (!query) return;
       
       const searchType = document.querySelector('input[name="searchType"]:checked').value;
       const safeSearch = document.getElementById('safeSearch').checked;
-      
-      let googleUrl = '';
       const encodedQuery = encodeURIComponent(query);
       
-      // Mappa dei tipi di ricerca con parametri Google
       const searchTypeMap = {
         'web': `https://www.google.com/search?q=${encodedQuery}`,
         'images': `https://www.google.com/search?q=${encodedQuery}&tbm=isch`,
@@ -551,14 +439,9 @@ Questions? https://discord.gg/YDVxw6jfbH
         'shopping': `https://www.google.com/search?q=${encodedQuery}&tbm=shop`
       };
       
-      googleUrl = searchTypeMap[searchType] || searchTypeMap['web'];
+      let googleUrl = searchTypeMap[searchType] || searchTypeMap['web'];
+      if (safeSearch) googleUrl += '&safe=active';
       
-      // Aggiungi safe search se selezionato
-      if (safeSearch) {
-        googleUrl += '&safe=active';
-      }
-      
-      // Naviga nel browser e chiudi il popup
       document.getElementById('browserFrame').src = googleUrl;
       document.getElementById('browserUrl').value = googleUrl;
       closePopup('popupAdvancedSearch');
@@ -571,16 +454,15 @@ Questions? https://discord.gg/YDVxw6jfbH
         if (action === 'fwd')    f.contentWindow.history.forward();
         if (action === 'reload') f.contentWindow.location.reload();
       } catch(e) {
-        // cross-origin: ricarica semplicemente l'iframe
         if (action === 'reload') f.src = f.src;
       }
     }
-    // ───────────────────────────────────────────────────────────────────────
 
-    // clock
-    let systemTimeOffset = 0;
-    let timezoneOffset = 0;
-    
+    // Passive Clock & Offset Updates
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    let systemTimeOffset = 0, timezoneOffset = 0, manualTimeEnabled = false;
+
     function updateClock(){
       const now = new Date();
       let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
@@ -590,97 +472,80 @@ Questions? https://discord.gg/YDVxw6jfbH
         utcMs += systemTimeOffset;
       }
       const d = new Date(utcMs);
-      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      let h = d.getUTCHours();
-      let m = d.getUTCMinutes();
+      let h = d.getUTCHours(), m = d.getUTCMinutes();
       const ampm = h >= 12 ? "PM" : "AM";
       h = h % 12 || 12;
       m = m < 10 ? "0" + m : m;
-      document.getElementById("center-clock").textContent =
-        `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
+      document.getElementById("center-clock").textContent = `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
     }
-
-    let manualTimeEnabled = false;
 
     function checkTimeOffset(){
-      const tz = localStorage.getItem('timezoneOffset');
-      const manual = localStorage.getItem('manualTimeEnabled');
-      const offset = localStorage.getItem('systemTimeOffset');
-      timezoneOffset = tz !== null ? parseFloat(tz) : null;
-      systemTimeOffset = offset !== null ? parseInt(offset, 10) : 0;
-      manualTimeEnabled = manual === 'true';
+      timezoneOffset = localStorage.getItem('timezoneOffset') !== null ? parseFloat(localStorage.getItem('timezoneOffset')) : null;
+      systemTimeOffset = localStorage.getItem('systemTimeOffset') !== null ? parseInt(localStorage.getItem('systemTimeOffset'), 10) : 0;
+      manualTimeEnabled = localStorage.getItem('manualTimeEnabled') === 'true';
     }
 
-    setInterval(() => {
-      checkTimeOffset();
-      updateClock();
-    }, 1000);
-    updateClock();
+    setInterval(() => { checkTimeOffset(); updateClock(); }, 1000);
+    checkTimeOffset(); updateClock();
 
-    // dropdowns
-    function setupDropdown(btnId, ddId){
-      const btn = document.getElementById(btnId);
-      const dd  = document.getElementById(ddId);
-      btn.addEventListener('click', ()=> dd.classList.toggle('open'));
-      document.addEventListener('click', (e)=>{
-        if(!btn.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('open');
-      });
-    }
-    setupDropdown("actionsBtn","actionsDropdown");
-    setupDropdown("activitiesBtn","activitiesDropdown");
-    setupDropdown("notificationsBtn","notificationsDropdown");
-
-    const DEFAULT_WALLPAPER = 'url("assets/wallpaper.png")';
-    function resetDesktopWallpaper() {
-      document.body.style.backgroundImage = DEFAULT_WALLPAPER;
-      localStorage.removeItem("desktopWallpaper");
-    }
-
-    window.addEventListener("load", () => {
-      fetch("assets/wallpaper.user.png", { method: "HEAD" })
-        .then(res => {
-          if (res.ok) document.body.style.backgroundImage = 'url("assets/wallpaper.user.png")';
-        });
+// Dropdown Logic
+function setupDropdown(btnId, ddId){
+  const btn = document.getElementById(btnId);
+  const dd  = document.getElementById(ddId);
+  
+  btn.addEventListener('click', (e)=> { 
+    e.stopPropagation(); 
+    
+    const isOpen = dd.classList.contains('open');
+    
+    document.querySelectorAll('.dropdown.open').forEach(openDd => {
+      openDd.classList.remove('open');
     });
+    
+    if (!isOpen) {
+      dd.classList.add('add'); // Mantenuto coerente con la logica originale
+      dd.classList.add('open');
+    }
+  });
+}
 
+setupDropdown("actionsBtn","actionsDropdown");
+setupDropdown("activitiesBtn","activitiesDropdown");
+setupDropdown("notificationsBtn","notificationsDropdown");
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
+});
+
+    // Wallpapers
     function applyUserWallpaper() {
       fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
         .then(res => {
-          if (res.ok) {
-            document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center';
-          } else {
-            document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
-          }
+          document.body.style.backgroundImage = res.ok 
+            ? 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")'
+            : 'url("/desktop/assets/wallpaper.png")';
+        }).catch(() => {
+          document.body.style.backgroundImage = 'url("assets/wallpaper.factory.png")';
         });
     }
-    window.addEventListener("load", applyUserWallpaper);
+    window.addEventListener("DOMContentLoaded", applyUserWallpaper);
 
-    window.addEventListener("message", (e) => {
+    // Cross-Window Messages
+    window.addEventListener("message", async (e) => {
       if (e.data.type === "load-youafter") {
-        const settingsPopup = document.getElementById("popup1");
-        const iframe = settingsPopup.querySelector("iframe");
-        iframe.src = "apps/settings/assets/youafter.html";
+        document.getElementById("popup1").querySelector("iframe").src = "apps/settings/assets/youafter.html";
       }
-    });
-
-    window.addEventListener('message', async (e) => {
       if (e.data.type === 'clear-settings') {
         try {
-          const configPath = '/config.json';
-          const res = await fetch(configPath);
+          const res = await fetch('/config.json');
           const cfg = await res.json();
-          const newCfg = { passwordHash: cfg.passwordHash };
           await fetch('/clear-settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newCfg)
+            body: JSON.stringify({ passwordHash: cfg.passwordHash })
           });
           e.source.postMessage({ type: 'settings-cleared' }, '*');
         } catch (err) {
-          console.error('E: Reset settings:', err);
           e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*');
         }
       }
@@ -689,9 +554,7 @@ Questions? https://discord.gg/YDVxw6jfbH
           const res = await fetch('/get-settings');
           const cfg = await res.json();
           e.source.postMessage({ type: 'settings', data: cfg }, '*');
-        } catch (err) {
-          console.error('E: get-settings:', err);
-        }
+        } catch (err) {}
       }
     });
   </script>

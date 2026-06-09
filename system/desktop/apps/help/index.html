@@ -1,0 +1,92 @@
+<!-- o beppino giovane devoto 💘 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'MS Sans Serif', Arial, sans-serif;
+            background-color: #c0c0c0;
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #dfdfdf;
+            border-right: 2px solid #ffffff;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .sidebar h3 {
+            font-size: 12px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        .sidebar a {
+            display: block;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            background-color: #c0c0c0;
+            color: #000;
+            text-decoration: none;
+            font-size: 12px;
+            border: 1px solid #dfdfdf;
+        }
+        .sidebar a:hover {
+            background-color: #000080;
+            color: #ffffff;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #c0c0c0;
+        }
+        .titlebar {
+            background: linear-gradient(to right, #000080, #1084d7);
+            color: #ffffff;
+            padding: 4px 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+            background-color: #c0c0c0;
+            overflow-y: auto;
+        }
+        .main h1 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+        .main p {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #000;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Topics</h3>
+        <a href="#overview">This</a>
+        <a href="#getting-started">app</a>
+        <a href="#helptopics">is</a>
+        <a href="#apps">ass</a>
+    </div>
+    <div class="content">
+        <div class="main">
+            <h1>What's this?</h1>
+            <p>This app will be used to provide help topics and useful stuff when using mariowOS.<br>
+            New help topics will be added when the system reaches stable state.<br>
+            A better guide is present at <a href="https://mariowstech.gitbook.io/mariowos-docs">our gitbook page.</a></p>
+            <p>&nbsp;</p>
+            <p>I will finish it over time, its not a priority right now.</p>
+        </div>
+    </div>
+</body>
+</html>

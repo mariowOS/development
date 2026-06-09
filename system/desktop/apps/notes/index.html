@@ -21,143 +21,248 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     font-family: 'Poppins', sans-serif;
     background: #181818;
     color: #fff;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* --- ANIMAZIONI HARDWARE ACCELERATED (60FPS) --- */
+  @keyframes barEntrance {
+    from { opacity: 0; transform: translate3d(0, -10px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  @keyframes tabPopIn {
+    from { opacity: 0; transform: scale3d(0.8, 0.8, 1); }
+    to { opacity: 1; transform: scale3d(1, 1, 1); }
+  }
+
+  @keyframes tabPopOut {
+    from { opacity: 1; transform: scale3d(1, 1, 1); width: 100px; padding: 4px 12px; }
+    to { opacity: 0; transform: scale3d(0.8, 0.8, 1); width: 0; padding: 4px 0; margin: 0; overflow: hidden; }
+  }
+
+  @keyframes containerEntrance {
+    from { opacity: 0; transform: scale3d(0.99, 0.99, 1); }
+    to { opacity: 1; transform: scale3d(1, 1, 1); }
+  }
+
+  @keyframes textareaFade {
+    from { opacity: 0; transform: translate3d(0, 4px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  /* Animazione shake per l'errore del tasto Save */
+  @keyframes shake {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate3d(-6px, 0, 0); }
+    20%, 40%, 60%, 80% { transform: translate3d(6px, 0, 0); }
+  }
+
+  /* Layout Header in linea basato su Frame 427 */
+  .app-header {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    position: relative;
+    z-index: 10;
   }
 
   .buttons {
-    position: absolute;
-    top: 16px;
-    left: 16px;
     display: flex;
     gap: 16px;
-    z-index: 10;
+    animation: barEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   button {
     background: none;
     border: none;
-    color: #006FFF;
-    font-size: 1em;
+    color: #fff; /* Bianco minimale come da Figma */
+    font-size: 0.95em;
     cursor: pointer;
     padding: 4px 0;
-    border-bottom: 1px solid transparent;
-    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     font-family: 'Poppins';
+    will-change: border-bottom, color, transform;
   }
 
   button:hover {
-    border-bottom: 1px solid #006FFF;
+    color: #006FFF;
+  }
+
+  button:active {
+    transform: scale3d(0.95, 0.95, 1);
   }
 
   button.clear {
-    color: #aaa;
+    color: rgba(255, 255, 255, 0.6);
   }
 
   button.clear:hover {
-    border-bottom: 1px solid #aaa;
+    color: #fff;
   }
 
-.tabs {
-  position: absolute;
-  top: 16px;
-  left: 240px; 
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-  max-width: calc(100% - 260px); 
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
+  /* Stato di errore per il tasto di salvataggio */
+  button.save-error {
+    color: #ff4c4c !important;
+    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
 
-.tabs::-webkit-scrollbar {
-  height: 6px;
-}
+  /* Box dei Tab spostato e allineato come da Figma */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-left: 24px;
+    max-width: calc(100% - 240px); 
+    overflow-x: auto;
+    height: 100%;
+    align-items: flex-end; /* Spinge i tab a toccare il container dell'editor */
+    animation: barEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+  }
 
-.tabs::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 3px;
-}
+  .tabs::-webkit-scrollbar {
+    height: 3px;
+  }
+  .tabs::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
 
-.tabs::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #222222; 
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0; /* Arrotondati solo sopra */
+    padding: 6px 14px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85em;
+    cursor: grab;
+    user-select: none;
+    position: relative;
+    height: 36px;
+    will-change: transform, background-color, color;
+    transition: background-color 0.2s, color 0.2s;
+    animation: tabPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
 
-.tab-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: #555; 
-  border: none;
-  border-radius: 4px; 
-  padding: 4px 12px;
-  color: #fff;
-  font-size: 0.85em;
-  cursor: grab;
-  user-select: none;
-  transition: all 0.2s;
-  position: relative;
-}
+  .tab-btn:hover {
+    background: #282828;
+    color: #fff;
+  }
 
-.tab-btn.active {
-  background: #555;
-}
+  .tab-btn.active {
+    background: #202020; /* Si fonde con il container principale */
+    color: #fff;
+    height: 38px; /* Leggermente più alto per sovrapporsi al bordo */
+    z-index: 2;
+  }
 
-.tab-btn.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 4px;
-  height: 100%;
-  background: #006FFF;
-  border-radius: 2px 0 0 2px;
-}
+  /* Indicatore blu sui bordi del tab attivo (Figma Style) */
+  .tab-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px 8px 0 0;
+    border: 1.5px solid #006FFF;
+    border-bottom: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .tab-btn.active::before {
+    opacity: 1;
+  }
+
+  .tab-btn.dragging {
+    opacity: 0.4;
+    background: rgba(0, 111, 255, 0.1);
+  }
+
+  .tab-btn.drag-over {
+    background: #282828;
+    transform: translate3d(2px, 0, 0);
+  }
+
+  .tab-btn.removing {
+    animation: tabPopOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    pointer-events: none;
+  }
+
   .close-tab {
     background: none;
     border: none;
-    color: #aaa;
+    color: rgba(255, 255, 255, 0.3);
     font-weight: bold;
     cursor: pointer;
-    padding: 0 2px;
+    padding: 0;
+    font-size: 1.1em;
+    transition: color 0.15s, transform 0.15s;
+    line-height: 1;
+    margin-left: 4px;
   }
 
   .close-tab:hover {
     color: #ff4c4c;
+    transform: scale3d(1.1, 1.1, 1);
+  }
+
+  /* Espanso fino ai bordi della finestra della app */
+  .editor-container {
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #202020; /* Sfondo del corpo principale */
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    animation: containerEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   textarea {
-    position: absolute;
-    top: 50px;
-    left: 0;
     width: 100%;
-    height: calc(100% - 50px);
-    background: #181818;
+    height: 100%;
+    background: transparent;
     border: none;
-    padding: 16px;
-    font-size: 1em;
+    padding: 24px;
+    font-size: 0.95em;
     color: #fff;
     resize: none;
     outline: none;
     box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    animation: textareaFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .textarea-pulse {
+    animation: textareaFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 </style>
 </head>
 <body>
 
-<!-- fancy buttons -->
-<div class="buttons">
-  <button id="save-btn">Save</button>
-  <button id="new-tab-btn">New</button>
-  <button class="clear" id="clear-btn">Clear</button>
-  <a href="assets/help.html"><button class="clear">Help</button></a>
+<div class="app-header">
+  <div class="buttons">
+    <button id="save-btn">Save</button>
+    <button id="new-tab-btn">New</button>
+    <button class="clear" id="clear-btn">Clear</button>
+    <a href="assets/help.html"><button class="clear">Help</button></a>
+  </div>
+
+  <div class="tabs" id="tabs-container"></div>
 </div>
 
-<div class="tabs" id="tabs-container">
+<div class="editor-container">
+  <textarea id="note-area" placeholder="your cool ideas go here..."></textarea>
 </div>
-
-<textarea id="note-area" placeholder="your cool ideas go here..."></textarea>
 
 <script>
-  // get constants 
   const noteArea = document.getElementById('note-area');
   const saveBtn = document.getElementById('save-btn');
   const clearBtn = document.getElementById('clear-btn');
@@ -167,11 +272,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   let notes = [];
   let currentIndex = 0;
 
-  // create tab function 
-  function createTab(name="Note") {
-    const id = Date.now().toString();
-    notes.push({id, content: "", name});
-
+  function buildTabElement(id, name) {
     const btn = document.createElement('div');
     btn.classList.add('tab-btn');
     btn.dataset.id = id;
@@ -180,23 +281,25 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     span.textContent = name;
     span.addEventListener('dblclick', () => {
       const newName = prompt("Rename tab:", span.textContent);
-      if(newName) {
-        span.textContent = newName;
-        notes.find(n => n.id === id).name = newName;
+      if(newName && newName.trim()) {
+        span.textContent = newName.trim();
+        notes.find(n => n.id === id).name = newName.trim();
         saveToLocalStorage();
       }
     });
 
-    // call close tab function logic
     const closeBtn = document.createElement('button');
     closeBtn.classList.add('close-tab');
     closeBtn.textContent = '×';
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      closeTab(id);
+      
+      btn.classList.add('removing');
+      btn.addEventListener('animationend', () => {
+        closeTab(id);
+      });
     });
 
-    // tab controls
     btn.appendChild(span);
     btn.appendChild(closeBtn);
 
@@ -204,84 +307,75 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     btn.setAttribute('draggable', true);
     btn.addEventListener('dragstart', dragStart);
     btn.addEventListener('dragover', dragOver);
+    btn.addEventListener('dragleave', dragLeave);
     btn.addEventListener('drop', dropTab);
+    btn.addEventListener('dragend', dragEnd);
 
+    return btn;
+  }
+
+  function createTab(name="Note") {
+    const id = Date.now().toString();
+    notes.push({id, content: "", name});
+
+    const btn = buildTabElement(id, name);
     tabsContainer.appendChild(btn);
     switchTab(id);
     saveToLocalStorage();
   }
-  // tab switcher function, don't ask why it's integrated like this please it didn't work if i didn't do it this way for some reason
+
   function switchTab(id) {
     if (notes[currentIndex]) notes[currentIndex].content = noteArea.value;
 
-    const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
+    const targetBtn = [...tabsContainer.children].find(b => b.dataset.id === id);
+    if(!targetBtn || targetBtn.classList.contains('active')) return;
+
     tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
+    targetBtn.classList.add('active');
 
     currentIndex = notes.findIndex(n => n.id === id);
+    
+    noteArea.classList.remove('textarea-pulse');
+    void noteArea.offsetWidth; 
+    noteArea.classList.add('textarea-pulse');
+    
     noteArea.value = notes[currentIndex].content || "";
+    noteArea.focus();
   }
 
-  // close tab function logic
   function closeTab(id) {
     const index = notes.findIndex(n => n.id === id);
     if(index === -1) return;
     notes.splice(index,1);
+    
     const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
     if(btn) btn.remove();
-    if(notes.length > 0) switchTab(notes[0].id);
-    else createTab();
+    
+    if(notes.length > 0) {
+      const nextActiveId = notes[Math.min(index, notes.length - 1)].id;
+      switchTab(nextActiveId);
+    } else {
+      createTab();
+    }
     saveToLocalStorage();
   }
 
-  // call the funtion to download the note as .txt
   function saveToLocalStorage() {
     localStorage.setItem('multiNotes', JSON.stringify(notes));
   }
   
-  // function to load any file with a .txt extension
   function loadFromLocalStorage() {
     const saved = localStorage.getItem('multiNotes');
     if(saved) {
       notes = JSON.parse(saved);
       notes.forEach(n => {
-        const btn = document.createElement('div');
-        btn.classList.add('tab-btn');
-        btn.dataset.id = n.id;
-
-        // tab rename logic
-        const span = document.createElement('span');
-        span.textContent = n.name;
-        span.addEventListener('dblclick', () => {
-          const newName = prompt("Rename tab:", span.textContent);
-          if(newName) {
-            span.textContent = newName;
-            notes.find(x => x.id === n.id).name = newName;
-            saveToLocalStorage();
-          }
-        });
-
-        // tab close logic (again)
-        const closeBtn = document.createElement('button');
-        closeBtn.classList.add('close-tab');
-        closeBtn.textContent = '×';
-        closeBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          closeTab(n.id);
-        });
-
-        btn.appendChild(span);
-        btn.appendChild(closeBtn);
-        // listeners
-        btn.addEventListener('click', () => switchTab(n.id));
-        btn.setAttribute('draggable', true);
-        btn.addEventListener('dragstart', dragStart);
-        btn.addEventListener('dragover', dragOver);
-        btn.addEventListener('drop', dropTab);
-
+        const btn = buildTabElement(n.id, n.name);
         tabsContainer.appendChild(btn);
       });
-      switchTab(notes[0].id);
+      const firstTab = tabsContainer.querySelector('.tab-btn');
+      if(firstTab) firstTab.classList.add('active');
+      currentIndex = 0;
+      noteArea.value = notes[0].content || "";
     } else {
       createTab();
     }
@@ -294,10 +388,17 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
   });
 
-  // save file logic (WARNING: PLEASE DON'T TOUCH THIS PART IF YOU DON'T KNOW HOW BLOBS AND ATTRIBUTES WORK)
   saveBtn.addEventListener('click', () => {
-    const text = noteArea.value;
-    if(!text) return alert("Nothing to save!");
+    const text = noteArea.value.trim();
+    
+    // Gestione errore file vuoto
+    if(!text) {
+      saveBtn.classList.remove('save-error');
+      void saveBtn.offsetWidth; // Trigger reflow per resettare l'animazione CSS
+      saveBtn.classList.add('save-error');
+      return;
+    }
+    
     const now = new Date();
     const timestamp = now.getFullYear().toString()
       + String(now.getMonth()+1).padStart(2,'0')
@@ -306,11 +407,9 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       + String(now.getMinutes()).padStart(2,'0')
       + String(now.getSeconds()).padStart(2,'0');
 
-    // trigger download
     const blob = new Blob([text], {type:'text/plain'});
     const url = URL.createObjectURL(blob);
 
-    // file naming logic (append time and .txt extension to it)
     const a = document.createElement('a');
     a.href = url;
     a.download = `note_${timestamp}.txt`;
@@ -318,6 +417,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  });
+
+  // Rimuove la classe di errore del tasto Save quando finisce l'animazione
+  saveBtn.addEventListener('animationend', () => {
+    saveBtn.classList.remove('save-error');
   });
 
   clearBtn.addEventListener('click', () => {
@@ -328,29 +432,53 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
   });
 
-  // create tab logic
   newTabBtn.addEventListener('click', () => createTab());
 
-  // keyboard shortcuts logic and listeners (CTRL+S to save, CTRL+N for new tab, CTRL+W to bomb current tab)
   document.addEventListener('keydown', (e) => {
     if(e.ctrlKey && e.key === 's') { e.preventDefault(); saveBtn.click(); }
     if(e.ctrlKey && e.key === 'n') { e.preventDefault(); newTabBtn.click(); }
     if(e.ctrlKey && e.key === 'w') { e.preventDefault(); 
-      const btn = tabsContainer.children[currentIndex];
-      if(btn) { closeTab(notes[currentIndex].id); }
+      if(notes[currentIndex]) {
+        const btn = [...tabsContainer.children].find(b => b.dataset.id === notes[currentIndex].id);
+        if(btn) btn.classList.add('removing');
+        closeTab(notes[currentIndex].id);
+      }
     }
   });
 
-  // drag tabs logic - works but is janky as hell sorry cuties
+  /* --- FLUID DRAG & DROP ENGINE --- */
   let dragged = null;
-  function dragStart(e){ dragged = e.currentTarget; }
-  function dragOver(e){ e.preventDefault(); }
+  
+  function dragStart(e){ 
+    dragged = e.currentTarget; 
+    dragged.classList.add('dragging');
+  }
+  
+  function dragOver(e){ 
+    e.preventDefault(); 
+    if(e.currentTarget !== dragged) {
+      e.currentTarget.classList.add('drag-over');
+    }
+  }
+
+  function dragLeave(e){
+    e.currentTarget.classList.remove('drag-over');
+  }
+
+  function dragEnd(e){
+    if(dragged) dragged.classList.remove('dragging');
+    tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('drag-over'));
+  }
+  
   function dropTab(e){
     e.preventDefault();
     const target = e.currentTarget;
+    target.classList.remove('drag-over');
+    
     if(dragged && target !== dragged){
       const draggedIndex = [...tabsContainer.children].indexOf(dragged);
       const targetIndex = [...tabsContainer.children].indexOf(target);
+      
       if(draggedIndex < targetIndex){
         tabsContainer.insertBefore(dragged, target.nextSibling);
         const note = notes.splice(draggedIndex,1)[0];
@@ -359,6 +487,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
         tabsContainer.insertBefore(dragged, target);
         const note = notes.splice(draggedIndex,1)[0];
         notes.splice(targetIndex,0,note);
+      }
+      
+      const activeBtn = tabsContainer.querySelector('.tab-btn.active');
+      if(activeBtn) {
+        currentIndex = notes.findIndex(n => n.id === activeBtn.dataset.id);
       }
       saveToLocalStorage();
     }

@@ -5,7 +5,6 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 -->
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -22,17 +21,79 @@ html,body {
 
 body {
   background:url("/desktop/assets/wallpaper.png") center/cover no-repeat fixed;
+  background-color:#000; /* fallback */
   display:flex; align-items:center; justify-content:center;
   color:#fff; overflow:hidden;
+  transform: translateZ(0); /* force GPU on body */
+}
+
+@keyframes loginRiseUp {
+  from {
+    opacity: 0;
+    /* Manteniamo il -50% per centrare sull'asse X e partiamo più in basso di 40px */
+    transform: translate3d(-50%, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    /* Manteniamo il -50% e torniamo alla posizione Y originale (0) */
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes datetimeRiseUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 160px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 120px, 0);
+  }
+}
+
+/* --- ANIMAZIONE DI USCITA (FALL DOWN EFFECT) --- */
+@keyframes fallDownExit {
+  from {
+    opacity: 1;
+    /* Preserviamo il centraggio X anche all'inizio della caduta */
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    opacity: 0;
+    /* Preserviamo il centraggio X e spingiamo giù su Y */
+    transform: translate3d(-50%, 400px, 0);
+  }
+}
+
+@keyframes datetimeFallDownExit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 120px, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 500px, 0);
+  }
 }
 
 .datetime {
   position:absolute;
-  top:120px;
+  top: 0;
+  left: 0;
   width:100%;
   text-align:center;
   pointer-events:none;
+  /* Animazione ingresso fluida */
+  transform: translate3d(0, 120px, 0); 
+  animation: datetimeRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  will-change: transform, opacity;
 }
+
+/* Classe aggiunta via JS al momento dello sblocco */
+.datetime.unlock-falling {
+  animation: datetimeFallDownExit 0.55s cubic-bezier(0.32, 0, 0.67, 0) forwards !important;
+}
+
 .datetime .date {
   font-size:22px;
   color:rgba(255,255,255,0.94);
@@ -48,14 +109,22 @@ body {
 }
 
 .center-stack {
-  position:absolute;
-  bottom:160px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:20px;
+  position: absolute;
+  bottom: 160px;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  /* Animazione ingresso ritardata rispetto a date/time */
+  animation: loginRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+  will-change: transform, opacity;
+}
+
+/* Classe aggiunta via JS al momento dello sblocco */
+.center-stack.unlock-falling {
+  animation: fallDownExit 0.5s cubic-bezier(0.32, 0, 0.67, 0) forwards !important;
 }
 
 .avatar {
@@ -65,6 +134,7 @@ body {
   background:url("/desktop/assets/avatar.png") center/cover no-repeat;
   box-shadow:0 6px 18px rgba(0,0,0,0.55), inset 0 -4px 10px rgba(0,0,0,0.12);
   transition: background-image 0.3s ease;
+  transform: translateZ(0);
 }
 
 .unlock-pill {
@@ -72,13 +142,16 @@ body {
   align-items:center;
   justify-content:space-between;
   backdrop-filter:blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius:999px;
   width:340px;
   height:48px;
   overflow:hidden;
   border:2px solid transparent;
-  transition:border-color 0.3s ease;
+  transition: border-color 0.3s ease;
   box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  transform: translateZ(0); /* blur on GPU */
+  will-change: transform, border-color;
 }
 
 .unlock-pill input {
@@ -87,6 +160,7 @@ body {
   padding:0 20px;
   background:rgba(255,255,255,0.1);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border:none;
   outline:none;
   color:white;
@@ -98,16 +172,13 @@ body {
   flex:1;
   height:100%;
   padding:0 20px;
-
   text-decoration: none;
-  
   border:none;
   outline:none;
   color: #ffffff;
   font-size:18px;
   font-family: 'Poppins';
 }
-
 
 .unlock-pill button {
   width:56px;
@@ -122,25 +193,21 @@ body {
   border-bottom-right-radius:999px;
   position:relative;
   z-index:2;
-}
-
-.unlock-pill button img {
-  width:20px;
-  height:20px;
+  will-change: transform;
 }
 
 .unlock-pill button:hover {
-  transform:scale(1.04);
+  transform: scale3d(1.04, 1.04, 1);
 }
 
 .unlock-pill button:active {
-  transform:scale(0.95);
+  transform: scale3d(0.95, 0.95, 1);
   box-shadow:inset 0 1px 1px rgba(0,0,0,0.2);
 }
 
 .unlock-pill.wrong {
-  border-color:rgba(255,59,48,1);
-  animation:shake 0.45s ease, fadeBorder 1s forwards;
+  border-color: rgba(255, 59, 48, 1);
+  animation: shake 0.45s cubic-bezier(.36, .07, .19, .97) both, fadeBorder 1s forwards;
 }
 
 #loginBtn:hover{
@@ -148,9 +215,10 @@ body {
 }
 
 @keyframes shake {
-  0%,100% { transform:translateX(0); }
-  20%,60% { transform:translateX(-6px); }
-  40%,80% { transform:translateX(6px); }
+  10%, 90% { transform: translate3d(-4px, 0, 0); }
+  20%, 80% { transform: translate3d(6px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+  40%, 60% { transform: translate3d(8px, 0, 0); }
 }
 
 @keyframes fadeBorder {
@@ -176,6 +244,7 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 999;
+  transform: translateZ(0);
 }
 .popup {
   background: rgba(255, 255, 255, 0.9);
@@ -185,6 +254,7 @@ body {
   max-width: 400px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .popup h1 {
   margin-top: 0;
@@ -209,31 +279,27 @@ body {
   cursor: pointer;
   font-family: 'Poppins';
   font-weight: 500;
-  transition: background 0.2s ease, transform 0.1s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
+  will-change: transform;
 }
-.popup-buttons button:hover { transform: scale(1.04); }
+.popup-buttons button:hover { transform: scale3d(1.04, 1.04, 1); }
 #closePopup { background: #bdbdbd; color: #fff; }
 #redirectPopup { background: #002fff; color: #ffffff; }
 </style>
 </head>
 <body>
-  <div class="datetime" aria-hidden="true">
+  <div class="datetime" id="datetimeBlock" aria-hidden="true">
     <div class="date" id="date">Loading…</div>
     <div class="time" id="time">00:00</div>
   </div>
 
-  <div class="center-stack" role="main">
+  <div class="center-stack" id="centerStackBlock" role="main">
     <div class="avatar" aria-hidden="true"></div>
-            <label for="loginPassword" class="block text-sm font-medium text-white mb-2">Password</label>
-<div class="unlock-pill" id="unlockPill" aria-label="Unlock">
-          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" class="w-full">
-          <button id="loginBtn" title="Unlock" aria-label="Unlock">
-            <img src="/desktop/assets/next.png" alt="→">
-          </button>
-        </div>
-        <a href="/desktop/password-recovery.html" id="forgotPassword" class="text-white text-sm mt-3 hover:underline cursor-pointer">Forgot Password?</a>
-      </div>
+    <div class="unlock-pill" id="unlockPill" aria-label="Unlock">
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" class="w-full">
+      <button id="loginBtn" title="Unlock" aria-label="Unlock"></button>
     </div>
+    <a href="/desktop/password-recovery.html" id="forgotPassword" class="text-white text-sm mt-3 hover:underline cursor-pointer">Forgot Password?</a>
   </div>
 
   <div class="popup-overlay" id="popupOverlay">
@@ -261,6 +327,8 @@ setInterval(updateDateTime, 1000);
 const loginBtn = document.getElementById('loginBtn');
 const passwordInput = document.getElementById('loginPassword');
 const unlockPill = document.getElementById('unlockPill');
+const datetimeBlock = document.getElementById('datetimeBlock');
+const centerStackBlock = document.getElementById('centerStackBlock');
 
 passwordInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') attemptUnlock();
@@ -282,7 +350,14 @@ async function attemptUnlock() {
     if (lowered.includes('❌') || lowered.includes('wrong') || lowered.includes('no password')) {
       showWrong();
     } else {
-      window.location.href = '/desktop/com.mariowos.desktop.html';
+      // PASSWORD CORRETTA - Avvia l'effetto caduta fluida
+      datetimeBlock.classList.add('unlock-falling');
+      centerStackBlock.classList.add('unlock-falling');
+      
+      // Ritardo millimetrico controllato per far completare la caduta prima del cambio pagina
+      setTimeout(() => {
+        window.location.href = '/desktop/com.mariowos.desktop.html';
+      }, 520);
     }
   } catch {
     showWrong();
@@ -365,7 +440,6 @@ function applyForcedLightMode() {
     .unlock-pill input::placeholder { color: #999 !important; }
     #loginBtn { background-color: #e0e0e0 !important; }
     #loginBtn:hover { background-color: #ccc !important; }
-    #loginBtn img { filter: invert(1) !important; }
     #forgotPassword { color: #0066cc !important; }
     label { color: #1a1a1a !important; }
     .popup-overlay { background: rgba(0, 0, 0, 0.3) !important; }
@@ -392,7 +466,6 @@ window.addEventListener('storage', (e) => {
 });
 
 window.addEventListener('load', checkForcedLightMode);
-
 </script>
 </body>
 </html>
