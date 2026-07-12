@@ -1,75 +1,222 @@
-
-<!-- UltraPorno -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mariowOS Update Status</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      background: #1e1e1e;
-      color: #fff;
-      font-family: 'Poppins', Arial, sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container {
-      text-align: center;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5em;
-      margin-bottom: 0.5em;
-    }
-    .logo-img {
-      height: 60px;
-      width: auto;
-      display: block;
-      filter: drop-shadow(0 0 4px #fff8);
-    }
-    .status {
-      font-size: 1.3rem;
-      font-weight: 500;
-      margin-bottom: 1.5em;
-    }
-    .links {
-      display: flex;
-      gap: 2em;
-      justify-content: center;
-      margin-top: 0.5em;
-    }
-    .links a {
-      color: #3ec6e0;
-      text-decoration: none;
-      font-size: 1rem;
-      transition: color 0.2s;
-      font-family: 'Poppins', Arial, sans-serif;
-    }
-    .links a:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mariowOS Update Status</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1e1e1e;
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --accent-hover: #2a6dc4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --green: #34c759;
+    --red: #ff3b30;
+  }
 
-    
-  </style>
+  body {
+    background: transparent;
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    overflow-y: auto;
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .logo-img {
+    height: 60px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
+  }
+
+  .status {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+
+  .changelog {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    display: none;
+    line-height: 1.5;
+  }
+  
+  /* ── Button ── */
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, transform 0.1s;
+    display: none;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: scale(0.97); }
+
+  /* ── Progress Bar ── */
+  .progress-container {
+    display: none;
+    margin: 20px 0;
+  }
+
+  .progress-bg {
+    background: rgba(255,255,255,0.1);
+    border-radius: 100px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .progress-fill {
+    background: var(--accent);
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease-out;
+  }
+
+  .progress-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .links {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    font-weight: 500;
+  }
+
+  .links a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
+  <div class="card">
     <div class="logo">
-      <img src="logo.png" alt="mariowOS logo" class="logo-img">
+      <img src="logo.png" alt="mariowOS logo" class="logo-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSIjM2VjNmUwIiBkPSJNMTIgMkMyLjM4IDIgMiA2Ljc3IDIgMTJzLjM4IDEwIDEwIDEwIDEwLTQuNzcgMTAtMTAgLS4zOC0xMC0xMC0xMHptMCAxOGMtNC4wNiAwLTQtMy42Ny00LThzLS4wNi04IDQtOCA0IDMuNjcgNCA4IC0uMDYgOC00IDh6Ii8+PC9zdmc+'">
     </div>
-    <div class="status">No new updates found</div>
-    <div class="links">
+    
+    <div id="statusTitle" class="status">Checking for updates...</div>
+    <div id="changelogText" class="changelog">New system stability improvements and bug fixes are available.</div>
+    
+    <button id="btnDownload" class="btn" onclick="startOTA()">Download & Install</button>
+    
+    <div id="progressArea" class="progress-container">
+      <div class="progress-bg">
+        <div id="barFill" class="progress-fill"></div>
+      </div>
+      <div id="statusText" class="progress-text">Connecting to server...</div>
+    </div>
+
+    <div id="actionLinks" class="links">
       <a href="changechannel.html">Change channel</a>
       <a href="roadmap.html">Update roadmap</a>
     </div>
   </div>
+
+<script>
+  setTimeout(() => {
+    document.getElementById('statusTitle').innerText = "mariowOS 1.2 Available";
+    document.getElementById('statusTitle').style.color = "var(--accent)";
+    document.getElementById('changelogText').style.display = "block";
+    document.getElementById('btnDownload').style.display = "block";
+  }, 1000);
+
+  function startOTA() {
+    document.getElementById('btnDownload').style.display = 'none';
+    document.getElementById('actionLinks').style.display = 'none';
+    document.getElementById('changelogText').style.display = 'none';
+    
+    document.getElementById('statusTitle').innerText = "Updating System...";
+    document.getElementById('statusTitle').style.color = "var(--text)";
+    
+    const progressArea = document.getElementById('progressArea');
+    const barFill = document.getElementById('barFill');
+    const statusText = document.getElementById('statusText');
+    
+    progressArea.style.display = 'block';
+
+    const eventSource = new EventSource('/api/system/ota-update');
+
+    eventSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      
+      barFill.style.width = data.percent + '%';
+      statusText.innerText = data.status;
+
+      if (data.finished) {
+        eventSource.close();
+        document.getElementById('statusTitle').innerText = "Update Complete";
+        document.getElementById('statusTitle').style.color = "var(--green)";
+        
+        const btn = document.getElementById('btnDownload');
+        btn.innerText = 'Reboot System';
+        btn.style.display = 'block';
+        btn.onclick = () => {
+          window.parent.location.reload(); 
+        };
+      }
+    };
+
+    eventSource.onerror = function() {
+      statusText.innerText = "Error communicating with update server.";
+      statusText.style.color = "var(--red)";
+      eventSource.close();
+      document.getElementById('actionLinks').style.display = 'flex';
+    };
+  }
+</script>
 </body>
 </html>

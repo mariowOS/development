@@ -1,119 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>About mariowOS</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>About mariowOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+  }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  html, body {
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-  <style>
-    html, body {
-      margin: 0 !important;
-      padding: 0 !important;
-      width: 100%;
-      height: 100%;
-      overflow: hidden !important;
-      overscroll-behavior: none !important;
-      background: transparent;
-      -webkit-font-smoothing: antialiased;
-    }
+  .container {
+    max-width: 600px;
+    width: 100%;
+    box-sizing: border-box;
+  }
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      padding: 10px 20px !important;
-    }
+  .brand-header {
+    text-align: center;
+    padding: 10px 0 24px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-    .container {
-      width: 100%;
-      max-height: 100%;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-    }
+  .brand-header img {
+    max-width: 280px;
+    height: auto;
+    display: block;
+  }
 
-    /* Header con il logo ingrandito */
-    .brand-header {
-      text-align: center;
-      padding: 35px 0 25px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  .info-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    width: 100%;
+  }
 
-    .brand-header img {
-      max-width: 320px; /* Logo reso più grande */
-      height: auto;
-      display: block;
-    }
+  .info-box .title {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 14px 0;
+    color: var(--text);
+  }
 
-    .info-box {
-      background: rgba(30, 30, 30, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      padding: 20px 24px;
-      margin-bottom: 16px;
-      box-sizing: border-box;
-      width: 100%;
-    }
+  .info-box .content {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
 
-    .info-box:last-child {
-      margin-bottom: 0;
-    }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 13px;
+  }
 
-    .info-box .title {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0 0 10px 0;
-      color: #fff;
-    }
+  .info-row:first-child { padding-top: 0; }
+  .info-row:last-child { padding-bottom: 0; }
 
-    .info-box .content {
-      font-size: 13px;
-      color: #bbb;
-      line-height: 1.7;
-    }
+  .info-row .label {
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+  }
 
-    /* Righe informative pulite, senza bordi inferiori */
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      font-size: 14px;
-    }
-
-    .info-row:last-child {
-      padding-bottom: 0;
-    }
-
-    .info-row:first-child {
-      padding-top: 0;
-    }
-
-    .info-row .label {
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .info-row .value {
-      color: #aaa;
-      font-weight: 400;
-    }
-
-    /* Killer delle scrollbar */
-    ::-webkit-scrollbar {
-      display: none !important;
-      width: 0 !important;
-      height: 0 !important;
-    }
-  </style>
+  .info-row .value {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+</style>
 </head>
 <body>
 
@@ -125,19 +101,19 @@
 
   <div class="info-box">
     <div class="info-row">
-      <span class="label">System version:</span>
+      <span class="label">System version</span>
       <span class="value">1.0.0</span>
     </div>
     <div class="info-row">
-      <span class="label">Kernel:</span>
+      <span class="label">Kernel</span>
       <span class="value">0.4-mainstream (node)</span>
     </div>
     <div class="info-row">
-      <span class="label">Engine:</span>
+      <span class="label">Engine</span>
       <span class="value">Lillium Engine</span>
     </div>
     <div class="info-row">
-      <span class="label">Build Date:</span>
+      <span class="label">Build Date</span>
       <span class="value">7 June 2026 | 7:07PM</span>
     </div>
   </div>
@@ -145,9 +121,9 @@
   <div class="info-box">
     <div class="title">Credits</div>
     <div class="content">
-      <strong>main owner:</strong> mariowstech<br>
-      <strong>developers:</strong> kianish, davidjone16, ertyplax<br>
-      <strong>contributors:</strong> kevadesu
+      <strong style="color: var(--text);">Main owner:</strong> mariowstech<br>
+      <strong style="color: var(--text);">Developers:</strong> kianish, davidjone16, ertyplax<br>
+      <strong style="color: var(--text);">Contributors:</strong> kevadesu
     </div>
   </div>
 

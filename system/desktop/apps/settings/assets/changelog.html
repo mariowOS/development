@@ -3,127 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Changelog</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body {
-  font-family: 'Poppins', sans-serif;
-  color: #fff;
-  margin: 0;
-  padding: 40px;
-  background: transparent;
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --green: #34c759;
+    --red: #ff3b30;
+  }
 
-.container {
-  max-width: 600px;
-  width: 100%;
-  position: relative;
-  background: transparent;
-}
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+    overflow-y: auto;
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-.header {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .container {
+    max-width: 600px;
+    position: relative;
+  }
 
-.back-btn {
-  font-size: 18px;
-  color: #bbb;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
 
-.back-btn:hover {
-  color: #fff;
-}
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-.changelog-entry {
-  background: rgba(30,30,30,0.7);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 15px;
-}
+  h2 { margin: 0; font-size: 18px; font-weight: 500; }
 
-.version-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #4ea1ff;
-  margin-bottom: 10px;
-}
+  .changelog-entry {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
 
-.entry-item {
-  font-size: 13px;
-  color: #bbb;
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
+  .version-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
 
-.entry-item.added {
-  color: #9eff99;
-}
+  .entry-item {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    line-height: 1.6;
+    display: flex;
+    gap: 8px;
+  }
 
-.entry-item.fixed {
-  color: #99ccff;
-}
-
-.entry-item.removed {
-  color: #ff9999;
-}
-
-html::-webkit-scrollbar {
-  display: none;
-}
+  .entry-item.added:before { content: '✓'; color: var(--green); font-weight: bold; }
+  .entry-item.fixed:before { content: '↻'; color: var(--accent); font-weight: bold; }
+  .entry-item.removed:before { content: '✗'; color: var(--red); font-weight: bold; }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <span class="back-btn" id="goBack">←</span>
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Changelog</h2>
+    </div>
+
+    <div class="changelog-entry">
+      <div class="version-title">Version 1.0.0 - January 2026</div>
+      <div class="entry-item added">Initial Release of mariowOS</div>
+      <div class="entry-item added">Settings application with full system configuration</div>
+      <div class="entry-item added">Automation rules and scheduling system</div>
+      <div class="entry-item added">Time and date management</div>
+      <div class="entry-item added">System reset and recovery options</div>
+    </div>
+
+    <div class="changelog-entry">
+      <div class="version-title">Version 0.9.0 - December 2025</div>
+      <div class="entry-item added">Beta testing phase completed</div>
+      <div class="entry-item fixed">Fixed animation timing issues</div>
+      <div class="entry-item fixed">Improved responsive design in applications</div>
+    </div>
+
+    <div class="changelog-entry">
+      <div class="version-title">Version 0.7.0 - Early 2025</div>
+      <div class="entry-item added">Added core system components</div>
+      <div class="entry-item added">Desktop environment initialization</div>
+      <div class="entry-item added">Boot sequence implementation</div>
+      <div class="entry-item removed">Removed legacy components</div>
+    </div>
   </div>
-
-  <div class="changelog-entry">
-    <div class="version-title">Version 1.0.0 - January 2026</div>
-    <div class="entry-item added">✓ </div>
-    <div class="entry-item added">✓ Settings application with full system configuration</div>
-    <div class="entry-item added">✓ Automation rules and scheduling system</div>
-    <div class="entry-item added">✓ Time and date management</div>
-    <div class="entry-item added">✓ System reset and recovery options</div>
-  </div>
-
-  <div class="changelog-entry">
-    <div class="version-title">Version 0.9.0 - December 2025</div>
-    <div class="entry-item added">✓ Beta testing phase completed</div>
-    <div class="entry-item fixed">↻ Fixed animation timing issues</div>
-    <div class="entry-item fixed">↻ Improved responsive design</div>
-  </div>
-
-  <div class="changelog-entry">
-    <div class="version-title">Version 0.7.0 - Early 2025</div>
-    <div class="entry-item added">✓ Added core system components</div>
-    <div class="entry-item added">✓ Desktop environment initialization</div>
-    <div class="entry-item added">✓ Boot sequence implementation</div>
-    <div class="entry-item removed">✗ Removed legacy components</div>
-  </div>
-</div>
-
-<script>
-const goBack = document.getElementById('goBack');
-
-goBack.addEventListener('click', () => {
-  window.history.back();
-});
-</script>
 
 </body>
 </html>

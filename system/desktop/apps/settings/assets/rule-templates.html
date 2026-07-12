@@ -3,157 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Rule Templates</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body {
-  font-family: 'Poppins', sans-serif;
-  color: #fff;
-  margin: 0;
-  padding: 40px;
-  background: transparent;
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --blue: #0a84ff;
+  }
 
-.container {
-  max-width: 600px;
-  width: 100%;
-  position: relative;
-  background: transparent;
-}
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+    overflow-y: auto;
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-.header {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .container {
+    max-width: 600px;
+    position: relative;
+  }
 
-.back-btn {
-  font-size: 18px;
-  color: #bbb;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
 
-.back-btn:hover {
-  color: #fff;
-}
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-.banner {
-  background: rgba(30,30,30,0.7);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 15px;
-}
+  h2 { margin: 0; font-size: 18px; font-weight: 500; }
 
-.banner .title {
-  font-size: 15px;
-  font-weight: 500;
-}
+  .banner {
+    background: rgba(10, 132, 255, 0.1);
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
 
-.banner .desc {
-  font-size: 13px;
-  color: #bbb;
-  margin-top: 4px;
-}
+  .banner .title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
 
-.template-item {
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
+  .banner .desc {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+  }
 
-.template-item:hover {
-  background: rgba(255,255,255,0.1);
-}
+  .template-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s;
+  }
 
-.template-title {
-  font-size: 16px;
-  font-weight: 500;
-}
+  .template-item:hover { background: rgba(255, 255, 255, 0.08); }
 
-.template-desc {
-  font-size: 13px;
-  color: #aaa;
-  margin-top: 3px;
-}
+  .template-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
 
-.btn {
-  background: rgba(255,255,255,0.1);
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  color: #fff;
-  cursor: pointer;
-  font-family: 'Poppins', sans-serif;
-  font-size: 12px;
-  transition: background 0.15s;
-  margin-top: 10px;
-}
+  .template-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
 
-.btn:hover {
-  background: rgba(255,255,255,0.2);
-}
+  .btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+    margin-left: 16px;
+  }
 
-html::-webkit-scrollbar {
-  display: none;
-}
+  .btn:hover { background: rgba(255, 255, 255, 0.15); }
+  .btn:active { transform: scale(0.95); }
+  
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="banner">
-    <div class="title">Predefined Rule Templates</div>
-    <div class="desc">
-      Choose from common automation templates to get started quickly.
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Rule Templates</h2>
+    </div>
+
+    <div class="banner">
+      <div class="title">Predefined Templates</div>
+      <div class="desc">Choose from common automation templates to get started quickly.</div>
+    </div>
+
+    <div class="template-item">
+      <div>
+        <div class="template-title">Daily Backup Reminder</div>
+        <div class="template-desc">Reminds you to backup files every day at 6 PM</div>
+      </div>
+      <button class="btn" data-template="backup">Use Template</button>
+    </div>
+
+    <div class="template-item">
+      <div>
+        <div class="template-title">Low Battery Alert</div>
+        <div class="template-desc">Notifies when battery is below 20%</div>
+      </div>
+      <button class="btn" data-template="battery">Use Template</button>
+    </div>
+
+    <div class="template-item">
+      <div>
+        <div class="template-title">Auto Shutdown</div>
+        <div class="template-desc">Shuts down the system at midnight</div>
+      </div>
+      <button class="btn" data-template="shutdown">Use Template</button>
+    </div>
+
+    <div class="template-item">
+      <div>
+        <div class="template-title">App Launch on Startup</div>
+        <div class="template-desc">Launches specified apps when system starts</div>
+      </div>
+      <button class="btn" data-template="startup">Use Template</button>
     </div>
   </div>
 
-  <div class="template-item">
-    <div class="template-title">Daily Backup Reminder</div>
-    <div class="template-desc">Reminds you to backup files every day at 6 PM</div>
-    <button class="btn" data-template="backup">Use Template</button>
-  </div>
-
-  <div class="template-item">
-    <div class="template-title">Low Battery Alert</div>
-    <div class="template-desc">Notifies when battery is below 20%</div>
-    <button class="btn" data-template="battery">Use Template</button>
-  </div>
-
-  <div class="template-item">
-    <div class="template-title">Auto Shutdown</div>
-    <div class="template-desc">Shuts down the system at midnight</div>
-    <button class="btn" data-template="shutdown">Use Template</button>
-  </div>
-
-  <div class="template-item">
-    <div class="template-title">App Launch on Startup</div>
-    <div class="template-desc">Launches specified apps when system starts</div>
-    <button class="btn" data-template="startup">Use Template</button>
-  </div>
-</div>
-
 <script>
-const goBack = document.getElementById('goBack');
-
 const templates = {
-  backup: { name: 'Daily Backup Reminder', trigger: 'Time-based', action: 'Send notification' },
-  battery: { name: 'Low Battery Alert', trigger: 'Condition-based', action: 'Send notification' },
-  shutdown: { name: 'Auto Shutdown', trigger: 'Time-based', action: 'Shutdown system' },
-  startup: { name: 'App Launch on Startup', trigger: 'Event-based', action: 'Run command' }
+  backup: { name: 'Daily Backup Reminder', trigger: 'time', action: 'notify' },
+  battery: { name: 'Low Battery Alert', trigger: 'condition', action: 'notify' },
+  shutdown: { name: 'Auto Shutdown', trigger: 'time', action: 'run' },
+  startup: { name: 'App Launch on Startup', trigger: 'event', action: 'run' }
 };
 
 function useTemplate(templateKey) {
@@ -173,7 +193,6 @@ function useTemplate(templateKey) {
   rules.push(rule);
   localStorage.setItem('rules', JSON.stringify(rules));
 
-  // Add to history
   let history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
   history.push({
     id: Date.now(),
@@ -184,7 +203,7 @@ function useTemplate(templateKey) {
   localStorage.setItem('ruleHistory', JSON.stringify(history));
 
   alert(`Template "${template.name}" applied successfully!`);
-  window.location.href = 'rules.html';
+  window.history.back();
 }
 
 document.querySelectorAll('.btn[data-template]').forEach(btn => {
@@ -192,10 +211,6 @@ document.querySelectorAll('.btn[data-template]').forEach(btn => {
     const templateKey = e.target.dataset.template;
     useTemplate(templateKey);
   });
-});
-
-goBack.addEventListener('click', () => {
-  window.location.href = 'rules.html';
 });
 </script>
 

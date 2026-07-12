@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --red: #ff3b30;
+    --red-hover: #ff453a;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+  }
+  
+  .card {
+    max-width: 600px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+  h2 { margin: 0; font-size: 18px; font-weight: 500; }
+  
+  p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    background: rgba(255, 59, 48, 0.1);
+    color: var(--red);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+  }
+
+  .btn:hover { background: rgba(255, 59, 48, 0.2); }
+  .btn:active { transform: scale(0.97); }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Reset Settings</h2>
+    </div>
+    
+    <p>This action will reset all system settings to their default options. Your personal data, such as installed apps and files, will not be affected.</p>
+
+    <button class="btn" onclick="resetSettings()">Reset Settings</button>
+  </div>
+
+<script>
+function resetSettings() {
+  if (confirm("Are you sure you want to reset settings to default?")) {
+    window.parent.postMessage({ type: 'clear-settings' }, '*');
+    alert("Settings reset command sent.");
+  }
+}
+</script>
+
+</body>
+</html>

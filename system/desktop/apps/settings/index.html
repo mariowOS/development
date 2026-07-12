@@ -1,342 +1,320 @@
-<!-- 
-mariowOS SHA (Settings Host Application) - (C) 2025 mariowstech and the mariowOS team 
-Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
-Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
-This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+<!--
+mariowOS SHA (Settings Host Application) - (C) 2025 mariowstech and the mariowOS team
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License.
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy
 -->
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Settings</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=experiment"/>
-<style>
-body {
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-  background: #1e1e1e;
-  color: white;
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-  overscroll-behavior: none; 
-}
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --sidebar-bg: rgba(24, 24, 24, 0.95);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      --accent: #3584e4;
+      --accent-hover: #2a6dc4;
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --border: rgba(255, 255, 255, 0.06);
+      --radius: 14px;
+    }
 
-  /* trashass sidebar, make it prettier if you can */
-  .sidebar {
-    width: 260px;
-    background: #181818;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    border-right: 1px solid rgba(255,255,255,0.05);
-    overflow-y: auto; /* <-- FIX */
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  .sidebar::-webkit-scrollbar {
-    width: 6px;
-  }
-  .sidebar::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 3px;
-  }
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background-color: var(--bg);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      user-select: none;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
 
-  .sidebar h1 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-  }
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
 
-  .search {
-    margin-top: 12px;
-  }
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
 
-  .search input {
-    width: 90%;
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    background: #2a2a2a;
-    color: white;
-    font-family: inherit;
-  }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 3px;
+    }
 
-  .menu {
-    margin-top: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+    .sidebar-header {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 8px 0 18px 14px;
+      letter-spacing: -0.3px;
+    }
 
-  .menu-item {
-    background: #2a2a2a;
-    padding: 10px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: flex;
-    flex-direction: column;
-  }
+    .search {
+      margin: 0 6px 16px 6px;
+    }
 
-  .menu-item:hover {
-    background: #3a3a3a;
-  }
+    .search input {
+      width: 100%;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border 0.2s, background 0.2s;
+    }
 
-  .menu-item.active {
-    background: #4a4a4a;
-  }
+    .search input:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.06);
+    }
 
-  .menu-item .title {
-    font-weight: 500;
-    font-size: 15px;
-  }
+    .search input::placeholder {
+      color: #666;
+    }
 
-  .menu-item .subtitle {
-    font-size: 12px;
-    color: #aaa;
-  }
+    .menu-item {
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.15s;
+    }
 
-/* content area */
-.content {
-  flex: 1;
-  padding: 20px;
-  overflow: hidden !important;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  position: relative;
-}
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
 
-.content iframe {
-  width: 100%;
-  height: 100% !important;
-  max-height: calc(100vh - 40px - 32px); 
-  border: none;
-  display: block;
-  overflow: hidden !important;
-}
+    .menu-item.active {
+      background: rgba(53, 132, 228, 0.15);
+    }
 
-.popup-frame {
-  width: 100%;
-  border: none;
-  background: transparent;
-  display: block;
-  overflow: hidden !important;
-}
+    .nav-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
 
-  .content h2 {
-    margin-top: 0;
-  }
+    .nav-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
 
-    .content p {
-    margin-top: 0;
-    text-align: center; font-family: 'Poppins', sans-serif;
-  }
+    .nav-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
 
-      .content div {
-    margin-top: 0;
-    text-align: center; font-family: 'Poppins', sans-serif;
-    color: #272727;
-  }
+    .menu-item.active .nav-title {
+      color: var(--accent);
+      font-weight: 600;
+    }
 
-        .content h3 {
-    margin-top: 230px;
-    text-align: center; font-family: 'Poppins', sans-serif;
-    color: #272727;
-  }
+    .nav-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
+    /* ── Main Content ── */
+    .content {
+      flex: 1;
+      position: relative;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
 
-  /* draggable window fix */
-  .window {
-    position: absolute;
-    will-change: transform; /* GPU Turbo */
-  }
-  
-    a {
-  text-decoration: none;
-  color: #3F84FC;
-   }
+    .content-header {
+      padding: 32px 40px 10px 40px;
+    }
 
-   html::-webkit-scrollbar {
-  display: none;
-}
+    .content-header h2 {
+      font-size: 26px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
 
-</style>
+    .iframe-container {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
 
+    .popup-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    .welcome-text {
+      padding: 40px;
+      font-size: 18px;
+      color: var(--text-muted);
+    }
+  </style>
 </head>
+
 <body>
   <div class="sidebar">
-    <h1>Settings</h1>
+    <div class="sidebar-header">Settings</div>
     <div class="search">
-      <input type="text" placeholder="Search...">
+      <input type="text" placeholder="Search settings...">
     </div>
+
     <div class="menu">
-    <!-- menu items, title and subtitles are keywords that are used for searching for a setting, make sure to give a sense to this, else go fuck yourself -->
       <div class="menu-item active" onclick="loadPage('you', this)">
-        <div class="title">🗣 You</div>
-        <div class="subtitle">Your profile</div>
+        <div class="nav-icon">🗣</div>
+        <div class="nav-text">
+          <div class="nav-title">Profile</div>
+          <div class="nav-subtitle">Manage your account</div>
+        </div>
       </div>
       <div class="menu-item" onclick="loadPage('wallpaper', this)">
-        <div class="title">⛶ Wallpaper & style</div>
-        <div class="subtitle">Background, icons...</div>
+        <div class="nav-icon">⛶</div>
+        <div class="nav-text">
+          <div class="nav-title">Wallpaper & Style</div>
+          <div class="nav-subtitle">Customize desktop</div>
+        </div>
       </div>
       <div class="menu-item" onclick="loadPage('functions', this)">
-        <div class="title">⚒ Functions lab</div>
-        <div class="subtitle">Experiments</div>
+        <div class="nav-icon">🧪</div>
+        <div class="nav-text">
+          <div class="nav-title">Functions Lab</div>
+          <div class="nav-subtitle">Experimental features</div>
+        </div>
       </div>
       <div class="menu-item" onclick="loadPage('system', this)">
-        <div class="title">⚙︎ System</div>
-        <div class="subtitle">Rules, time, reset</div>
+        <div class="nav-icon">⚙︎</div>
+        <div class="nav-text">
+          <div class="nav-title">System</div>
+          <div class="nav-subtitle">Preferences, reset</div>
+        </div>
       </div>
       <div class="menu-item" onclick="loadPage('updater', this)">
-        <div class="title">⟳ Updater</div>
-        <div class="subtitle">Update stuff easily!</div>
+        <div class="nav-icon">⟳</div>
+        <div class="nav-text">
+          <div class="nav-title">Updater</div>
+          <div class="nav-subtitle">System updates</div>
+        </div>
       </div>
       <div class="menu-item" onclick="loadPage('about', this)">
-        <div class="title">🛈 About</div>
-        <div class="subtitle">chamomile</div>
+        <div class="nav-icon">🛈</div>
+        <div class="nav-text">
+          <div class="nav-title">About</div>
+          <div class="nav-subtitle">System information</div>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="content" id="content">
-    <h3>what's cooking good looking?</h3>
+    <div class="welcome-text">what's cooking good looking?</div>
   </div>
 
-<script> 
-// page display logic (use iframes for complex pages)
-  const pages = {
-you: `
-  <h2>mariowOS Profile</h2>
-      <iframe src="assets/you.html" class="popup-frame"></iframe>
-`,
-    wallpaper: `
-      <h2>Wallpaper & style</h2>
-      <iframe src="assets/wallpaper.html" class="popup-frame"></iframe>
+  <script>
+    const pages = {
+      you: `
+      <div class="content-header"><h2>Profile</h2></div>
+      <div class="iframe-container"><iframe src="assets/you.html" class="popup-frame"></iframe></div>
     `,
-    functions: `
-      <h2>Functions lab</h2>
-      <iframe src="assets/lab.html" class="popup-frame"></iframe>
+      wallpaper: `
+      <div class="content-header"><h2>Wallpaper & Style</h2></div>
+      <div class="iframe-container"><iframe src="assets/wallpaper.html" class="popup-frame"></iframe></div>
     `,
-    system: `
-      <h2>System</h2>
-      <iframe src="assets/systemsettings.html" class="popup-frame"></iframe>
+      functions: `
+      <div class="content-header"><h2>Functions Lab</h2></div>
+      <div class="iframe-container"><iframe src="assets/lab.html" class="popup-frame"></iframe></div>
     `,
-    updater: `
-      <h2>Updater</h2>
-      <iframe src="assets/update-mirror-2.html" class="popup-frame"></iframe>
+      system: `
+      <div class="content-header"><h2>System</h2></div>
+      <div class="iframe-container"><iframe src="assets/systemsettings.html" class="popup-frame"></iframe></div>
     `,
-    about: `
-      <iframe src="assets/about.html" class="popup-frame" scrolling="no"></iframe>
+      updater: `
+      <div class="content-header"><h2>Updater</h2></div>
+      <div class="iframe-container"><iframe src="assets/update-mirror-2.html" class="popup-frame"></iframe></div>
+    `,
+      about: `
+      <div class="content-header"><h2>About</h2></div>
+      <div class="iframe-container"><iframe src="assets/about.html" class="popup-frame"></iframe></div>
     `
-  };
+    };
 
-  function loadPage(page, el) {
-    document.getElementById("content").innerHTML = pages[page];
+    function loadPage(page, el) {
+      document.getElementById("content").innerHTML = pages[page];
 
-    // update active state
-    document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
-    if (el) el.classList.add("active");
-  }
+      document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
+      if (el) el.classList.add("active");
+    }
 
-  // search filtering and auto-open first result else it would look bad and unprofessional
-  const searchInput = document.querySelector(".search input");
-  const menuItems = document.querySelectorAll(".menu-item");
+    const searchInput = document.querySelector(".search input");
+    const menuItems = document.querySelectorAll(".menu-item");
 
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase();
-    let firstMatch = null;
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase().trim();
+      let firstMatch = null;
 
-    menuItems.forEach(item => {
-      const title = item.querySelector(".title").textContent.toLowerCase();
-      const subtitle = item.querySelector(".subtitle").textContent.toLowerCase();
+      menuItems.forEach(item => {
+        const title = item.querySelector(".nav-title").textContent.toLowerCase();
+        const subtitle = item.querySelector(".nav-subtitle").textContent.toLowerCase();
 
-      if (title.includes(query) || subtitle.includes(query)) {
-        item.style.display = "flex";
-        if (!firstMatch) firstMatch = item; // remember first visible
-      } else {
-        item.style.display = "none";
+        if (!query || title.includes(query) || subtitle.includes(query)) {
+          item.style.display = "flex";
+          if (query && !firstMatch) firstMatch = item;
+        } else {
+          item.style.display = "none";
+        }
+      });
+
+      if (firstMatch && query) {
+        const page = firstMatch.getAttribute("onclick").match(/'([^']+)'/)[1];
+        loadPage(page, firstMatch);
       }
     });
 
-    // auto-load first match
-    if (firstMatch) {
-      const page = firstMatch.getAttribute("onclick").match(/'([^']+)'/)[1];
-      loadPage(page, firstMatch);
-    }
-  });
+    // Automatically load the profile page on startup
+    window.addEventListener('DOMContentLoaded', () => {
+      const firstItem = document.querySelector('.menu-item.active');
+      if (firstItem) {
+        loadPage('you', firstItem);
+      }
+    });
 
-  // seriously, let alone touching this part, it doesn't work.
-
-  function saveProfile() {
-  const username = document.getElementById("usernameInput").value.trim();
-  const password = document.getElementById("passwordInput").value.trim();
-  const pfpFile = document.getElementById("pfpUpload").files[0];
-
-  if (username) localStorage.setItem("username", username);
-  if (password) localStorage.setItem("password", password);
-
-  if (pfpFile) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      localStorage.setItem("avatar", reader.result);
-      document.getElementById("pfpPreview").src = reader.result;
-    };
-    reader.readAsDataURL(pfpFile);
-  }
-
-  alert("Profile saved!");
-}
-
-function loadProfileEditor() {
-  const savedUsername = localStorage.getItem("username");
-  const savedPassword = localStorage.getItem("password");
-  const savedAvatar = localStorage.getItem("avatar");
-
-  if (savedUsername) document.getElementById("usernameInput").value = savedUsername;
-  if (savedPassword) document.getElementById("passwordInput").value = savedPassword;
-  if (savedAvatar) document.getElementById("pfpPreview").src = savedAvatar;
-}
-
-function saveFromSettings() {
-  const newUser = document.getElementById("settingsUsername").value.trim();
-  const newPass = document.getElementById("settingsPassword").value.trim();
-
-  if (!newUser || !newPass) {
-    alert("Fields cannot be empty!");
-    return;
-  }
-
-  localStorage.setItem("username", newUser);
-  localStorage.setItem("password", newPass);
-
-  alert("Credentials updated!");
-}
-
-// inital render for inital page (the empty one that says "what's cooking good looking?")
-
-function loadPage(page, el) {
-  document.getElementById("content").innerHTML = pages[page];
-
-  if (page === "you") {
-    setTimeout(loadProfileEditor, 50); // give DOM time to render
-  }
-
-  document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
-  if (el) el.classList.add("active");
-}
-
-
-</script>
-
+  </script>
 </body>
-</html>
 
-<!-- think of a funny quote -->
+</html>

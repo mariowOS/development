@@ -4,356 +4,101 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Factory Reset</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: #1e1e1e;
-  color: white;
-  overflow-y: auto;
-}   
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --red: #ff3b30;
+  }
 
-.container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #1e1e1e;
-  border-radius: 10px;
-}
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+  }
+  
+  .card {
+    max-width: 600px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
 
-.header {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-.back-btn {
-  font-size: 18px;
-  color: #bbb;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
+  h2 { margin: 0; font-size: 18px; font-weight: 500; color: var(--red); }
+  
+  p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
 
-.back-btn:hover {
-  color: #fff;
-}
+  .btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    background: rgba(255, 59, 48, 0.15);
+    color: var(--red);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+  }
 
-.warning-banner {
-  background: rgba(220, 53, 69, 0.15);
-  border: 2px solid #dc3545;
-  border-radius: 10px;
-  padding: 15px;
-  margin-bottom: 20px;
-  color: #ff6b6b;
-}
-
-.warning-banner h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.warning-banner p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.stage-1, .stage-2 {
-  display: none;
-}
-
-.stage-1.active, .stage-2.active {
-  display: block;
-}
-
-.setting-group {
-  margin-bottom: 15px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  padding: 15px;
-}
-
-.setting-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-  padding: 10px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 5px;
-}
-
-.checkbox-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.checkbox-group label {
-  margin: 0;
-  cursor: pointer;
-  flex: 1;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  background: rgba(74,144,226,0.8);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-button:hover {
-  background: rgba(74,144,226,1);
-}
-
-button.btn-danger {
-  background: rgba(220, 53, 69, 0.8);
-}
-
-button.btn-danger:hover {
-  background: rgba(220, 53, 69, 1);
-}
-
-button.btn-secondary {
-  background: rgba(108, 117, 125, 0.8);
-}
-
-button.btn-secondary:hover {
-  background: rgba(108, 117, 125, 1);
-}
-
-.button-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.confirmation-text {
-  background: rgba(255,255,255,0.05);
-  border-left: 3px solid #dc3545;
-  padding: 12px;
-  border-radius: 5px;
-  margin: 15px 0;
-  font-size: 13px;
-  font-weight: 500;
-}
+  .btn:hover { background: rgba(255, 59, 48, 0.25); }
+  .btn:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
 
-<div class="container">
-  
-  <!-- initial warning -->
-  <div class="stage-1 active">
-    <div class="warning-banner">
-      <h3>⚠️ WARNING!</h3>
-      <p>Factory reset is an <strong>irreversible action</strong> that will erase <strong>ALL settings, preferences, and customizations</strong>.</p>
+  <div class="card">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Factory Reset</h2>
     </div>
+    
+    <p><strong>WARNING:</strong> This action is permanent. It will erase all your personal data, installed applications, and configurations. The system will be restored to its original factory state.</p>
 
-    <div class="setting-group">
-      <label>What will be removed:</label>
-      <div class="checkbox-group">
-        <input type="checkbox" id="check1" disabled checked>
-        <label for="check1">Time zone settings</label>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="check2" disabled checked>
-        <label for="check2">Manual time offsets</label>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="check3" disabled checked>
-        <label for="check3">User preferences</label>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="check4" disabled checked>
-        <label for="check4">Wallpaper and themes</label>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="check5" disabled checked>
-        <label for="check5">All indexDB data</label>
-      </div>
-    </div>
-
-    <div class="button-row">
-      <button class="btn-secondary" onclick="goBack()">Cancel</button>
-      <button class="btn-danger" onclick="showStage2()">I Understand, Continue</button>
-    </div>
+    <button class="btn" onclick="factoryReset()">Erase All Data</button>
   </div>
-
-  <!-- double confirmation before destroying everything -->
-  <div class="stage-2">
-    <div class="warning-banner">
-      <h3>⚠️ FINAL CONFIRMATION</h3>
-      <p>Type "FACTORY RESET" below to continue.</p>
-    </div>
-
-    <div class="setting-group">
-      <label for="confirmInput">Confirmation Required:</label>
-      <input type="text" id="confirmInput" placeholder="Type: FACTORY RESET" style="
-        width: 100%;
-        padding: 10px 12px;
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 5px;
-        color: white;
-        font-size: 14px;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-      " onkeyup="checkConfirmation()">
-    </div>
-
-    <div class="confirmation-text">
-      ⚠️ Remember that everything will be erased and all settings will be restored to factory defaults. This action cannot be undone.
-    </div>
-
-    <div class="button-row">
-      <button class="btn-secondary" onclick="goBackToStage1()">Cancel</button>
-      <button class="btn-danger" id="resetBtn" disabled onclick="executeFactoryReset()" style="opacity: 0.5; cursor: not-allowed;">Reset System</button>
-    </div>
-  </div>
-</div>
 
 <script>
-function goBack() {
-  window.history.back();
-}
-
-function showStage2() {
-  document.querySelector('.stage-1').classList.remove('active');
-  document.querySelector('.stage-2').classList.add('active');
-  document.getElementById('confirmInput').focus();
-}
-
-function goBackToStage1() {
-  document.querySelector('.stage-2').classList.remove('active');
-  document.querySelector('.stage-1').classList.add('active');
-  document.getElementById('confirmInput').value = '';
-  document.getElementById('resetBtn').disabled = true;
-  document.getElementById('resetBtn').style.opacity = '0.5';
-  document.getElementById('resetBtn').style.cursor = 'not-allowed';
-}
-
-function checkConfirmation() {
-  const input = document.getElementById('confirmInput').value;
-  const btn = document.getElementById('resetBtn');
-  
-  if (input === 'FACTORY RESET') {
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
-  } else {
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-    btn.style.cursor = 'not-allowed';
+function factoryReset() {
+  if (confirm("WARNING: This will erase ALL data. Are you absolutely sure?")) {
+    window.parent.postMessage({ type: 'clear-settings' }, '*');
+    alert("Factory reset initiated. System will reboot.");
+    setTimeout(() => {
+      window.parent.location.href = window.parent.location.href;
+    }, 1000);
   }
 }
-
-function executeFactoryReset() {
-  // ANNIHILATE ALL DATA - COMPLETE SYSTEM RESET
-  
-  // clear all browser storage
-  localStorage.clear();
-  sessionStorage.clear();
-  
-  // clear IndexedDB (if any apps that depend on it were used (music as an example))
-  if (window.indexedDB) {
-    indexedDB.databases().then(dbs => {
-      dbs.forEach(db => {
-        indexedDB.deleteDatabase(db.name);
-      });
-    }).catch(err => console.log('No IndexedDB to clear'));
-  }
-  
-  // clear all cookies
-  document.cookie.split(";").forEach(function(c) { 
-    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-  });
-  
-  // WARNING: attempting to modify this will cause a slowness in your mind
-  // server will reset config.json, keys.json, and system state to original defaults
-  fetch('/api/system/factory-reset', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      timestamp: new Date().toISOString(),
-      action: 'factory-reset'
-    })
-  }).then(response => {
-    if (response.ok) {
-      return response.json().then(data => {
-        alert('Factory reset complete!\n\nClick ok to continue...');
-        
-        // navigate to root (will serve welcome.html since passwordHash is now null)
-        setTimeout(function() {
-          // Use window.top to navigate at the top level, breaking out of iframe
-          if (window.self !== window.top) {
-            window.top.location.href = '/';
-          } else {
-            window.location.href = '/';
-          }
-        }, 1000);
-      });
-    } else {
-      alert('Factory reset encountered an error. Please try again.');
-      setTimeout(function() {
-        if (window.self !== window.top) {
-          window.top.location.href = '/';
-        } else {
-          window.location.href = '/';
-        }
-      }, 1500);
-    }
-  }).catch(err => {
-    console.error('Factory reset error:', err);
-    alert('Factory reset encountered a network error. Retrying anyway...');
-    setTimeout(function() {
-      if (window.self !== window.top) {
-        window.top.location.href = '/';
-      } else {
-        window.location.href = '/';
-      }
-    }, 1500);
-  });
-}
-
-// prevent paste in confirmation field (for security, we want user to type it manually)
-// if they paste it, it will not be recognized as valid. 
-document.addEventListener('DOMContentLoaded', function() {
-  const input = document.getElementById('confirmInput');
-  input.addEventListener('paste', function(e) {
-    e.preventDefault();
-  });
-  input.addEventListener('copy', function(e) {
-    e.preventDefault();
-  }); 
-});
 </script>
 
 </body>

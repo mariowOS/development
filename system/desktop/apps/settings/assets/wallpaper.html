@@ -4,109 +4,203 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wallpaper Settings</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* === og style === */
-body {
-  font-family: 'Poppins', sans-serif;
-  color: #fff;
-  margin: 0;
-  padding: 40px;
-  background: transparent;
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --accent-hover: #2a6dc4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --red: #ff3b30;
+    --green: #34c759;
+  }
 
-.container { max-width: 600px; width: 100%; position: relative; background: transparent; }
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+    overflow-y: auto;
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-.header { font-size: 22px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  .card {
+    max-width: 600px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
 
-.back-btn { font-size: 18px; color: #bbb; cursor: pointer; transition: color 0.15s ease; }
-.back-btn:hover { color: #fff; }
+  .card-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 14px 0;
+  }
 
-.banner { background: rgba(30,30,30,0.7); border-radius: 10px; padding: 18px; margin-bottom: 15px; }
-.banner .title { font-size: 15px; font-weight: 500; }
-.banner .desc { font-size: 13px; color: #bbb; margin-top: 4px; }
+  p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+  }
 
-.upload-section {
-  background: rgba(255,255,255,0.05);
-  border: 2px dashed rgba(255,255,255,0.2);
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 15px;
-  text-align: center;
-}
-.upload-section input[type="file"] { margin: 10px 0; }
-.upload-section button {
-  background: rgba(74,144,226,0.8);
-  color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
-  font-family: 'Poppins'; transition: background 0.15s;
-}
-.upload-section button:hover { background: rgba(74,144,226,1); }
+  /* ── File Input ── */
+  .file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 16px;
+  }
 
-.item { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s; }
-.item:hover { background: rgba(255,255,255,0.1); }
+  .file-input-wrapper input[type="file"] {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
 
-.text-title { font-size: 16px; font-weight: 500; }
-.text-desc { font-size: 13px; color: #aaa; margin-top: 3px; }
+  .file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px;
+    background: rgba(255,255,255,0.04);
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
 
-html::-webkit-scrollbar{ display: none; }
+  .file-input-label:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--accent);
+  }
+
+  .file-name {
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    box-sizing: border-box;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: scale(0.97); }
+  
+  #status {
+    margin-top: 14px;
+    font-size: 13px;
+    text-align: center;
+    min-height: 20px;
+  }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <div class="upload-section">
-    <div style="font-size: 13px; margin-bottom: 10px;">Upload custom wallpaper (PNG)</div>
-    <input type="file" id="wallpaperFile" accept="image/png">
-    <button id="applyBtn">Apply</button>
-    <div id="status" style="margin-top: 10px; font-size: 12px; color: #aaa;"></div>
+  <div class="card">
+    <div class="card-title">Custom Wallpaper</div>
+    <p>Upload a custom PNG image to use as your desktop background.</p>
+    
+    <div class="file-input-wrapper">
+      <input type="file" id="wallpaperFile" accept="image/png" onchange="updateFileName()">
+      <div class="file-input-label">
+        <span>📁 Click to choose a wallpaper (PNG)</span>
+      </div>
+      <div id="fileName" class="file-name"></div>
+    </div>
+
+    <button class="btn" onclick="uploadWallpaper()">Apply Wallpaper</button>
+    <div id="status"></div>
   </div>
 
-</div>
-
 <script>
-document.getElementById("goBack").onclick = () => window.history.back();
+function updateFileName() {
+  const file = document.getElementById("wallpaperFile").files[0];
+  document.getElementById("fileName").textContent = file ? file.name : '';
+}
 
-document.getElementById("applyBtn").onclick = async () => {
+async function uploadWallpaper() {
   const fileInput = document.getElementById("wallpaperFile");
-  const status = document.getElementById("status");
+  const statusDiv = document.getElementById("status");
 
   if (!fileInput.files.length) {
-    status.textContent = "Please select a PNG image.";
-    status.style.color = "#ff9999";
+    statusDiv.textContent = "Please select a PNG file first.";
+    statusDiv.style.color = "var(--red)";
     return;
   }
 
   const file = fileInput.files[0];
+  if (file.type !== "image/png") {
+    statusDiv.textContent = "Only PNG images are supported.";
+    statusDiv.style.color = "var(--red)";
+    return;
+  }
+
   const formData = new FormData();
   formData.append("wallpaper", file);
 
-  status.textContent = "Uploading wallpaper...";
-  status.style.color = "#aaa";
+  statusDiv.textContent = "Uploading...";
+  statusDiv.style.color = "var(--text-muted)";
+  document.querySelector('.btn').textContent = "Applying...";
 
   try {
-    const res = await fetch("/upload-wallpaper", { method: "POST", body: formData });
-    if (!res.ok) throw new Error("Upload failed");
+    const response = await fetch("/upload-wallpaper", {
+      method: "POST",
+      body: formData
+    });
 
-    status.textContent = "Wallpaper applied successfully.";
-    status.style.color = "#99ff99";
+    if (response.ok) {
+      statusDiv.textContent = "Wallpaper updated successfully!";
+      statusDiv.style.color = "var(--green)";
+      
+      // Notify parent to refresh wallpaper
+      if (window.parent && typeof window.parent.applyUserWallpaper === 'function') {
+        window.parent.applyUserWallpaper();
+      } else {
+        // Fallback postMessage approach
+        window.parent.postMessage({ type: 'wallpaper-updated' }, '*');
+      }
 
-    // update wallpaper in parent window then shit out an error if the wallpaper shits itself
-    if (window.parent && typeof window.parent.applyUserWallpaper === "function") {
-      window.parent.applyUserWallpaper();
+      setTimeout(() => {
+        statusDiv.textContent = "";
+      }, 3000);
+    } else {
+      statusDiv.textContent = "Failed to upload wallpaper.";
+      statusDiv.style.color = "var(--red)";
     }
-
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Error uploading wallpaper.";
-    status.style.color = "#ff9999";
+  } catch (err) {
+    statusDiv.textContent = "Error: " + err.message;
+    statusDiv.style.color = "var(--red)";
+  } finally {
+    document.querySelector('.btn').textContent = "Apply Wallpaper";
   }
-};
+}
 </script>
+
 </body>
 </html>

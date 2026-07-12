@@ -3,98 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Set Time Manually</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: #1e1e1e;
-  color: white;
-  overflow-y: auto;
-}   
-.container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 20px;
-  background: #1e1e1e;
-  border-radius: 10px
-}
-.header {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.back-btn {
-  font-size: 18px;
-  color: #bbb;
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-.back-btn:hover {
-  color: #fff;
-}
-.setting-group {
-  margin-bottom: 15px;
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  padding: 15px;
-}
-.setting-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-.setting-group input {
-  width: 100%;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 5px;
-  color: white;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-.setting-group input:focus {
-  outline: none;
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(74,144,226,0.5);
-}
-button {
-  width: 100%;
-  padding: 12px;
-  background: rgba(74,144,226,0.8);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-button:hover {
-  background: rgba(74,144,226,1);
-}
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --accent-hover: #2a6dc4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --red: #ff3b30;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+  }
+  
+  .card {
+    max-width: 600px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+  h2 { margin: 0; font-size: 18px; font-weight: 500; }
+  
+  .form-group {
+    margin-bottom: 24px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  input[type="time"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    color-scheme: dark; /* makes the clock icon dark mode */
+  }
+
+  input[type="time"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
 
-<div class="container">
-  
-  <div class="setting-group">
-    <label for="timeInput">Select Time:</label>
-    <input type="time" id="timeInput">
+  <div class="card">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Set Time Manually</h2>
+    </div>
+
+    <div class="form-group">
+      <label for="timeInput">Select Time</label>
+      <input type="time" id="timeInput">
+    </div>
+    
+    <button class="btn" onclick="setTime()">Set System Time</button>
   </div>
-  <div class="setting-group">
-    <button onclick="setTime()">Set System Time</button>
-  </div>
-</div>
 
 <script>
-// initialize time input with current time
 window.addEventListener('load', function() {
   const timeInput = document.getElementById('timeInput');
   const now = new Date();
@@ -115,23 +145,20 @@ function setTime() {
   const h = parseInt(hours, 10);
   const m = parseInt(minutes, 10);
 
-  // calculate offset from current time
   const now = new Date();
   const offsetMs = (h - now.getHours()) * 3600000 + (m - now.getMinutes()) * 60000;
   
-  // store in sessionStorage (aka localDB) for desktop to read
   localStorage.setItem('systemTimeOffset', offsetMs);
   localStorage.setItem('manualTimeEnabled', 'true');
   localStorage.removeItem('timezoneOffset');
 
-
+  if (window.parent && window.parent.postMessage) {
+    window.parent.postMessage({ type: 'time-updated' }, '*');
+  }
   
-  alert(`System time set to: ${hours}:${minutes}`);
-  
-  // fart
   setTimeout(function() {
     window.history.back();
-  }, 500);
+  }, 150);
 }
 </script>
 

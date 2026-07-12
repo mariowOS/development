@@ -1,112 +1,154 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Changelog - mariowOS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Poppins', sans-serif;
-            background: #1e1e1e;
-            color: white;
-        }
-        h1, h2, h3 {
-            font-weight: 600;
-        }
-        a {
-            color: #4ea1ff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .version {
-            margin-top: 20px;
-        }
-        ul {
-            margin-top: 10px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --green: #34c759;
+    --orange: #ff9f0a;
+  }
 
-                p {
-            color: #ffffff;
-            text-decoration: none;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+    overflow-y: auto;
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-    </style>
-<p><a href="javascript:history.back()">Go back</a></p>
-<h2>🐺 INSIDERS UPDATE ROADMAP</h2>
-<h3>✅: completed, ⌛: coming soon, 🔷: brought stuff from upcoming releases on current, ❌: cancelled</h3>
+  .container {
+    max-width: 600px;
+    position: relative;
+  }
 
-<h3>• ✅ INSIDERS V1</h3>
-<p>first "test" build, this is just what i was experimenting with.</p>
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
 
-<h3>• ✅ INSIDERS V1 (LATE NIGHT DEVELOPING)</h3>
-<p>- added an opening app animation and fixed statusbar, closing apps and multitasking fixed in V2</p>
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-<h3>• ✅ INSIDERS V2</h3>
-<p>- fixed animations and multitasking</p>
+  h2 { margin: 0; font-size: 18px; font-weight: 500; }
 
-<h3>• ✅ INSIDERS V3</h3>
-<p>- Welcome, Tiles! New desktop experience and major updates</p>
+  .legend {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--text-muted);
+  }
 
-<h3>• ✅ INSIDERS V4</h3>
-<p><I>Tiles should have been implemented in this release but oh well</I></p>
-<p>- Implemented network serivices</p>
+  .roadmap-entry {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
 
-<h3>• ✅ INSIDERS V5</h3>
-<p>- Removed Discord for bugs, kept browser, update page implemented</p>
-<p>- Implemented our own Minnit chat service!</p>
-    
-<h3>• ✅ INSIDERS V6</h3>
-<p><i></i>- Should reimplement messaging with a different service - IMPLEMENTED AGAIN IN V5</i></p>
-<p>- Create app developers version</p>
-<p>- Add new icons *IVE REMOVED THEM IN V3 WITH THE SWITCH TO TILES - I'VE REDESIGNED THEM AND I WILL APPLY THEM HERE*</p>
-<p>- Fix backend</p>
-<p>- Add passwording system</p>
-<p>- Fix lockscreen</p>
-    
-<h3>• ✅ INSIDERS V7</h3>
-<p>- Add setup redesign and animations</p>
+  .version-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-<h3>• ⏳ INSIDERS PRE-RELEASE 1</h3>
-<p>- Finish settings, services and backend</p>
-<p>- Add store</p>
+  .completed .version-title { color: var(--green); }
+  .pending .version-title { color: var(--orange); }
 
-<h3>• ⏳ INSIDERS RELEASE CANDIDATE 1</h3>
-<p>- Finish fixing bugs</p>
-<p>- If store didn't work remove it</p>
+  .entry-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
 
-<h3>• ⏳ INSIDERS RELEASE CANDIDATE 2</h3>
-<p>- Final testing and stuff</p>
+  .footer-msg {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
 
-<h3>• ⏳ PUBLIC STABLE RELEASE (V1)</h3>
-<p>- Public release</p>
-<p>&nbsp;</p>
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Update Roadmap</h2>
+    </div>
 
-<h3> ‼️FUTURE INSIDERS RELEASES WILL BE PLANNED AFTER STABLE RELEASE‼️</h3>
-<h4> 💘 Thanks for your interest in mariowOS development</h4>
+    <div class="legend">
+      <span>✅ Completed</span>
+      <span>⏳ Coming Soon</span>
+      <span>❌ Cancelled</span>
+    </div>
 
-<p>&nbsp;</p>
-<p>report any bugs using the feedback app!</p>
+    <div class="roadmap-entry pending">
+      <div class="version-title">⏳ PUBLIC STABLE RELEASE (V1)</div>
+      <div class="entry-desc">- Public release with final optimizations and bugfixes.</div>
+    </div>
 
- </html>
+    <div class="roadmap-entry pending">
+      <div class="version-title">⏳ INSIDERS PRE-RELEASE 1</div>
+      <div class="entry-desc">- Finish settings, services and backend<br>- Add store</div>
+    </div>
 
+    <div class="roadmap-entry completed">
+      <div class="version-title">✅ INSIDERS V7</div>
+      <div class="entry-desc">- Setup redesign and animations</div>
+    </div>
 
+    <div class="roadmap-entry completed">
+      <div class="version-title">✅ INSIDERS V6</div>
+      <div class="entry-desc">- Developer options added<br>- Redesigned icons<br>- Backend fixes<br>- Password system implementation</div>
+    </div>
 
+    <div class="roadmap-entry completed">
+      <div class="version-title">✅ INSIDERS V3</div>
+      <div class="entry-desc">- Welcome, Tiles! New desktop experience and major updates</div>
+    </div>
 
+    <div class="footer-msg">
+      Future insiders releases will be planned after stable release.<br>
+      Thank you for your interest in mariowOS!
+    </div>
+  </div>
+
+</body>
+</html>

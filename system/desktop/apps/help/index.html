@@ -1,92 +1,261 @@
-<!-- o beppino giovane devoto 💘 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mwOS Help Center - Flat Edition</title>
+    <!-- Il font ufficiale di mariowOS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'MS Sans Serif', Arial, sans-serif;
-            background-color: #c0c0c0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212; /* Sfondo scuro e piatto come nelle Impostazioni */
+            color: #ffffff;
             display: flex;
             height: 100vh;
+            overflow: hidden;
+            user-select: none;
         }
+
+        /* Nascondi le scrollbar per un look più pulito, tipico di mariowOS */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Sidebar Flat */
         .sidebar {
-            width: 200px;
-            background-color: #dfdfdf;
-            border-right: 2px solid #ffffff;
-            padding: 10px;
-            overflow-y: auto;
-        }
-        .sidebar h3 {
-            font-size: 12px;
-            margin-bottom: 10px;
-            color: #000;
-        }
-        .sidebar a {
-            display: block;
-            padding: 6px 8px;
-            margin-bottom: 4px;
-            background-color: #c0c0c0;
-            color: #000;
-            text-decoration: none;
-            font-size: 12px;
-            border: 1px solid #dfdfdf;
-        }
-        .sidebar a:hover {
-            background-color: #000080;
-            color: #ffffff;
-        }
-        .content {
-            flex: 1;
+            width: 260px;
+            background-color: #181818; /* Leggero contrasto col main, zero bordi */
+            padding: 25px 15px;
             display: flex;
             flex-direction: column;
-            background-color: #c0c0c0;
-        }
-        .titlebar {
-            background: linear-gradient(to right, #000080, #1084d7);
-            color: #ffffff;
-            padding: 4px 6px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .main {
-            flex: 1;
-            padding: 20px;
-            background-color: #c0c0c0;
+            gap: 5px;
             overflow-y: auto;
         }
-        .main h1 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #000;
+
+        .sidebar h3 {
+            font-size: 12px;
+            color: #666666;
+            margin-bottom: 15px;
+            padding-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
-        .main p {
+
+        /* Bottoni della Sidebar */
+        .sidebar button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 15px;
+            background: transparent;
+            color: #999999;
+            border: none;
+            border-radius: 8px; /* Curve morbide standard */
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar button:hover {
+            background-color: #242424;
+            color: #ffffff;
+        }
+
+        .sidebar button.active {
+            background-color: #2a2a2a; /* Niente colori accesi, flat dark puro */
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Area Contenuto Principale */
+        .content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background-color: #121212;
+        }
+
+        .main-window {
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 0.2s ease-out; /* Animazione fluida e veloce (GPU acc) */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-window h1 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .main-window h2 {
+            font-size: 16px;
+            margin: 30px 0 10px 0;
+            color: #aaaaaa;
+            font-weight: 500;
+        }
+
+        .main-window p {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #cccccc;
+            margin-bottom: 15px;
+        }
+
+        /* Codice inline in stile terminale minimale */
+        code {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
             font-size: 13px;
-            line-height: 1.6;
-            color: #000;
-            margin-bottom: 10px;
+        }
+
+        a.gitbook-link {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        a.gitbook-link:hover {
+            color: #888888;
+        }
+
+        .status-footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #222222; /* Unico bordo sottile per separare */
+            font-size: 12px;
+            color: #555555;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h3>Topics</h3>
-        <a href="#overview">This</a>
-        <a href="#getting-started">app</a>
-        <a href="#helptopics">is</a>
-        <a href="#apps">ass</a>
-    </div>
-    <div class="content">
-        <div class="main">
-            <h1>What's this?</h1>
-            <p>This app will be used to provide help topics and useful stuff when using mariowOS.<br>
-            New help topics will be added when the system reaches stable state.<br>
-            A better guide is present at <a href="https://mariowstech.gitbook.io/mariowos-docs">our gitbook page.</a></p>
-            <p>&nbsp;</p>
-            <p>I will finish it over time, its not a priority right now.</p>
+
+    <nav class="sidebar" id="sidebar-menu">
+        <h3>Menu Guida</h3>
+        <!-- I bottoni vengono generati dinamicamente -->
+    </nav>
+
+    <main class="content">
+        <div class="main-window" id="content-area">
+            <!-- Il contenuto viene iniettato qui -->
         </div>
-    </div>
+    </main>
+
+    <script>
+        const topicsData = {
+            overview: {
+                icon: "🚀",
+                title: "Benvenuto",
+                html: `
+                    <h1>Benvenuto su mwOS!</h1>
+                    <p>L'app di documentazione ufficiale per l'interfaccia più gasata del web. Niente fronzoli, solo la pura essenza del sistema.</p>
+                    <p>Qui troverai tutti i trucchi per dominare il sistema operativo mentre beppino lavora al core stabile. Esplora il menu laterale per scoprire i segreti del sistema.</p>
+                    <p>👉 Visita la nostra <a href="https://mariowstech.gitbook.io/mariowos-docs" target="_blank" class="gitbook-link">GitBook Ufficiale ↗</a> per la documentazione per sviluppatori.</p>
+                    <div class="status-footer">Stato del sistema: In continuo sviluppo. Le cose fighe richiedono tempo.</div>
+                `
+            },
+            shortcuts: {
+                icon: "⌨️",
+                title: "Scorciatoie",
+                html: `
+                    <h1>Scorciatoie di Sistema</h1>
+                    <p>Muoviti dentro mwOS come un vero power user senza toccare il mouse.</p>
+                    <h2>Combinazioni Chiave:</h2>
+                    <p><code>Ctrl + Alt + T</code> Apre un'istanza del Terminale.</p>
+                    <p><code>Alt + F4</code> Chiude la finestra attiva corrente.</p>
+                    <p><code>Win + D</code> Minimizza tutto e mostra il Desktop.</p>
+                    <p><code>Shift + R</code> Forza il riavvio rapido del server grafico se hai esagerato con i moduli.</p>
+                `
+            },
+            commands: {
+                icon: "💻",
+                title: "Terminale (CLI)",
+                html: `
+                    <h1>Comandi del Terminale</h1>
+                    <p>Accedi alla CLI di mwOS e lancia script. Lascia perdere la GUI se vuoi sentirti un vero pro.</p>
+                    <h2>Comandi Utili:</h2>
+                    <p><code>mw --version</code> Mostra la build corrente e i dettagli di rilascio.</p>
+                    <p><code>neofetch</code> Mostra le specifiche di sistema.</p>
+                    <p><code>pkg install [app]</code> Installa pacchetti sperimentali direttamente dai server di mariowOS.</p>
+                    <p><code>clear</code> Pulisce lo schermo quando c'è troppo disordine.</p>
+                `
+            },
+            customization: {
+                icon: "🎨",
+                title: "Personalizzazione",
+                html: `
+                    <h1>Personalizza il tuo mwOS</h1>
+                    <p>Il sistema è tuo. Fallo sembrare come vuoi tu.</p>
+                    <h2>Temi e Sfondi:</h2>
+                    <p>Usa l'app Impostazioni per cambiare i colori di sistema. mwOS supporta pienamente CSS variabili, quindi puoi iniettare il tuo foglio di stile personalizzato.</p>
+                    <p>Il design flat attuale è ottimizzato per ridurre il carico sulla GPU, mantenendo tutto fluido e minimale.</p>
+                `
+            },
+            trouble: {
+                icon: "🔥",
+                title: "Emergency Room",
+                html: `
+                    <h1>Risoluzione Problemi</h1>
+                    <p>Qualcosa è andato storto? Il CSS è esploso? Mantieni la calma.</p>
+                    <h2>Istruzioni di Emergenza:</h2>
+                    <p>1. Apri la console del browser (<code>F12</code>) per controllare se ci sono errori JS selvaggi.</p>
+                    <p>2. Svuota la cache con <code>Ctrl + F5</code> (a volte i vecchi file si incastrano).</p>
+                    <p>3. Se vedi lo Schermo Rosso della Morte (RSOD), fai uno screenshot e mandala subito sul canale dev! 💘</p>
+                `
+            }
+        };
+
+        const sidebarMenu = document.getElementById('sidebar-menu');
+        const contentArea = document.getElementById('content-area');
+
+        function initApp() {
+            Object.keys(topicsData).forEach((key) => {
+                const topic = topicsData[key];
+                const button = document.createElement('button');
+                // Backtick sistemati qui!
+                button.innerHTML = `${topic.icon} ${topic.title}`;
+                button.onclick = () => showTopic(key);
+                button.id = 'btn-' + key;
+                
+                sidebarMenu.appendChild(button);
+            });
+            
+            showTopic('overview');
+        }
+
+        function showTopic(topicId) {
+            contentArea.style.animation = 'none';
+            contentArea.offsetHeight; 
+            contentArea.style.animation = null; 
+
+            contentArea.innerHTML = topicsData[topicId].html;
+            
+            const buttons = document.querySelectorAll('.sidebar button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + topicId).classList.add('active');
+        }
+
+        window.onload = initApp;
+    </script>
 </body>
 </html>

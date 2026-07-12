@@ -1,5 +1,9 @@
 {
-  "passwordHash": "$2b$10$GsPltV0vs90WCgMne0sWYOQmfa9oJRyDVsDY0W/I87XHDIyaZSERq",
-  "username": "davide",
-  "sendReports": false
+  "passwordHash": "$2b$10$Q2Wo9.SBOeiyFqXbCz2dr.2w/O7hw6.nKeLaZo3H8MvtGzUi/lopm",
+  "username": "mariowos",
+  "sendReports": false,
+  "email": "mariowisuseless@gmail.com",
+  "verified": true,
+  "lastSent": 1781099022853,
+  "installedApps": []
 }

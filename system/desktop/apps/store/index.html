@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #1e1e1e;
+      --sidebar-bg: rgba(24, 24, 24, 0.95);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      --accent: #3584e4;
+      --accent-hover: #2a6dc4;
+      --green: #34c759;
+      --red: #ff3b30;
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --border: rgba(255, 255, 255, 0.06);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background-color: var(--bg);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      user-select: none;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 8px 0 24px 14px;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 16px 0 8px 14px;
+    }
+
+    .nav-item {
+      padding: 9px 14px;
+      border-radius: 10px;
+      margin-bottom: 2px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: rgba(53, 132, 228, 0.15);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Main Content ── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+      background: var(--bg);
+    }
+
+    .main::-webkit-scrollbar { width: 6px; }
+    .main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+    .view {
+      display: none;
+      padding: 32px 40px;
+      animation: viewIn 0.25s ease;
+    }
+
+    .view.active { display: block; }
+
+    @keyframes viewIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Hero Banner ── */
+    .hero {
+      background: linear-gradient(135deg, #3584e4, #1a73e8, #4dabf7);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 8px 24px rgba(53, 132, 228, 0.25);
+    }
+
+    .hero-emoji { font-size: 48px; }
+
+    .hero h1 {
+      margin: 0 0 4px 0;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* ── Section ── */
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── App Cards ── */
+    .app-grid {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .app-card:last-child { border-bottom: none; }
+    .app-card:hover { transform: translateX(4px); }
+
+    .card-icon {
+      width: 52px;
+      height: 52px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .card-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: 2px 0 0 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+
+    .btn-get {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent);
+      border: none;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+
+    .btn-get:hover { background: rgba(255,255,255,0.12); }
+
+    .btn-get.installed {
+      background: transparent;
+      border: 1px solid var(--accent);
+    }
+
+    /* ── Landpage ── */
+    .lp-header {
+      display: flex;
+      gap: 28px;
+      margin-bottom: 32px;
+      align-items: flex-end;
+    }
+
+    .lp-icon {
+      width: 100px;
+      height: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .lp-info { flex: 1; }
+
+    .lp-title {
+      font-size: 30px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      letter-spacing: -0.5px;
+    }
+
+    .lp-dev {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 16px 0;
+    }
+
+    .lp-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-action {
+      border: none;
+      padding: 10px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.1s;
+      text-transform: uppercase;
+    }
+
+    .btn-action:active { transform: scale(0.97); }
+
+    .btn-action.primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-action.primary:hover { background: var(--accent-hover); }
+
+    .btn-action.primary:disabled {
+      background: var(--card-bg);
+      color: var(--text-muted);
+      cursor: wait;
+    }
+
+    .btn-uninstall {
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: underline;
+      padding: 8px;
+    }
+
+    .lp-error {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .lp-desc-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lp-desc {
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    /* ── Back Button ── */
+    .btn-back {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: none;
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      transition: background 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .btn-back:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── Publish Form ── */
+    .pub-input {
+      width: 100%;
+      padding: 11px 14px;
+      margin-bottom: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border 0.2s;
+    }
+
+    .pub-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .pub-input::placeholder { color: #555; }
+
+    textarea.pub-input { resize: vertical; }
+
+    .publish-status {
+      font-size: 13px;
+      margin-top: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* ── Loading State ── */
+    .loading-text {
+      color: var(--text-muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 40px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="sidebar-header">App Store</div>
+
+    <div class="sidebar-label">Store</div>
+    <div class="nav-item active" id="nav-discover" onclick="switchView('home')">✨ Discover</div>
+
+    <div class="sidebar-label">Developer</div>
+    <div class="nav-item" id="nav-publish" onclick="switchView('publish')">🚀 Submit App</div>
+  </div>
+
+  <div class="main">
+
+    <!-- ═══ Discover View ═══ -->
+    <div id="view-home" class="view active">
+      <div class="hero">
+        <div class="hero-emoji">🌟</div>
+        <div>
+          <h1>mariowOS Essentials</h1>
+          <p>The best apps to customize and supercharge your desktop experience.</p>
+        </div>
+      </div>
+
+      <h2 class="section-title">New & Updated</h2>
+      <div class="app-grid" id="appGrid">
+        <div class="loading-text">Loading catalog...</div>
+      </div>
+    </div>
+
+    <!-- ═══ App Landpage View ═══ -->
+    <div id="view-landpage" class="view">
+      <button class="btn-back" id="btnBack" onclick="switchView('home')">‹ Back to Discover</button>
+
+      <div class="lp-header">
+        <div class="lp-icon" id="lpIcon"></div>
+        <div class="lp-info">
+          <h1 class="lp-title" id="lpTitle"></h1>
+          <p class="lp-dev" id="lpDev"></p>
+          <div class="lp-actions">
+            <button id="btnInstall" class="btn-action primary"></button>
+            <button id="btnUninstall" class="btn-uninstall" style="display: none;"></button>
+          </div>
+          <div id="installError" class="lp-error"></div>
+        </div>
+      </div>
+
+      <h3 class="lp-desc-title">Description</h3>
+      <p id="lpDesc" class="lp-desc"></p>
+    </div>
+
+    <!-- ═══ Publish View ═══ -->
+    <div id="view-publish" class="view">
+      <h2 class="section-title">Submit to App Store</h2>
+      <div style="max-width: 500px;">
+        <input type="text" id="pubId" class="pub-input" placeholder="Bundle ID (e.g., com.mariowos.calc)">
+        <input type="text" id="pubTitle" class="pub-input" placeholder="App Name">
+        <input type="text" id="pubDev" class="pub-input" placeholder="Developer Name">
+        <input type="text" id="pubIcon" class="pub-input" placeholder="Icon Emoji (e.g., 🧮)">
+        <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
+        <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)">
+
+        <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 4px;">Submit for Review</button>
+        <div id="publishStatus" class="publish-status"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let storeCatalog = [];
+    let installedAppsList = [];
+    let currentAppOpen = null;
+
+    /* ── Init ── */
+    async function initStore() {
+      try {
+        const conf = await (await fetch('/get-settings')).json();
+        installedAppsList = conf.installedApps ? conf.installedApps.map(a => a.appId || a) : [];
+      } catch (e) {
+        console.warn('Could not load installed apps:', e);
+      }
+
+      try {
+        storeCatalog = await (await fetch('/api/store/catalog')).json();
+      } catch (e) {
+        console.warn('Could not load store catalog:', e);
+        storeCatalog = [];
+      }
+
+      renderGrid();
+    }
+
+    /* ── Navigation ── */
+    function switchView(viewName) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(v => v.classList.remove('active'));
+
+      const btnBack = document.getElementById('btnBack');
+      btnBack.style.display = viewName === 'landpage' ? 'inline-flex' : 'none';
+
+      if (viewName === 'home') {
+        document.getElementById('view-home').classList.add('active');
+        document.getElementById('nav-discover').classList.add('active');
+      } else if (viewName === 'publish') {
+        document.getElementById('view-publish').classList.add('active');
+        document.getElementById('nav-publish').classList.add('active');
+        document.getElementById('publishStatus').textContent = '';
+      } else if (viewName === 'landpage') {
+        document.getElementById('view-landpage').classList.add('active');
+      }
+    }
+
+    /* ── Render Grid ── */
+    function renderGrid() {
+      const grid = document.getElementById('appGrid');
+
+      if (storeCatalog.length === 0) {
+        grid.innerHTML = '<div class="loading-text">No apps available yet.</div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+
+      storeCatalog.forEach(app => {
+        const isInst = installedAppsList.includes(app.id);
+        const card = document.createElement('div');
+        card.className = 'app-card';
+        card.onclick = () => openLandpage(app.id);
+        card.innerHTML = `
+          <div class="card-icon">${app.icon}</div>
+          <div class="card-info">
+            <h3 class="card-title">${app.title}</h3>
+            <p class="card-desc">${app.desc}</p>
+          </div>
+          <button class="btn-get ${isInst ? 'installed' : ''}" onclick="event.stopPropagation(); ${isInst ? `openInstalledApp('${app.id}')` : `openLandpage('${app.id}')`}">${isInst ? 'OPEN' : 'GET'}</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* ── Landpage ── */
+    function openLandpage(id) {
+      currentAppOpen = storeCatalog.find(a => a.id === id);
+      if (!currentAppOpen) return;
+
+      document.getElementById('lpIcon').textContent = currentAppOpen.icon;
+      document.getElementById('lpTitle').textContent = currentAppOpen.title;
+      document.getElementById('lpDev').textContent = currentAppOpen.developer;
+      document.getElementById('lpDesc').textContent = currentAppOpen.desc;
+      document.getElementById('installError').textContent = '';
+
+      updateInstallBtn();
+      switchView('landpage');
+    }
+
+    function updateInstallBtn() {
+      const btnI = document.getElementById('btnInstall');
+      const btnU = document.getElementById('btnUninstall');
+      const isInst = installedAppsList.includes(currentAppOpen.id);
+
+      btnI.textContent = isInst ? 'OPEN' : 'GET';
+      btnI.disabled = false;
+      btnI.onclick = isInst
+        ? () => window.parent.postMessage({ type: 'open-app-from-store', appId: currentAppOpen.id }, '*')
+        : () => actOnApp('install');
+
+      btnU.style.display = isInst ? 'inline-block' : 'none';
+      btnU.textContent = 'Uninstall';
+      btnU.onclick = () => actOnApp('uninstall');
+    }
+
+    function openInstalledApp(appId) {
+      window.parent.postMessage({ type: 'open-app-from-store', appId }, '*');
+    }
+
+    /* ── Install / Uninstall ── */
+    async function actOnApp(action) {
+      const btn = action === 'install' ? document.getElementById('btnInstall') : document.getElementById('btnUninstall');
+      const origText = btn.textContent;
+
+      btn.textContent = 'WAIT...';
+      btn.disabled = true;
+      document.getElementById('installError').textContent = '';
+
+      try {
+        const body = action === 'install'
+          ? { appId: currentAppOpen.id, title: currentAppOpen.title, icon: currentAppOpen.icon, repoUrl: currentAppOpen.repoUrl }
+          : { appId: currentAppOpen.id };
+
+        const res = await fetch(`/api/store/${action}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error);
+
+        if (action === 'install') {
+          installedAppsList.push(currentAppOpen.id);
+          window.parent.postMessage({
+            type: 'app-installed-live',
+            app: {
+              appId: currentAppOpen.id,
+              title: currentAppOpen.title,
+              icon: currentAppOpen.icon,
+              url: `apps/${currentAppOpen.id}/index.html`
+            }
+          }, '*');
+        } else {
+          installedAppsList = installedAppsList.filter(id => id !== currentAppOpen.id);
+          window.parent.postMessage({
+            type: 'app-uninstalled-live',
+            appId: currentAppOpen.id
+          }, '*');
+        }
+
+        updateInstallBtn();
+        renderGrid();
+      } catch (err) {
+        document.getElementById('installError').textContent = 'Error: ' + err.message;
+        btn.textContent = origText;
+        btn.disabled = false;
+      }
+    }
+
+    /* ── Submit App ── */
+    async function submitApp() {
+      const status = document.getElementById('publishStatus');
+      status.style.color = 'var(--text-muted)';
+      status.textContent = 'Publishing...';
+
+      const fields = {
+        id: document.getElementById('pubId').value.trim(),
+        title: document.getElementById('pubTitle').value.trim(),
+        developer: document.getElementById('pubDev').value.trim(),
+        icon: document.getElementById('pubIcon').value.trim(),
+        desc: document.getElementById('pubDesc').value.trim(),
+        repoUrl: document.getElementById('pubRepo').value.trim()
+      };
+
+      // Client-side validation
+      if (!fields.id || !fields.title || !fields.developer || !fields.desc || !fields.repoUrl) {
+        status.style.color = 'var(--red)';
+        status.textContent = 'All fields are required.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/store/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fields)
+        });
+
+        const r = await res.json();
+        if (!r.success) throw new Error(r.error);
+
+        status.style.color = 'var(--green)';
+        status.textContent = 'Success! Your app is now available on Discover.';
+
+        document.querySelectorAll('.pub-input').forEach(i => i.value = '');
+
+        setTimeout(() => {
+          initStore();
+          switchView('home');
+        }, 1500);
+      } catch (err) {
+        status.style.color = 'var(--red)';
+        status.textContent = 'Error: ' + err.message;
+      }
+    }
+
+    /* ── Boot ── */
+    window.addEventListener('DOMContentLoaded', initStore);
+  </script>
+</body>
+</html>

@@ -1,49 +1,136 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Changelog - mariowOS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Poppins', sans-serif;
-            background: #1e1e1e;
-            color: white;
-        }
-        h1, h2, h3 {
-            font-weight: 600;
-        }
-        a {
-            color: #4ea1ff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .version {
-            margin-top: 20px;
-        }
-        ul {
-            margin-top: 10px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Channel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.06);
+    --accent: #3584e4;
+    --text: #ffffff;
+    --text-muted: #8e8e93;
+    --red: #ff3b30;
+  }
 
-                p {
-            color: #ffffff;
-            text-decoration: none;
-        }
-    </style>
-<p><a href="javascript:history.back()">Go back</a></p>
-<h2>❌ You can't go back to a version without Tiles</h2>
-<p>We're sorry but until Tiles releases stabily (v1) you can't downgrade to stable because latest doesn't have a way of communicating with the network.</p>
-<p>So please wait until v1 stable is released, thank you for understanding.</p>
-<p>&nbsp;</p>
-<p>You can go back to latest by downloading the zip from our <a href="https://discord.com/M8dHcFMqYg">discord server</a> and overwriting this version which is NOT recomendeed.</p>
-<p>If you want to see the update roadmap, <a href="roadmap.html">click here</a>.</p>
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 10px 40px 40px 40px;
+    background: transparent;
+    overflow-y: auto;
+  }
+  
+  html::-webkit-scrollbar { width: 6px; }
+  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
 
+  .container {
+    max-width: 600px;
+    position: relative;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 18px;
+    border: none;
+  }
+  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+  h2 { margin: 0; font-size: 18px; font-weight: 500; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .warning-title {
+    color: var(--red);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .content {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .content p { margin: 0 0 12px 0; }
+  
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover { text-decoration: underline; }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.1s;
+    text-align: center;
+    display: inline-block;
+  }
+
+  .btn:hover { background: rgba(255, 255, 255, 0.15); }
+  .btn:active { transform: scale(0.97); }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">‹</button>
+      <h2>Change Channel</h2>
+    </div>
+
+    <div class="card">
+      <div class="warning-title">
+        <span>❌</span> You can't go back to a version without Tiles
+      </div>
+      
+      <div class="content">
+        <p>We're sorry but until Tiles releases stabily (v1) you can't downgrade to stable because latest doesn't have a way of communicating with the network.</p>
+        <p>So please wait until v1 stable is released. Thank you for understanding.</p>
+        <p>You can go back to latest by downloading the zip from our <a href="https://discord.com/M8dHcFMqYg" target="_blank">Discord server</a> and overwriting this version, which is NOT recommended.</p>
+      </div>
+
+      <a href="roadmap.html" class="btn">View Update Roadmap</a>
+    </div>
+  </div>
+
+</body>
 </html>
