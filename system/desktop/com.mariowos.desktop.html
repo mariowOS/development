@@ -396,7 +396,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     <div class="spotlight-box-wrapper">
       <div class="spotlight-input-bar">
         <span class="material-symbols-outlined spotlight-icon">search</span>
-        <input type="text" id="spotlightInput" class="spotlight-input" placeholder="Spotlight Search..." oninput="handleSpotlightInput(this.value)" onkeydown="handleSpotlightKeydown(event)">
+        <input type="text" id="spotlightInput" class="spotlight-input" placeholder="Search..." oninput="handleSpotlightInput(this.value)" onkeydown="handleSpotlightKeydown(event)">
       </div>
       <div id="spotlightResults" class="spotlight-results"></div>
     </div>
@@ -820,7 +820,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
         const maxLeft = window.innerWidth - el.offsetWidth - 8; const maxTop = window.innerHeight - el.offsetHeight - TASKBAR_H - 8;
         newLeft = Math.max(8, Math.min(newLeft, maxLeft)); newTop = Math.max(minTop, Math.min(newTop, maxTop));
         
-        // --- macOS JELLY/MOMENTUM EFFECT ---
+        // --- JELLY/MOMENTUM EFFECT ---
         // Rotates the window based on horizontal drag speed (pos1)
         let rot = Math.max(-4, Math.min(4, pos1 * 0.4));
         el.style.transform = `rotate(${rot}deg)`;
