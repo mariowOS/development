@@ -1,320 +1,461 @@
-<!--
-mariowOS SHA (Settings Host Application) - (C) 2025 mariowstech and the mariowOS team
-Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License.
-Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
-This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy
+<!-- 
+mariowOS SHA (Settings Host Application) - (C) 2025 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 -->
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <title>Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #1e1e1e;
-      --sidebar-bg: rgba(24, 24, 24, 0.95);
-      --card-bg: rgba(255, 255, 255, 0.04);
-      --card-hover: rgba(255, 255, 255, 0.08);
-      --accent: #3584e4;
-      --accent-hover: #2a6dc4;
-      --text: #ffffff;
-      --text-muted: #8e8e93;
-      --border: rgba(255, 255, 255, 0.06);
-      --radius: 14px;
-    }
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
 
-    * {
-      box-sizing: border-box;
-    }
+<style>
+:root {
+    /* Lasciamo le variabili pronte per essere popolate dinamicamente da monet-engine */
+    --m3-accent-active: #3584e4; /* Fallback dinamico */
+    --m3-accent-on-active: #ffffff;
+    --md-sys-color-background: #141218;
+    --md-sys-color-surface: rgba(29, 27, 32, 0.65);
+    --md-sys-color-surface-container: rgba(255, 255, 255, 0.06);
+    --md-sys-color-surface-container-high: rgba(255, 255, 255, 0.12);
+    --md-sys-color-on-surface: #e6e0e9;
+    --md-sys-color-on-surface-variant: #cac4d0;
+  }
 
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-      background-color: var(--bg);
-      font-family: 'Poppins', sans-serif;
-      color: var(--text);
-      user-select: none;
-      overflow: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+  * {
+    box-sizing: border-box;
+  }
 
-    /* ── Sidebar ── */
-    .sidebar {
-      width: 260px;
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 20px 10px;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
+    color: var(--md-sys-color-on-surface);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    overscroll-behavior: none; 
+  }
 
-    .sidebar::-webkit-scrollbar {
-      width: 6px;
-    }
+  /* Material You Sidebar Style with Glassmorphism */
+  .sidebar {
+    width: 320px;
+    background: var(--md-sys-color-surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    border-right: 1px solid var(--m3-glass-border);
+  }
 
-    .sidebar::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 3px;
-    }
+  .sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
 
-    .sidebar-header {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 8px 0 18px 14px;
-      letter-spacing: -0.3px;
-    }
+  .sidebar-header {
+    padding: 0 12px;
+  }
 
-    .search {
-      margin: 0 6px 16px 6px;
-    }
+  .sidebar h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--md-sys-color-on-surface);
+  }
 
-    .search input {
-      width: 100%;
-      padding: 9px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 13px;
-      outline: none;
-      transition: border 0.2s, background 0.2s;
-    }
+  /* Material 3 Search Bar */
+  .search {
+    width: 100%;
+  }
 
-    .search input:focus {
-      border-color: var(--accent);
-      background: rgba(255, 255, 255, 0.06);
-    }
+  .search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
 
-    .search input::placeholder {
-      color: #666;
-    }
+  .search-wrapper .material-symbols-outlined {
+    position: absolute;
+    left: 14px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 20px;
+  }
 
-    .menu-item {
-      padding: 10px 14px;
-      border-radius: 10px;
-      margin-bottom: 2px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: background 0.15s;
-    }
+  .search input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border-radius: 28px;
+    border: 1px solid transparent;
+    outline: none;
+    background: var(--md-sys-color-surface-container);
+    color: var(--md-sys-color-on-surface);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
 
-    .menu-item:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
+  .search input:focus {
+    background: var(--md-sys-color-surface-container-high);
+    border-color: var(--m3-accent-active);
+    box-shadow: 0 0 0 1px var(--m3-accent-active);
+  }
 
-    .menu-item.active {
-      background: rgba(53, 132, 228, 0.15);
-    }
+  .search input::placeholder {
+    color: var(--md-sys-color-on-surface-variant);
+  }
 
-    .nav-icon {
-      font-size: 18px;
-      width: 24px;
-      text-align: center;
-      flex-shrink: 0;
-    }
+  /* Material 3 Dynamic Navigation Items */
+  .menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-    .nav-text {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+  .menu-item {
+    background: transparent;
+    padding: 12px 16px;
+    border-radius: 28px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+  }
 
-    .nav-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-    }
+  .menu-item:hover {
+    background: var(--md-sys-color-surface-container);
+  }
 
-    .menu-item.active .nav-title {
-      color: var(--accent);
-      font-weight: 600;
-    }
+.menu-item.active {
+    background: var(--m3-accent-active) !important;
+    color: var(--m3-accent-on-active) !important;
+  }
 
-    .nav-subtitle {
-      font-size: 11px;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  .menu-item.active .icon,
+  .menu-item.active .title {
+    color: var(--m3-accent-on-active) !important;
+    font-weight: 600;
+  }
 
-    /* ── Main Content ── */
-    .content {
-      flex: 1;
-      position: relative;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-    }
+  .menu-item.active .subtitle {
+    color: var(--m3-accent-on-active) !important;
+    opacity: 0.8;
+  }
 
-    .content-header {
-      padding: 32px 40px 10px 40px;
-    }
+  .menu-item .text-group {
+    display: flex;
+    flex-direction: column;
+  }
 
-    .content-header h2 {
-      font-size: 26px;
-      font-weight: 600;
-      margin: 0;
-      letter-spacing: -0.3px;
-    }
+  .menu-item .title {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--md-sys-color-on-surface);
+    transition: color 0.2s;
+  }
 
-    .iframe-container {
-      flex: 1;
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-    }
+  .menu-item.active .title {
+    color: var(--m3-accent-on-active);
+    font-weight: 600;
+  }
 
-    .popup-frame {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: transparent;
-    }
+  .menu-item .subtitle {
+    font-size: 12px;
+    color: var(--md-sys-color-on-surface-variant);
+    transition: color 0.2s;
+  }
 
-    .welcome-text {
-      padding: 40px;
-      font-size: 18px;
-      color: var(--text-muted);
-    }
-  </style>
+  .menu-item.active .subtitle {
+    color: rgba(5, 33, 30, 0.75);
+  }
+
+  /* Main Content Area */
+  .content {
+    flex: 1;
+    padding: 32px;
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    position: relative;
+    background: transparent;
+  }
+
+  .content iframe {
+    width: 100%;
+    height: 100% !important;
+    border: none;
+    display: block;
+    overflow: hidden !important;
+  }
+
+  .popup-frame {
+    width: 100%;
+    border: none;
+    background: transparent;
+    display: block;
+    overflow: hidden !important;
+  }
+
+  .content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--md-sys-color-on-surface);
+  }
+
+  .placeholder-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--md-sys-color-on-surface-variant);
+  }
+
+  .placeholder-view h3 {
+    font-weight: 400;
+    font-size: 20px;
+    margin: 0;
+    color: var(--md-sys-color-outline);
+  }
+
+  /* Draggable window fix */
+  .window {
+    position: absolute;
+    will-change: transform;
+  }
+  
+  a {
+    text-decoration: none;
+    color: var(--m3-accent-active);
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
+</style>
 </head>
-
 <body>
+
+  <!-- Material You Navigation Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-header">Settings</div>
+    <div class="sidebar-header">
+      <h1>Settings</h1>
+    </div>
+
     <div class="search">
-      <input type="text" placeholder="Search settings...">
+      <div class="search-wrapper">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search settings...">
+      </div>
     </div>
 
     <div class="menu">
       <div class="menu-item active" onclick="loadPage('you', this)">
-        <div class="nav-icon">🗣</div>
-        <div class="nav-text">
-          <div class="nav-title">Profile</div>
-          <div class="nav-subtitle">Manage your account</div>
+        <span class="material-symbols-outlined icon">person</span>
+        <div class="text-group">
+          <div class="title">You</div>
+          <div class="subtitle">Your profile & account</div>
         </div>
       </div>
+
       <div class="menu-item" onclick="loadPage('wallpaper', this)">
-        <div class="nav-icon">⛶</div>
-        <div class="nav-text">
-          <div class="nav-title">Wallpaper & Style</div>
-          <div class="nav-subtitle">Customize desktop</div>
+        <span class="material-symbols-outlined icon">palette</span>
+        <div class="text-group">
+          <div class="title">Wallpaper & style</div>
+          <div class="subtitle">Background, icons, colors</div>
         </div>
       </div>
+
       <div class="menu-item" onclick="loadPage('functions', this)">
-        <div class="nav-icon">🧪</div>
-        <div class="nav-text">
-          <div class="nav-title">Functions Lab</div>
-          <div class="nav-subtitle">Experimental features</div>
+        <span class="material-symbols-outlined icon">science</span>
+        <div class="text-group">
+          <div class="title">Functions lab</div>
+          <div class="subtitle">Experimental features</div>
         </div>
       </div>
+
       <div class="menu-item" onclick="loadPage('system', this)">
-        <div class="nav-icon">⚙︎</div>
-        <div class="nav-text">
-          <div class="nav-title">System</div>
-          <div class="nav-subtitle">Preferences, reset</div>
+        <span class="material-symbols-outlined icon">settings</span>
+        <div class="text-group">
+          <div class="title">System</div>
+          <div class="subtitle">Rules, time, reset</div>
         </div>
       </div>
+
       <div class="menu-item" onclick="loadPage('updater', this)">
-        <div class="nav-icon">⟳</div>
-        <div class="nav-text">
-          <div class="nav-title">Updater</div>
-          <div class="nav-subtitle">System updates</div>
+        <span class="material-symbols-outlined icon">update</span>
+        <div class="text-group">
+          <div class="title">Updater</div>
+          <div class="subtitle">Software updates</div>
         </div>
       </div>
+
       <div class="menu-item" onclick="loadPage('about', this)">
-        <div class="nav-icon">🛈</div>
-        <div class="nav-text">
-          <div class="nav-title">About</div>
-          <div class="nav-subtitle">System information</div>
+        <span class="material-symbols-outlined icon">info</span>
+        <div class="text-group">
+          <div class="title">About</div>
+          <div class="subtitle">System information </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Content Container -->
   <div class="content" id="content">
-    <div class="welcome-text">what's cooking good looking?</div>
+    <div class="placeholder-view">
+      <h3>What's cooking, good looking?</h3>
+    </div>
   </div>
 
-  <script>
-    const pages = {
-      you: `
-      <div class="content-header"><h2>Profile</h2></div>
-      <div class="iframe-container"><iframe src="assets/you.html" class="popup-frame"></iframe></div>
+<script> 
+  // Page Display Logic
+  const pages = {
+    you: `
+      <h2>mariowOS Profile</h2>
+      <iframe src="assets/you.html" class="popup-frame"></iframe>
     `,
-      wallpaper: `
-      <div class="content-header"><h2>Wallpaper & Style</h2></div>
-      <div class="iframe-container"><iframe src="assets/wallpaper.html" class="popup-frame"></iframe></div>
+    wallpaper: `
+      <h2>Wallpaper & style</h2>
+      <iframe src="assets/wallpaper.html" class="popup-frame"></iframe>
     `,
-      functions: `
-      <div class="content-header"><h2>Functions Lab</h2></div>
-      <div class="iframe-container"><iframe src="assets/lab.html" class="popup-frame"></iframe></div>
+    functions: `
+      <h2>Functions lab</h2>
+      <iframe src="assets/lab.html" class="popup-frame"></iframe>
     `,
-      system: `
-      <div class="content-header"><h2>System</h2></div>
-      <div class="iframe-container"><iframe src="assets/systemsettings.html" class="popup-frame"></iframe></div>
+    system: `
+      <h2>System</h2>
+      <iframe src="assets/systemsettings.html" class="popup-frame"></iframe>
     `,
-      updater: `
-      <div class="content-header"><h2>Updater</h2></div>
-      <div class="iframe-container"><iframe src="assets/update-mirror-2.html" class="popup-frame"></iframe></div>
+    updater: `
+      <h2>Updater</h2>
+      <iframe src="assets/update-mirror-2.html" class="popup-frame"></iframe>
     `,
-      about: `
-      <div class="content-header"><h2>About</h2></div>
-      <div class="iframe-container"><iframe src="assets/about.html" class="popup-frame"></iframe></div>
+    about: `
+      <iframe src="assets/about.html" class="popup-frame" scrolling="no"></iframe>
     `
-    };
+  };
 
-    function loadPage(page, el) {
-      document.getElementById("content").innerHTML = pages[page];
+  function loadPage(page, el) {
+    document.getElementById("content").innerHTML = pages[page];
 
-      document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
-      if (el) el.classList.add("active");
+    if (page === "you") {
+      setTimeout(loadProfileEditor, 50);
     }
 
-    const searchInput = document.querySelector(".search input");
-    const menuItems = document.querySelectorAll(".menu-item");
+    document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
+    if (el) el.classList.add("active");
+  }
 
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase().trim();
-      let firstMatch = null;
+  // Search filtering logic
+  const searchInput = document.querySelector(".search input");
+  const menuItems = document.querySelectorAll(".menu-item");
 
-      menuItems.forEach(item => {
-        const title = item.querySelector(".nav-title").textContent.toLowerCase();
-        const subtitle = item.querySelector(".nav-subtitle").textContent.toLowerCase();
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+    let firstMatch = null;
 
-        if (!query || title.includes(query) || subtitle.includes(query)) {
-          item.style.display = "flex";
-          if (query && !firstMatch) firstMatch = item;
-        } else {
-          item.style.display = "none";
-        }
-      });
+    menuItems.forEach(item => {
+      const title = item.querySelector(".title").textContent.toLowerCase();
+      const subtitle = item.querySelector(".subtitle").textContent.toLowerCase();
 
-      if (firstMatch && query) {
-        const page = firstMatch.getAttribute("onclick").match(/'([^']+)'/)[1];
-        loadPage(page, firstMatch);
+      if (title.includes(query) || subtitle.includes(query)) {
+        item.style.display = "flex";
+        if (!firstMatch) firstMatch = item;
+      } else {
+        item.style.display = "none";
       }
     });
 
-    // Automatically load the profile page on startup
-    window.addEventListener('DOMContentLoaded', () => {
-      const firstItem = document.querySelector('.menu-item.active');
-      if (firstItem) {
-        loadPage('you', firstItem);
-      }
-    });
+    if (firstMatch) {
+      const page = firstMatch.getAttribute("onclick").match(/'([^']+)'/)[1];
+      loadPage(page, firstMatch);
+    }
+  });
 
-  </script>
+  // Profile functions
+  function saveProfile() {
+    const username = document.getElementById("usernameInput")?.value.trim();
+    const password = document.getElementById("passwordInput")?.value.trim();
+    const pfpFile = document.getElementById("pfpUpload")?.files[0];
+
+    if (username) localStorage.setItem("username", username);
+    if (password) localStorage.setItem("password", password);
+
+    if (pfpFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        localStorage.setItem("avatar", reader.result);
+        const pfpPreview = document.getElementById("pfpPreview");
+        if (pfpPreview) pfpPreview.src = reader.result;
+      };
+      reader.readAsDataURL(pfpFile);
+    }
+
+    alert("Profile saved!");
+  }
+
+  function loadProfileEditor() {
+    const savedUsername = localStorage.getItem("username");
+    const savedPassword = localStorage.getItem("password");
+    const savedAvatar = localStorage.getItem("avatar");
+
+    const usernameInput = document.getElementById("usernameInput");
+    const passwordInput = document.getElementById("passwordInput");
+    const pfpPreview = document.getElementById("pfpPreview");
+
+    if (savedUsername && usernameInput) usernameInput.value = savedUsername;
+    if (savedPassword && passwordInput) passwordInput.value = savedPassword;
+    if (savedAvatar && pfpPreview) pfpPreview.src = savedAvatar;
+  }
+
+  function saveFromSettings() {
+    const newUser = document.getElementById("settingsUsername")?.value.trim();
+    const newPass = document.getElementById("settingsPassword")?.value.trim();
+
+    if (!newUser || !newPass) {
+      alert("Fields cannot be empty!");
+      return;
+    }
+
+    localStorage.setItem("username", newUser);
+    localStorage.setItem("password", newPass);
+
+    alert("Credentials updated!");
+  }
+
+  window.addEventListener('message', (e) => {
+  if (e.data && (e.data.type === 'monet-update' || e.data.type === 'theme-update')) {
+    if (e.data.accent) {
+      document.documentElement.style.setProperty('--m3-accent-active', e.data.accent);
+    }
+    if (e.data.onAccent) {
+      document.documentElement.style.setProperty('--m3-accent-on-active', e.data.onAccent);
+    }
+  }
+});
+</script>
+
 </body>
-
 </html>
+
+<!-- "I'm not saying it's Material You, but if Google saw this UI, they'd try to buy it and deprecate it two years later." -->

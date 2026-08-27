@@ -4,21 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>App Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
   <style>
     :root {
-      --bg: #1e1e1e;
-      --sidebar-bg: rgba(24, 24, 24, 0.95);
+      --m3-accent-active: #c2f3eb;
+      --m3-accent-on-active: #05211e;
+      --m3-dropdown-bg: rgba(24, 25, 28, 0.65);
+      --m3-item-hover: rgba(255, 255, 255, 0.1);
+      --m3-item-active-bg: rgba(194, 243, 235, 0.16);
+      --m3-text-color: #e6e0e9;
+      --m3-glass-border: rgba(255, 255, 255, 0.12);
+      --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+
+      --bg: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
+      --sidebar-bg: rgba(20, 21, 24, 0.55);
       --card-bg: rgba(255, 255, 255, 0.04);
       --card-hover: rgba(255, 255, 255, 0.08);
-      --accent: #3584e4;
-      --accent-hover: #2a6dc4;
-      --green: #34c759;
-      --red: #ff3b30;
-      --text: #ffffff;
-      --text-muted: #8e8e93;
-      --border: rgba(255, 255, 255, 0.06);
-      --radius: 14px;
+      --text: var(--m3-text-color);
+      --text-muted: #cac4d0;
+      --red: #ff5252;
+      --green: #4caf50;
+      --radius: 20px;
     }
 
     * { box-sizing: border-box; }
@@ -28,7 +38,7 @@
       padding: 0;
       display: flex;
       height: 100vh;
-      background-color: var(--bg);
+      background: var(--bg);
       font-family: 'Poppins', sans-serif;
       color: var(--text);
       user-select: none;
@@ -36,55 +46,60 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Sidebar ── */
+    /* ── Sidebar Glassmorphism M3 ── */
     .sidebar {
-      width: 220px;
+      width: 230px;
       background: var(--sidebar-bg);
-      border-right: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--m3-glass-border);
       display: flex;
       flex-direction: column;
-      padding: 20px 10px;
+      padding: 24px 12px;
       flex-shrink: 0;
+      z-index: 10;
     }
 
     .sidebar-header {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
-      margin: 8px 0 24px 14px;
+      margin: 4px 0 24px 12px;
       letter-spacing: -0.5px;
+      color: #ffffff;
     }
 
     .sidebar-label {
       font-size: 11px;
       font-weight: 600;
-      color: #555;
+      color: rgba(255, 255, 255, 0.4);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 16px 0 8px 14px;
+      letter-spacing: 1px;
+      margin: 16px 0 8px 12px;
     }
 
     .nav-item {
-      padding: 9px 14px;
-      border-radius: 10px;
-      margin-bottom: 2px;
+      padding: 10px 16px;
+      border-radius: 28px;
+      margin-bottom: 4px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 500;
       color: var(--text-muted);
-      transition: background 0.15s, color 0.15s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .nav-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--m3-item-hover);
       color: var(--text);
+      transform: translate3d(2px, 0, 0);
     }
 
     .nav-item.active {
-      background: rgba(53, 132, 228, 0.15);
-      color: var(--accent);
+      background: var(--m3-accent-active);
+      color: var(--m3-accent-on-active);
       font-weight: 600;
     }
 
@@ -93,91 +108,109 @@
       flex: 1;
       overflow-y: auto;
       position: relative;
-      background: var(--bg);
+      background: transparent;
     }
 
     .main::-webkit-scrollbar { width: 6px; }
-    .main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+    .main::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
 
     .view {
       display: none;
       padding: 32px 40px;
-      animation: viewIn 0.25s ease;
     }
 
-    .view.active { display: block; }
+    .view.active {
+      display: block;
+      animation: viewIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
 
     @keyframes viewIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translate3d(0, 10px, 0) scale3d(0.98, 0.98, 1); }
+      to { opacity: 1; transform: translate3d(0, 0, 0) scale3d(1, 1, 1); }
     }
 
-    /* ── Hero Banner ── */
+    /* ── Hero Banner Material You ── */
     .hero {
-      background: linear-gradient(135deg, #3584e4, #1a73e8, #4dabf7);
-      border-radius: var(--radius);
-      padding: 28px 32px;
+      background: linear-gradient(135deg, rgba(194, 243, 235, 0.25) 0%, rgba(35, 40, 45, 0.6) 100%);
+      border: 1px solid var(--m3-glass-border);
+      backdrop-filter: blur(16px);
+      border-radius: 28px;
+      padding: 30px 36px;
       margin-bottom: 32px;
       display: flex;
       align-items: center;
-      gap: 20px;
-      box-shadow: 0 8px 24px rgba(53, 132, 228, 0.25);
+      gap: 24px;
+      box-shadow: var(--m3-glass-shadow);
+      position: relative;
+      overflow: hidden;
     }
 
-    .hero-emoji { font-size: 48px; }
+    .hero-emoji {
+      font-size: 52px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+    }
 
     .hero h1 {
-      margin: 0 0 4px 0;
-      font-size: 22px;
-      font-weight: 600;
+      margin: 0 0 6px 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
     }
 
     .hero p {
       margin: 0;
       font-size: 14px;
-      opacity: 0.9;
+      color: var(--text-muted);
+      line-height: 1.4;
     }
 
-    /* ── Section ── */
+    /* ── Section Title ── */
     .section-title {
       font-size: 20px;
       font-weight: 600;
       margin: 0 0 20px 0;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--m3-glass-border);
+      color: #ffffff;
     }
 
-    /* ── App Cards ── */
+    /* ── App Cards M3 ── */
     .app-grid {
       display: flex;
       flex-direction: column;
+      gap: 8px;
     }
 
     .app-card {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
+      gap: 18px;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      border-radius: 20px;
       cursor: pointer;
-      transition: transform 0.15s;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .app-card:last-child { border-bottom: none; }
-    .app-card:hover { transform: translateX(4px); }
+    .app-card:hover {
+      background: var(--m3-item-hover);
+      border-color: var(--m3-glass-border);
+      transform: translate3d(4px, 0, 0);
+    }
 
     .card-icon {
-      width: 52px;
-      height: 52px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--m3-glass-border);
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 28px;
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
 
     .card-info {
@@ -186,9 +219,10 @@
     }
 
     .card-title {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       margin: 0;
+      color: #ffffff;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -197,7 +231,7 @@
     .card-desc {
       font-size: 12px;
       color: var(--text-muted);
-      margin: 2px 0 0 0;
+      margin: 3px 0 0 0;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -206,29 +240,41 @@
     }
 
     .btn-get {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--accent);
+      background: var(--m3-accent-active);
+      color: var(--m3-accent-on-active);
       border: none;
-      padding: 6px 18px;
+      padding: 8px 22px;
       font-size: 13px;
       font-weight: 600;
-      border-radius: 20px;
+      border-radius: 100px;
       cursor: pointer;
       font-family: inherit;
-      transition: background 0.2s;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      letter-spacing: 0.5px;
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    .btn-get:hover { background: rgba(255,255,255,0.12); }
+    .btn-get:hover {
+      background: #eaddff;
+      transform: scale3d(1.05, 1.05, 1);
+    }
+
+    .btn-get:active {
+      transform: scale3d(0.95, 0.95, 1);
+    }
 
     .btn-get.installed {
-      background: transparent;
-      border: 1px solid var(--accent);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--m3-accent-active);
+      border: 1px solid rgba(194, 243, 235, 0.3);
     }
 
-    /* ── Landpage ── */
+    .btn-get.installed:hover {
+      background: var(--m3-item-active-bg);
+    }
+
+    /* ── Landpage M3 ── */
     .lp-header {
       display: flex;
       gap: 28px;
@@ -237,65 +283,70 @@
     }
 
     .lp-icon {
-      width: 100px;
-      height: 100px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 24px;
+      width: 108px;
+      height: 108px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--m3-glass-border);
+      border-radius: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 52px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      font-size: 56px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
       flex-shrink: 0;
     }
 
     .lp-info { flex: 1; }
 
     .lp-title {
-      font-size: 30px;
+      font-size: 32px;
       font-weight: 700;
       margin: 0 0 4px 0;
       letter-spacing: -0.5px;
+      color: #ffffff;
     }
 
     .lp-dev {
       font-size: 14px;
       color: var(--text-muted);
-      margin: 0 0 16px 0;
+      margin: 0 0 18px 0;
     }
 
     .lp-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .btn-action {
       border: none;
-      padding: 10px 28px;
+      padding: 10px 32px;
       font-size: 14px;
       font-weight: 600;
-      border-radius: 20px;
+      border-radius: 100px;
       cursor: pointer;
       font-family: inherit;
-      transition: background 0.2s, transform 0.1s;
-      text-transform: uppercase;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .btn-action:active { transform: scale(0.97); }
+    .btn-action:active { transform: scale3d(0.95, 0.95, 1); }
 
     .btn-action.primary {
-      background: var(--accent);
-      color: white;
+      background: var(--m3-accent-active);
+      color: var(--m3-accent-on-active);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
 
-    .btn-action.primary:hover { background: var(--accent-hover); }
+    .btn-action.primary:hover {
+      background: #eaddff;
+      transform: scale3d(1.03, 1.03, 1);
+    }
 
     .btn-action.primary:disabled {
-      background: var(--card-bg);
+      background: rgba(255, 255, 255, 0.08);
       color: var(--text-muted);
       cursor: wait;
+      transform: none;
     }
 
     .btn-uninstall {
@@ -306,74 +357,84 @@
       cursor: pointer;
       font-family: inherit;
       text-decoration: underline;
-      padding: 8px;
+      padding: 8px 12px;
+      transition: opacity 0.2s;
     }
+
+    .btn-uninstall:hover { opacity: 0.8; }
 
     .lp-error {
       color: var(--red);
-      font-size: 12px;
-      margin-top: 8px;
+      font-size: 13px;
+      margin-top: 10px;
     }
 
     .lp-desc-title {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 600;
       margin: 0 0 12px 0;
       padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--m3-glass-border);
+      color: #ffffff;
     }
 
     .lp-desc {
       color: var(--text-muted);
       line-height: 1.7;
-      font-size: 14px;
+      font-size: 14.5px;
     }
 
-    /* ── Back Button ── */
+    /* ── Back Button M3 ── */
     .btn-back {
       display: none;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.06);
-      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--m3-glass-border);
       color: var(--text);
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 8px 18px;
+      border-radius: 100px;
       cursor: pointer;
       font-family: inherit;
       font-size: 13px;
-      transition: background 0.2s;
-      margin-bottom: 20px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      margin-bottom: 24px;
     }
 
-    .btn-back:hover { background: rgba(255,255,255,0.1); }
+    .btn-back:hover {
+      background: var(--m3-item-hover);
+      transform: translate3d(-2px, 0, 0);
+    }
 
-    /* ── Publish Form ── */
+    /* ── Publish Form Material You ── */
     .pub-input {
       width: 100%;
-      padding: 11px 14px;
-      margin-bottom: 12px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid var(--border);
+      padding: 12px 18px;
+      margin-bottom: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--m3-glass-border);
       color: var(--text);
-      border-radius: 10px;
+      border-radius: 16px;
       font-family: inherit;
       font-size: 14px;
-      transition: border 0.2s;
+      transition: all 0.2s ease;
     }
 
     .pub-input:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: var(--m3-accent-active);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 1px var(--m3-accent-active);
     }
 
-    .pub-input::placeholder { color: #555; }
+    .pub-input::placeholder { color: rgba(255, 255, 255, 0.35); }
 
     textarea.pub-input { resize: vertical; }
 
     .publish-status {
       font-size: 13px;
-      margin-top: 14px;
+      margin-top: 16px;
       font-weight: 500;
       text-align: center;
     }
@@ -393,10 +454,10 @@
     <div class="sidebar-header">App Store</div>
 
     <div class="sidebar-label">Store</div>
-    <div class="nav-item active" id="nav-discover" onclick="switchView('home')">✨ Discover</div>
+    <div class="nav-item active" id="nav-discover" onclick="switchView('home')">Discover</div>
 
     <div class="sidebar-label">Developer</div>
-    <div class="nav-item" id="nav-publish" onclick="switchView('publish')">🚀 Submit App</div>
+    <div class="nav-item" id="nav-publish" onclick="switchView('publish')">Submit App</div>
   </div>
 
   <div class="main">
@@ -406,8 +467,8 @@
       <div class="hero">
         <div class="hero-emoji">🌟</div>
         <div>
-          <h1>mariowOS Essentials</h1>
-          <p>The best apps to customize and supercharge your desktop experience.</p>
+          <h1>Store Beta test</h1>
+          <p>This banner will become useful soon, i think.</p>
         </div>
       </div>
 
@@ -441,7 +502,7 @@
     <!-- ═══ Publish View ═══ -->
     <div id="view-publish" class="view">
       <h2 class="section-title">Submit to App Store</h2>
-      <div style="max-width: 500px;">
+      <div style="max-width: 520px;">
         <input type="text" id="pubId" class="pub-input" placeholder="Bundle ID (e.g., com.mariowos.calc)">
         <input type="text" id="pubTitle" class="pub-input" placeholder="App Name">
         <input type="text" id="pubDev" class="pub-input" placeholder="Developer Name">
@@ -449,7 +510,7 @@
         <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
         <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)">
 
-        <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 4px;">Submit for Review</button>
+        <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 6px;">Submit for Review</button>
         <div id="publishStatus" class="publish-status"></div>
       </div>
     </div>
@@ -511,10 +572,11 @@
 
       grid.innerHTML = '';
 
-      storeCatalog.forEach(app => {
+      storeCatalog.forEach((app, idx) => {
         const isInst = installedAppsList.includes(app.id);
         const card = document.createElement('div');
         card.className = 'app-card';
+        card.style.animationDelay = `${idx * 0.04}s`;
         card.onclick = () => openLandpage(app.id);
         card.innerHTML = `
           <div class="card-icon">${app.icon}</div>

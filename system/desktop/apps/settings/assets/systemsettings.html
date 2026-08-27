@@ -4,240 +4,311 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>System Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+<link rel="stylesheet" href="/desktop/assets/material-you.css">
+
 <style>
-  :root {
-    --card-bg: rgba(255, 255, 255, 0.04);
-    --card-hover: rgba(255, 255, 255, 0.08);
-    --border: rgba(255, 255, 255, 0.06);
-    --accent: #3584e4;
-    --text: #ffffff;
-    --text-muted: #8e8e93;
-    --red: #ff3b30;
-  }
+:root {
+  /* Dynamic Tokens with Material 3 Dark Fallbacks */
+  --md-sys-color-background: #141218;
+  --md-sys-color-surface-container: #2b2930;
+  --md-sys-color-surface-container-high: #36343b;
+  --md-sys-color-surface-container-highest: #4a4458;
+  --md-sys-color-primary: #d0bcff;
+  --md-sys-color-on-primary-container: #eaddff;
+  --md-sys-color-primary-container: #4f378b;
+  --md-sys-color-on-surface: #e6e0e9;
+  --md-sys-color-on-surface-variant: #cac4d0;
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+}
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    color: var(--text);
-    margin: 0;
-    padding: 10px 40px 40px 40px;
-    background: transparent;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-  
-  html::-webkit-scrollbar { width: 6px; }
-  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+  padding: 16px 20px;
+  background: transparent;
+  overflow: hidden;
+}
 
-  .container {
-    max-width: 600px;
-    position: relative;
-    min-height: 400px;
-  }
+.container {
+  max-width: 600px;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+}
 
-  .page {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    opacity: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+.page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), opacity 0.35s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform, opacity;
+}
 
-  .hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+.page.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
 
-  .item {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 18px 20px;
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+/* Material 3 Header & Navigation */
+.sub-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
 
-  .item:hover { background: var(--card-hover); }
-  .item:active { transform: scale(0.99); }
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+  flex-shrink: 0;
+}
 
-  .item.danger:hover {
-    background: rgba(255, 59, 48, 0.1);
-    border-color: rgba(255, 59, 48, 0.3);
-  }
-  
-  .item.danger .text-title { color: var(--red); }
+.back-btn .material-symbols-outlined {
+  font-size: 24px;
+}
 
-  .text-title {
-    font-size: 15px;
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
+.back-btn:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
 
-  .text-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
+.back-btn:active {
+  transform: scale(0.92);
+  background: var(--md-sys-color-surface-container-highest);
+}
 
-  .page-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
+.sub-title {
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+}
 
-  .back-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text);
-    cursor: pointer;
-    transition: background 0.2s;
-    font-size: 18px;
-    text-decoration: none;
-    border: none;
-  }
+.section-header {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-primary);
+  margin: 0 0 16px 8px;
+  letter-spacing: 0.1px;
+}
 
-  .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
-  
-  .page-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
-  }
+/* Material You Card List */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card {
+  background: var(--md-sys-color-surface-container);
+  border-radius: 20px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  user-select: none;
+}
+
+.card:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.card-desc {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.card-arrow {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: 50%;
+  color: var(--md-sys-color-on-surface-variant);
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.card-arrow .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.card:hover .card-arrow {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* Danger State (Factory Reset) */
+.card.danger {
+  background: rgba(147, 0, 10, 0.25);
+}
+
+.card.danger .card-title {
+  color: var(--md-sys-color-error);
+}
+
+.card.danger .card-desc {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.card.danger .card-arrow {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.card.danger:hover {
+  background: rgba(147, 0, 10, 0.4);
+}
+
+html::-webkit-scrollbar { display: none; }
 </style>
+<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
-
 <div class="container">
 
   <!-- Main Page -->
   <div class="page" id="mainPage">
-    <div class="item" id="rulesBtn">
-      <div>
-        <div class="text-title">Rules</div>
-        <div class="text-desc">Create actions to do at a specific event.</div>
+    <div class="card-list">
+      <div class="card" onclick="navigateToPage('rules')">
+        <div class="card-left">
+          <div class="card-title">Rules</div>
+          <div class="card-desc">Create actions for specific events</div>
+        </div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-      <div style="color: var(--text-muted);">›</div>
-    </div>
 
-    <div class="item" id="timeBtn">
-      <div>
-        <div class="text-title">Time & Date</div>
-        <div class="text-desc">Clock and date settings.</div>
+      <div class="card" onclick="navigateToPage('time')">
+        <div class="card-left">
+          <div class="card-title">Time & Date</div>
+          <div class="card-desc">Clock and date settings</div>
+        </div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-      <div style="color: var(--text-muted);">›</div>
-    </div>
 
-    <div class="item" id="resetBtn">
-      <div>
-        <div class="text-title">Reset Options</div>
-        <div class="text-desc">Data reset, desktop reset, factory reset.</div>
+      <div class="card" onclick="navigateToPage('reset')">
+        <div class="card-left">
+          <div class="card-title">Reset Options</div>
+          <div class="card-desc">Data reset, desktop reset, factory reset</div>
+        </div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-      <div style="color: var(--text-muted);">›</div>
     </div>
   </div>
 
   <!-- Rules Subpage -->
-  <div class="page hidden" id="rulesPage" style="transform: translateX(100%);">
-    <div class="page-header">
-      <button class="back-btn" id="goBackRules">‹</button>
-      <h2 class="page-title">Rules</h2>
+  <div class="page hidden" id="rulesPage" style="transform: translateX(40%);">
+    <div class="sub-header">
+      <button class="back-btn" onclick="goBackToMain('rules')">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <h2 class="sub-title">Rules</h2>
     </div>
-    
-    <div class="item" onclick="navigateToFile('new-rule.html')">
-      <div>
-        <div class="text-title">New rule</div>
-        <div class="text-desc">Create a new automation rule</div>
+    <div class="card-list">
+      <div class="card" onclick="navigateToFile('new-rule.html')">
+        <div class="card-left"><div class="card-title">New Rule</div><div class="card-desc">Create a new automation rule</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item" onclick="navigateToFile('manage-rules.html')">
-      <div>
-        <div class="text-title">Manage rules</div>
-        <div class="text-desc">View and edit existing rules</div>
+      <div class="card" onclick="navigateToFile('manage-rules.html')">
+        <div class="card-left"><div class="card-title">Manage Rules</div><div class="card-desc">View and edit existing rules</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item" onclick="navigateToFile('rule-templates.html')">
-      <div>
-        <div class="text-title">Rule templates</div>
-        <div class="text-desc">Use predefined rule templates</div>
+      <div class="card" onclick="navigateToFile('rule-templates.html')">
+        <div class="card-left"><div class="card-title">Rule Templates</div><div class="card-desc">Use predefined templates</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item" onclick="navigateToFile('rule-history.html')">
-      <div>
-        <div class="text-title">Rule history</div>
-        <div class="text-desc">View the history of executed rules</div>
+      <div class="card" onclick="navigateToFile('rule-history.html')">
+        <div class="card-left"><div class="card-title">Rule History</div><div class="card-desc">View executed rule history</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item" onclick="navigateToFile('enable-disable-rules.html')">
-      <div>
-        <div class="text-title">Enable/Disable rules</div>
-        <div class="text-desc">Temporarily toggle automation rules</div>
+      <div class="card" onclick="navigateToFile('enable-disable-rules.html')">
+        <div class="card-left"><div class="card-title">Enable/Disable Rules</div><div class="card-desc">Toggle automation rules</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
     </div>
   </div>
 
   <!-- Time Subpage -->
-  <div class="page hidden" id="timePage" style="transform: translateX(100%);">
-    <div class="page-header">
-      <button class="back-btn" id="goBackTime">‹</button>
-      <h2 class="page-title">Time & Date</h2>
+  <div class="page hidden" id="timePage" style="transform: translateX(40%);">
+    <div class="sub-header">
+      <button class="back-btn" onclick="goBackToMain('time')">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <h2 class="sub-title">Time & Date</h2>
     </div>
-
-    <div class="item" onclick="navigateToFile('set-time-manually.html')">
-      <div>
-        <div class="text-title">Set time manually</div>
-        <div class="text-desc">Manually set the system time</div>
+    <div class="card-list">
+      <div class="card" onclick="navigateToFile('set-time-manually.html')">
+        <div class="card-left"><div class="card-title">Set Time Manually</div><div class="card-desc">Manually set system time</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item" onclick="navigateToFile('time-zone.html')">
-      <div>
-        <div class="text-title">Time zone</div>
-        <div class="text-desc">Change your time zone</div>
+      <div class="card" onclick="navigateToFile('time-zone.html')">
+        <div class="card-left"><div class="card-title">Time Zone</div><div class="card-desc">Change your time zone</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
     </div>
   </div>
 
   <!-- Reset Subpage -->
-  <div class="page hidden" id="resetPage" style="transform: translateX(100%);">
-    <div class="page-header">
-      <button class="back-btn" id="goBack">‹</button>
-      <h2 class="page-title">Reset Options</h2>
+  <div class="page hidden" id="resetPage" style="transform: translateX(40%);">
+    <div class="sub-header">
+      <button class="back-btn" onclick="goBackToMain('reset')">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <h2 class="sub-title">Reset Options</h2>
     </div>
-
-    <div class="item" onclick="navigateToFile('reset-settings.html')">
-      <div>
-        <div class="text-title">Reset Settings</div>
-        <div class="text-desc">Only resets settings to default options</div>
+    <div class="card-list">
+      <div class="card" onclick="navigateToFile('reset-settings.html')">
+        <div class="card-left"><div class="card-title">Reset Settings</div><div class="card-desc">Reset settings to default</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item" onclick="navigateToFile('reset-desktop.html')">
-      <div>
-        <div class="text-title">Reset Desktop</div>
-        <div class="text-desc">Clears every customization option, keeps data</div>
+      <div class="card" onclick="navigateToFile('reset-desktop.html')">
+        <div class="card-left"><div class="card-title">Reset Desktop</div><div class="card-desc">Clear customizations, keep data</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
-    </div>
-
-    <div class="item danger" onclick="navigateToFile('factory-reset.html')">
-      <div>
-        <div class="text-title">Factory Reset</div>
-        <div class="text-desc">Clears data and everything, starts fresh</div>
+      <div class="card danger" onclick="navigateToFile('factory-reset.html')">
+        <div class="card-left"><div class="card-title">Factory Reset</div><div class="card-desc">Erase everything, start fresh</div></div>
+        <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
     </div>
   </div>
@@ -245,54 +316,45 @@
 </div>
 
 <script>
-const mainPage = document.getElementById('mainPage');
-const rulesPage = document.getElementById('rulesPage');
-const timePage = document.getElementById('timePage');
-const resetPage = document.getElementById('resetPage');
+const main = document.getElementById('mainPage');
+const pages = {
+  rules: document.getElementById('rulesPage'),
+  time: document.getElementById('timePage'),
+  reset: document.getElementById('resetPage')
+};
+let currentPage = null;
 
-const rulesBtn = document.getElementById('rulesBtn');
-const timeBtn = document.getElementById('timeBtn');
-const resetBtn = document.getElementById('resetBtn');
-
-const goBackRules = document.getElementById('goBackRules');
-const goBackTime = document.getElementById('goBackTime');
-const goBack = document.getElementById('goBack');
-
-function navigateToPage(page) {
-  mainPage.style.transform = 'translateX(-100%)';
+function navigateToPage(name) {
+  const page = pages[name];
+  if (!page) return;
+  currentPage = name;
   page.classList.remove('hidden');
-  page.style.transform = 'translateX(0)';
+  page.style.visibility = 'visible';
+  requestAnimationFrame(() => {
+    main.style.transform = 'translateX(-30%)';
+    main.style.opacity = '0';
+    page.style.transform = 'translateX(0)';
+    page.style.opacity = '1';
+  });
 }
 
-function goBackToMain(page) {
-  mainPage.style.transform = 'translateX(0)';
-  page.style.transform = 'translateX(100%)';
+function goBackToMain(name) {
+  const page = pages[name];
+  if (!page) return;
+  page.style.transform = 'translateX(40%)';
+  page.style.opacity = '0';
+  main.style.transform = 'translateX(0)';
+  main.style.opacity = '1';
+  currentPage = null;
+  setTimeout(() => {
+    page.classList.add('hidden');
+    page.style.visibility = 'hidden';
+  }, 350);
 }
 
-function navigateToFile(fileName) {
-  window.location.href = fileName;
+function navigateToFile(file) {
+  window.location.href = file;
 }
-
-rulesBtn.addEventListener('click', () => navigateToPage(rulesPage));
-timeBtn.addEventListener('click', () => navigateToPage(timePage));
-resetBtn.addEventListener('click', () => navigateToPage(resetPage));
-
-goBackRules.addEventListener('click', () => goBackToMain(rulesPage));
-goBackTime.addEventListener('click', () => goBackToMain(timePage));
-goBack.addEventListener('click', () => goBackToMain(resetPage));
-
-rulesPage.addEventListener('transitionend', () => {
-  if (rulesPage.style.transform === 'translateX(100%)') rulesPage.classList.add('hidden');
-});
-
-timePage.addEventListener('transitionend', () => {
-  if (timePage.style.transform === 'translateX(100%)') timePage.classList.add('hidden');
-});
-
-resetPage.addEventListener('transitionend', () => {
-  if (resetPage.style.transform === 'translateX(100%)') resetPage.classList.add('hidden');
-});
 </script>
-
 </body>
 </html>

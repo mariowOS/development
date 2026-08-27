@@ -6,187 +6,155 @@
 <title>Functions Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --card-bg: rgba(255, 255, 255, 0.04);
-    --border: rgba(255, 255, 255, 0.06);
-    --accent: #3584e4;
-    --text: #ffffff;
-    --text-muted: #8e8e93;
-    --orange: #ff9f0a;
-  }
-
-  body {
-    font-family: 'Poppins', sans-serif;
-    color: var(--text);
-    margin: 0;
-    padding: 10px 40px 40px 40px;
-    background: transparent;
-    overflow-y: auto;
-  }
-  
-  html::-webkit-scrollbar { width: 6px; }
-  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
-
-  .warning-banner {
-    background: rgba(255, 159, 10, 0.08);
-    border: 1px solid rgba(255, 159, 10, 0.2);
-    border-radius: 14px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    max-width: 600px;
-  }
-
-  .warning-banner .warn-icon { font-size: 24px; flex-shrink: 0; }
-  .warning-banner .warn-title { font-size: 15px; font-weight: 500; color: var(--orange); margin-bottom: 4px; }
-  .warning-banner .warn-desc { font-size: 13px; color: #cc8855; line-height: 1.5; }
-
-  .card {
-    max-width: 600px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0 20px;
-  }
-
-  /* ── Setting Rows ── */
-  .setting-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 0;
-    border-bottom: 1px solid var(--border);
-    gap: 16px;
-  }
-
-  .setting-row:last-child { border-bottom: none; }
-
-  .setting-info { flex: 1; min-width: 0; }
-
-  .setting-info h4 {
-    margin: 0 0 4px 0;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .setting-info p {
-    margin: 0;
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.4;
-  }
-
-  /* ── Toggle Switch ── */
-  .toggle {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-    flex-shrink: 0;
-  }
-
-  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-
-  .toggle-track {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(255, 255, 255, 0.15);
-    transition: background .3s;
-    border-radius: 24px;
-  }
-
-  .toggle-track:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: transform .3s;
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  }
-
-  input:checked + .toggle-track { background-color: var(--accent); }
-  input:checked + .toggle-track:before { transform: translateX(20px); }
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 24px;
+  background: transparent;
+  overflow-y: auto;
+}
+.container { max-width: 560px; }
+.header { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+.warning {
+  background: rgba(255,150,50,0.08);
+  border: 1px solid rgba(255,150,50,0.2);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+}
+.warning .w-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffbb77;
+  margin-bottom: 4px;
+}
+.warning .w-desc {
+  font-size: 12px;
+  color: #996;
+  line-height: 1.5;
+}
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.card:hover { background: rgba(255,255,255,0.06); }
+.card-title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+.card-desc { font-size: 12px; color: #888; }
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #333;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+.toggle.active { background: #3584e4; }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toggle.active::after { transform: translateX(20px); }
+html::-webkit-scrollbar { display: none; }
 </style>
+<link rel="stylesheet" href="/desktop/assets/material-you.css">
+<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
+<div class="container">
+  <div class="warning">
+    <div class="w-title">⚠️ Experimental Features</div>
+    <div class="w-desc">These features are unstable and may cause unexpected behavior. Use at your own risk.</div>
+  </div>
 
-  <div class="warning-banner">
-    <div class="warn-icon">⚠️</div>
+  <div class="card" onclick="toggleLab('darkMode', this)">
     <div>
-      <div class="warn-title">Experimental Features</div>
-      <div class="warn-desc">This section contains experimental and unstable features. Use with caution as they may cause unexpected behavior or system instability.</div>
+      <div class="card-title">Dark Mode Experiments</div>
+      <div class="card-desc">Test new dark mode variations</div>
     </div>
+    <div class="toggle" id="tog-darkMode"></div>
   </div>
 
-  <div class="card">
-    <div class="setting-row">
-      <div class="setting-info">
-        <h4>Dark mode experiments</h4>
-        <p>Test new dark mode variations and themes</p>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="darkModeToggle" onchange="toggleFeature('darkMode', this)">
-        <span class="toggle-track"></span>
-      </label>
+  <div class="card" onclick="toggleLab('performance', this)">
+    <div>
+      <div class="card-title">Performance Tuning</div>
+      <div class="card-desc">Advanced optimization settings</div>
     </div>
-
-    <div class="setting-row">
-      <div class="setting-info">
-        <h4>Performance tuning</h4>
-        <p>Advanced performance optimization settings</p>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="performanceToggle" onchange="toggleFeature('performance', this)">
-        <span class="toggle-track"></span>
-      </label>
-    </div>
-
-    <div class="setting-row">
-      <div class="setting-info">
-        <h4>New animations</h4>
-        <p>Preview experimental animation effects</p>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="animationsToggle" onchange="toggleFeature('animations', this)">
-        <span class="toggle-track"></span>
-      </label>
-    </div>
-
-    <div class="setting-row">
-      <div class="setting-info">
-        <h4>Developer options</h4>
-        <p>Enable advanced debugging and development features</p>
-      </div>
-      <label class="toggle">
-        <input type="checkbox" id="developerToggle" onchange="toggleFeature('developer', this)">
-        <span class="toggle-track"></span>
-      </label>
-    </div>
+    <div class="toggle" id="tog-performance"></div>
   </div>
+
+  <div class="card" onclick="toggleLab('animations', this)">
+    <div>
+      <div class="card-title">New Animations</div>
+      <div class="card-desc">Preview experimental animation effects</div>
+    </div>
+    <div class="toggle" id="tog-animations"></div>
+  </div>
+
+  <div class="card" onclick="toggleLab('developer', this)">
+    <div>
+      <div class="card-title">Developer Options</div>
+      <div class="card-desc">Enable advanced debugging features</div>
+    </div>
+    <div class="toggle" id="tog-developer"></div>
+  </div>
+</div>
 
 <script>
-// Experimental features functions
-function toggleFeature(featureName, el) {
-  if (el.checked) {
-    if (featureName === 'darkMode') {
-      alert('Dark mode experiments toggled! This feature is under development.');
-    } else if (featureName === 'performance') {
-      alert('Performance tuning enabled! Advanced optimizations applied.');
-    } else if (featureName === 'animations') {
-      alert('New animations preview enabled! Experimental effects activated.');
-    } else if (featureName === 'developer') {
-      alert('Developer options enabled! Debugging features activated.');
-    }
+// Store lab preferences in localStorage
+const labs = ['darkMode', 'performance', 'animations', 'developer'];
+
+labs.forEach(key => {
+  const saved = localStorage.getItem('lab-' + key);
+  if (saved === 'true') {
+    const tog = document.getElementById('tog-' + key);
+    if (tog) tog.classList.add('active');
   }
+});
+
+function toggleLab(key, card) {
+  const tog = document.getElementById('tog-' + key);
+  if (!tog) return;
+
+  const nowActive = tog.classList.toggle('active');
+  localStorage.setItem('lab-' + key, nowActive);
+
+  // Also save to server config
+  fetch('/save-settings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ [key]: nowActive })
+  }).catch(() => {});
+
+  // Visual feedback
+  card.style.transform = 'scale(0.98)';
+  setTimeout(() => { card.style.transform = ''; }, 150);
+
+  const name = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+  window.parent.postMessage({
+    type: 'show-notification',
+    title: 'Lab',
+    msg: `${name}: ${nowActive ? 'Enabled' : 'Disabled'}`,
+    icon: '🧪'
+  }, '*');
 }
 </script>
-
 </body>
 </html>

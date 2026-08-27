@@ -4,170 +4,150 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verify Email</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"/>
+
 <style>
-  :root {
-    --card-bg: rgba(255, 255, 255, 0.04);
-    --border: rgba(255, 255, 255, 0.06);
-    --accent: #3584e4;
-    --accent-hover: #2a6dc4;
-    --text: #ffffff;
-    --text-muted: #8e8e93;
-    --red: #ff3b30;
-  }
+:root {
+  --md-sys-color-background: #141218;
+  --md-sys-color-surface-container: #2b2930;
+  --md-sys-color-surface-container-high: #36343b;
+  --md-sys-color-primary: #d0bcff;
+  --md-sys-color-on-primary: #381e72;
+  --md-sys-color-on-surface: #e6e0e9;
+  --md-sys-color-on-surface-variant: #cac4d0;
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-outline: #938f99;
+}
 
-  body {
-    font-family: 'Poppins', sans-serif;
-    color: var(--text);
-    margin: 0;
-    padding: 10px 40px 40px 40px;
-    background: transparent;
-    overflow-y: auto;
-  }
-  
-  html::-webkit-scrollbar { width: 6px; }
-  html::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+  padding: 32px 20px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .card {
-    max-width: 600px;
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px;
-    margin-bottom: 20px;
-  }
+.container {
+  max-width: 560px;
+  width: 100%;
+  position: relative;
+}
 
-  .form-group {
-    margin-bottom: 16px;
-  }
-  
-  .form-group:last-child {
-    margin-bottom: 0;
-  }
+.card-group {
+  background: var(--md-sys-color-surface-container);
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  input[type="text"], input[type="file"] {
-    width: 100%;
-    padding: 12px 14px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-  }
+.field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant);
+  margin-left: 4px;
+}
 
-  input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
-  
-  input::placeholder { color: #555; }
+.field input[type="text"] {
+  width: 100%;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  background: var(--md-sys-color-surface-container-high);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  color: var(--md-sys-color-on-surface);
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  transition: all 0.2s ease;
+}
 
-  /* ── File Input ── */
-  .file-input-wrapper {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-  }
+.field input[type="file"] {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: 13px;
+}
 
-  .file-input-wrapper input[type="file"] {
-    position: absolute;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    opacity: 0;
-    cursor: pointer;
-  }
+.field input[type="text"]:focus {
+  outline: none;
+  border-color: var(--md-sys-color-primary);
+}
 
-  .file-input-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 14px;
-    background: rgba(255,255,255,0.06);
-    border: 1px dashed rgba(255,255,255,0.15);
-    border-radius: 10px;
-    font-size: 14px;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-  }
+.field input::placeholder {
+  color: var(--md-sys-color-outline);
+}
 
-  .file-input-label:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: var(--accent);
-  }
+.btn-primary {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  border: none;
+  border-radius: 28px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
 
-  .file-name {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 6px;
-  }
+.btn-primary:hover {
+  opacity: 0.9;
+}
 
-  .btn {
-    width: 100%;
-    padding: 12px 24px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    margin-top: 10px;
-    box-sizing: border-box;
-  }
+.btn-primary:active {
+  transform: scale(0.98);
+}
 
-  .btn:hover { background: var(--accent-hover); }
-  .btn:active { transform: scale(0.97); }
-  
-  .error {
-    color: var(--red);
-    font-size: 13px;
-    margin-top: 8px;
-  }
+.error {
+  color: var(--md-sys-color-error);
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 4px;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
 </style>
+<link rel="stylesheet" href="/desktop/assets/material-you.css">
+<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 
-  <div class="card">
-    <div class="form-group">
-      <label for="code">Verification Code</label>
-      <input type="text" id="code" placeholder="Enter 6-digit code" maxlength="6">
+<div class="container">
+  <div class="card-group">
+    <div class="field">
+      <label for="code">Enter the 6-digit verification code sent to your email</label>
+      <input type="text" id="code" placeholder="123456" maxlength="6">
       <div id="error" class="error"></div>
     </div>
 
-    <div class="form-group" style="margin-top: 24px;">
-      <label>Profile Avatar (Optional)</label>
-      <div class="file-input-wrapper">
-        <input type="file" id="avatar" accept="image/png,image/jpeg" onchange="updateFileName()">
-        <div class="file-input-label">📁 Choose image file...</div>
-      </div>
-      <div id="fileName" class="file-name"></div>
+    <div class="field">
+      <label for="avatar">Optional: Upload your avatar (PNG or JPG)</label>
+      <input type="file" id="avatar" accept="image/png,image/jpeg">
     </div>
-
-    <button class="btn" onclick="verifyCode()">Verify Code</button>
   </div>
 
-<script>
-function updateFileName() {
-  const file = document.getElementById('avatar').files[0];
-  document.getElementById('fileName').textContent = file ? '📎 ' + file.name : '';
-}
+  <button class="btn-primary" onclick="verifyCode()">Verify Code</button>
+</div>
 
+<script>
 async function verifyCode() {
   const code = document.getElementById('code').value.trim();
   const avatarFile = document.getElementById('avatar').files[0];
@@ -179,7 +159,6 @@ async function verifyCode() {
   }
 
   errorDiv.textContent = '';
-  document.querySelector('.btn').textContent = 'Verifying...';
 
   if (avatarFile) {
     const formData = new FormData();
@@ -192,16 +171,21 @@ async function verifyCode() {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
+        throw new Error('Upload failed (' + uploadResponse.status + ')');
+      }
+
+      const contentType = uploadResponse.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server response is not JSON');
       }
 
       const uploadData = await uploadResponse.json();
       if (!uploadData.success) {
         throw new Error(uploadData.error || 'Upload error');
       }
+
     } catch (err) {
       errorDiv.textContent = 'Error uploading avatar: ' + err.message;
-      document.querySelector('.btn').textContent = 'Verify Code';
       return;
     }
   }
@@ -217,12 +201,10 @@ async function verifyCode() {
       window.location.href = 'youafter.html';
     } else {
       errorDiv.textContent = data.error || 'Invalid code.';
-      document.querySelector('.btn').textContent = 'Verify Code';
     }
   })
   .catch(err => {
     errorDiv.textContent = 'Error verifying code: ' + err.message;
-    document.querySelector('.btn').textContent = 'Verify Code';
   });
 }
 </script>

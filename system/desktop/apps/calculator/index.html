@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolatrice Dark</title>
+    <title>Calcolatrice</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/desktop/assets/material-you.css">
+    <script src="/desktop/assets/monet-engine.js"></script>
     
     <style>
+        :root {
+            --m3-accent-active: #c2f3eb;
+            --m3-accent-on-active: #05211e;
+            --m3-item-hover: rgba(255, 255, 255, 0.12);
+            --m3-text-color: #e6e0e9;
+            --m3-glass-border: rgba(255, 255, 255, 0.12);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -18,103 +28,166 @@
         }
 
         body {
-            background-color: #1e1e1e;
+            background: #141416;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+            color: var(--m3-text-color);
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Contenitore principale: adattato per riempire la finestra dell'ambiente desktop */
+        /* Contenitore adattato per la finestra popup */
         .calculator {
-            background-color: #1e1e1e;
             width: 100%;
             height: 100%;
-            padding: 40px 28px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: space-between;
+            box-sizing: border-box;
         }
 
-        /* Display del risultato */
-        .display {
-            color: #ffffff;
-            font-size: 75px;
-            font-weight: 400;
-            text-align: right;
-            padding: 10px;
-            margin-bottom: 20px;
-            line-height: 1.1;
+        /* Display del risultato compatto */
+        .display-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 8px 12px;
+            height: 90px;
             word-wrap: break-word;
             word-break: break-all;
         }
 
-        /* Griglia dei pulsanti */
+        .sub-display {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.45);
+            font-weight: 400;
+            min-height: 20px;
+        }
+
+        .display {
+            color: #ffffff;
+            font-size: 48px;
+            font-weight: 500;
+            text-align: right;
+            line-height: 1.1;
+        }
+
+        /* Griglia dei pulsanti ottimizzata per 400x550px */
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            grid-template-rows: repeat(5, 1fr);
+            gap: 10px;
+            flex: 1;
+            margin-top: 10px;
         }
 
-        /* Stile base dei pulsanti */
+        /* Stile base dei pulsanti M3 */
         .btn {
-            background-color: #505050;
-            color: #ffffff;
-            border: none;
-            border-radius: 50%;
-            font-size: 32px;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--m3-text-color);
+            border: 1px solid transparent;
+            border-radius: 20px;
+            font-size: 22px;
             font-weight: 500;
-            aspect-ratio: 1;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: background-color 0.1s ease;
+            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+            outline: none;
+            height: 100%;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: var(--m3-item-hover);
+            transform: scale(0.97);
         }
 
         .btn:active {
-            background-color: #656565;
+            transform: scale(0.92);
         }
 
-        /* Configurazione speciale per il tasto "0" */
+        /* Pulsanti Operatore M3 */
+        .btn-operator {
+            background-color: rgba(255, 255, 255, 0.12);
+            color: var(--m3-accent-active);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Pulsante Clear */
+        .btn-clear {
+            background-color: rgba(255, 82, 82, 0.15);
+            color: #ff5252;
+            font-weight: 600;
+        }
+
+        .btn-clear:hover {
+            background-color: rgba(255, 82, 82, 0.25);
+        }
+
+        /* Pulsante Uguale M3 Accent */
+        .btn-equals {
+            background-color: var(--m3-accent-active);
+            color: var(--m3-accent-on-active);
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        .btn-equals:hover {
+            background-color: #eaddff;
+        }
+
+        /* Tasto Zero largo */
         .btn-zero {
-            grid-column: span 2;
-            border-radius: 50px;
-            aspect-ratio: auto;
-            height: 100%;
+            grid-column: span 3;
+            border-radius: 20px;
         }
     </style>
 </head>
 <body>
 
     <div class="calculator">
-        <div class="display" id="display">0</div>
+        <div class="display-container">
+            <div class="sub-display" id="sub-display"></div>
+            <div class="display" id="display">0</div>
+        </div>
 
         <div class="buttons-grid">
-            <button class="btn" onclick="appendNumber('1')">1</button>
-            <button class="btn" onclick="appendNumber('2')">2</button>
-            <button class="btn" onclick="appendNumber('3')">3</button>
-            <button class="btn" onclick="setOperator('*')">*</button>
-
-            <button class="btn" onclick="appendNumber('4')">4</button>
-            <button class="btn" onclick="appendNumber('5')">5</button>
-            <button class="btn" onclick="appendNumber('6')">6</button>
-            <button class="btn" onclick="setOperator('/')">/</button>
+            <button class="btn btn-clear" onclick="clearAll()">C</button>
+            <button class="btn btn-operator" onclick="setOperator('/')">÷</button>
+            <button class="btn btn-operator" onclick="setOperator('*')">×</button>
+            <button class="btn btn-operator" onclick="setOperator('-')">−</button>
 
             <button class="btn" onclick="appendNumber('7')">7</button>
             <button class="btn" onclick="appendNumber('8')">8</button>
             <button class="btn" onclick="appendNumber('9')">9</button>
-            <button class="btn" onclick="setOperator('-')">-</button>
+            <button class="btn btn-operator" onclick="setOperator('+')">+</button>
+
+            <button class="btn" onclick="appendNumber('4')">4</button>
+            <button class="btn" onclick="appendNumber('5')">5</button>
+            <button class="btn" onclick="appendNumber('6')">6</button>
+            <button class="btn btn-equals" onclick="calculate()">=</button>
+
+            <button class="btn" onclick="appendNumber('1')">1</button>
+            <button class="btn" onclick="appendNumber('2')">2</button>
+            <button class="btn" onclick="appendNumber('3')">3</button>
+            <button class="btn" onclick="appendDot()">.</button>
 
             <button class="btn btn-zero" onclick="appendNumber('0')">0</button>
-            <button class="btn" onclick="calculate()">=</button>
-            <button class="btn" onclick="setOperator('+')">+</button>
         </div>
     </div>
 
     <script>
         const display = document.getElementById('display');
+        const subDisplay = document.getElementById('sub-display');
+
         let currentInput = '0';
         let firstOperand = null;
         let operator = null;
@@ -122,6 +195,13 @@
 
         function updateDisplay() {
             display.innerText = currentInput;
+            if (currentInput.length > 8) {
+                display.style.fontSize = '32px';
+            } else if (currentInput.length > 5) {
+                display.style.fontSize = '40px';
+            } else {
+                display.style.fontSize = '48px';
+            }
         }
 
         function appendNumber(number) {
@@ -129,9 +209,19 @@
                 currentInput = number;
                 shouldResetDisplay = false;
             } else {
-                if (currentInput.length < 9) {
+                if (currentInput.length < 10) {
                     currentInput += number;
                 }
+            }
+            updateDisplay();
+        }
+
+        function appendDot() {
+            if (shouldResetDisplay) {
+                currentInput = '0.';
+                shouldResetDisplay = false;
+            } else if (!currentInput.includes('.')) {
+                currentInput += '.';
             }
             updateDisplay();
         }
@@ -141,6 +231,7 @@
 
             if (operator && shouldResetDisplay) {
                 operator = nextOperator;
+                subDisplay.innerText = `${firstOperand} ${getOpSymbol(operator)}`;
                 return;
             }
 
@@ -155,6 +246,7 @@
 
             shouldResetDisplay = true;
             operator = nextOperator;
+            subDisplay.innerText = `${firstOperand} ${getOpSymbol(operator)}`;
         }
 
         function calculate() {
@@ -163,6 +255,7 @@
             const inputValue = parseFloat(currentInput);
             const result = performCalculation(operator, firstOperand, inputValue);
             
+            subDisplay.innerText = `${firstOperand} ${getOpSymbol(operator)} ${inputValue} =`;
             currentInput = String(result);
             firstOperand = null;
             operator = null;
@@ -171,21 +264,53 @@
         }
 
         function performCalculation(op, first, second) {
+            let res = 0;
             switch (op) {
-                case '+': return first + second;
-                case '-': return first - second;
-                case '*': return first * second;
-                case '/': return second !== 0 ? first / second : 'Error';
-                default: return second;
+                case '+': res = first + second; break;
+                case '-': res = first - second; break;
+                case '*': res = first * second; break;
+                case '/': res = second !== 0 ? first / second : 'Error'; break;
+                default: res = second;
+            }
+            return typeof res === 'number' ? Math.round(res * 1e8) / 1e8 : res;
+        }
+
+        function getOpSymbol(op) {
+            switch(op) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return '';
             }
         }
-        
-        display.addEventListener('click', () => {
+
+        function clearAll() {
             currentInput = '0';
             firstOperand = null;
             operator = null;
             shouldResetDisplay = false;
+            subDisplay.innerText = '';
             updateDisplay();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key === '.' || e.key === ',') appendDot();
+            if (e.key === '+') setOperator('+');
+            if (e.key === '-') setOperator('-');
+            if (e.key === '*') setOperator('*');
+            if (e.key === '/') { e.preventDefault(); setOperator('/'); }
+            if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
+            if (e.key === 'Escape' || e.key === 'c' || e.key === 'C') clearAll();
+            if (e.key === 'Backspace') {
+                if (currentInput.length > 1 && !shouldResetDisplay) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                updateDisplay();
+            }
         });
     </script>
 </body>

@@ -1,8 +1,6 @@
 <!-- 
 mariowOS Notes - (C) 2025 mariowstech and the mariowOS team 
 Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
-Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
-This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 -->
 
 <!DOCTYPE html>
@@ -12,282 +10,180 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
 <style>
+  :root {
+    --m3-dropdown-bg: rgba(24, 25, 28, 0.65);
+    --m3-text-color: #e6e0e9;
+    --m3-glass-border: rgba(255, 255, 255, 0.12);
+    --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  }
+
   html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Poppins', sans-serif;
-    background: #181818;
-    color: #fff;
-    -webkit-font-smoothing: antialiased;
-    overflow: hidden;
+    margin: 0; padding: 0; height: 100%; font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
+    color: var(--m3-text-color); -webkit-font-smoothing: antialiased; overflow: hidden;
   }
 
-  @keyframes barEntrance {
-    from { opacity: 0; transform: translate3d(0, -10px, 0); }
-    to { opacity: 1; transform: translate3d(0, 0, 0); }
-  }
-
-  @keyframes tabPopIn {
-    from { opacity: 0; transform: scale3d(0.8, 0.8, 1); }
-    to { opacity: 1; transform: scale3d(1, 1, 1); }
-  }
-
-  @keyframes tabPopOut {
-    from { opacity: 1; transform: scale3d(1, 1, 1); width: 100px; padding: 4px 12px; }
-    to { opacity: 0; transform: scale3d(0.8, 0.8, 1); width: 0; padding: 4px 0; margin: 0; overflow: hidden; }
-  }
-
-  @keyframes containerEntrance {
-    from { opacity: 0; transform: scale3d(0.99, 0.99, 1); }
-    to { opacity: 1; transform: scale3d(1, 1, 1); }
-  }
-
-  @keyframes textareaFade {
-    from { opacity: 0; transform: translate3d(0, 4px, 0); }
-    to { opacity: 1; transform: translate3d(0, 0, 0); }
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translate3d(0, 0, 0); }
-    10%, 30%, 50%, 70%, 90% { transform: translate3d(-6px, 0, 0); }
-    20%, 40%, 60%, 80% { transform: translate3d(6px, 0, 0); }
-  }
-
-  /* App Toast Notification CSS */
+  @keyframes textareaFade { from { opacity: 0; transform: translate3d(0, 4px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
   @keyframes toastAppIn { from { opacity: 0; transform: translate3d(-50%, 20px, 0); } to { opacity: 1; transform: translate3d(-50%, 0, 0); } }
   @keyframes toastAppOut { from { opacity: 1; transform: translate3d(-50%, 0, 0); } to { opacity: 0; transform: translate3d(-50%, 20px, 0); } }
 
-  #app-toast-container {
-    position: absolute;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    pointer-events: none;
-  }
+  .editor-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: transparent; overflow: hidden; }
 
+  textarea {
+    width: 100%; height: 100%; background: transparent; border: none;
+    padding: 24px; font-size: 0.95em; color: var(--m3-text-color);
+    resize: none; outline: none; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+  }
+  textarea::placeholder { color: rgba(255, 255, 255, 0.3); }
+  .textarea-pulse { animation: textareaFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  #app-toast-container { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
   .app-toast {
-    background: #2a2a2a;
-    border: 1px solid #3a3a3a;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    background: var(--m3-dropdown-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--m3-glass-border); color: var(--m3-text-color); padding: 10px 20px;
+    border-radius: 100px; font-size: 13px; font-weight: 500; box-shadow: var(--m3-glass-shadow);
     animation: toastAppIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
   .app-toast.hide { animation: toastAppOut 0.2s forwards; }
-
-  .app-header {
-    height: 52px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    position: relative;
-    z-index: 10;
-  }
-
-  .buttons {
-    display: flex;
-    gap: 16px;
-    animation: barEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  button {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 0.95em;
-    cursor: pointer;
-    padding: 4px 0;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: 'Poppins';
-    will-change: border-bottom, color, transform;
-  }
-
-  button:hover { color: #006FFF; }
-  button:active { transform: scale3d(0.95, 0.95, 1); }
-  button.clear { color: rgba(255, 255, 255, 0.6); }
-  button.clear:hover { color: #fff; }
-  
-  button.save-error {
-    color: #ff4c4c !important;
-    animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  }
-
-  .tabs {
-    display: flex;
-    gap: 6px;
-    margin-left: 24px;
-    max-width: calc(100% - 240px); 
-    overflow-x: auto;
-    height: 100%;
-    align-items: flex-end; 
-    animation: barEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
-  }
-
-  .tabs::-webkit-scrollbar { height: 3px; }
-  .tabs::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-
-  .tab-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #222222; 
-    border: 1px solid rgba(255, 255, 255, 0.02);
-    border-bottom: none;
-    border-radius: 8px 8px 0 0;
-    padding: 6px 14px;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85em;
-    cursor: grab;
-    user-select: none;
-    position: relative;
-    height: 36px;
-    will-change: transform, background-color, color;
-    transition: background-color 0.2s, color 0.2s;
-    animation: tabPopIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-  }
-
-  .tab-btn:hover { background: #282828; color: #fff; }
-  .tab-btn.active { background: #202020; color: #fff; height: 38px; z-index: 2; }
-
-  .tab-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 8px 8px 0 0;
-    border: 1.5px solid #006FFF;
-    border-bottom: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-  }
-  .tab-btn.active::before { opacity: 1; }
-  .tab-btn.dragging { opacity: 0.4; background: rgba(0, 111, 255, 0.1); }
-  .tab-btn.drag-over { background: #282828; transform: translate3d(2px, 0, 0); }
-  .tab-btn.removing { animation: tabPopOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards !important; pointer-events: none; }
-
-  .close-tab {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.3);
-    font-weight: bold;
-    cursor: pointer;
-    padding: 0;
-    font-size: 1.1em;
-    transition: color 0.15s, transform 0.15s;
-    line-height: 1;
-    margin-left: 4px;
-  }
-  .close-tab:hover { color: #ff4c4c; transform: scale3d(1.1, 1.1, 1); }
-
-  .editor-container {
-    position: absolute;
-    top: 52px; left: 0; right: 0; bottom: 0;
-    background: #202020;
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    animation: containerEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  textarea {
-    width: 100%; height: 100%;
-    background: transparent; border: none;
-    padding: 24px; font-size: 0.95em; color: #fff;
-    resize: none; outline: none; box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-    animation: textareaFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .textarea-pulse { animation: textareaFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
 </style>
 </head>
 <body>
-
-<div class="app-header">
-  <div class="buttons">
-    <button id="save-btn">Save</button>
-    <button id="new-tab-btn">New</button>
-    <button class="clear" id="clear-btn">Clear</button>
-    <a href="assets/help.html"><button class="clear">Help</button></a>
-  </div>
-
-  <div class="tabs" id="tabs-container"></div>
-</div>
 
 <div class="editor-container">
   <textarea id="note-area" placeholder="your cool ideas go here..."></textarea>
 </div>
 
-<!-- Local Toast Container per Notes -->
 <div id="app-toast-container"></div>
 
 <script>
   const noteArea = document.getElementById('note-area');
-  const saveBtn = document.getElementById('save-btn');
-  const clearBtn = document.getElementById('clear-btn');
-  const newTabBtn = document.getElementById('new-tab-btn');
-  const tabsContainer = document.getElementById('tabs-container');
-
   let notes = [];
   let currentIndex = 0;
+  let tabsContainer;
+  const IS_EMBEDDED = window.parent !== window;
 
-  // Funzione Notifica Locale
   function showAppToast(msg) {
     const container = document.getElementById('app-toast-container');
     const toast = document.createElement('div');
-    toast.className = 'app-toast';
-    toast.innerHTML = msg;
+    toast.className = 'app-toast'; toast.innerHTML = msg;
     container.appendChild(toast);
-    setTimeout(() => {
-      toast.classList.add('hide');
-      setTimeout(() => toast.remove(), 200);
-    }, 2500);
+    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 200); }, 2500);
   }
 
-  function buildTabElement(id, name) {
-    const btn = document.createElement('div');
-    btn.classList.add('tab-btn');
-    btn.dataset.id = id;
+  function handleSave() {
+    const text = noteArea.value.trim();
+    if(!text) { showAppToast("⚠️ Can't save an empty file"); return; }
+    const now = new Date();
+    const timestamp = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + "_" + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
 
-    const span = document.createElement('span');
-    span.textContent = name;
-    span.addEventListener('dblclick', () => {
-      const newName = prompt("Rename tab:", span.textContent);
-      if(newName && newName.trim()) {
-        span.textContent = newName.trim();
-        notes.find(n => n.id === id).name = newName.trim();
-        saveToLocalStorage();
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `note_${timestamp}.txt`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showAppToast("💾 Note saved to PC");
+  }
+
+  function handleClear() {
+    noteArea.value = '';
+    if(notes[currentIndex]) { notes[currentIndex].content = ''; saveToLocalStorage(); }
+    showAppToast("🧹 Note cleared");
+  }
+
+  // --- CROSS-FRAME INJECTION LOGIC ---
+  if (IS_EMBEDDED) {
+    const osHeader = window.parent.document.querySelector('#popup5 .popup-header');
+    
+    // Inject CSS into the OS shell so the tabs render perfectly
+    if (!window.parent.document.getElementById('notes-os-styles')) {
+      const style = window.parent.document.createElement('style');
+      style.id = 'notes-os-styles';
+      style.textContent = `
+        .notes-tab-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
+          border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px;
+          color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
+          cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
+          transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
+        }
+        .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .notes-tab-btn.active { background: rgba(194, 243, 235, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(194, 243, 235, 0.25); }
+        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #c2f3eb; border-bottom: none; pointer-events: none; }
+        .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; }
+        .notes-tab-close:hover { opacity: 1; color: #ff5252; }
+        .notes-tab-btn.dragging { opacity: 0.4; }
+        .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
+      `;
+      window.parent.document.head.appendChild(style);
+    }
+
+    // Hijack the OS title bar and rebuild it
+    osHeader.style.gap = '8px';
+    osHeader.innerHTML = `
+      <span style="white-space: nowrap; font-size: 13px; flex-shrink: 0; cursor: move;">Notes</span>
+      <div id="os-notes-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move;"></div>
+      <div id="os-notes-actions" style="display: flex; align-items: center; gap: 5px; flex-shrink: 0;">
+        <button class="browser-nav-btn" id="os-note-save" title="Export as TXT"><span class="material-symbols-outlined" style="font-size: 16px;">download</span></button>
+        <button class="browser-nav-btn" id="os-note-new" title="New Note"><span class="material-symbols-outlined" style="font-size: 16px;">add_box</span></button>
+        <button class="browser-nav-btn" id="os-note-clear" title="Clear Note"><span class="material-symbols-outlined" style="font-size: 16px;">ink_eraser</span></button>
+        <a href="assets/help.html" target="_blank" style="display:flex;"><button class="browser-nav-btn" title="Help"><span class="material-symbols-outlined" style="font-size: 16px;">help</span></button></a>
+      </div>
+      <span class="altf4" onclick="closePopup('popup5')" style="flex-shrink: 0; margin-left: 8px;">✖</span>
+    `;
+
+    tabsContainer = window.parent.document.getElementById('os-notes-tabs');
+    const actionsContainer = window.parent.document.getElementById('os-notes-actions');
+    
+    // FIX: Only stop propagation if you click a tab. 
+    // This allows clicking the empty space in the container to drag the window!
+    tabsContainer.addEventListener('mousedown', e => {
+      if (e.target.closest('.notes-tab-btn')) {
+        e.stopPropagation();
       }
     });
 
-    const closeBtn = document.createElement('button');
-    closeBtn.classList.add('close-tab');
-    closeBtn.textContent = '×';
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      btn.classList.add('removing');
-      btn.addEventListener('animationend', () => closeTab(id));
+    actionsContainer.addEventListener('mousedown', e => {
+      if (e.target.closest('button')) {
+        e.stopPropagation();
+      }
     });
 
-    btn.appendChild(span);
-    btn.appendChild(closeBtn);
+    window.parent.document.getElementById('os-note-save').addEventListener('click', handleSave);
+    window.parent.document.getElementById('os-note-new').addEventListener('click', () => createTab());
+    window.parent.document.getElementById('os-note-clear').addEventListener('click', handleClear);
+  }
 
+  // --- Core Tab Logic ---
+  function buildTabElement(id, name) {
+    // Generate elements inside the parent DOM context
+    const doc = IS_EMBEDDED ? window.parent.document : document;
+    const btn = doc.createElement('div');
+    btn.className = 'notes-tab-btn';
+    btn.dataset.id = id;
+
+    const span = doc.createElement('span');
+    span.textContent = name;
+    span.addEventListener('dblclick', () => {
+      const newName = prompt("Rename tab:", span.textContent);
+      if(newName && newName.trim()) { span.textContent = newName.trim(); notes.find(n => n.id === id).name = newName.trim(); saveToLocalStorage(); }
+    });
+
+    const closeBtn = doc.createElement('button');
+    closeBtn.className = 'notes-tab-close';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(id); });
+
+    btn.appendChild(span); btn.appendChild(closeBtn);
     btn.addEventListener('click', () => switchTab(id));
+    
     btn.setAttribute('draggable', true);
-    btn.addEventListener('dragstart', dragStart);
-    btn.addEventListener('dragover', dragOver);
-    btn.addEventListener('dragleave', dragLeave);
-    btn.addEventListener('drop', dropTab);
+    btn.addEventListener('dragstart', dragStart); btn.addEventListener('dragover', dragOver);
+    btn.addEventListener('dragleave', dragLeave); btn.addEventListener('drop', dropTab);
     btn.addEventListener('dragend', dragEnd);
 
     return btn;
@@ -296,7 +192,6 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   function createTab(name="Note") {
     const id = Date.now().toString();
     notes.push({id, content: "", name});
-
     const btn = buildTabElement(id, name);
     tabsContainer.appendChild(btn);
     switchTab(id);
@@ -306,13 +201,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
   function switchTab(id) {
     if (notes[currentIndex]) notes[currentIndex].content = noteArea.value;
-
     const targetBtn = [...tabsContainer.children].find(b => b.dataset.id === id);
     if(!targetBtn || targetBtn.classList.contains('active')) return;
 
-    tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    tabsContainer.querySelectorAll('.notes-tab-btn').forEach(b => b.classList.remove('active'));
     targetBtn.classList.add('active');
-
     currentIndex = notes.findIndex(n => n.id === id);
     
     noteArea.classList.remove('textarea-pulse');
@@ -331,28 +224,40 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
     if(btn) btn.remove();
     
-    if(notes.length > 0) {
-      const nextActiveId = notes[Math.min(index, notes.length - 1)].id;
-      switchTab(nextActiveId);
-    } else {
-      createTab();
-    }
+    if(notes.length > 0) { switchTab(notes[Math.min(index, notes.length - 1)].id); } else { createTab(); }
     saveToLocalStorage();
   }
 
-  function saveToLocalStorage() {
+  // Dual Sync: Local Storage + Cloud Server Backend
+  async function saveToLocalStorage() {
     localStorage.setItem('multiNotes', JSON.stringify(notes));
+    try {
+      await fetch('/api/system/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notes)
+      });
+    } catch(err) { /* Silent fail for disconnected states */ }
   }
   
-  function loadFromLocalStorage() {
-    const saved = localStorage.getItem('multiNotes');
-    if(saved) {
-      notes = JSON.parse(saved);
-      notes.forEach(n => {
-        const btn = buildTabElement(n.id, n.name);
-        tabsContainer.appendChild(btn);
-      });
-      const firstTab = tabsContainer.querySelector('.tab-btn');
+  async function loadFromLocalStorage() {
+    let saved = null;
+    try {
+      const res = await fetch('/api/system/notes');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) saved = data;
+      }
+    } catch(err) { /* Fallback to local */ }
+
+    if(!saved && localStorage.getItem('multiNotes')) {
+      saved = JSON.parse(localStorage.getItem('multiNotes'));
+    }
+
+    if(saved && saved.length > 0) {
+      notes = saved;
+      notes.forEach(n => { tabsContainer.appendChild(buildTabElement(n.id, n.name)); });
+      const firstTab = tabsContainer.querySelector('.notes-tab-btn');
       if(firstTab) firstTab.classList.add('active');
       currentIndex = 0;
       noteArea.value = notes[0].content || "";
@@ -361,97 +266,25 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
   }
 
-  noteArea.addEventListener('input', () => {
-    if(notes[currentIndex]) {
-      notes[currentIndex].content = noteArea.value;
-      saveToLocalStorage();
-    }
-  });
-
-  saveBtn.addEventListener('click', () => {
-    const text = noteArea.value.trim();
-    
-    if(!text) {
-      saveBtn.classList.remove('save-error');
-      void saveBtn.offsetWidth; 
-      saveBtn.classList.add('save-error');
-      showAppToast("⚠️ Can't save an empty file"); // NOTIFICA FILE VUOTO
-      return;
-    }
-    
-    const now = new Date();
-    const timestamp = now.getFullYear().toString()
-      + String(now.getMonth()+1).padStart(2,'0')
-      + String(now.getDate()).padStart(2,'0') + "_"
-      + String(now.getHours()).padStart(2,'0')
-      + String(now.getMinutes()).padStart(2,'0')
-      + String(now.getSeconds()).padStart(2,'0');
-
-    const blob = new Blob([text], {type:'text/plain'});
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `note_${timestamp}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showAppToast("💾 Note saved to PC");
-  });
-
-  saveBtn.addEventListener('animationend', () => {
-    saveBtn.classList.remove('save-error');
-  });
-
-  clearBtn.addEventListener('click', () => {
-    noteArea.value = '';
-    if(notes[currentIndex]) {
-      notes[currentIndex].content = '';
-      saveToLocalStorage();
-    }
-    showAppToast("🧹 Note cleared");
-  });
-
-  newTabBtn.addEventListener('click', () => createTab());
+  noteArea.addEventListener('input', () => { if(notes[currentIndex]) { notes[currentIndex].content = noteArea.value; saveToLocalStorage(); } });
 
   document.addEventListener('keydown', (e) => {
-    if(e.ctrlKey && e.key === 's') { e.preventDefault(); saveBtn.click(); }
-    if(e.ctrlKey && e.key === 'n') { e.preventDefault(); newTabBtn.click(); }
-    if(e.ctrlKey && e.key === 'w') { e.preventDefault(); 
-      if(notes[currentIndex]) {
-        const btn = [...tabsContainer.children].find(b => b.dataset.id === notes[currentIndex].id);
-        if(btn) btn.classList.add('removing');
-        closeTab(notes[currentIndex].id);
-      }
+    if(e.ctrlKey && e.key === 's') { e.preventDefault(); handleSave(); }
+    if(e.ctrlKey && e.key === 'n') { e.preventDefault(); createTab(); }
+    if(e.ctrlKey && e.key === 'w') { 
+      e.preventDefault(); 
+      if(notes[currentIndex]) closeTab(notes[currentIndex].id);
     }
   });
 
-  /* --- FLUID DRAG & DROP ENGINE --- */
+  /* --- DRAG & DROP ENGINE --- */
   let dragged = null;
-  
-  function dragStart(e){ 
-    dragged = e.currentTarget; 
-    dragged.classList.add('dragging');
-  }
-  
-  function dragOver(e){ 
-    e.preventDefault(); 
-    if(e.currentTarget !== dragged) { e.currentTarget.classList.add('drag-over'); }
-  }
-
+  function dragStart(e){ dragged = e.currentTarget; dragged.classList.add('dragging'); }
+  function dragOver(e){ e.preventDefault(); if(e.currentTarget !== dragged) { e.currentTarget.classList.add('drag-over'); } }
   function dragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
-
-  function dragEnd(e){
-    if(dragged) dragged.classList.remove('dragging');
-    tabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('drag-over'));
-  }
-  
+  function dragEnd(e){ if(dragged) dragged.classList.remove('dragging'); tabsContainer.querySelectorAll('.notes-tab-btn').forEach(b => b.classList.remove('drag-over')); }
   function dropTab(e){
-    e.preventDefault();
-    const target = e.currentTarget;
-    target.classList.remove('drag-over');
-    
+    e.preventDefault(); const target = e.currentTarget; target.classList.remove('drag-over');
     if(dragged && target !== dragged){
       const draggedIndex = [...tabsContainer.children].indexOf(dragged);
       const targetIndex = [...tabsContainer.children].indexOf(target);
@@ -466,7 +299,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
         notes.splice(targetIndex,0,note);
       }
       
-      const activeBtn = tabsContainer.querySelector('.tab-btn.active');
+      const activeBtn = tabsContainer.querySelector('.notes-tab-btn.active');
       if(activeBtn) currentIndex = notes.findIndex(n => n.id === activeBtn.dataset.id);
       saveToLocalStorage();
     }
@@ -474,6 +307,5 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
   loadFromLocalStorage();
 </script>
-
 </body>
 </html>

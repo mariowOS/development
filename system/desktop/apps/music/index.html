@@ -7,8 +7,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
   <title>mariowOS Music Player</title>
   <style>
+    :root {
+      --m3-accent-active: #c2f3eb;
+      --m3-accent-on-active: #05211e;
+      --m3-tile-inactive: rgba(255, 255, 255, 0.08);
+      --m3-tile-on-inactive: #e1e2e5;
+      --m3-dropdown-bg: rgba(24, 25, 28, 0.65);
+      --m3-item-hover: rgba(255, 255, 255, 0.1);
+      --m3-item-active-bg: rgba(194, 243, 235, 0.16);
+      --m3-text-color: #e6e0e9;
+      --m3-glass-border: rgba(255, 255, 255, 0.12);
+      --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -17,8 +32,8 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #121212;
-      color: #ffffff;
+      background-color: #121214;
+      color: var(--m3-text-color);
       height: 100vh;
       overflow: hidden;
       user-select: none;
@@ -28,16 +43,15 @@
     .app {
       display: flex;
       height: 100vh;
-      background-color: #121212;
-      animation: appEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      background: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
+      animation: appEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     @keyframes appEntrance {
       from {
         opacity: 0;
-        transform: scale3d(0.99, 0.99, 1);
+        transform: scale3d(0.98, 0.98, 1);
       }
-
       to {
         opacity: 1;
         transform: scale3d(1, 1, 1);
@@ -50,7 +64,6 @@
         opacity: 0;
         transform: translate3d(20px, 0, 0);
       }
-
       to {
         opacity: 1;
         transform: translate3d(0, 0, 0);
@@ -62,7 +75,6 @@
         opacity: 1;
         transform: translate3d(0, 0, 0);
       }
-
       to {
         opacity: 0;
         transform: translate3d(20px, 0, 0);
@@ -81,28 +93,31 @@
     }
 
     .app-toast {
-      background: rgba(30, 30, 30, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid #3a3a3a;
-      color: #fff;
+      background: var(--m3-dropdown-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--m3-glass-border);
+      color: var(--m3-text-color);
       padding: 10px 16px;
-      border-radius: 8px;
+      border-radius: 14px;
       font-size: 12px;
       font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      animation: toastAppIn 0.3s forwards;
+      box-shadow: var(--m3-glass-shadow);
+      animation: toastAppIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .app-toast.hide {
       animation: toastAppOut 0.2s forwards;
     }
 
-    /* Sidebar */
+    /* Sidebar Glassmorphism */
     .sidebar {
-      width: 250px;
-      background-color: #171717;
-      border-right: 1px solid rgba(255, 255, 255, 0.03);
-      padding: 20px 16px;
+      width: 260px;
+      background: rgba(20, 21, 24, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--m3-glass-border);
+      padding: 24px 16px;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -122,25 +137,23 @@
     }
 
     .sidebar-title {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
       font-weight: 600;
       letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #ffffff;
     }
 
     .subtitle-header {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.45);
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
     .playlist-meta {
       font-size: 11px;
-      color: rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 0.3);
       margin-top: -6px;
     }
 
@@ -152,18 +165,18 @@
     .header-icon-btn {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.45);
       cursor: pointer;
       font-size: 0.95rem;
-      transition: color 0.2s, transform 0.2s;
+      transition: color 0.2s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .header-icon-btn:hover {
-      color: #fff;
-      transform: scale3d(1.1, 1.1, 1);
+      color: var(--m3-accent-active);
+      transform: scale3d(1.15, 1.15, 1);
     }
 
-    /* Track Lists */
+    /* Track Lists Scrollbar */
     .track-list {
       display: flex;
       flex-direction: column;
@@ -171,39 +184,53 @@
       overflow-y: auto;
       flex: 1;
       max-height: 160px;
-      padding-right: 2px;
+      padding-right: 4px;
     }
 
     .track-list::-webkit-scrollbar {
       width: 4px;
     }
 
+    .track-list::-webkit-scrollbar-track {
+      background: transparent;
+      margin: 4px 0;
+    }
+
     .track-list::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 10px;
+    }
+
+    .track-list::-webkit-scrollbar-thumb:hover {
+      background: var(--m3-accent-active);
     }
 
     .playlist-item {
       display: flex;
       align-items: center;
-      padding: 8px 10px;
-      background: rgba(255, 255, 255, 0.01);
-      border: 1px solid rgba(255, 255, 255, 0.01);
-      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
     }
 
     .playlist-item:hover {
-      background: rgba(255, 255, 255, 0.04);
-      transform: translate3d(2px, 0, 0);
+      background: var(--m3-item-hover);
+      transform: translate3d(3px, 0, 0);
     }
 
     .playlist-item.active {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.05);
+      background: var(--m3-item-active-bg);
+      border-color: rgba(194, 243, 235, 0.2);
+    }
+
+    .playlist-item.active .item-title {
+      color: var(--m3-accent-active);
+      font-weight: 600;
     }
 
     .item-info {
@@ -212,17 +239,18 @@
     }
 
     .item-title {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 500;
-      color: #fff;
+      color: var(--m3-text-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: color 0.15s ease;
     }
 
     .item-artist {
-      font-size: 0.7rem;
-      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.4);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -232,12 +260,12 @@
     .item-remove {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.25);
+      color: rgba(255, 255, 255, 0.3);
       font-size: 1.1rem;
       cursor: pointer;
       opacity: 0;
       transform: translate3d(5px, 0, 0);
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .playlist-item:hover .item-remove {
@@ -246,35 +274,39 @@
     }
 
     .item-remove:hover {
-      color: #ff453a;
+      color: #ff5252;
     }
 
     .sidebar-upload {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px dashed rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--m3-glass-border);
+      border-radius: 16px;
+      padding: 12px;
       text-align: center;
       cursor: pointer;
-      transition: background 0.2s, border-color 0.2s;
+      transition: all 0.2s ease;
       margin-top: auto;
     }
 
     .sidebar-upload:hover {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 255, 255, 0.15);
+      background: var(--m3-item-active-bg);
+      border-color: var(--m3-accent-active);
     }
 
     .sidebar-upload span {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.6);
+      transition: color 0.2s ease;
+    }
+
+    .sidebar-upload:hover span {
+      color: var(--m3-accent-active);
     }
 
     /* Main Viewport */
     .main-viewport {
       flex: 1;
-      background: radial-gradient(circle at 80% 20%, #1a1a1a 0%, #0d0d0d 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -288,21 +320,22 @@
       flex-direction: column;
       align-items: flex-start;
       width: 100%;
-      max-width: 540px;
+      max-width: 520px;
       gap: 22px;
     }
 
-    /* Album Canvas */
+    /* Album Canvas Material You Animazioni */
     .main-album-canvas {
-      width: 180px;
-      height: 180px;
-      background: #1c1c1c;
-      border-radius: 14px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+      width: 200px;
+      height: 200px;
+      background: rgba(28, 28, 32, 0.8);
+      border-radius: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
       overflow: hidden;
       position: relative;
-      will-change: transform;
-      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      will-change: transform, box-shadow;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+      border: 1px solid var(--m3-glass-border);
     }
 
     .main-album-canvas img {
@@ -311,8 +344,13 @@
       object-fit: cover;
     }
 
+    .main-album-canvas.playing {
+      transform: scale(1.04);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 30px rgba(194, 243, 235, 0.15);
+    }
+
     .main-album-canvas.pulse-trigger {
-      transform: scale3d(0.95, 0.95, 1);
+      transform: scale(0.95);
     }
 
     /* Track Details */
@@ -323,19 +361,19 @@
     }
 
     .main-title {
-      font-size: 1.45rem;
+      font-size: 1.5rem;
       font-weight: 600;
       letter-spacing: -0.5px;
       color: #ffffff;
     }
 
     .main-artist {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.45);
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.5);
       font-weight: 400;
     }
 
-    /* --- SQUIGGLY TIMELINE (Android 13 Style) --- */
+    /* --- SQUIGGLY TIMELINE (Android 13 Material You Style) --- */
     .timeline-deck {
       width: 100%;
       display: flex;
@@ -357,7 +395,7 @@
       left: 0;
       right: 0;
       height: 4px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
       border-radius: 4px;
       top: 50%;
       transform: translateY(-50%);
@@ -371,7 +409,7 @@
       transform: translateY(-50%);
       height: 4px;
       width: 0%;
-      background-color: #ffffff;
+      background-color: var(--m3-accent-active);
       border-radius: 4px;
       will-change: width;
       transition: width 0.1s linear, height 0.2s, background-color 0.2s;
@@ -380,7 +418,7 @@
     .timeline-fill.playing {
       height: 16px;
       background-color: transparent;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='16' viewBox='0 0 24 16'><path d='M0,8 C6,2 6,14 12,8 C18,2 18,14 24,8' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'/></svg>");
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='16' viewBox='0 0 24 16'><path d='M0,8 C6,2 6,14 12,8 C18,2 18,14 24,8' fill='none' stroke='%23c2f3eb' stroke-width='3' stroke-linecap='round'/></svg>");
       background-size: 24px 16px;
       background-repeat: repeat-x;
       animation: squiggle 1s linear infinite;
@@ -391,7 +429,6 @@
       0% {
         background-position: 0 0;
       }
-
       100% {
         background-position: -24px 0;
       }
@@ -407,13 +444,13 @@
       border-radius: 50%;
       transform: translate3d(-50%, -50%, 0) scale3d(1, 1, 1);
       transition: transform 0.15s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
       z-index: 2;
       pointer-events: none;
     }
 
     .timeline-slider-wrapper:hover .timeline-thumb {
-      transform: translate3d(-50%, -50%, 0) scale3d(1.3, 1.3, 1);
+      transform: translate3d(-50%, -50%, 0) scale3d(1.4, 1.4, 1);
     }
 
     .time-stamps {
@@ -421,7 +458,7 @@
       justify-content: space-between;
       font-size: 0.75rem;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(255, 255, 255, 0.4);
     }
 
     /* Android 13 Control Deck */
@@ -442,7 +479,7 @@
     .deck-btn {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.55);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -452,30 +489,30 @@
 
     .deck-btn:hover {
       color: #ffffff;
-      transform: scale3d(1.08, 1.08, 1);
+      transform: scale3d(1.1, 1.1, 1);
     }
 
     .deck-btn:active {
-      transform: scale3d(0.95, 0.95, 1);
+      transform: scale3d(0.92, 0.92, 1);
     }
 
     .deck-btn.active {
-      color: #007aff;
+      color: var(--m3-accent-active);
     }
 
     .btn-play-pause {
-      width: 56px;
-      height: 56px;
-      background: #007aff;
+      width: 58px;
+      height: 58px;
+      background: var(--m3-accent-active);
       border-radius: 20px;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
-      transition: 0.2s;
+      color: var(--m3-accent-on-active);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn-play-pause:hover {
-      background: #3498ff;
-      transform: scale3d(1.05, 1.05, 1);
+      background: #eaddff;
+      transform: scale3d(1.06, 1.06, 1);
     }
 
     /* Utility Volume */
@@ -487,16 +524,21 @@
     }
 
     .volume-icon {
-      color: rgba(255, 255, 255, 0.35);
+      color: rgba(255, 255, 255, 0.45);
       font-size: 0.85rem;
       cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .volume-icon:hover {
+      color: #fff;
     }
 
     .volume-bar-wrapper {
       position: relative;
       flex: 1;
       height: 4px;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 100px;
       cursor: pointer;
     }
@@ -507,12 +549,9 @@
       left: 0;
       height: 100%;
       width: 70%;
-      background: rgba(255, 255, 255, 0.7);
+      background: var(--m3-accent-active);
       border-radius: 100px;
-    }
-
-    .volume-bar-wrapper:hover .volume-fill {
-      background: #007aff;
+      transition: background 0.2s ease;
     }
 
     .playlist-item {
@@ -543,14 +582,12 @@
           <div class="header-actions">
             <button class="header-icon-btn" id="shuffle-btn" title="Shuffle">
               <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                  d="M11.5 12.5a.5.5 0 0 1-.5-.5V3.707L4.354 10.354a.5.5 0 1 1-.708-.708L10.293 3H8.5a.5.5 0 0 1 0-1h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V3.707L4.354 10.354a.5.5 0 0 1-.354.146z" />
+                <path d="M11.5 12.5a.5.5 0 0 1-.5-.5V3.707L4.354 10.354a.5.5 0 1 1-.708-.708L10.293 3H8.5a.5.5 0 0 1 0-1h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V3.707L4.354 10.354a.5.5 0 0 1-.354.146z" />
               </svg>
             </button>
             <button class="header-icon-btn" id="clear-playlist-btn" title="Clear all">
               <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                  d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
               </svg>
             </button>
           </div>
@@ -572,9 +609,7 @@
     <div class="main-viewport">
       <div class="player-center-stage">
         <div class="main-album-canvas" id="album-canvas">
-          <img
-            src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%23242424'/><text x='50%' y='55%' font-family='sans-serif' font-size='30' fill='%23444' text-anchor='middle'>🎵</text></svg>"
-            id="main-art-img" alt="Album Art">
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%231c1c20'/><text x='50%' y='55%' font-family='sans-serif' font-size='30' fill='%23555' text-anchor='middle'>🎵</text></svg>" id="main-art-img" alt="Album Art">
         </div>
 
         <div class="main-track-details">
@@ -582,7 +617,7 @@
           <p class="main-artist" id="track-artist">Select a track from library</p>
         </div>
 
-        <!-- Android 13 Squiggly Timeline -->
+        <!-- Android 13 Squiggly Timeline Material You -->
         <div class="timeline-deck">
           <div class="timeline-slider-wrapper" id="timeline-container">
             <div class="timeline-bg" id="timeline-bg"></div>
@@ -599,27 +634,23 @@
           <div class="playback-cluster">
             <button class="deck-btn" id="prev-btn" title="Previous">
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                  d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.52-.302 1.166.177 1.166.772v7.232c0 .596-.646 1.074-1.166.772L5 8.752V12a.5.5 0 0 1-1 0V4z" />
+                <path d="M4 4a.5.5 0 0 1 1 0v3.248l6.267-3.636c.52-.302 1.166.177 1.166.772v7.232c0 .596-.646 1.074-1.166.772L5 8.752V12a.5.5 0 0 1-1 0V4z" />
               </svg>
             </button>
             <button class="deck-btn btn-play-pause" id="play-btn" title="Play/Pause">
               <!-- Play Icon -->
               <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" id="play-icon">
-                <path
-                  d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" />
+                <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" />
               </svg>
             </button>
             <button class="deck-btn" id="next-btn" title="Next">
               <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                  d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.713 3.31 4.067 3.789 4.067 4.384v7.232c0 .596.646 1.074 1.166.772L11.5 8.752V12a.5.5 0 0 0 1 0V4z" />
+                <path d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.713 3.31 4.067 3.789 4.067 4.384v7.232c0 .596.646 1.074 1.166.772L11.5 8.752V12a.5.5 0 0 0 1 0V4z" />
               </svg>
             </button>
             <button class="deck-btn" id="repeat-btn" title="Repeat Mode" style="margin-left: 10px;">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path
-                  d="M11 5.466V4H5a4 4 0 0 0-3.584 2.177 1 1 0 1 1-1.792-.894A6 6 0 0 1 5 2h6V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192zm3.416 4.357a1 1 0 0 1 1.342.448A6 6 0 0 1 11 14H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.584-2.177 1 1 0 1 1 .448-1.342z" />
+                <path d="M11 5.466V4H5a4 4 0 0 0-3.584 2.177 1 1 0 1 1-1.792-.894A6 6 0 0 1 5 2h6V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192zm3.416 4.357a1 1 0 0 1 1.342.448A6 6 0 0 1 11 14H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.584-2.177 1 1 0 1 1 .448-1.342z" />
               </svg>
             </button>
           </div>
@@ -773,12 +804,16 @@
       notifyDesktop();
     }
 
-    function triggerBounceEffect() { albumCanvas.classList.add('pulse-trigger'); setTimeout(() => albumCanvas.classList.remove('pulse-trigger'), 200); }
+    function triggerBounceEffect() { 
+      albumCanvas.classList.add('pulse-trigger'); 
+      setTimeout(() => albumCanvas.classList.remove('pulse-trigger'), 200); 
+    }
 
     function playSong() {
       audio.play();
       isPlaying = true;
-      timelineFill.classList.add('playing'); // Attiva l'animazione della squiggly line!
+      timelineFill.classList.add('playing');
+      albumCanvas.classList.add('playing');
       playIcon.innerHTML = `<path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>`;
       triggerBounceEffect();
       notifyDesktop();
@@ -787,7 +822,8 @@
     function pauseSong() {
       audio.pause();
       isPlaying = false;
-      timelineFill.classList.remove('playing'); // Ferma l'animazione dell'onda
+      timelineFill.classList.remove('playing');
+      albumCanvas.classList.remove('playing');
       playIcon.innerHTML = `<path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>`;
       triggerBounceEffect();
       notifyDesktop();
@@ -857,7 +893,7 @@
     repeatBtn.addEventListener('click', () => {
       repeatMode = (repeatMode + 1) % 3;
       repeatBtn.classList.toggle('active', repeatMode > 0);
-      repeatBtn.style.color = repeatMode === 2 ? '#ffcc00' : (repeatMode === 1 ? '#007aff' : '');
+      repeatBtn.style.color = repeatMode === 2 ? 'var(--m3-accent-active)' : (repeatMode === 1 ? 'var(--m3-accent-active)' : '');
     });
 
     audio.addEventListener('ended', () => { if (repeatMode === 2) { audio.currentTime = 0; playSong(); } else { nextBtn.click(); } });

@@ -8,159 +8,210 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"/>
 
 <style>
+:root {
+  --md-sys-color-background: #141218;
+  --md-sys-color-surface-container: #2b2930;
+  --md-sys-color-surface-container-high: #36343b;
+  --md-sys-color-surface-container-highest: #4a4458;
+  --md-sys-color-primary-container: #4f378b;
+  --md-sys-color-on-primary-container: #eaddff;
+  --md-sys-color-on-surface: #e6e0e9;
+  --md-sys-color-on-surface-variant: #cac4d0;
+  --md-sys-color-error: #ffb4ab;
+  --md-sys-color-error-container: #93000a;
+  --md-sys-color-on-error-container: #ffdad6;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
-  color: #fff;
+  color: var(--md-sys-color-on-surface);
   margin: 0;
-  padding: 40px;
+  padding: 32px 20px;
   background: transparent;
   overflow-y: auto;
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 560px;
   width: 100%;
-  position: relative;
-  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.header {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
+.sub-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .back-btn {
-  font-size: 18px;
-  color: #bbb;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
   cursor: pointer;
-  transition: color 0.15s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
 }
 
 .back-btn:hover {
-  color: #fff;
+  background: var(--md-sys-color-surface-container-high);
 }
 
-.banner {
-  background: rgba(30,30,30,0.7);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 15px;
+.back-btn:active {
+  transform: scale(0.92);
 }
 
-.banner .title {
-  font-size: 15px;
-  font-weight: 500;
+.sub-title {
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0;
 }
 
-.banner .desc {
-  font-size: 13px;
-  color: #bbb;
-  margin-top: 4px;
-}
-
-.warning-banner {
-  background: rgba(255,100,100,0.1);
-  border: 1px solid rgba(255,100,100,0.3);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 15px;
-}
-
-.warning-banner .title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #ff9999;
-}
-
-.warning-banner .desc {
-  font-size: 13px;
-  color: #cc7777;
-  margin-top: 4px;
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .item {
-  background: rgba(255,255,255,0.05);
-  border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 8px;
+  background: var(--md-sys-color-surface-container);
+  border-radius: 20px;
+  padding: 16px 20px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
 }
 
 .item:hover {
-  background: rgba(255,255,255,0.1);
+  background: var(--md-sys-color-surface-container-high);
 }
 
-.item.dangerous {
-  background: rgba(255,100,100,0.1);
-  border: 1px solid rgba(255,100,100,0.3);
+.item:active {
+  transform: scale(0.98);
 }
 
-.item.dangerous:hover {
-  background: rgba(255,100,100,0.2);
+.text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .text-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
+  color: var(--md-sys-color-on-surface);
 }
 
 .text-desc {
   font-size: 13px;
-  color: #aaa;
-  margin-top: 3px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.card-arrow {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--md-sys-color-surface-container-highest);
+  border-radius: 50%;
+  color: var(--md-sys-color-on-surface-variant);
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.item:hover .card-arrow {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* Material You Danger Variant */
+.item.dangerous {
+  background: rgba(147, 0, 10, 0.25);
 }
 
 .item.dangerous .text-title {
-  color: #ff9999;
+  color: var(--md-sys-color-error);
+}
+
+.item.dangerous .card-arrow {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+.item.dangerous:hover {
+  background: rgba(147, 0, 10, 0.4);
 }
 
 html::-webkit-scrollbar {
   display: none;
 }
 </style>
+<link rel="stylesheet" href="/desktop/assets/material-you.css">
+<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 
 <div class="container">
-  <div class="header">
-    <span class="back-btn" id="goBack">←</span>
+  <div class="sub-header">
+    <button class="back-btn" id="goBack">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h2 class="sub-title">Reset Options</h2>
   </div>
 
-  <div class="item">
-    <div class="text-title">Reset settings</div>
-    <div class="text-desc">Only resets settings to default options</div>
-  </div>
+  <div class="card-list">
+    <div class="item">
+      <div class="text-group">
+        <div class="text-title">Reset settings</div>
+        <div class="text-desc">Only resets settings to default options</div>
+      </div>
+      <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
 
-  <div class="item">
-    <div class="text-title">Reset desktop (refresh)</div>
-    <div class="text-desc">Clears every customization option, doesn't clear data</div>
-  </div>
+    <div class="item">
+      <div class="text-group">
+        <div class="text-title">Reset desktop (refresh)</div>
+        <div class="text-desc">Clears every customization option, doesn't clear data</div>
+      </div>
+      <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
 
-  <div class="item dangerous">
-    <div class="text-title">Factory reset</div>
-    <div class="text-desc">Clears all data and everything, starts fresh - cannot be undone</div>
-  </div>
+    <div class="item dangerous">
+      <div class="text-group">
+        <div class="text-title">Factory reset</div>
+        <div class="text-desc">Clears all data and everything, starts fresh - cannot be undone</div>
+      </div>
+      <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
 
-  <div class="item dangerous">
-    <div class="text-title">Full system wipe</div>
-    <div class="text-desc">Complete data destruction and system reset - requires confirmation</div>
+    <div class="item dangerous">
+      <div class="text-group">
+        <div class="text-title">Full system wipe</div>
+        <div class="text-desc">Complete data destruction and system reset - requires confirmation</div>
+      </div>
+      <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
   </div>
 </div>
 
 <script>
-const goBack = document.getElementById('goBack');
-
-goBack.addEventListener('click', () => {
+document.getElementById('goBack').addEventListener('click', () => {
   window.history.back();
 });
 </script>
