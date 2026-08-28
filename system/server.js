@@ -18,6 +18,15 @@ const app = express();
 const PORT = 3000;
 const currentOS = process.platform; // 'linux', 'win32', 'darwin'
 
+// --- HELPER: GITHUB RAW URL EXTRACTOR ---
+function getRawGithubUrl(repoUrl) {
+  if (!repoUrl) return null;
+  const cleanUrl = repoUrl.replace(/\.git$/, '');
+  const match = cleanUrl.match(/github\.com\/([^/]+\/[^/]+)/);
+  // Defaults to main branch for the Store UI icon
+  return match ? `https://raw.githubusercontent.com/${match[1]}/main/icon.png` : null;
+}
+
 // --- CONFIGURATION & MAILER ---
 let config = { 
   passwordHash: null,
@@ -95,6 +104,43 @@ const wallpaperUpload = multer({
   fileFilter: (req, file, cb) => cb(null, ["image/png", "image/jpeg"].includes(file.mimetype))
 });
 
+app.post("/api/system/set-volume", express.json(), (req, res) => {
+  const { volume } = req.body;
+  if (volume === undefined) return res.status(400).json({ success: false, error: "Volume mancante" });
+
+  const volNum = Math.max(0, Math.min(100, parseInt(volume, 10)));
+  let cmd = "";
+
+  if (currentOS === "linux") {
+    // Uses PulseAudio by default, falls back to raw ALSA if pulse isn't available
+    cmd = `amixer -D pulse sset Master ${volNum}% || amixer sset Master ${volNum}%`;
+  } else if (currentOS === "darwin") {
+    // macOS native volume control
+    cmd = `osascript -e "set volume output volume ${volNum}"`;
+  } else if (currentOS === "win32") {
+    // Windows requires 3rd party CLI tools like NirCmd, echoing as placeholder
+    cmd = `echo Windows volume set to ${volNum}%`;
+  }
+
+  exec(cmd, (err) => {
+    if (err) console.error("Volume sync error:", err.message);
+    config.quickSettings.volume = volNum;
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+    res.json({ success: true, volume: volNum });
+  });
+});
+
+const appIconUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, path.join(__dirname, "desktop/assets")),
+    filename: (req, file, cb) => {
+      const safeId = req.body.id ? req.body.id.replace(/[^a-zA-Z0-9_-]/g, '') : "app";
+      cb(null, `icon_${safeId}_${Date.now()}.png`);
+    }
+  }),
+  fileFilter: (req, file, cb) => cb(null, ["image/png", "image/jpeg"].includes(file.mimetype))
+});
+
 // --- CRON JOBS ---
 let dailyEmailTask = null;
 async function sendDiscordFlagsEmail() {
@@ -135,9 +181,6 @@ app.post("/api/system/quick-settings", express.json(), (req, res) => {
   res.json({ success: true, quickSettings: config.quickSettings });
 });
 
-// --- CROSS-PLATFORM NETWORK & BLUETOOTH ENDPOINTS ---
-
-// 1. SCANSIONE WI-FI CROSS-PLATFORM
 app.get("/api/system/networks", (req, res) => {
   if (currentOS === "linux") {
     exec("nmcli -t -f SSID,SIGNAL,SECURITY,IN-USE dev wifi list --rescan yes", (err, stdout) => {
@@ -222,7 +265,6 @@ app.get("/api/system/networks", (req, res) => {
   }
 });
 
-// 2. CONNESSIONE WI-FI CROSS-PLATFORM
 app.post("/api/system/connect-wifi", express.json(), (req, res) => {
   const { ssid, password } = req.body;
   if (!ssid) return res.status(400).json({ success: false, error: "SSID mancante" });
@@ -245,7 +287,6 @@ app.post("/api/system/connect-wifi", express.json(), (req, res) => {
   });
 });
 
-// 3. DISPOSITIVI BLUETOOTH CROSS-PLATFORM
 app.get("/api/system/bt-devices", (req, res) => {
   if (currentOS === "linux") {
     exec("bluetoothctl devices", (err, stdout) => {
@@ -315,7 +356,6 @@ app.get("/api/system/bt-devices", (req, res) => {
   }
 });
 
-// 4. CONNESSIONE BLUETOOTH CROSS-PLATFORM
 app.post("/api/system/connect-bt", express.json(), (req, res) => {
   const { mac, name } = req.body;
   const target = mac || name;
@@ -376,7 +416,6 @@ app.post("/save-settings", express.json(), (req, res) => {
     config.username = username;
     config.email = email;
   }
-  // Accept any extra lab/feature flags
   Object.keys(extra).forEach(key => {
     config[key] = extra[key];
   });
@@ -439,25 +478,32 @@ if (!fs.existsSync(catalogFile)) {
 
 app.get("/api/store/catalog", (req, res) => res.json(JSON.parse(fs.readFileSync(catalogFile, "utf8"))));
 
-app.post("/api/store/publish", express.json(), (req, res) => {
+app.post("/api/store/publish", appIconUpload.single("iconFile"), (req, res) => {
   const { id, title, developer, desc, icon, repoUrl } = req.body;
   if (!id || !title || !repoUrl) return res.status(400).json({ success: false, error: "Dati mancanti" });
+  
   const catalog = JSON.parse(fs.readFileSync(catalogFile, "utf8"));
   if (catalog.find(app => app.id === id)) return res.status(400).json({ success: false, error: "App ID già esistente" });
+
+  let finalIcon = icon; 
+  if (req.file) {
+    finalIcon = `/desktop/assets/${req.file.filename}`;
+  } else if (!icon && repoUrl.includes('github.com')) {
+    finalIcon = getRawGithubUrl(repoUrl);
+  }
   
-  catalog.push({ id, title, developer: developer || 'Unknown', desc, icon: icon || '📦', repoUrl });
+  catalog.push({ id, title, developer: developer || 'Unknown', desc, icon: finalIcon || '📦', repoUrl });
   fs.writeFileSync(catalogFile, JSON.stringify(catalog, null, 2));
   res.json({ success: true, message: "App pubblicata!" });
 });
 
 const installProgress = {};
 
-// Validate appId is safe for use in a filesystem path (prevents path traversal)
 function isValidAppId(appId) {
   return typeof appId === 'string' && /^[a-zA-Z0-9_-]+$/.test(appId);
 }
 
-app.post("/api/store/install", express.json(), (req, res) => {
+app.post("/api/store/install", express.json(), async (req, res) => {
   const { appId, title, icon, repoUrl } = req.body;
   if (!isValidAppId(appId)) {
     return res.status(400).json({ success: false, error: "Invalid app ID" });
@@ -465,20 +511,38 @@ app.post("/api/store/install", express.json(), (req, res) => {
   const targetPath = path.join(__dirname, "desktop/apps", appId);
 
   installProgress[appId] = { progress: 0, status: 'downloading' };
-
-  // Send OK immediately, clone in background
   res.json({ success: true, message: "Download started" });
+
+  let localIconPath = icon;
+  
+  // Download the raw icon directly to the assets folder so it stays cached locally
+  if (repoUrl && repoUrl.includes('github.com')) {
+    const rawIconUrl = getRawGithubUrl(repoUrl);
+    if (rawIconUrl) {
+      try {
+        let iconRes = await fetch(rawIconUrl);
+        if (!iconRes.ok) iconRes = await fetch(rawIconUrl.replace('/main/', '/master/')); // Fallback branch
+        
+        if (iconRes.ok) {
+          const buffer = await iconRes.arrayBuffer();
+          const fileName = `icon_${appId}_${Date.now()}.png`;
+          fs.writeFileSync(path.join(__dirname, "desktop/assets", fileName), Buffer.from(buffer));
+          localIconPath = `/desktop/assets/${fileName}`;
+        }
+      } catch (e) {
+        console.error(`Failed to download icon for ${appId}:`, e.message);
+      }
+    }
+  }
 
   const git = spawn('git', ['clone', '--progress', '--depth', '1', repoUrl, targetPath]);
 
   git.stderr.on('data', (data) => {
     const text = data.toString();
-    // Parse progress lines like: "Receiving objects:  45% (450/1000), 1.2 MiB | 1.5 MiB/s"
     const match = text.match(/Receiving objects:\s*(\d+)%/i);
     if (match) {
       installProgress[appId].progress = parseInt(match[1], 10);
     }
-    // Also catch "Resolving deltas: 99%" near the end
     const deltaMatch = text.match(/Resolving deltas:\s*(\d+)%/i);
     if (deltaMatch) {
       installProgress[appId].progress = Math.max(installProgress[appId].progress, parseInt(deltaMatch[1], 10));
@@ -493,7 +557,7 @@ app.post("/api/store/install", express.json(), (req, res) => {
     installProgress[appId] = { progress: 100, status: 'done' };
     if (!config.installedApps) config.installedApps = [];
     if (!config.installedApps.find(app => app.appId === appId)) {
-      config.installedApps.push({ appId, title, icon, url: `apps/${appId}/index.html` });
+      config.installedApps.push({ appId, title, icon: localIconPath, url: `apps/${appId}/index.html` });
       fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
     }
   });
@@ -521,9 +585,7 @@ app.post("/api/store/uninstall", express.json(), (req, res) => {
 // --- RULES ENGINE ---
 if (!config.rules) config.rules = [];
 
-// In-memory dedup: { [ruleId]: "YYYY-MM-DD HH:MM" } — avoids polluting config.json
 const ruleLastRun = {};
-// Pending notifications produced by 'notify' rules, drained by the shell
 const pendingRuleNotifications = [];
 
 app.get("/api/rules", (req, res) => {
@@ -534,7 +596,6 @@ app.post("/api/rules/save", express.json(), (req, res) => {
   if (!Array.isArray(req.body.rules)) {
     return res.status(400).json({ success: false, error: "rules must be an array" });
   }
-  // Drop stale dedup entries for rules that no longer exist
   const ids = new Set(req.body.rules.map(r => r.id));
   Object.keys(ruleLastRun).forEach(id => { if (!ids.has(Number(id))) delete ruleLastRun[id]; });
   config.rules = req.body.rules;
@@ -548,7 +609,6 @@ app.post("/api/rules/trigger", express.json(), (req, res) => {
   res.json({ success: true });
 });
 
-// Polled by the shell to deliver notify-rule notifications
 app.get("/api/rules/notifications", (req, res) => {
   res.json(pendingRuleNotifications.splice(0, pendingRuleNotifications.length));
 });
@@ -577,7 +637,6 @@ function executeRuleAction(action, params) {
       break;
     case 'dnd':
       if (params !== undefined) {
-        // Support both { dnd: true } (new form) and raw boolean (legacy)
         const dndValue = typeof params === 'object' ? !!params.dnd : !!params;
         config.quickSettings.dnd = dndValue;
         fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
@@ -586,7 +645,6 @@ function executeRuleAction(action, params) {
   }
 }
 
-// Check time-based rules every 30 seconds
 setInterval(() => {
   const rules = Array.isArray(config.rules) ? config.rules : [];
   const now = new Date();
@@ -600,7 +658,6 @@ setInterval(() => {
     if (rule.trigger === 'time' && rule.triggerValue) {
       const [h, m] = rule.triggerValue.split(':').map(Number);
       if (h === currentHour && m === currentMin) {
-        // Date-stamped dedup key: fires once per day at the scheduled time
         const fireKey = today + ':' + (h * 60 + m);
         if (ruleLastRun[rule.id] !== fireKey) {
           ruleLastRun[rule.id] = fireKey;

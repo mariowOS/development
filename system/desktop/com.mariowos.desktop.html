@@ -1,10 +1,14 @@
 <!--
 !!!! THIS SECTION MUST NOT BE EDITED OR REMOVED. YOU CAN REMOVE ONLY THE DISCLAMERS/SPECIAL SECTION UNDER THIS ONE. !!!! 
 ------------------------------------------------------------------------------------------------------------------------- 
-mariowOS DE - (C) 2025 mariowstech and the mariowOS team 
+mariowOS DE - (C) 2026 mariowstech and the mariowOS team 
 Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
 Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
 ------------------------------------------------------------------------------------------------------------------------- 
+"chase your dreams. take that risk, nobody can stop you, but only you can." 
+Dedicated to everyone that contribuited making this possible. Thanks a lot 🤍 
+Questions? https://discord.gg/YDVxw6jfbH
 -->
 
 <!DOCTYPE html>
@@ -37,7 +41,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
     body.power-saver { background-color: #121212 !important; background-image: none !important; }
     body.power-saver * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-    body.power-saver .qs-subpanel, body.power-saver .qs-list-item, body.power-saver #notificationsDropdown, body.power-saver #calendarDropdown, body.power-saver .spotlight-box-wrapper { background-color: rgba(20, 24, 32, 0.95) !important; }
+    body.power-saver .qs-subpanel, body.power-saver .qs-list-item, body.power-saver #notificationsDropdown, body.power-saver .spotlight-box-wrapper { background-color: rgba(20, 24, 32, 0.95) !important; }
 
     body {
       margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden;
@@ -48,8 +52,12 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
     @keyframes taskbarSlideUp { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
     @keyframes iconPop { 0% { transform: translateY(15px) scale(0.8); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    
     @keyframes popupIn { from { opacity: 0; transform: scale3d(0.95, 0.95, 1); } to { opacity: 1; transform: scale3d(1, 1, 1); } }
     @keyframes popupOut { from { opacity: 1; transform: scale3d(1, 1, 1); } to { opacity: 0; transform: scale3d(0.95, 0.95, 1); } }
+    
+    @keyframes popupMinimize { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.4); } }
+    
     @keyframes toastIn { from { opacity: 0; transform: translate3d(20px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
     @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
@@ -64,6 +72,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
     .popup.active { display: block; animation: popupIn .18s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .popup.closing { animation: popupOut .15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .popup.minimizing { animation: popupMinimize .25s cubic-bezier(0.2, 0.9, 0.2, 1) forwards; }
 
     .popup-header {
       height: 36px; background: rgba(0, 0, 0, 0.3) !important;
@@ -77,7 +86,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     .action-btn:hover { color: #fff; }
     .action-btn:active { transform: scale(0.85); }
     
-    /* Visually balanced window buttons */
+    .action-btn.min-btn { font-size: 16px !important; }
     .action-btn.max-btn { font-size: 13px !important; }
     .action-btn.close-btn { font-size: 18px !important; }
     .action-btn.close-btn:hover { color: #ff5f56; }
@@ -97,18 +106,16 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     }
 
     .status-left, .status-right { display: flex; align-items: center; gap: 6px; }
-    .status-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 10px; }
+    .status-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; }
 
-    .dock-icon, .system-tray-btn, .search-btn, .status-clock { opacity: 0; animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-    .status-left .btn-wrapper:nth-child(1) .system-tray-btn { animation-delay: 0.15s; }
-    .status-left .search-btn { animation-delay: 0.2s; }
-    .dock-icon:nth-child(1) { animation-delay: 0.2s; }
-    .dock-icon:nth-child(2) { animation-delay: 0.25s; }
-    .dock-icon:nth-child(3) { animation-delay: 0.3s; }
-    .dock-icon:nth-child(4) { animation-delay: 0.35s; }
-    .dock-icon:nth-child(5) { animation-delay: 0.4s; }
-    .dock-icon:nth-child(6) { animation-delay: 0.45s; }
-    .dock-icon:nth-child(7) { animation-delay: 0.5s; }
+    .status-left > *, .status-right > * { 
+      opacity: 0; 
+      animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
+    }
+    
+    .status-left > :nth-child(1) { animation-delay: 0.15s; }
+    .status-left > :nth-child(2) { animation-delay: 0.2s; }
+    
     .status-right > :nth-child(1) { animation-delay: 0.3s; }
     .status-right > :nth-child(2) { animation-delay: 0.35s; }
     .status-right > :nth-child(3) { animation-delay: 0.4s; }
@@ -118,16 +125,20 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     .status-right > :nth-child(7) { animation-delay: 0.6s; }
 
     .dock-icon {
-      width: 42px; height: 42px; border-radius: 11px; display: flex;
+      width: 42px; height: 42px; border-radius: 8px; display: flex;
       align-items: center; justify-content: center; cursor: pointer;
-      transition: transform 0.15s ease, background 0.15s ease; position: relative;
+      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), margin 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.1s ease, background 0.15s ease;
+      position: relative; margin: 0 4px; overflow: hidden; opacity: 1; flex-shrink: 0;
     }
-    .dock-icon:hover { background: rgba(255, 255, 255, 0.12) !important; transform: translateY(-3px) scale(1.05); }
-    .dock-icon img { width: 32px; height: 32px; object-fit: contain; }
-    .dock-icon.running::after {
-      content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px;
-      background: var(--m3-accent-active); border-radius: 50%; box-shadow: 0 0 6px var(--m3-accent-active);
+    .dock-icon:hover { background: rgba(255, 255, 255, 0.08) !important; }
+    .dock-icon:active { transform: scale(0.85); background: rgba(255, 255, 255, 0.05) !important; }
+    .dock-icon img, .dock-icon .menu-icon-symbol { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; pointer-events: none; }
+    .dock-icon::after {
+      content: ''; position: absolute; bottom: 2px; width: 0px; height: 3px;
+      background: var(--m3-accent-active); border-radius: 3px; transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    .dock-icon.running::after { width: 14px; }
+    .dock-icon.boot-anim { opacity: 0; animation: iconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
     .search-btn {
       display: flex; align-items: center; gap: 6px; border-radius: 8px; padding: 5px 10px;
@@ -165,9 +176,10 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     }
     .dropdown-item:hover { background: rgba(255, 255, 255, 0.15) !important; }
     .menu-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
-    .menu-icon-symbol { font-size: 18px; color: var(--m3-accent-active); flex-shrink: 0; }
+    .menu-icon-symbol { font-size: 18px; color: var(--m3-accent-active); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 
     #notificationsDropdown { right: 0; left: auto; width: 360px; max-width: calc(100vw - 32px); max-height: calc(100vh - 80px); padding: 16px; transform-origin: bottom right; border-radius: 24px; }
+    #dockContextMenu { width: 220px; position: fixed; z-index: 9999; left: 50%; transform-origin: bottom center; }
 
     .cal-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; padding: 0 4px; }
     .cal-day-text { font-size: 20px; font-weight: 600; color: #fff; line-height: 1.1; }
@@ -251,15 +263,15 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
           <img src="assets/icons/stars.png" style="width: 30px; height: 30px; object-fit: contain;" class="stars-launcher">
         </button>
         <div class="dropdown" id="actionsDropdown">
-          <a onclick="openPopup('popup6')"><div class="dropdown-item" data-popup="popup6"><img src="assets/icons/messaging.png" class="menu-icon"> <span>Messaging</span></div></a>
-          <a onclick="openPopup('popup2')"><div class="dropdown-item" data-popup="popup2"><img src="assets/icons/browser.png" class="menu-icon"> <span>Browser</span></div></a>
-          <a onclick="openPopup('popup1')"><div class="dropdown-item" data-popup="popup1"><img src="assets/icons/settings.png" class="menu-icon"> <span>Settings</span></div></a>
-          <a onclick="openPopup('popup4')"><div class="dropdown-item" data-popup="popup4"><img src="assets/icons/music.png" class="menu-icon"> <span>Music</span></div></a>
-          <a onclick="openPopup('popup7')"><div class="dropdown-item" data-popup="popup7"><img src="assets/icons/store.png" class="menu-icon"> <span>Store</span></div></a>
-          <a onclick="openPopup('popup3')"><div class="dropdown-item" data-popup="popup3"><img src="assets/icons/feedback.png" class="menu-icon"> <span>Help</span></div></a>
-          <a onclick="openPopup('popup5')"><div class="dropdown-item" data-popup="popup5"><img src="assets/icons/notes.png" class="menu-icon"> <span>Notes</span></div></a>
-          <a onclick="openPopup('popup8')"><div class="dropdown-item" data-popup="popup8"><img src="assets/icons/terminal.png" class="menu-icon"> <span>Terminal</span></div></a>
-          <a onclick="openPopup('popup9')"><div class="dropdown-item" data-popup="popup9"><img src="assets/icons/calculator.png" class="menu-icon"> <span>Calculator</span></div></a>
+          <a onclick="launchAppFromMenu('popup6')"><div class="dropdown-item" data-popup="popup6"><img src="assets/icons/messaging.png" class="menu-icon"> <span>Messaging</span></div></a>
+          <a onclick="launchAppFromMenu('popup2')"><div class="dropdown-item" data-popup="popup2"><img src="assets/icons/browser.png" class="menu-icon"> <span>Browser</span></div></a>
+          <a onclick="launchAppFromMenu('popup1')"><div class="dropdown-item" data-popup="popup1"><img src="assets/icons/settings.png" class="menu-icon"> <span>Settings</span></div></a>
+          <a onclick="launchAppFromMenu('popup4')"><div class="dropdown-item" data-popup="popup4"><img src="assets/icons/music.png" class="menu-icon"> <span>Music</span></div></a>
+          <a onclick="launchAppFromMenu('popup7')"><div class="dropdown-item" data-popup="popup7"><img src="assets/icons/store.png" class="menu-icon"> <span>Store</span></div></a>
+          <a onclick="launchAppFromMenu('popup3')"><div class="dropdown-item" data-popup="popup3"><img src="assets/icons/feedback.png" class="menu-icon"> <span>Help</span></div></a>
+          <a onclick="launchAppFromMenu('popup5')"><div class="dropdown-item" data-popup="popup5"><img src="assets/icons/notes.png" class="menu-icon"> <span>Notes</span></div></a>
+          <a onclick="launchAppFromMenu('popup8')"><div class="dropdown-item" data-popup="popup8"><img src="assets/icons/terminal.png" class="menu-icon"> <span>Terminal</span></div></a>
+          <a onclick="launchAppFromMenu('popup9')"><div class="dropdown-item" data-popup="popup9"><img src="assets/icons/calculator.png" class="menu-icon"> <span>Calculator</span></div></a>
         </div>
       </div>
       <div class="search-btn" onclick="openSpotlight()" title="Search (Cmd/Ctrl + Space)">
@@ -268,15 +280,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
       </div>
     </div>
 
-    <div class="status-center" id="dockContainer">
-      <div class="dock-icon" onclick="openPopup('popup6')" title="Messaging" data-popup="popup6"><img src="assets/icons/messaging.png" alt="Messaging" /></div>
-      <div class="dock-icon" onclick="openPopup('popup5')" title="Notes" data-popup="popup5"><img src="assets/icons/notes.png" alt="Notes" /></div>
-      <div class="dock-icon" onclick="openPopup('popup4')" title="Music" data-popup="popup4"><img src="assets/icons/music.png" alt="Music" /></div>
-      <div class="dock-icon" onclick="openPopup('popup1')" title="Settings" data-popup="popup1"><img src="assets/icons/settings.png" alt="Settings" /></div>
-      <div class="dock-icon" onclick="openPopup('popup2')" title="Browser" data-popup="popup2"><img src="assets/icons/browser.png" alt="Browser" /></div>
-      <div class="dock-icon" onclick="openPopup('popup8')" title="Terminal" data-popup="popup8"><img src="assets/icons/terminal.png" alt="Terminal" /></div>
-      <div class="dock-icon" onclick="openPopup('popup7')" title="Store" data-popup="popup7"><img src="assets/icons/store.png" alt="Store" /></div>
-    </div>
+    <div class="status-center" id="dockContainer"></div>
 
     <div class="status-right">
       <span id="devChip" style="display:none;font-size:10px;background:var(--m3-accent-active);color:var(--m3-accent-on-active);border-radius:6px;padding:1px 6px;font-weight:600;">DEV</span>
@@ -295,7 +299,18 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
       </div>
 
       <button class="system-tray-btn" onclick="toggleQS('wifi')" title="Network"><span class="material-symbols-outlined" id="trayWifiIcon">wifi</span></button>
-      <button class="system-tray-btn" title="Volume"><span class="material-symbols-outlined">volume_up</span></button>
+      
+    <div class="btn-wrapper">
+        <button class="system-tray-btn" id="volumeBtn" title="Volume"><span class="material-symbols-outlined" id="volumeIcon">volume_up</span></button>
+        <div class="dropdown" id="volumeDropdown" style="right: 0; left: auto; width: 260px; padding: 16px; transform-origin: bottom right;">
+          <div style="font-size: 12px; font-weight: 600; margin-bottom: 12px; color: rgba(255,255,255,0.7);">Output Volume</div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="material-symbols-outlined" id="volumeDropdownIcon" style="font-size: 20px; color: var(--m3-accent-active);">volume_up</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="70" style="flex: 1; accent-color: var(--m3-accent-active); height: 4px; border-radius: 4px; cursor: pointer;">
+            <span id="volumeValue" style="font-size: 12px; font-weight: 500; width: 30px; text-align: right;">70%</span>
+          </div>
+        </div>
+      </div>
 
       <div class="btn-wrapper">
         <div class="status-clock" id="clockBtn">11:56 PM</div>
@@ -396,24 +411,25 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     <div class="spotlight-box-wrapper">
       <div class="spotlight-input-bar">
         <span class="material-symbols-outlined spotlight-icon">search</span>
-        <input type="text" id="spotlightInput" class="spotlight-input" placeholder="Search..." oninput="handleSpotlightInput(this.value)" onkeydown="handleSpotlightKeydown(event)">
+        <input type="text" id="spotlightInput" class="spotlight-input" placeholder="Spotlight Search..." oninput="handleSpotlightInput(this.value)" onkeydown="handleSpotlightKeydown(event)">
       </div>
       <div id="spotlightResults" class="spotlight-results"></div>
     </div>
   </div>
 
   <div id="toast-container"></div>
+  <div class="dropdown" id="dockContextMenu"></div>
 
-  <!-- Standard Window Popups with Windows Controls -->
   <div id="popup1" class="popup">
     <div class="popup-header">
       <span>Settings</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup1')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup1')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup1')">close</span>
       </div>
     </div>
-    <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
+    <iframe data-default-src="apps/settings/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <div id="popup2" class="popup">
@@ -427,86 +443,109 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
         <button class="browser-nav-btn" onclick="openSpotlight()" title="Spotlight"><span class="material-symbols-outlined" style="font-size:16px;">search</span></button>
       </div>
       <div class="window-actions" style="margin-left: 8px;">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup2')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup2')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup2')">close</span>
       </div>
     </div>
-    <iframe id="browserFrame" src="https://mariowotech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
+    <iframe id="browserFrame" data-default-src="https://mariowotech.github.io/mariowOS-landpages/browser-homepage/" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <div id="popup3" class="popup">
     <div class="popup-header">
       <span>Help</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup3')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup3')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup3')">close</span>
       </div>
     </div>
-    <iframe src="apps/help/index.html" class="popup-frame"></iframe>
+    <iframe data-default-src="apps/help/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <div id="popup4" class="popup">
     <div class="popup-header">
       <span>Music</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup4')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup4')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup4')">close</span>
       </div>
     </div>
-    <iframe src="apps/music/index.html" class="popup-frame"></iframe>
+    <iframe data-default-src="apps/music/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
-  <!-- Custom Header for Notes (Injected from iframe) -->
   <div id="popup5" class="popup">
-    <div class="popup-header"></div>
-    <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
+    <div class="popup-header">
+      <span>Notes</span>
+      <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup5')">remove</span>
+        <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup5')">crop_square</span>
+        <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup5')">close</span>
+      </div>
+    </div>
+    <iframe data-default-src="apps/notes/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <div id="popup6" class="popup">
     <div class="popup-header">
       <span>Messaging</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup6')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup6')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup6')">close</span>
       </div>
     </div>
-    <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed" class="popup-frame" id="chattable"></iframe>
+    <iframe data-default-src="https://organizations.minnit.chat/744784529789521/c/Main?embed" src="about:blank" class="popup-frame" id="chattable"></iframe>
   </div>
 
   <div id="popup7" class="popup">
     <div class="popup-header">
       <span>Store</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup7')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup7')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup7')">close</span>
       </div>
     </div>
-    <iframe src="apps/store/index.html" class="popup-frame"></iframe>
+    <iframe data-default-src="apps/store/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <div id="popup8" class="popup">
     <div class="popup-header">
       <span>Terminal</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup8')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup8')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup8')">close</span>
       </div>
     </div>
-    <iframe src="apps/terminal/index.html" class="popup-frame"></iframe>
+    <iframe data-default-src="apps/terminal/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <div id="popup9" class="popup" style="width: 400px; height: 550px;">
     <div class="popup-header">
       <span>Calculator</span>
       <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup9')">remove</span>
         <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup9')">crop_square</span>
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup9')">close</span>
       </div>
     </div>
-    <iframe src="apps/calculator/index.html" class="popup-frame"></iframe>
+    <iframe data-default-src="apps/calculator/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <script>
+    function renderOsIcon(iconStr, context) {
+      if (!iconStr) return '<span class="menu-icon-symbol">📦</span>';
+      if (iconStr.includes('/') || iconStr.includes('.')) {
+        return context === 'dock' 
+          ? `<img src="${iconStr}">` 
+          : `<img src="${iconStr}" class="menu-icon">`;
+      }
+      return `<span class="menu-icon-symbol">${iconStr}</span>`;
+    }
+
     let popupCounter = 0;
     const TASKBAR_H = 48;
     const RESERVED_TOP = 12;
@@ -514,6 +553,11 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     let notificationsHistory = [];
     let qsState = { wifi: true, bluetooth: true, dnd: false, powerMode: "Balanced", connectedWifi: null, connectedBt: null };
     let dynamicInstalledApps = [];
+    
+    let runningApps = new Set();
+    let pinnedApps = JSON.parse(localStorage.getItem('hmos_pinned_apps')) || ['popup6', 'popup5', 'popup4', 'popup1', 'popup2', 'popup8', 'popup7'];
+    
+    let draggedAppId = null;
 
     const builtInApps = [
       { id: 'popup1', title: 'Settings', icon: 'assets/icons/settings.png' },
@@ -526,7 +570,269 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
       { id: 'popup8', title: 'Terminal', icon: 'assets/icons/terminal.png' },
       { id: 'popup9', title: 'Calculator', icon: 'assets/icons/calculator.png' }
     ];
+    
+    function getAllApps() { return [...builtInApps, ...dynamicInstalledApps]; }
 
+    // Unified wrapper to close app menu after click
+    function launchAppFromMenu(appId) {
+      openPopup(appId);
+      document.getElementById('actionsDropdown').classList.remove('open');
+    }
+
+    function updateDock(isBoot = false) {
+      const dock = document.getElementById("dockContainer");
+      const allApps = getAllApps();
+      const dockApps = [...new Set([...pinnedApps, ...runningApps])];
+
+      Array.from(dock.children).forEach(icon => {
+        if (!dockApps.includes(icon.dataset.popup)) {
+          icon.style.width = '0px';
+          icon.style.margin = '0px';
+          icon.style.opacity = '0';
+          setTimeout(() => { if(icon.parentNode) icon.remove(); }, 250);
+        }
+      });
+
+      dockApps.forEach((appId, index) => {
+        const app = allApps.find(a => a.id === appId || a.appId === appId);
+        if (!app) return;
+
+        let dockIcon = dock.querySelector(`.dock-icon[data-popup="${appId}"]`);
+
+        if (!dockIcon) {
+          dockIcon = document.createElement("div");
+          dockIcon.className = "dock-icon";
+          dockIcon.dataset.popup = appId;
+          
+          if (isBoot) {
+            dockIcon.classList.add("boot-anim");
+            dockIcon.style.animationDelay = `${0.15 + ((index + 1) * 0.05)}s`;
+          } else {
+            dockIcon.style.width = '0px';
+            dockIcon.style.margin = '0px';
+            dockIcon.style.opacity = '0';
+          }
+          
+          dockIcon.onclick = () => {
+            const popup = document.getElementById(appId);
+            if (runningApps.has(appId)) {
+              if (getTopmostPopup() === popup && !popup.classList.contains('closing') && !popup.classList.contains('minimizing')) {
+                minimizePopup(appId);
+              } else {
+                openPopup(appId);
+              }
+            } else {
+              openPopup(appId);
+            }
+          };
+          
+          dockIcon.oncontextmenu = (e) => showDockContextMenu(e, appId);
+          
+          dockIcon.draggable = true;
+          
+          dockIcon.ondragstart = (e) => {
+            draggedAppId = appId;
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => dockIcon.style.opacity = '0.4', 0);
+          };
+          
+          dockIcon.ondragend = (e) => {
+            draggedAppId = null;
+            dockIcon.style.opacity = '';
+            dockIcon.style.transform = '';
+          };
+          
+          dockIcon.ondragover = (e) => {
+            e.preventDefault(); 
+            if (draggedAppId && draggedAppId !== appId) {
+              const rect = dockIcon.getBoundingClientRect();
+              const midpoint = rect.left + rect.width / 2;
+              dockIcon.style.transform = e.clientX > midpoint ? 'translateX(-6px) scale(1.05)' : 'translateX(6px) scale(1.05)';
+            }
+          };
+          
+          dockIcon.ondragleave = (e) => {
+            dockIcon.style.transform = '';
+          };
+          
+          dockIcon.ondrop = (e) => {
+            e.preventDefault();
+            dockIcon.style.transform = '';
+            
+            if (!draggedAppId || draggedAppId === appId) return;
+
+            if (!pinnedApps.includes(draggedAppId)) {
+              pinnedApps.push(draggedAppId);
+              showNotification("Dock", `${app.title} pinned to dock`, "📌");
+            }
+
+            pinnedApps = pinnedApps.filter(id => id !== draggedAppId);
+            
+            if (!pinnedApps.includes(appId)) pinnedApps.push(appId);
+
+            let newIdx = pinnedApps.indexOf(appId);
+            const rect = dockIcon.getBoundingClientRect();
+            if (e.clientX > rect.left + rect.width / 2) newIdx++; 
+
+            pinnedApps.splice(newIdx, 0, draggedAppId);
+            localStorage.setItem('hmos_pinned_apps', JSON.stringify(pinnedApps));
+            
+            updateDock(); 
+          };
+          
+          dockIcon.innerHTML = renderOsIcon(app.icon, 'dock');
+          
+          if (index < dock.children.length) {
+            dock.insertBefore(dockIcon, dock.children[index]);
+          } else {
+            dock.appendChild(dockIcon);
+          }
+
+          if (!isBoot) {
+            void dockIcon.offsetWidth; 
+            dockIcon.style.width = '';
+            dockIcon.style.margin = '';
+            dockIcon.style.opacity = '';
+          }
+        } else {
+          if (dock.children[index] !== dockIcon && !dockIcon.style.width.includes('0px')) {
+            dock.insertBefore(dockIcon, dock.children[index]);
+          }
+        }
+
+        dockIcon.title = app.title;
+        if (runningApps.has(appId)) {
+          dockIcon.classList.add("running");
+        } else {
+          dockIcon.classList.remove("running");
+        }
+      });
+    }
+
+    function showDockContextMenu(e, appId) {
+      e.preventDefault();
+      const menu = document.getElementById('dockContextMenu');
+      const isRunning = runningApps.has(appId);
+      const isPinned = pinnedApps.includes(appId);
+
+      menu.innerHTML = `
+        ${isRunning 
+            ? `<a onclick="closePopup('${appId}'); document.getElementById('dockContextMenu').classList.remove('open');"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">close</span> <span>Close window</span></div></a>`
+            : `<a onclick="openPopup('${appId}'); document.getElementById('dockContextMenu').classList.remove('open');"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">open_in_new</span> <span>Open app</span></div></a>`
+        }
+        <div style="height:1px; background:rgba(255,255,255,0.1); margin: 4px 0;"></div>
+        <a onclick="togglePin('${appId}'); document.getElementById('dockContextMenu').classList.remove('open');"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">${isPinned ? 'keep_off' : 'keep'}</span> <span>${isPinned ? 'Unpin from dock' : 'Pin to dock'}</span></div></a>
+      `;
+
+      const menuWidth = 220;
+      let leftPos = e.clientX - (menuWidth / 2);
+      leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - menuWidth - 10));
+      
+      menu.style.left = `${leftPos}px`; 
+      menu.style.bottom = '56px'; 
+      
+      document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
+      setTimeout(() => menu.classList.add('open'), 10);
+    }
+
+    function togglePin(appId) {
+      const app = getAllApps().find(a => a.id === appId || a.appId === appId);
+      if (pinnedApps.includes(appId)) {
+        pinnedApps = pinnedApps.filter(id => id !== appId);
+        showNotification("Dock", `${app.title} unpinned from dock`, "📌");
+      } else {
+        pinnedApps.push(appId);
+        showNotification("Dock", `${app.title} pinned to dock`, "📌");
+      }
+      localStorage.setItem('hmos_pinned_apps', JSON.stringify(pinnedApps));
+      updateDock();
+    }
+
+    function setPopupTransformOrigin(popupId) {
+      const popup = document.getElementById(popupId);
+      const dockIcon = document.querySelector(`.dock-icon[data-popup="${popupId}"]`);
+      
+      if (popup && dockIcon) {
+        const iconRect = dockIcon.getBoundingClientRect();
+        
+        const wasHidden = (popup.style.display === 'none' || popup.style.display === '');
+        if (wasHidden) {
+          popup.style.visibility = 'hidden';
+          popup.style.display = 'block';
+        }
+        
+        const popupRect = popup.getBoundingClientRect();
+        const targetX = iconRect.left + (iconRect.width / 2);
+        const targetY = iconRect.top + (iconRect.height / 2);
+        
+        const originX = ((targetX - popupRect.left) / popupRect.width) * 100;
+        const originY = ((targetY - popupRect.top) / popupRect.height) * 100;
+        
+        popup.style.transformOrigin = `${originX}% ${originY}%`;
+        
+        if (wasHidden) {
+          popup.style.display = 'none';
+          popup.style.visibility = '';
+        }
+      } else if (popup) {
+        popup.style.transformOrigin = "center bottom";
+      }
+    }
+
+// Set up Local Volume Display state logic
+    const volSlider = document.getElementById('volumeSlider');
+    const volVal = document.getElementById('volumeValue');
+    const volIcon = document.getElementById('volumeIcon');
+    const volDdIcon = document.getElementById('volumeDropdownIcon');
+
+    function updateVolumeUI(val) {
+      val = parseInt(val);
+      if (volVal) volVal.textContent = val + '%';
+      
+      let icon = 'volume_up';
+      if (val === 0) icon = 'volume_off';
+      else if (val < 50) icon = 'volume_down';
+      
+      if (volIcon) volIcon.textContent = icon;
+      if (volDdIcon) volDdIcon.textContent = icon;
+    }
+
+    if (volSlider) {
+      // Load saved volume on boot
+      const savedVol = localStorage.getItem('hmos_system_volume') || 70;
+      volSlider.value = savedVol;
+      updateVolumeUI(savedVol);
+
+      // 1. Fires continuously while dragging (Updates UI & Apps instantly)
+      volSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        updateVolumeUI(val);
+        
+        document.querySelectorAll('.popup-frame').forEach(iframe => {
+          if (iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ type: 'system-volume-change', volume: val / 100 }, '*');
+          }
+        });
+      });
+
+      // 2. Fires once when you let go of the slider (Syncs with the OS Backend)
+      volSlider.addEventListener('change', async (e) => {
+        const val = parseInt(e.target.value);
+        localStorage.setItem('hmos_system_volume', val);
+        updateQSBackend('volume', val); // Saves to quick settings JSON
+        
+        try {
+          await fetch("/api/system/set-volume", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ volume: val })
+          });
+        } catch (err) {
+          console.error("Failed to sync system volume:", err);
+        }
+      });
+    }
+    
     async function loadQuickSettings() {
       try {
         const res = await fetch("/api/system/quick-settings");
@@ -645,26 +951,42 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     }
 
     function showNotification(title, msg, icon = "🔔") {
-      if (qsState.dnd) return;
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div'); toast.className = 'toast';
-      toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
-      container.appendChild(toast);
-      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 200); }, 4000);
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       notificationsHistory.unshift({ title, msg, icon, time });
       if (notificationsHistory.length > 10) notificationsHistory.pop();
       updateNotificationCenter();
+
+      if (qsState.dnd) return;
+
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div'); toast.className = 'toast';
+      toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+      
+      container.prepend(toast);
+      
+      setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 200); }, 4000);
     }
 
     function updateNotificationCenter() {
-      const list = document.getElementById('notificationsList'); const badge = document.getElementById('notifBadge');
+      const list = document.getElementById('notificationsList'); 
+      const badge = document.getElementById('notifBadge');
+      const dropdown = document.getElementById('notificationsDropdown');
+      
       if (notificationsHistory.length === 0) {
-        list.innerHTML = `<div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;">No new notifications</div>`; badge.style.display = 'none'; return;
+        list.innerHTML = `<div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;">No new notifications</div>`; 
+        badge.style.display = 'none'; 
+        return;
       }
-      badge.style.display = 'block'; list.innerHTML = '';
+      
+      if (dropdown && !dropdown.classList.contains('open')) {
+        badge.style.display = 'block'; 
+      }
+      
+      list.innerHTML = '';
       notificationsHistory.forEach(n => {
-        const item = document.createElement('div'); item.className = 'dropdown-item'; item.style.cssText = "flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; white-space: normal;";
+        const item = document.createElement('div'); 
+        item.className = 'dropdown-item'; 
+        item.style.cssText = "flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; white-space: normal;";
         item.innerHTML = `<div style="display:flex; width:100%; justify-content:space-between; font-weight:600; font-size:12px;"><span>${n.icon} ${n.title}</span><span style="color:#666; font-size:10px;">${n.time}</span></div><div style="font-size:11px; color:#aaa; line-height:1.3; margin-top:2px;">${n.msg}</div>`;
         list.appendChild(item);
       });
@@ -684,7 +1006,8 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     }
 
     function getTopmostPopup() {
-      const activePopups = Array.from(document.querySelectorAll('.popup.active:not(.closing)')); if (activePopups.length === 0) return null;
+      const activePopups = Array.from(document.querySelectorAll('.popup.active:not(.closing):not(.minimizing)')); 
+      if (activePopups.length === 0) return null;
       return activePopups.reduce((top, current) => {
         const zTop = parseInt(window.getComputedStyle(top).zIndex) || 0; const zCurr = parseInt(window.getComputedStyle(current).zIndex) || 0; return zCurr > zTop ? current : top;
       });
@@ -703,7 +1026,6 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
       } else { contextDropdown.innerHTML = `<a href="com.mariowos.desktop.html"><div class="dropdown-item"><span>Refresh desktop</span></div></a>`; }
     }
 
-    // --- FULLSCREEN MAXIMIZE LOGIC ---
     function toggleMaximize(popupId) {
       const el = document.getElementById(popupId);
       if (!el) return;
@@ -735,8 +1057,21 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
     function openPopup(popupId) {
       const popup = document.getElementById(popupId); if(!popup) return;
-      popup.classList.remove("closing"); document.querySelectorAll(`[data-popup="${popupId}"]`).forEach(el => el.classList.add('running'));
-
+      popup.classList.remove("closing", "minimizing"); 
+      
+      if (!runningApps.has(popupId)) {
+        runningApps.add(popupId);
+        const iframe = popup.querySelector('iframe');
+        if (iframe) {
+          const defaultSrc = iframe.dataset.defaultSrc || iframe.src;
+          if (!iframe.dataset.defaultSrc) iframe.dataset.defaultSrc = defaultSrc;
+          if (iframe.src.includes('about:blank') || !iframe.src) {
+            iframe.src = iframe.dataset.defaultSrc;
+          }
+        }
+        updateDock(); 
+      }
+      
       if (!popup.classList.contains('maximized')) {
         const cs = getComputedStyle(popup);
         const popupWidth = parseInt(cs.width, 10) || 1048; const popupHeight = parseInt(cs.height, 10) || 600;
@@ -751,17 +1086,50 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
         }
       }
 
+      setPopupTransformOrigin(popupId);
+
       focusPopup(popup); popup.style.display = "block"; popup.classList.add("active"); popupCounter++;
       const header = popup.querySelector(".popup-header");
       if (header && !header.dataset.dragSetup) { makeDraggable(popup, header, RESERVED_TOP); header.dataset.dragSetup = "true"; }
       updateContextBar();
     }
 
+    function minimizePopup(popupId) {
+      const popup = document.getElementById(popupId); if(!popup) return;
+      
+      setPopupTransformOrigin(popupId);
+
+      popup.classList.remove("active"); popup.classList.add("minimizing");
+      updateContextBar();
+      const onAnimationEnd = () => { 
+        popup.style.display = "none"; 
+        popup.classList.remove("minimizing"); 
+        popup.removeEventListener("animationend", onAnimationEnd); 
+      };
+      popup.addEventListener("animationend", onAnimationEnd);
+    }
+
     function closePopup(popupId) {
       const popup = document.getElementById(popupId); if(!popup) return;
+
+      popup.style.transformOrigin = "center center"; 
       popup.classList.remove("active"); popup.classList.add("closing");
-      document.querySelectorAll(`[data-popup="${popupId}"]`).forEach(el => el.classList.remove('running')); updateContextBar();
-      const onAnimationEnd = () => { popup.style.display = "none"; popup.classList.remove("closing"); popup.removeEventListener("animationend", onAnimationEnd); };
+      updateContextBar();
+      
+      const onAnimationEnd = () => { 
+        popup.style.display = "none"; 
+        popup.classList.remove("closing"); 
+        
+        const iframe = popup.querySelector('iframe');
+        if (iframe) {
+           if (!iframe.dataset.defaultSrc) iframe.dataset.defaultSrc = iframe.src;
+           iframe.src = 'about:blank';
+        }
+        runningApps.delete(popupId);
+        updateDock();
+        
+        popup.removeEventListener("animationend", onAnimationEnd); 
+      };
       popup.addEventListener("animationend", onAnimationEnd);
     }
 
@@ -784,17 +1152,14 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
         focusPopup(el); 
         isDragging = true;
         
-        // Remove transitions so drag feels instant and set origin for swing
         el.style.transition = 'none';
         el.style.transformOrigin = "top center";
         
-        // --- DRAG TO RESTORE (SHRINK ANIMATION) ---
         if (el.classList.contains('maximized')) {
            el.classList.remove('maximized');
            const prevW = el.dataset.prevWidth || '1048px';
            const prevH = el.dataset.prevHeight || '600px';
            
-           // Apply a smooth transition only to dimensions so it doesn't lag the mouse position
            el.style.transition = 'width 0.25s cubic-bezier(0.16, 1, 0.3, 1), height 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.25s ease';
            
            el.style.width = prevW;
@@ -820,8 +1185,6 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
         const maxLeft = window.innerWidth - el.offsetWidth - 8; const maxTop = window.innerHeight - el.offsetHeight - TASKBAR_H - 8;
         newLeft = Math.max(8, Math.min(newLeft, maxLeft)); newTop = Math.max(minTop, Math.min(newTop, maxTop));
         
-        // --- JELLY/MOMENTUM EFFECT ---
-        // Rotates the window based on horizontal drag speed (pos1)
         let rot = Math.max(-4, Math.min(4, pos1 * 0.4));
         el.style.transform = `rotate(${rot}deg)`;
         
@@ -832,7 +1195,6 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
         isDragging = false; 
         document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; 
         
-        // --- RESET MOMENTUM WITH ELASTIC SPRING ---
         el.style.transition = 'transform 0.5s cubic-bezier(0.2, 1.2, 0.3, 1.1)';
         el.style.transform = 'rotate(0deg)';
         setTimeout(() => { if (!isDragging) el.style.transition = ''; }, 500);
@@ -843,7 +1205,6 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
 
     function openSpotlight() { const s = document.getElementById('spotlightSearch'); s.classList.add('active'); const input = document.getElementById('spotlightInput'); input.value = ''; handleSpotlightInput(''); setTimeout(() => input.focus(), 100); }
     function closeSpotlight() { document.getElementById('spotlightSearch').classList.remove('active'); document.getElementById('spotlightInput').value = ''; }
-    function getAllApps() { return [...builtInApps, ...dynamicInstalledApps]; }
 
     function handleSpotlightInput(query) {
       const resultsDiv = document.getElementById('spotlightResults'); resultsDiv.innerHTML = ''; const q = query.trim().toLowerCase();
@@ -903,6 +1264,8 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     }
     setupDropdown("actionsBtn", "actionsDropdown"); setupDropdown("contextBtn", "contextDropdown");
     setupDropdown("activitiesBtn", "activitiesDropdown"); setupDropdown("notificationsBtn", "notificationsDropdown"); setupDropdown("clockBtn", "calendarDropdown");
+    setupDropdown("volumeBtn", "volumeDropdown"); // Initialized the volume dropdown setup
+    
     document.addEventListener('click', (e) => { if (!e.target.closest('.dropdown')) { document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open')); } });
 
     function applyUserWallpaper() { fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" }).then(res => { document.body.style.backgroundImage = res.ok ? 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")' : 'url("assets/wallpaper.factory.png")'; }).catch(() => { document.body.style.backgroundImage = 'url("assets/wallpaper.factory.png")'; }); }
@@ -922,19 +1285,39 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
       }
 
       if (e.data.type === 'apply-wallpaper') { applyUserWallpaper(); (async () => { try { const r = await fetch("/get-settings"); if (r.ok) { const cfg = await r.json(); applyLabFlagEffects({ darkMode: cfg.darkMode, performance: cfg.performance, animations: cfg.animations, developer: cfg.developer }); }; } catch (e) {} })(); }
+      
       if (e.data.type === 'app-installed-live') {
-        const app = e.data.app; const dropdown = document.getElementById("actionsDropdown"); const dock = document.getElementById("dockContainer");
+        const app = e.data.app; const dropdown = document.getElementById("actionsDropdown");
         if (!document.querySelector(`[data-popup="${app.appId}"]`)) {
           dynamicInstalledApps.push({ id: app.appId, title: app.title, icon: app.icon });
-          const btn = document.createElement("a"); btn.onclick = () => openPopup(app.appId); btn.innerHTML = `<div class="dropdown-item" data-popup="${app.appId}"><span class="menu-icon-symbol">${app.icon}</span> <span>${app.title}</span></div>`; dropdown.appendChild(btn);
-          const dockIcon = document.createElement("div"); dockIcon.className = "dock-icon"; dockIcon.title = app.title; dockIcon.dataset.popup = app.appId; dockIcon.onclick = () => openPopup(app.appId); dockIcon.innerHTML = `<span class="menu-icon-symbol">${app.icon}</span>`; dock.appendChild(dockIcon);
-          const popupDiv = document.createElement("div"); popupDiv.id = app.appId; popupDiv.className = "popup"; popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><iframe src="${app.url}" class="popup-frame"></iframe>`; document.body.appendChild(popupDiv);
-          showNotification("App Installata", `${app.title} è pronta all'uso!`, app.icon);
+          
+          const btn = document.createElement("a"); btn.onclick = () => launchAppFromMenu(app.appId); 
+          btn.innerHTML = `<div class="dropdown-item" data-popup="${app.appId}">${renderOsIcon(app.icon, 'dropdown')} <span>${app.title}</span></div>`; 
+          dropdown.appendChild(btn);
+          
+          const popupDiv = document.createElement("div"); popupDiv.id = app.appId; popupDiv.className = "popup"; 
+          popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${app.appId}')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><iframe data-default-src="${app.url}" src="about:blank" class="popup-frame"></iframe>`; 
+          document.body.appendChild(popupDiv);
+          
+          updateDock();
+
+          const notifIcon = (app.icon && (app.icon.includes('/') || app.icon.includes('.'))) ? "📱" : (app.icon || "📦");
+          showNotification("App Installata", `${app.title} è pronta all'uso!`, notifIcon);
         }
       }
+      
       if (e.data.type === 'app-uninstalled-live') {
-        const appId = e.data.appId; closePopup(appId); dynamicInstalledApps = dynamicInstalledApps.filter(a => a.id !== appId);
-        document.querySelectorAll(`[data-popup="${appId}"]`).forEach(el => el.remove()); const popupDiv = document.getElementById(appId); if (popupDiv) { setTimeout(() => popupDiv.remove(), 200); } showNotification("App Rimossa", "L'applicazione è stata disinstallata.", "🗑️");
+        const appId = e.data.appId; 
+        closePopup(appId); 
+        dynamicInstalledApps = dynamicInstalledApps.filter(a => a.id !== appId);
+        pinnedApps = pinnedApps.filter(id => id !== appId);
+        localStorage.setItem('hmos_pinned_apps', JSON.stringify(pinnedApps));
+
+        document.querySelectorAll(`[data-popup="${appId}"]`).forEach(el => el.remove()); 
+        const popupDiv = document.getElementById(appId); if (popupDiv) { setTimeout(() => popupDiv.remove(), 200); } 
+        updateDock();
+        
+        showNotification("App Rimossa", "L'applicazione è stata disinstallata.", "🗑️");
       }
       if (e.data.type === "load-youafter") { document.getElementById("popup1").querySelector("iframe").src = "apps/settings/assets/youafter.html"; }
       if (e.data.type === 'clear-settings') { try { const res = await fetch('/config.json'); const cfg = await res.json(); await fetch('/clear-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ passwordHash: cfg.passwordHash }) }); e.source.postMessage({ type: 'settings-cleared' }, '*'); } catch (err) { e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*'); } }
@@ -950,7 +1333,7 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
     document.addEventListener('keydown', (e) => {
       const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
       if ((e.metaKey || e.ctrlKey) && e.code === 'Space') { e.preventDefault(); const spotlight = document.getElementById('spotlightSearch'); if (spotlight.classList.contains('active')) { closeSpotlight(); } else { openSpotlight(); } }
-      if (e.metaKey && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); document.querySelectorAll('.popup.active:not(.closing)').forEach(popup => { closePopup(popup.id); }); }
+      if (e.metaKey && (e.key === 'd' || e.key === 'D')) { e.preventDefault(); document.querySelectorAll('.popup.active:not(.closing):not(.minimizing)').forEach(popup => { minimizePopup(popup.id); }); }
       if (e.shiftKey && !isInput) {
         if (e.key === 'F4') { e.preventDefault(); const topApp = getTopmostPopup(); if (topApp) closePopup(topApp.id); }
         if (e.key === 'r' || e.key === 'R') { e.preventDefault(); window.location.reload(); }
@@ -965,18 +1348,25 @@ Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
       try {
         const res = await fetch('/get-settings'); const config = await res.json();
         if (config.installedApps && config.installedApps.length > 0) {
-          const dropdown = document.getElementById("actionsDropdown"); const dock = document.getElementById("dockContainer");
+          const dropdown = document.getElementById("actionsDropdown");
           config.installedApps.forEach(app => {
             dynamicInstalledApps.push({ id: app.appId, title: app.title, icon: app.icon });
-            const btn = document.createElement("a"); btn.onclick = () => openPopup(app.appId); btn.innerHTML = `<div class="dropdown-item" data-popup="${app.appId}"><span class="menu-icon-symbol">${app.icon}</span> <span>${app.title}</span></div>`; dropdown.appendChild(btn);
-            const dockIcon = document.createElement("div"); dockIcon.className = "dock-icon"; dockIcon.title = app.title; dockIcon.dataset.popup = app.appId; dockIcon.onclick = () => openPopup(app.appId); dockIcon.innerHTML = `<span class="menu-icon-symbol">${app.icon}</span>`; dock.appendChild(dockIcon);
-            const popupDiv = document.createElement("div"); popupDiv.id = app.appId; popupDiv.className = "popup"; popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><iframe src="${app.url}" class="popup-frame"></iframe>`; document.body.appendChild(popupDiv);
+            
+            const btn = document.createElement("a"); btn.onclick = () => launchAppFromMenu(app.appId); 
+            btn.innerHTML = `<div class="dropdown-item" data-popup="${app.appId}">${renderOsIcon(app.icon, 'dropdown')} <span>${app.title}</span></div>`; 
+            dropdown.appendChild(btn);
+            
+            const popupDiv = document.createElement("div"); popupDiv.id = app.appId; popupDiv.className = "popup"; 
+            popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${app.appId}')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><iframe data-default-src="${app.url}" src="about:blank" class="popup-frame"></iframe>`; 
+            document.body.appendChild(popupDiv);
           });
         }
       } catch (error) {}
+      
+      updateDock(true);
     }
 
-    window.addEventListener("DOMContentLoaded", () => { applyUserWallpaper(); loadQuickSettings(); avviaAppInstallate(); fetchNetworks(); fetchBtDevices(); });
+    window.addEventListener("DOMContentLoaded", () => { applyUserWallpaper(); loadQuickSettings(); fetchNetworks(); fetchBtDevices(); avviaAppInstallate(); });
   </script>
 </body>
 </html>

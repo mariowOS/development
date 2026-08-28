@@ -3,526 +3,310 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App Store</title>
+  <title>App Store - HMOS Next</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/desktop/assets/material-you.css">
-  <script src="/desktop/assets/monet-engine.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  
   <style>
     :root {
-      --m3-accent-active: #c2f3eb;
-      --m3-accent-on-active: #05211e;
-      --m3-dropdown-bg: rgba(24, 25, 28, 0.65);
-      --m3-item-hover: rgba(255, 255, 255, 0.1);
-      --m3-item-active-bg: rgba(194, 243, 235, 0.16);
-      --m3-text-color: #e6e0e9;
-      --m3-glass-border: rgba(255, 255, 255, 0.12);
-      --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
-
-      --bg: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
-      --sidebar-bg: rgba(20, 21, 24, 0.55);
-      --card-bg: rgba(255, 255, 255, 0.04);
-      --card-hover: rgba(255, 255, 255, 0.08);
-      --text: var(--m3-text-color);
-      --text-muted: #cac4d0;
-      --red: #ff5252;
-      --green: #4caf50;
-      --radius: 20px;
+      --bg-main: transparent;
+      --bg-sidebar: #1C1C1E;
+      --bg-topbar: transparent;
+      
+      --bg-card: rgba(255, 255, 255, 0.05);
+      --bg-card-hover: rgba(255, 255, 255, 0.09);
+      --bg-input: rgba(255, 255, 255, 0.06);
+      
+      --text-primary: #FFFFFF;
+      --text-secondary: rgba(255, 255, 255, 0.55);
+      
+      --accent: #3A78FF; 
+      --accent-hover: #5A91F7;
+      --accent-light: rgba(58, 120, 255, 0.15);
+      
+      --border-light: rgba(255, 255, 255, 0.04);
+      --btn-gray: rgba(255, 255, 255, 0.08);
+      --btn-gray-hover: rgba(255, 255, 255, 0.12);
+      
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --squircle: 22%;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
     body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-      background: var(--bg);
-      font-family: 'Poppins', sans-serif;
-      color: var(--text);
-      user-select: none;
-      overflow: hidden;
+      margin: 0; padding: 0; display: flex; height: 100vh;
+      background: var(--bg-main); font-family: 'Poppins', sans-serif;
+      color: var(--text-primary); user-select: none; overflow: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Sidebar Glassmorphism M3 ── */
     .sidebar {
-      width: 230px;
-      background: var(--sidebar-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-right: 1px solid var(--m3-glass-border);
-      display: flex;
-      flex-direction: column;
-      padding: 24px 12px;
-      flex-shrink: 0;
-      z-index: 10;
-    }
-
-    .sidebar-header {
-      font-size: 22px;
-      font-weight: 700;
-      margin: 4px 0 24px 12px;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-    }
-
-    .sidebar-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(255, 255, 255, 0.4);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 16px 0 8px 12px;
+      width: 220px; background: var(--bg-sidebar); display: flex; flex-direction: column;
+      padding: 24px 12px; flex-shrink: 0; z-index: 10; border-right: 1px solid var(--border-light);
     }
 
     .nav-item {
-      padding: 10px 16px;
-      border-radius: 28px;
-      margin-bottom: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-muted);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 6px;
+      cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-primary);
+      display: flex; align-items: center; gap: 12px; transition: background 0.2s ease;
     }
+    .nav-item .material-symbols-outlined { font-size: 20px; color: var(--text-primary); transition: color 0.2s; }
+    .nav-item:hover { background: var(--bg-card); }
+    .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .nav-item.active .material-symbols-outlined { color: var(--accent); }
 
-    .nav-item:hover {
-      background: var(--m3-item-hover);
-      color: var(--text);
-      transform: translate3d(2px, 0, 0);
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .top-bar {
+      height: 60px; background: var(--bg-topbar); display: flex; align-items: center;
+      padding: 0 24px; gap: 16px; flex-shrink: 0; margin-top: 8px;
     }
-
-    .nav-item.active {
-      background: var(--m3-accent-active);
-      color: var(--m3-accent-on-active);
-      font-weight: 600;
+    .nav-arrows { display: flex; gap: 8px; }
+    .nav-arrow-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: none;
+      background: var(--bg-input); display: flex; align-items: center; justify-content: center;
+      color: var(--text-primary); cursor: pointer; transition: background 0.2s;
     }
+    .nav-arrow-btn:hover { background: var(--bg-card-hover); }
 
-    /* ── Main Content ── */
-    .main {
-      flex: 1;
-      overflow-y: auto;
-      position: relative;
-      background: transparent;
+    .search-bar {
+      flex: 1; max-width: 400px; height: 36px; background: var(--bg-input);
+      border-radius: 100px; display: flex; align-items: center; padding: 0 16px; gap: 10px;
+      border: 1px solid transparent; transition: border 0.2s, background 0.2s;
     }
+    .search-bar:focus-within { border: 1px solid var(--accent); background: var(--bg-card); }
+    .search-bar .material-symbols-outlined { font-size: 18px; color: var(--text-secondary); }
+    .search-bar input {
+      border: none; background: transparent; flex: 1;
+      font-family: inherit; font-size: 13px; color: var(--text-primary);
+    }
+    .search-bar input::placeholder { color: var(--text-secondary); }
 
+    .main { flex: 1; overflow-y: auto; position: relative; background: transparent; }
     .main::-webkit-scrollbar { width: 6px; }
-    .main::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+    .main::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
 
-    .view {
-      display: none;
-      padding: 32px 40px;
+    .view { display: none; padding: 12px 24px 40px 24px; }
+    .view.active { display: block; animation: viewIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    @keyframes viewIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hero-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin-bottom: 32px; }
+    .hero-card {
+      background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
+      display: flex; flex-direction: column; justify-content: space-between; height: 140px;
+      position: relative; overflow: hidden; cursor: pointer; border: 1px solid var(--border-light);
     }
+    .hero-card:nth-child(1) { background: linear-gradient(135deg, rgba(58, 120, 255, 0.2) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
+    .hero-card:nth-child(2) { background: linear-gradient(135deg, rgba(255, 171, 64, 0.15) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
+    .hero-card h1 { margin: 0; font-size: 18px; font-weight: 600; z-index: 2; color: #FFF; letter-spacing: -0.3px; }
+    .hero-card p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.75; z-index: 2; color: #FFF; line-height: 1.4; max-width: 85%; }
+    .hero-emoji { font-size: 56px; position: absolute; right: 16px; bottom: -8px; opacity: 0.9; }
 
-    .view.active {
-      display: block;
-      animation: viewIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
+    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: var(--text-primary); letter-spacing: -0.2px; }
 
-    @keyframes viewIn {
-      from { opacity: 0; transform: translate3d(0, 10px, 0) scale3d(0.98, 0.98, 1); }
-      to { opacity: 1; transform: translate3d(0, 0, 0) scale3d(1, 1, 1); }
-    }
-
-    /* ── Hero Banner Material You ── */
-    .hero {
-      background: linear-gradient(135deg, rgba(194, 243, 235, 0.25) 0%, rgba(35, 40, 45, 0.6) 100%);
-      border: 1px solid var(--m3-glass-border);
-      backdrop-filter: blur(16px);
-      border-radius: 28px;
-      padding: 30px 36px;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      box-shadow: var(--m3-glass-shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-emoji {
-      font-size: 52px;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-    }
-
-    .hero h1 {
-      margin: 0 0 6px 0;
-      font-size: 24px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .hero p {
-      margin: 0;
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    /* ── Section Title ── */
-    .section-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0 0 20px 0;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--m3-glass-border);
-      color: #ffffff;
-    }
-
-    /* ── App Cards M3 ── */
-    .app-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
+    .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
     .app-card {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      padding: 14px 18px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid transparent;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg-card);
+      border-radius: var(--radius-lg); cursor: pointer; border: 1px solid transparent;
+      transition: background 0.2s ease, border 0.2s ease;
     }
-
-    .app-card:hover {
-      background: var(--m3-item-hover);
-      border-color: var(--m3-glass-border);
-      transform: translate3d(4px, 0, 0);
-    }
-
+    .app-card:hover { background: var(--bg-card-hover); border: 1px solid var(--border-light); }
+    
     .card-icon {
-      width: 56px;
-      height: 56px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--m3-glass-border);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      width: 52px; height: 52px; background: var(--bg-input); border-radius: var(--squircle);
+      display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;
+      border: 1px solid var(--border-light); overflow: hidden;
     }
-
-    .card-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .card-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 0;
-      color: #ffffff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin: 3px 0 0 0;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      line-height: 1.4;
-    }
+    .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .card-title { font-size: 15px; font-weight: 600; margin: 0; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px; }
+    .card-desc { font-size: 12px; color: var(--text-secondary); margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .btn-get {
-      background: var(--m3-accent-active);
-      color: var(--m3-accent-on-active);
-      border: none;
-      padding: 8px 22px;
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: 100px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      letter-spacing: 0.5px;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      background: var(--btn-gray); color: var(--accent); border: none; padding: 6px 16px;
+      font-size: 12px; font-weight: 600; border-radius: 100px; cursor: pointer; font-family: inherit;
+      transition: background 0.2s, transform 0.1s; flex-shrink: 0; letter-spacing: 0.3px;
     }
+    .btn-get:hover { background: var(--btn-gray-hover); }
+    .btn-get:active { transform: scale(0.95); }
+    .btn-get.installed { background: var(--btn-gray); color: var(--text-primary); }
 
-    .btn-get:hover {
-      background: #eaddff;
-      transform: scale3d(1.05, 1.05, 1);
-    }
-
-    .btn-get:active {
-      transform: scale3d(0.95, 0.95, 1);
-    }
-
-    .btn-get.installed {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--m3-accent-active);
-      border: 1px solid rgba(194, 243, 235, 0.3);
-    }
-
-    .btn-get.installed:hover {
-      background: var(--m3-item-active-bg);
-    }
-
-    /* ── Landpage M3 ── */
     .lp-header {
-      display: flex;
-      gap: 28px;
-      margin-bottom: 32px;
-      align-items: flex-end;
+      display: flex; gap: 24px; margin-bottom: 32px; align-items: center;
+      background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light);
     }
-
     .lp-icon {
-      width: 108px;
-      height: 108px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--m3-glass-border);
-      border-radius: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 56px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-      flex-shrink: 0;
+      width: 96px; height: 96px; background: var(--bg-input); border-radius: var(--squircle);
+      display: flex; align-items: center; justify-content: center; font-size: 48px; flex-shrink: 0;
+      border: 1px solid var(--border-light); overflow: hidden;
     }
-
     .lp-info { flex: 1; }
-
-    .lp-title {
-      font-size: 32px;
-      font-weight: 700;
-      margin: 0 0 4px 0;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-    }
-
-    .lp-dev {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin: 0 0 18px 0;
-    }
-
-    .lp-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
+    .lp-title { font-size: 28px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-primary); letter-spacing: -0.4px; }
+    .lp-dev { font-size: 14px; color: var(--accent); margin: 0 0 20px 0; font-weight: 500; }
+    .lp-actions { display: flex; align-items: center; gap: 12px; }
+    
     .btn-action {
-      border: none;
-      padding: 10px 32px;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 100px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none; padding: 10px 32px; font-size: 14px; font-weight: 600; border-radius: 100px;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
-
-    .btn-action:active { transform: scale3d(0.95, 0.95, 1); }
-
-    .btn-action.primary {
-      background: var(--m3-accent-active);
-      color: var(--m3-accent-on-active);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    }
-
-    .btn-action.primary:hover {
-      background: #eaddff;
-      transform: scale3d(1.03, 1.03, 1);
-    }
-
-    .btn-action.primary:disabled {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
-      cursor: wait;
-      transform: none;
-    }
+    .btn-action:active { transform: scale(0.96); }
+    .btn-action.primary { background: var(--accent); color: #FFF; }
+    .btn-action.primary:hover { background: var(--accent-hover); }
+    .btn-action.primary:disabled { background: var(--btn-gray); color: var(--text-secondary); cursor: not-allowed; }
 
     .btn-uninstall {
-      background: none;
-      border: none;
-      color: var(--red);
-      font-size: 13px;
-      cursor: pointer;
-      font-family: inherit;
-      text-decoration: underline;
-      padding: 8px 12px;
-      transition: opacity 0.2s;
+      background: transparent; border: 1px solid var(--border-light); color: #FF5A5A;
+      font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 100px; padding: 9px 24px;
     }
-
-    .btn-uninstall:hover { opacity: 0.8; }
-
-    .lp-error {
-      color: var(--red);
-      font-size: 13px;
-      margin-top: 10px;
+    .btn-uninstall:hover { background: rgba(255, 90, 90, 0.1); border-color: transparent; }
+    .lp-error { color: #FF5A5A; font-size: 13px; margin-top: 12px; }
+    
+    .lp-desc-container {
+      background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light);
     }
+    .lp-desc-title { font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: var(--text-primary); }
+    .lp-desc { color: var(--text-secondary); line-height: 1.6; font-size: 14px; margin: 0; }
 
-    .lp-desc-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0 0 12px 0;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--m3-glass-border);
-      color: #ffffff;
-    }
-
-    .lp-desc {
-      color: var(--text-muted);
-      line-height: 1.7;
-      font-size: 14.5px;
-    }
-
-    /* ── Back Button M3 ── */
     .btn-back {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--m3-glass-border);
-      color: var(--text);
-      padding: 8px 18px;
-      border-radius: 100px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      margin-bottom: 24px;
+      display: none; align-items: center; gap: 4px; background: transparent; border: none;
+      color: var(--text-secondary); padding: 0 0 20px 0; cursor: pointer; font-family: inherit;
+      font-size: 14px; font-weight: 500; transition: color 0.2s;
     }
+    .btn-back:hover { color: var(--text-primary); }
+    .btn-back .material-symbols-outlined { font-size: 18px; }
 
-    .btn-back:hover {
-      background: var(--m3-item-hover);
-      transform: translate3d(-2px, 0, 0);
+    .pub-card {
+      background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light); max-width: 600px;
     }
-
-    /* ── Publish Form Material You ── */
     .pub-input {
-      width: 100%;
-      padding: 12px 18px;
-      margin-bottom: 14px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--m3-glass-border);
-      color: var(--text);
-      border-radius: 16px;
-      font-family: inherit;
-      font-size: 14px;
-      transition: all 0.2s ease;
+      width: 100%; padding: 14px 18px; margin-bottom: 16px; background: var(--bg-input);
+      border: 1px solid transparent; color: var(--text-primary); border-radius: var(--radius-md);
+      font-family: inherit; font-size: 14px; transition: border 0.2s, background 0.2s;
     }
-
-    .pub-input:focus {
-      outline: none;
-      border-color: var(--m3-accent-active);
-      background: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 0 0 1px var(--m3-accent-active);
-    }
-
-    .pub-input::placeholder { color: rgba(255, 255, 255, 0.35); }
-
-    textarea.pub-input { resize: vertical; }
-
-    .publish-status {
-      font-size: 13px;
-      margin-top: 16px;
-      font-weight: 500;
-      text-align: center;
-    }
-
-    /* ── Loading State ── */
-    .loading-text {
-      color: var(--text-muted);
-      font-size: 14px;
-      text-align: center;
-      padding: 40px 0;
-    }
+    .pub-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+    .pub-input::placeholder { color: var(--text-secondary); }
+    textarea.pub-input { resize: vertical; min-height: 100px; }
+    .publish-status { font-size: 13px; margin-top: 16px; font-weight: 500; text-align: center; }
+    .loading-text { color: var(--text-secondary); font-size: 14px; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
   </style>
 </head>
 <body>
 
   <div class="sidebar">
-    <div class="sidebar-header">App Store</div>
-
-    <div class="sidebar-label">Store</div>
-    <div class="nav-item active" id="nav-discover" onclick="switchView('home')">Discover</div>
-
-    <div class="sidebar-label">Developer</div>
-    <div class="nav-item" id="nav-publish" onclick="switchView('publish')">Submit App</div>
+    <div class="nav-item active" id="nav-discover" onclick="switchView('home')">
+      <span class="material-symbols-outlined">explore</span> Discover
+    </div>
+    <div class="nav-item" id="nav-publish" onclick="switchView('publish')">
+      <span class="material-symbols-outlined">developer_mode</span> Submit App
+    </div>
   </div>
 
-  <div class="main">
-
-    <!-- ═══ Discover View ═══ -->
-    <div id="view-home" class="view active">
-      <div class="hero">
-        <div class="hero-emoji">🌟</div>
-        <div>
-          <h1>Store Beta test</h1>
-          <p>This banner will become useful soon, i think.</p>
-        </div>
+  <div class="main-wrapper">
+    <div class="top-bar">
+      <div class="nav-arrows">
+        <button class="nav-arrow-btn" onclick="switchView('home')"><span class="material-symbols-outlined">chevron_left</span></button>
+        <button class="nav-arrow-btn"><span class="material-symbols-outlined">chevron_right</span></button>
       </div>
-
-      <h2 class="section-title">New & Updated</h2>
-      <div class="app-grid" id="appGrid">
-        <div class="loading-text">Loading catalog...</div>
+      <div class="search-bar">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" id="searchInput" placeholder="Search apps and games...">
       </div>
     </div>
 
-    <!-- ═══ App Landpage View ═══ -->
-    <div id="view-landpage" class="view">
-      <button class="btn-back" id="btnBack" onclick="switchView('home')">‹ Back to Discover</button>
-
-      <div class="lp-header">
-        <div class="lp-icon" id="lpIcon"></div>
-        <div class="lp-info">
-          <h1 class="lp-title" id="lpTitle"></h1>
-          <p class="lp-dev" id="lpDev"></p>
-          <div class="lp-actions">
-            <button id="btnInstall" class="btn-action primary"></button>
-            <button id="btnUninstall" class="btn-uninstall" style="display: none;"></button>
+    <div class="main">
+      <!-- Discover View -->
+      <div id="view-home" class="view active">
+        <div class="hero-grid" id="heroSection">
+          <div class="hero-card">
+            <div>
+              <h1>Store Beta test</h1>
+              <p>Discover new optimized applications tailored for your environment.</p>
+            </div>
+            <div class="hero-emoji">✨</div>
           </div>
-          <div id="installError" class="lp-error"></div>
+          <div class="hero-card">
+            <div>
+              <h1>Editor's Choice</h1>
+              <p>Must-have utilities for your device.</p>
+            </div>
+            <div class="hero-emoji">🏆</div>
+          </div>
+        </div>
+        <h2 class="section-title" id="gridTitle">New & Updated</h2>
+        <div class="app-grid" id="appGrid">
+          <div class="loading-text">Loading catalog...</div>
         </div>
       </div>
 
-      <h3 class="lp-desc-title">Description</h3>
-      <p id="lpDesc" class="lp-desc"></p>
-    </div>
+      <!-- App Landpage View -->
+      <div id="view-landpage" class="view">
+        <button class="btn-back" id="btnBack" onclick="switchView('home')">
+          <span class="material-symbols-outlined">arrow_back</span> Back
+        </button>
+        <div class="lp-header">
+          <div class="lp-icon" id="lpIcon"></div>
+          <div class="lp-info">
+            <h1 class="lp-title" id="lpTitle"></h1>
+            <p class="lp-dev" id="lpDev"></p>
+            <div class="lp-actions">
+              <button id="btnInstall" class="btn-action primary"></button>
+              <button id="btnUninstall" class="btn-uninstall" style="display: none;"></button>
+            </div>
+            <div id="installError" class="lp-error"></div>
+          </div>
+        </div>
+        <div class="lp-desc-container">
+          <h3 class="lp-desc-title">Description</h3>
+          <p id="lpDesc" class="lp-desc"></p>
+        </div>
+      </div>
 
-    <!-- ═══ Publish View ═══ -->
-    <div id="view-publish" class="view">
-      <h2 class="section-title">Submit to App Store</h2>
-      <div style="max-width: 520px;">
-        <input type="text" id="pubId" class="pub-input" placeholder="Bundle ID (e.g., com.mariowos.calc)">
-        <input type="text" id="pubTitle" class="pub-input" placeholder="App Name">
-        <input type="text" id="pubDev" class="pub-input" placeholder="Developer Name">
-        <input type="text" id="pubIcon" class="pub-input" placeholder="Icon Emoji (e.g., 🧮)">
-        <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
-        <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)">
-
-        <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 6px;">Submit for Review</button>
-        <div id="publishStatus" class="publish-status"></div>
+      <!-- Publish View -->
+      <div id="view-publish" class="view">
+        <h2 class="section-title">Submit to App Store</h2>
+        <div class="pub-card">
+          <input type="text" id="pubId" class="pub-input" placeholder="Bundle ID (e.g., com.mariowos.calc)">
+          <input type="text" id="pubTitle" class="pub-input" placeholder="App Name">
+          <input type="text" id="pubDev" class="pub-input" placeholder="Developer Name">
+          
+          <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+            <input type="text" id="pubIconText" class="pub-input" placeholder="Emoji (Leave empty to fetch from GitHub)" style="margin-bottom: 0; flex: 1;">
+            <div style="display: flex; align-items: center; color: var(--text-secondary); font-size: 13px;">OR</div>
+            <input type="file" id="pubIconFile" class="pub-input" accept="image/png, image/jpeg" style="margin-bottom: 0; flex: 2; padding: 10px;">
+          </div>
+          
+          <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
+          <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)">
+          <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 8px;">Submit for Review</button>
+          <div id="publishStatus" class="publish-status"></div>
+        </div>
       </div>
     </div>
-
   </div>
 
   <script>
     let storeCatalog = [];
     let installedAppsList = [];
     let currentAppOpen = null;
+    let searchTimeout = null;
 
-    /* ── Init ── */
+    const renderIcon = (iconStr) => {
+      if (!iconStr) return '📦';
+      // Checks for physical file paths OR raw.githubusercontent http links
+      if (iconStr.includes('/') || iconStr.includes('.')) {
+        return `<img src="${iconStr}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">`;
+      }
+      return iconStr;
+    };
+
     async function initStore() {
       try {
         const conf = await (await fetch('/get-settings')).json();
@@ -537,21 +321,20 @@
         console.warn('Could not load store catalog:', e);
         storeCatalog = [];
       }
-
-      renderGrid();
+      renderGrid(storeCatalog);
     }
 
-    /* ── Navigation ── */
     function switchView(viewName) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(v => v.classList.remove('active'));
-
       const btnBack = document.getElementById('btnBack');
       btnBack.style.display = viewName === 'landpage' ? 'inline-flex' : 'none';
 
       if (viewName === 'home') {
         document.getElementById('view-home').classList.add('active');
         document.getElementById('nav-discover').classList.add('active');
+        document.getElementById('searchInput').value = ''; 
+        handleSearch(''); 
       } else if (viewName === 'publish') {
         document.getElementById('view-publish').classList.add('active');
         document.getElementById('nav-publish').classList.add('active');
@@ -561,25 +344,47 @@
       }
     }
 
-    /* ── Render Grid ── */
-    function renderGrid() {
-      const grid = document.getElementById('appGrid');
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => handleSearch(e.target.value), 250);
+    });
 
-      if (storeCatalog.length === 0) {
-        grid.innerHTML = '<div class="loading-text">No apps available yet.</div>';
+    function handleSearch(query) {
+      const q = query.toLowerCase().trim();
+      const heroSec = document.getElementById('heroSection');
+      const gridTitle = document.getElementById('gridTitle');
+      
+      if (q === '') {
+        heroSec.style.display = 'grid';
+        gridTitle.textContent = 'New & Updated';
+        renderGrid(storeCatalog);
+      } else {
+        heroSec.style.display = 'none';
+        gridTitle.textContent = 'Search Results';
+        const filtered = storeCatalog.filter(app => 
+          app.title.toLowerCase().includes(q) || 
+          app.developer.toLowerCase().includes(q) || 
+          app.desc.toLowerCase().includes(q)
+        );
+        renderGrid(filtered);
+      }
+    }
+
+    function renderGrid(catalogArray) {
+      const grid = document.getElementById('appGrid');
+      if (catalogArray.length === 0) {
+        grid.innerHTML = '<div class="loading-text">No apps found.</div>';
         return;
       }
-
       grid.innerHTML = '';
 
-      storeCatalog.forEach((app, idx) => {
+      catalogArray.forEach(app => {
         const isInst = installedAppsList.includes(app.id);
         const card = document.createElement('div');
         card.className = 'app-card';
-        card.style.animationDelay = `${idx * 0.04}s`;
         card.onclick = () => openLandpage(app.id);
         card.innerHTML = `
-          <div class="card-icon">${app.icon}</div>
+          <div class="card-icon">${renderIcon(app.icon)}</div>
           <div class="card-info">
             <h3 class="card-title">${app.title}</h3>
             <p class="card-desc">${app.desc}</p>
@@ -590,12 +395,11 @@
       });
     }
 
-    /* ── Landpage ── */
     function openLandpage(id) {
       currentAppOpen = storeCatalog.find(a => a.id === id);
       if (!currentAppOpen) return;
 
-      document.getElementById('lpIcon').textContent = currentAppOpen.icon;
+      document.getElementById('lpIcon').innerHTML = renderIcon(currentAppOpen.icon);
       document.getElementById('lpTitle').textContent = currentAppOpen.title;
       document.getElementById('lpDev').textContent = currentAppOpen.developer;
       document.getElementById('lpDesc').textContent = currentAppOpen.desc;
@@ -611,6 +415,15 @@
       const isInst = installedAppsList.includes(currentAppOpen.id);
 
       btnI.textContent = isInst ? 'OPEN' : 'GET';
+      btnI.className = `btn-action primary ${isInst ? 'installed' : ''}`;
+      if (isInst) {
+        btnI.style.background = 'var(--btn-gray)';
+        btnI.style.color = 'var(--text-primary)';
+      } else {
+        btnI.style.background = '';
+        btnI.style.color = '';
+      }
+      
       btnI.disabled = false;
       btnI.onclick = isInst
         ? () => window.parent.postMessage({ type: 'open-app-from-store', appId: currentAppOpen.id }, '*')
@@ -625,10 +438,10 @@
       window.parent.postMessage({ type: 'open-app-from-store', appId }, '*');
     }
 
-    /* ── Install / Uninstall ── */
     async function actOnApp(action) {
       const btn = action === 'install' ? document.getElementById('btnInstall') : document.getElementById('btnUninstall');
       const origText = btn.textContent;
+      const origBg = btn.style.background;
 
       btn.textContent = 'WAIT...';
       btn.disabled = true;
@@ -650,80 +463,90 @@
 
         if (action === 'install') {
           installedAppsList.push(currentAppOpen.id);
+          // Post the LIVE success event to the desktop
           window.parent.postMessage({
             type: 'app-installed-live',
             app: {
-              appId: currentAppOpen.id,
-              title: currentAppOpen.title,
-              icon: currentAppOpen.icon,
-              url: `apps/${currentAppOpen.id}/index.html`
+              appId: currentAppOpen.id, title: currentAppOpen.title,
+              // Keep using the remote/current icon in memory for immediate UI response
+              icon: currentAppOpen.icon, url: `apps/${currentAppOpen.id}/index.html`
             }
           }, '*');
         } else {
           installedAppsList = installedAppsList.filter(id => id !== currentAppOpen.id);
-          window.parent.postMessage({
-            type: 'app-uninstalled-live',
-            appId: currentAppOpen.id
-          }, '*');
+          window.parent.postMessage({ type: 'app-uninstalled-live', appId: currentAppOpen.id }, '*');
         }
 
         updateInstallBtn();
-        renderGrid();
+        handleSearch(document.getElementById('searchInput').value);
       } catch (err) {
         document.getElementById('installError').textContent = 'Error: ' + err.message;
         btn.textContent = origText;
+        btn.style.background = origBg;
         btn.disabled = false;
       }
     }
 
-    /* ── Submit App ── */
     async function submitApp() {
       const status = document.getElementById('publishStatus');
-      status.style.color = 'var(--text-muted)';
+      status.style.color = 'var(--text-secondary)';
       status.textContent = 'Publishing...';
 
-      const fields = {
-        id: document.getElementById('pubId').value.trim(),
-        title: document.getElementById('pubTitle').value.trim(),
-        developer: document.getElementById('pubDev').value.trim(),
-        icon: document.getElementById('pubIcon').value.trim(),
-        desc: document.getElementById('pubDesc').value.trim(),
-        repoUrl: document.getElementById('pubRepo').value.trim()
-      };
+      const idVal = document.getElementById('pubId').value.trim();
+      const titleVal = document.getElementById('pubTitle').value.trim();
+      const devVal = document.getElementById('pubDev').value.trim();
+      const descVal = document.getElementById('pubDesc').value.trim();
+      const repoVal = document.getElementById('pubRepo').value.trim();
+      const iconTextVal = document.getElementById('pubIconText').value.trim();
+      const fileInput = document.getElementById('pubIconFile');
 
-      // Client-side validation
-      if (!fields.id || !fields.title || !fields.developer || !fields.desc || !fields.repoUrl) {
-        status.style.color = 'var(--red)';
+      if (!idVal || !titleVal || !devVal || !descVal || !repoVal) {
+        status.style.color = '#FF5A5A';
         status.textContent = 'All fields are required.';
         return;
       }
 
+      const formData = new FormData();
+      formData.append('id', idVal);
+      formData.append('title', titleVal);
+      formData.append('developer', devVal);
+      formData.append('desc', descVal);
+      formData.append('repoUrl', repoVal);
+
+      if (fileInput.files.length > 0) {
+        formData.append('iconFile', fileInput.files[0]);
+      } else if (iconTextVal) {
+        formData.append('icon', iconTextVal);
+      }
+      // If both are empty, the backend will automatically pull from GitHub raw
+
       try {
         const res = await fetch('/api/store/publish', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fields)
+          body: formData 
         });
 
         const r = await res.json();
         if (!r.success) throw new Error(r.error);
 
-        status.style.color = 'var(--green)';
+        status.style.color = '#4ADE80';
         status.textContent = 'Success! Your app is now available on Discover.';
+        
+        document.getElementById('pubId').value = '';
+        document.getElementById('pubTitle').value = '';
+        document.getElementById('pubDev').value = '';
+        document.getElementById('pubDesc').value = '';
+        document.getElementById('pubRepo').value = '';
+        document.getElementById('pubIconText').value = '';
+        document.getElementById('pubIconFile').value = '';
 
-        document.querySelectorAll('.pub-input').forEach(i => i.value = '');
-
-        setTimeout(() => {
-          initStore();
-          switchView('home');
-        }, 1500);
+        setTimeout(() => { initStore(); switchView('home'); }, 1500);
       } catch (err) {
-        status.style.color = 'var(--red)';
+        status.style.color = '#FF5A5A';
         status.textContent = 'Error: ' + err.message;
       }
     }
 
-    /* ── Boot ── */
     window.addEventListener('DOMContentLoaded', initStore);
   </script>
 </body>

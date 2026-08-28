@@ -914,6 +914,14 @@
     function formatTime(seconds) { return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`; }
     document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); isPlaying ? pauseSong() : playSong(); } });
     audio.volume = currentVolume; volumeFill.style.width = `${currentVolume * 100}%`;
+
+    // Add this inside your music app's script:
+window.addEventListener('message', (e) => {
+  if (e.data.type === 'system-volume-change') {
+    // Assuming 'audioPlayer' is your <audio> element
+    audioPlayer.volume = e.data.volume; 
+  }
+});
   </script>
 </body>
 

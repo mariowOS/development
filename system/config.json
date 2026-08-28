@@ -1,16 +1,12 @@
 {
-  "passwordHash": "$2b$10$5kIs/Fjrf4ChQZcLcdKNuuouQgbOxfUGlxU0DZl9yTlmYSShGnAHu",
+  "passwordHash": "$2b$10$edIWcG95.ZwvkpY0VD5UqO6.DZDy/0r7uH1UoD2zUGikb0yJAPAMq",
   "quickSettings": {
     "wifi": true,
     "bluetooth": true,
-    "dnd": true,
-    "powerMode": "Balanced"
+    "dnd": false,
+    "powerMode": "Balanced",
+    "volume": 100
   },
-  "installedApps": [],
   "username": "mariow",
-  "rules": [],
-  "darkMode": false,
-  "performance": false,
-  "animations": false,
-  "developer": false
+  "rules": []
 }

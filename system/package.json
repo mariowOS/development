@@ -11,11 +11,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tomphttp/bare-server-node": "^2.0.6",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^7.0.0"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true
   }
 }

@@ -10,9 +10,9 @@
   {
     "id": "weather",
     "title": "Weather",
-    "developer": "mariow",
-    "desc": "Weather app",
-    "icon": "☁️",
+    "developer": "mariowstech",
+    "desc": "hi",
+    "icon": "https://raw.githubusercontent.com/mariowstech/weather/main/icon.png",
     "repoUrl": "https://github.com/mariowstech/weather.git"
   }
 ]
