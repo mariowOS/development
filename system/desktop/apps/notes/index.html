@@ -1,5 +1,5 @@
 <!-- 
-mariowOS Notes - (C) 2025 mariowstech and the mariowOS team 
+mariowOS Notes - (C) 2026 mariowstech and the mariowOS team 
 Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
 -->
 
@@ -10,39 +10,119 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
   <link rel="stylesheet" href="/desktop/assets/material-you.css">
   <script src="/desktop/assets/monet-engine.js"></script>
 <style>
   :root {
-    --m3-dropdown-bg: rgba(24, 25, 28, 0.65);
+    --m3-dropdown-bg: rgba(24, 25, 28, 0.85);
     --m3-text-color: #e6e0e9;
     --m3-glass-border: rgba(255, 255, 255, 0.12);
     --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    --m3-accent-active: #5c7cfa;
   }
 
   html, body {
     margin: 0; padding: 0; height: 100%; font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
+    background: radial-gradient(circle at 10% 10%, rgba(92, 124, 250, 0.15), transparent 50%), 
+                radial-gradient(circle at 90% 90%, rgba(200, 100, 250, 0.08), transparent 50%), 
+                #12141a;
     color: var(--m3-text-color); -webkit-font-smoothing: antialiased; overflow: hidden;
+    display: flex; flex-direction: column;
   }
 
   @keyframes textareaFade { from { opacity: 0; transform: translate3d(0, 4px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
   @keyframes toastAppIn { from { opacity: 0; transform: translate3d(-50%, 20px, 0); } to { opacity: 1; transform: translate3d(-50%, 0, 0); } }
   @keyframes toastAppOut { from { opacity: 1; transform: translate3d(-50%, 0, 0); } to { opacity: 0; transform: translate3d(-50%, 20px, 0); } }
 
-  .editor-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: transparent; overflow: hidden; }
-
-  textarea {
-    width: 100%; height: 100%; background: transparent; border: none;
-    padding: 24px; font-size: 0.95em; color: var(--m3-text-color);
-    resize: none; outline: none; box-sizing: border-box; font-family: 'Poppins', sans-serif;
+  /* Toolbar Styles */
+/* Toolbar Styles */
+  .toolbar {
+    position: relative;
+    display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-wrap: wrap; z-index: 10;
   }
-  textarea::placeholder { color: rgba(255, 255, 255, 0.3); }
+  
+  .toolbar::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    z-index: -1;
+  }
+  
+  .toolbar-btn {
+    background: transparent; border: 1px solid transparent; color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s, color 0.15s; font-family: 'Poppins', sans-serif; font-weight: 500;
+  }
+  .toolbar-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  .toolbar-btn.active { background: rgba(92, 124, 250, 0.2); color: #c2f3eb; border-color: rgba(92, 124, 250, 0.3); }
+  
+  .toolbar-divider { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.1); margin: 0 4px; }
+  
+  .toolbar-color {
+    width: 26px; height: 26px; padding: 0; border: none; border-radius: 50%; overflow: hidden;
+    cursor: pointer; background: transparent; outline: none;
+  }
+  .toolbar-color::-webkit-color-swatch-wrapper { padding: 0; }
+  .toolbar-color::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; }
+
+  /* OS Styled Custom Dropdowns - Enhanced Blur */
+  .custom-dropdown-wrapper { position: relative; display: inline-block; }
+  
+  .os-dropdown {
+    position: absolute; top: calc(100% + 8px);
+    background: rgba(24, 25, 28, 0.35) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+    z-index: 100; opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translateY(10px) scale(0.97); 
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .os-dropdown.show { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
+
+  .custom-dropdown {
+    padding: 8px; left: 0; min-width: 150px;
+    display: flex; flex-direction: column; transform-origin: top left;
+  }
+  
+  .emoji-dropdown {
+    padding: 12px; right: 0; left: auto; transform-origin: top right;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+  }
+  
+  .dropdown-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border-radius: 12px; font-size: 13px; font-weight: 500; color: #ffffff;
+    cursor: pointer; transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap; user-select: none;
+  }
+  .dropdown-item:hover { background: rgba(255, 255, 255, 0.15) !important; }
+
+  .emoji-item {
+    font-size: 20px; cursor: pointer; text-align: center; padding: 4px;
+    border-radius: 6px; transition: background 0.15s; user-select: none;
+  }
+  .emoji-item:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); }
+
+  /* Editor Styles */
+  .editor-container { flex: 1; position: relative; background: transparent; overflow-y: auto; overflow-x: hidden; }
+
+  #note-area {
+    min-height: calc(100% - 48px); padding: 24px; font-size: 15px; color: var(--m3-text-color);
+    outline: none; box-sizing: border-box; font-family: 'Poppins', sans-serif; line-height: 1.6;
+  }
+  #note-area[placeholder]:empty:before { content: attr(placeholder); color: rgba(255, 255, 255, 0.3); pointer-events: none; }
   .textarea-pulse { animation: textareaFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
   #app-toast-container { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
   .app-toast {
-    background: var(--m3-dropdown-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    background: rgba(24, 25, 28, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--m3-glass-border); color: var(--m3-text-color); padding: 10px 20px;
     border-radius: 100px; font-size: 13px; font-weight: 500; box-shadow: var(--m3-glass-shadow);
     animation: toastAppIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -52,18 +132,137 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 </head>
 <body>
 
-<div class="editor-container">
-  <textarea id="note-area" placeholder="your cool ideas go here..."></textarea>
+<div class="toolbar">
+  <!-- Custom Font Dropdown -->
+  <div class="custom-dropdown-wrapper">
+    <button class="toolbar-btn" style="width: auto; padding: 0 10px; font-size: 12px;" onclick="toggleMenu(event, 'fontMenu')">
+      <span id="fontLabel">Poppins</span>
+      <span class="material-symbols-outlined" style="font-size:16px; margin-left: 4px;">expand_more</span>
+    </button>
+    <div class="os-dropdown custom-dropdown" id="fontMenu">
+      <div class="dropdown-item" onclick="selectFont('Poppins', 'Poppins')"><span style="font-family: 'Poppins', sans-serif;">Poppins</span></div>
+      <div class="dropdown-item" onclick="selectFont('Inter', 'Inter')"><span style="font-family: 'Inter', sans-serif;">Inter</span></div>
+      <div class="dropdown-item" onclick="selectFont('Roboto Mono', 'Monospace')"><span style="font-family: 'Roboto Mono', monospace;">Monospace</span></div>
+      <div class="dropdown-item" onclick="selectFont('Lora', 'Serif')"><span style="font-family: 'Lora', serif;">Serif</span></div>
+    </div>
+  </div>
+
+  <!-- Custom Size Dropdown -->
+  <div class="custom-dropdown-wrapper">
+    <button class="toolbar-btn" style="width: auto; padding: 0 10px; font-size: 12px;" onclick="toggleMenu(event, 'sizeMenu')">
+      <span id="sizeLabel">Normal</span>
+      <span class="material-symbols-outlined" style="font-size:16px; margin-left: 4px;">expand_more</span>
+    </button>
+    <div class="os-dropdown custom-dropdown" id="sizeMenu">
+      <div class="dropdown-item" onclick="selectSize('1', 'Small')">Small</div>
+      <div class="dropdown-item" onclick="selectSize('3', 'Normal')">Normal</div>
+      <div class="dropdown-item" onclick="selectSize('5', 'Large')">Large</div>
+      <div class="dropdown-item" onclick="selectSize('7', 'Huge')">Huge</div>
+    </div>
+  </div>
+  
+  <div class="toolbar-divider"></div>
+  
+  <button class="toolbar-btn" onclick="formatDoc('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+  <button class="toolbar-btn" onclick="formatDoc('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+  <button class="toolbar-btn" onclick="formatDoc('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+  <button class="toolbar-btn" onclick="formatDoc('strikeThrough')" title="Strikethrough"><del>S</del></button>
+  
+  <div class="toolbar-divider"></div>
+  
+  <button class="toolbar-btn" onclick="formatDoc('justifyLeft')" title="Align Left"><span class="material-symbols-outlined" style="font-size:18px;">format_align_left</span></button>
+  <button class="toolbar-btn" onclick="formatDoc('justifyCenter')" title="Align Center"><span class="material-symbols-outlined" style="font-size:18px;">format_align_center</span></button>
+  <button class="toolbar-btn" onclick="formatDoc('justifyRight')" title="Align Right"><span class="material-symbols-outlined" style="font-size:18px;">format_align_right</span></button>
+  
+  <div class="toolbar-divider"></div>
+  
+  <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List"><span class="material-symbols-outlined" style="font-size:18px;">format_list_bulleted</span></button>
+  <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List"><span class="material-symbols-outlined" style="font-size:18px;">format_list_numbered</span></button>
+  
+  <div class="toolbar-divider"></div>
+  
+  <input type="color" class="toolbar-color" onchange="formatDoc('foreColor', this.value)" title="Text Color" value="#ffffff">
+  
+  <div class="custom-dropdown-wrapper" style="margin-left: auto;">
+    <button class="toolbar-btn" id="emojiBtn" onclick="toggleMenu(event, 'emojiDropdown')" title="Insert Emoji">😀</button>
+    <div class="os-dropdown emoji-dropdown" id="emojiDropdown">
+      <span class="emoji-item">😀</span><span class="emoji-item">😂</span><span class="emoji-item">🥰</span>
+      <span class="emoji-item">😎</span><span class="emoji-item">🤔</span><span class="emoji-item">😭</span>
+      <span class="emoji-item">👍</span><span class="emoji-item">👎</span><span class="emoji-item">👏</span>
+      <span class="emoji-item">🙌</span><span class="emoji-item">🔥</span><span class="emoji-item">✨</span>
+      <span class="emoji-item">💻</span><span class="emoji-item">📱</span><span class="emoji-item">🚀</span>
+      <span class="emoji-item">❤️</span><span class="emoji-item">💔</span><span class="emoji-item">💯</span>
+    </div>
+  </div>
+</div>
+
+<div class="editor-container" id="editorWrap">
+  <div id="note-area" contenteditable="true" placeholder="your cool ideas go here..."></div>
 </div>
 
 <div id="app-toast-container"></div>
 
+<!-- Hidden File Input for Importing Notes -->
+<input type="file" id="import-file" accept=".html,.htm,.txt" style="display: none;">
+
 <script>
   const noteArea = document.getElementById('note-area');
+  const importInput = document.getElementById('import-file');
   let notes = [];
   let currentIndex = 0;
   let tabsContainer;
   const IS_EMBEDDED = window.parent !== window;
+
+  // OS Style Custom Dropdown Logic
+  function toggleMenu(event, menuId) {
+    event.stopPropagation();
+    const menu = document.getElementById(menuId);
+    const isShowing = menu.classList.contains('show');
+    
+    document.querySelectorAll('.os-dropdown').forEach(d => d.classList.remove('show'));
+    if (!isShowing) menu.classList.add('show');
+  }
+
+  function selectFont(fontName, displayName) {
+    formatDoc('fontName', fontName);
+    document.getElementById('fontLabel').innerText = displayName;
+    document.getElementById('fontMenu').classList.remove('show');
+  }
+
+  function selectSize(sizeValue, displayName) {
+    formatDoc('fontSize', sizeValue);
+    document.getElementById('sizeLabel').innerText = displayName;
+    document.getElementById('sizeMenu').classList.remove('show');
+  }
+
+  // Close menus on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.custom-dropdown-wrapper')) {
+      document.querySelectorAll('.os-dropdown').forEach(d => d.classList.remove('show'));
+    }
+  });
+
+  document.querySelectorAll('.toolbar-btn, .toolbar-color').forEach(el => {
+    el.addEventListener('mousedown', (e) => {
+      if (!el.closest('.custom-dropdown-wrapper') && !el.classList.contains('toolbar-color')) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  function formatDoc(cmd, value=null) {
+    document.execCommand(cmd, false, value);
+    noteArea.focus();
+    saveToLocalStorage();
+  }
+
+  document.querySelectorAll('.emoji-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      formatDoc('insertText', item.textContent);
+      document.getElementById('emojiDropdown').classList.remove('show');
+    });
+  });
 
   function showAppToast(msg) {
     const container = document.getElementById('app-toast-container');
@@ -74,31 +273,59 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   }
 
   function handleSave() {
-    const text = noteArea.value.trim();
-    if(!text) { showAppToast("⚠️ Can't save an empty file"); return; }
+    const text = noteArea.innerHTML.trim();
+    if(!text || text === '<br>') { showAppToast("⚠️ Can't save an empty file"); return; }
     const now = new Date();
     const timestamp = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + "_" + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
 
-    const blob = new Blob([text], {type:'text/plain'});
+    // Tag the file so the import parser knows it's a native note
+    const htmlContent = `<!DOCTYPE html>\n<html data-mariowos-note="true">\n<head>\n<meta charset="utf-8">\n<title>${notes[currentIndex].name || 'Note'}</title>\n</head>\n<body style="font-family: sans-serif; background: #121212; color: #fff; padding: 20px;">\n${text}\n</body>\n</html>`;
+    const blob = new Blob([htmlContent], {type:'text/html'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `note_${timestamp}.txt`;
+    a.href = url; a.download = `${notes[currentIndex].name || 'note'}_${timestamp}.html`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showAppToast("💾 Note saved to PC");
+    showAppToast("💾 Rich Note saved to PC");
   }
 
   function handleClear() {
-    noteArea.value = '';
+    noteArea.innerHTML = '';
     if(notes[currentIndex]) { notes[currentIndex].content = ''; saveToLocalStorage(); }
     showAppToast("🧹 Note cleared");
   }
+
+  // --- IMPORT LOGIC ---
+  importInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      let content = evt.target.result;
+      let title = file.name.replace(/\.[^/.]+$/, ""); 
+      
+      if (file.name.endsWith('.html') || file.name.endsWith('.htm')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        // If it has a body, extract the inner HTML to strip away the head/styles
+        if (doc.body) content = doc.body.innerHTML;
+      } else if (file.name.endsWith('.txt')) {
+        content = content.replace(/\n/g, '<br>'); // preserve line breaks
+      }
+      
+      createTab(title, content);
+      showAppToast("📥 Note imported successfully");
+    };
+    reader.readAsText(file);
+    this.value = ''; // Reset input so you can upload the same file again if needed
+  });
 
   // --- CROSS-FRAME INJECTION LOGIC ---
   if (IS_EMBEDDED) {
     const osHeader = window.parent.document.querySelector('#popup5 .popup-header');
     
-    // Inject CSS into the OS shell so the tabs render perfectly
+    // Inject Tab CSS and Context Menu CSS into OS Shell
     if (!window.parent.document.getElementById('notes-os-styles')) {
       const style = window.parent.document.createElement('style');
       style.id = 'notes-os-styles';
@@ -110,67 +337,193 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
           color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
           cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
           transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
+          overflow: hidden;
         }
         .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
         .notes-tab-btn.active { background: rgba(194, 243, 235, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(194, 243, 235, 0.25); }
         .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #c2f3eb; border-bottom: none; pointer-events: none; }
-        .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; }
+        
+        .tab-color-line {
+          position: absolute; top: 0; left: 0; right: 0; height: 3px;
+          transition: background 0.2s; z-index: 2; pointer-events: none;
+        }
+
+        .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; z-index: 3; position: relative;}
         .notes-tab-close:hover { opacity: 1; color: #ff5252; }
         .notes-tab-btn.dragging { opacity: 0.4; }
         .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
+
+        #notes-tab-context-menu {
+          position: fixed; z-index: 10000; 
+          background: rgba(24, 25, 28, 0.35) !important;
+          backdrop-filter: blur(30px) saturate(200%) !important;
+          -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 12px; padding: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          display: none; flex-direction: column;
+        }
+        .color-dot {
+          width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+          transition: transform 0.15s; box-sizing: border-box;
+        }
+        .color-dot:hover { transform: scale(1.2); }
       `;
       window.parent.document.head.appendChild(style);
     }
 
-    // Hijack the OS title bar and rebuild it
+    // Inject Context Menu into the Parent OS Body (so it floats freely over everything)
+    if (!window.parent.document.getElementById('notes-tab-context-menu')) {
+      const cm = window.parent.document.createElement('div');
+      cm.id = 'notes-tab-context-menu';
+      cm.innerHTML = `
+        <div style="font-size: 10px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.5px;">GROUP COLOR</div>
+        <div style="display: flex; gap: 8px;">
+          <div class="color-dot" data-color="transparent" style="border: 1px solid rgba(255,255,255,0.3);" title="None"></div>
+          <div class="color-dot" data-color="#ff5f56" style="background: #ff5f56;" title="Red"></div>
+          <div class="color-dot" data-color="#ffbd2e" style="background: #ffbd2e;" title="Yellow"></div>
+          <div class="color-dot" data-color="#27c93f" style="background: #27c93f;" title="Green"></div>
+          <div class="color-dot" data-color="#5c7cfa" style="background: #5c7cfa;" title="Blue"></div>
+          <div class="color-dot" data-color="#c864fa" style="background: #c864fa;" title="Purple"></div>
+        </div>
+      `;
+      window.parent.document.body.appendChild(cm);
+      
+      // Close context menu on outside click in parent
+      window.parent.document.addEventListener('click', (e) => {
+        if (cm.style.display === 'flex' && !cm.contains(e.target)) {
+          cm.style.display = 'none';
+        }
+      });
+    }
+
     osHeader.style.gap = '8px';
     osHeader.innerHTML = `
       <span style="white-space: nowrap; font-size: 13px; flex-shrink: 0; cursor: move;">Notes</span>
       <div id="os-notes-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move;"></div>
-      <div id="os-notes-actions" style="display: flex; align-items: center; gap: 5px; flex-shrink: 0;">
-        <button class="browser-nav-btn" id="os-note-save" title="Export as TXT"><span class="material-symbols-outlined" style="font-size: 16px;">download</span></button>
+      <div id="os-notes-actions" style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-right: 8px;">
+        <button class="browser-nav-btn" id="os-note-import" title="Import Note (HTML/TXT)"><span class="material-symbols-outlined" style="font-size: 16px;">upload_file</span></button>
+        <button class="browser-nav-btn" id="os-note-save" title="Export as HTML"><span class="material-symbols-outlined" style="font-size: 16px;">download</span></button>
         <button class="browser-nav-btn" id="os-note-new" title="New Note"><span class="material-symbols-outlined" style="font-size: 16px;">add_box</span></button>
         <button class="browser-nav-btn" id="os-note-clear" title="Clear Note"><span class="material-symbols-outlined" style="font-size: 16px;">ink_eraser</span></button>
-        <a href="assets/help.html" target="_blank" style="display:flex;"><button class="browser-nav-btn" title="Help"><span class="material-symbols-outlined" style="font-size: 16px;">help</span></button></a>
       </div>
-      <span class="altf4" onclick="closePopup('popup5')" style="flex-shrink: 0; margin-left: 8px;">✖</span>
+      <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup5')">remove</span>
+        <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup5')">crop_square</span>
+        <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup5')">close</span>
+      </div>
     `;
 
     tabsContainer = window.parent.document.getElementById('os-notes-tabs');
     const actionsContainer = window.parent.document.getElementById('os-notes-actions');
     
-    // FIX: Only stop propagation if you click a tab. 
-    // This allows clicking the empty space in the container to drag the window!
     tabsContainer.addEventListener('mousedown', e => {
-      if (e.target.closest('.notes-tab-btn')) {
-        e.stopPropagation();
-      }
+      if (e.target.closest('.notes-tab-btn')) e.stopPropagation();
     });
 
     actionsContainer.addEventListener('mousedown', e => {
-      if (e.target.closest('button')) {
-        e.stopPropagation();
-      }
+      if (e.target.closest('button')) e.stopPropagation();
     });
 
+    // Wire up injected buttons
+    window.parent.document.getElementById('os-note-import').addEventListener('click', () => { document.getElementById('import-file').click(); });
     window.parent.document.getElementById('os-note-save').addEventListener('click', handleSave);
     window.parent.document.getElementById('os-note-new').addEventListener('click', () => createTab());
     window.parent.document.getElementById('os-note-clear').addEventListener('click', handleClear);
+
+    // Setup Context Menu logic from iframe to parent
+    let activeContextTabId = null;
+    const parentCm = window.parent.document.getElementById('notes-tab-context-menu');
+    
+    parentCm.querySelectorAll('.color-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        if (activeContextTabId) {
+          const color = dot.dataset.color;
+          const note = notes.find(n => n.id === activeContextTabId);
+          if (note) {
+            note.color = color;
+            const tab = tabsContainer.querySelector(`[data-id="${activeContextTabId}"]`);
+            if (tab) {
+              const line = tab.querySelector('.tab-color-line');
+              if (line) line.style.background = color;
+            }
+            saveToLocalStorage();
+          }
+        }
+        parentCm.style.display = 'none';
+      });
+    });
+
+    // Make a global function available to the parent tabs to open the menu
+    window.openTabContextMenu = function(e, id) {
+      e.preventDefault();
+      activeContextTabId = id;
+      parentCm.style.display = 'flex';
+      // Adjust positioning slightly to avoid going off-screen
+      parentCm.style.left = Math.min(e.clientX, window.innerWidth - 150) + 'px';
+      parentCm.style.top = (e.clientY + 10) + 'px';
+    };
   }
 
-  // --- Core Tab Logic ---
-  function buildTabElement(id, name) {
-    // Generate elements inside the parent DOM context
+// --- Core Tab Logic ---
+  function buildTabElement(id, name, color="transparent") {
     const doc = IS_EMBEDDED ? window.parent.document : document;
+    const win = IS_EMBEDDED ? window.parent : window;
     const btn = doc.createElement('div');
     btn.className = 'notes-tab-btn';
     btn.dataset.id = id;
 
+    const colorLine = doc.createElement('div');
+    colorLine.className = 'tab-color-line';
+    colorLine.style.background = color;
+    btn.appendChild(colorLine);
+
     const span = doc.createElement('span');
     span.textContent = name;
-    span.addEventListener('dblclick', () => {
-      const newName = prompt("Rename tab:", span.textContent);
-      if(newName && newName.trim()) { span.textContent = newName.trim(); notes.find(n => n.id === id).name = newName.trim(); saveToLocalStorage(); }
+    span.style.zIndex = "3";
+    span.style.position = "relative";
+    span.style.outline = "none"; 
+    span.style.minWidth = "20px";
+    span.style.display = "inline-block";
+    span.style.whiteSpace = "nowrap";
+
+    // Inline renaming logic
+    span.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      span.contentEditable = "true";
+      btn.setAttribute('draggable', false); // Disable window/tab dragging while typing
+      span.style.cursor = "text";
+      span.focus();
+
+      // Automatically highlight existing text for quick replacement
+      const selection = win.getSelection();
+      const range = doc.createRange();
+      range.selectNodeContents(span);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+
+    const finishEditing = () => {
+      if (span.contentEditable !== "true") return;
+      span.contentEditable = "false";
+      btn.setAttribute('draggable', true);
+      span.style.cursor = "inherit";
+      
+      const newName = span.textContent.trim() || "Note";
+      span.textContent = newName;
+      
+      const note = notes.find(n => n.id === id);
+      if (note) {
+        note.name = newName;
+        saveToLocalStorage();
+      }
+    };
+
+    span.addEventListener('blur', finishEditing); // Save when clicking away
+    span.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        span.blur(); 
+      }
     });
 
     const closeBtn = doc.createElement('button');
@@ -181,6 +534,11 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     btn.appendChild(span); btn.appendChild(closeBtn);
     btn.addEventListener('click', () => switchTab(id));
     
+    // Right click menu for colors
+    if (IS_EMBEDDED) {
+      btn.addEventListener('contextmenu', (e) => window.openTabContextMenu(e, id));
+    }
+    
     btn.setAttribute('draggable', true);
     btn.addEventListener('dragstart', dragStart); btn.addEventListener('dragover', dragOver);
     btn.addEventListener('dragleave', dragLeave); btn.addEventListener('drop', dropTab);
@@ -189,18 +547,18 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     return btn;
   }
 
-  function createTab(name="Note") {
+  function createTab(name="Note", initialContent="") {
     const id = Date.now().toString();
-    notes.push({id, content: "", name});
-    const btn = buildTabElement(id, name);
+    notes.push({id, content: initialContent, name, color: "transparent"});
+    const btn = buildTabElement(id, name, "transparent");
     tabsContainer.appendChild(btn);
     switchTab(id);
     saveToLocalStorage();
-    showAppToast("📝 New note created");
+    if(initialContent === "") showAppToast("📝 New note created");
   }
 
   function switchTab(id) {
-    if (notes[currentIndex]) notes[currentIndex].content = noteArea.value;
+    if (notes[currentIndex]) notes[currentIndex].content = noteArea.innerHTML;
     const targetBtn = [...tabsContainer.children].find(b => b.dataset.id === id);
     if(!targetBtn || targetBtn.classList.contains('active')) return;
 
@@ -212,7 +570,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     void noteArea.offsetWidth; 
     noteArea.classList.add('textarea-pulse');
     
-    noteArea.value = notes[currentIndex].content || "";
+    noteArea.innerHTML = notes[currentIndex].content || "";
     noteArea.focus();
   }
 
@@ -228,7 +586,6 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     saveToLocalStorage();
   }
 
-  // Dual Sync: Local Storage + Cloud Server Backend
   async function saveToLocalStorage() {
     localStorage.setItem('multiNotes', JSON.stringify(notes));
     try {
@@ -237,7 +594,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(notes)
       });
-    } catch(err) { /* Silent fail for disconnected states */ }
+    } catch(err) { /* Silent fail */ }
   }
   
   async function loadFromLocalStorage() {
@@ -248,7 +605,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
         const data = await res.json();
         if (data && data.length > 0) saved = data;
       }
-    } catch(err) { /* Fallback to local */ }
+    } catch(err) { /* Fallback */ }
 
     if(!saved && localStorage.getItem('multiNotes')) {
       saved = JSON.parse(localStorage.getItem('multiNotes'));
@@ -256,17 +613,22 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 
     if(saved && saved.length > 0) {
       notes = saved;
-      notes.forEach(n => { tabsContainer.appendChild(buildTabElement(n.id, n.name)); });
+      notes.forEach(n => { tabsContainer.appendChild(buildTabElement(n.id, n.name, n.color || "transparent")); });
       const firstTab = tabsContainer.querySelector('.notes-tab-btn');
       if(firstTab) firstTab.classList.add('active');
       currentIndex = 0;
-      noteArea.value = notes[0].content || "";
+      noteArea.innerHTML = notes[0].content || "";
     } else {
       createTab();
     }
   }
 
-  noteArea.addEventListener('input', () => { if(notes[currentIndex]) { notes[currentIndex].content = noteArea.value; saveToLocalStorage(); } });
+  noteArea.addEventListener('input', () => { 
+    if(notes[currentIndex]) { 
+      notes[currentIndex].content = noteArea.innerHTML; 
+      saveToLocalStorage(); 
+    } 
+  });
 
   document.addEventListener('keydown', (e) => {
     if(e.ctrlKey && e.key === 's') { e.preventDefault(); handleSave(); }

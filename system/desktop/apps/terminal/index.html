@@ -1,5 +1,5 @@
 <!-- 
-mariowOS Terminal - (C) 2025 mariowstech and the mariowOS team 
+mariowOS Terminal - (C) 2026 mariowstech and the mariowOS team 
 Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
 Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
 This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
@@ -80,9 +80,23 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     let history = [];
     let historyIndex = -1;
 
-    // Initialize
+    // Initialize variables
     let currentInput, currentCursor;
-    newPrompt();
+    let sysUsername = "user"; // default fallback
+
+    // Fetch the actual username from settings before spawning the first prompt
+    fetch("/get-settings")
+      .then(res => res.json())
+      .then(config => {
+        if (config.username) {
+          // Format like a real Linux username (lowercase, no spaces)
+          sysUsername = config.username.toLowerCase().replace(/\s+/g, '');
+        }
+        newPrompt();
+      })
+      .catch(() => {
+        newPrompt();
+      });
 
     // Blink cursor
     setInterval(() => {
@@ -112,8 +126,10 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       } else if (e.key === "Enter") {
         const cmd = inputBuffer.trim();
         executeCommand(cmd);
-        history.push(cmd);
-        historyIndex = history.length;
+        if (cmd && !window.awaitingUpgradeConfirm) {
+          history.push(cmd);
+          historyIndex = history.length;
+        }
         inputBuffer = "";
         return;
       } else if (e.key === "ArrowUp") {
@@ -135,9 +151,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       terminal.scrollTop = terminal.scrollHeight;
     });
 
-    function newPrompt() {
+    function newPrompt(prefix = null) {
+      // Use dynamic username for the prompt prefix if no custom prompt is supplied
+      const pfx = prefix !== null ? prefix : `<span class="user">${sysUsername}@mariowos</span>:$ `;
       const line = document.createElement("div");
-      line.innerHTML = `<span class="user">user@mariowos</span>:$ <span class="input"></span><span class="cursor"></span>`;
+      line.innerHTML = `${pfx}<span class="input"></span><span class="cursor"></span>`;
       terminal.appendChild(line);
       terminal.scrollTop = terminal.scrollHeight;
 
@@ -147,26 +165,64 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     }
 
     function executeCommand(cmd) {
+      // 1. Intercept input if we are waiting for Y/n confirmation
+      if (window.awaitingUpgradeConfirm) {
+        window.awaitingUpgradeConfirm = false;
+        const ans = cmd.toLowerCase().trim();
+        
+        const ansLine = document.createElement("div");
+        terminal.appendChild(ansLine);
+
+        if (ans === 'y' || ans === 'yes' || ans === '') {
+          const upgDiv = document.createElement("div");
+          upgDiv.innerText = `Fetching updates...\nUpgrading packages...`;
+          terminal.appendChild(upgDiv);
+          terminal.scrollTop = terminal.scrollHeight;
+
+          fetch("/api/store/do-upgrade", { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+               const d = document.createElement("div");
+               if (data.success) d.innerText = `Upgrade complete. ${data.count} packages updated.`;
+               else d.innerText = `E: ${data.error}`;
+               terminal.appendChild(d);
+               terminal.scrollTop = terminal.scrollHeight;
+               newPrompt();
+            });
+        } else {
+          const abDiv = document.createElement("div");
+          abDiv.innerText = `Abort.`;
+          terminal.appendChild(abDiv);
+          terminal.scrollTop = terminal.scrollHeight;
+          newPrompt();
+        }
+        return;
+      }
+
+      // 2. Normal execution path
       if (!cmd) {
         newPrompt();
         return;
       }
 
       const outputLine = document.createElement("div");
+      const args = cmd.split(" ");
+      const rootCmd = args[0];
 
-      switch (cmd.split(" ")[0]) {
+      switch (rootCmd) {
         case "help":
-        outputLine.innerText = `Commands:
+          outputLine.innerText = `Commands:
         help - Show help                          addkey - adds a key into the system's keyring
         about - About this terminal               delkey - deletes a key from the system's keyring
         clear - Clear the screen                  listkeys - list all the keys in the system's keyring 
         echo [text] - Print a message             fetch - show system information
-        math [expr] - Simple math calculator      lili - show lili command`;
+        math [expr] - Simple math calculator      lili - show lili command
+        get [cmd] - mariowOS package manager`;
           terminal.appendChild(outputLine);
           break;
 
         case "about":
-          outputLine.innerText = `mariowOS Terminal (preview) - (C) 2025 mariowstech and the mariowOS team`;
+          outputLine.innerText = `mariowOS Terminal (preview) - (C) 2026 mariowstech and the mariowOS team`;
           terminal.appendChild(outputLine);
           break;
 
@@ -194,113 +250,357 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
           terminal.appendChild(outputLine);
           break;
 
-          case "lili": // the most important command that there is, because lili is the love of my life <3
+        case "lili":
           outputLine.innerText = `lili ti amo!!!`;
           terminal.appendChild(outputLine);
           break;
 
-case "addkey":
-  const keyValue = cmd.slice(7).trim();
-  if (!keyValue) {
-    outputLine.innerText = "E: Please specify a key to add.";
-    terminal.appendChild(outputLine);
-    newPrompt(); // prompt here because no fetch
-    break;
-  }
+        // --- PACKAGE MANAGER: GET ---
+        case "get":
+          const subCmd = args[1];
+          const targetApp = args[2];
 
-  fetch("/save-key", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key: keyValue }),
-  })
-    .then((res) => res.text())
-    .then((msg) => {
-      const resultLine = document.createElement("div");
-      resultLine.innerText = msg;
-      terminal.appendChild(resultLine);
-      newPrompt(); // <-- move prompt here
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to save key.";
-      terminal.appendChild(errLine);
-      newPrompt(); // <-- move prompt here
-    });
-  break;
+          if (!subCmd) {
+            outputLine.innerText = `get: package manager for mariowOS\n\nUsage:\n  get list            - List all available packages in the catalog\n  get install [pkg]   - Download and install a package\n  get remove [pkg]    - Remove an installed package\n  get update          - Update local package indexes\n  get upgrade         - Upgrade all installed packages`;
+            terminal.appendChild(outputLine);
+            return newPrompt(); 
+          }
 
-case "listkeys":
-  fetch("/list-keys")
-    .then((res) => res.json())
-    .then((keys) => {
-      const listOutput = document.createElement("div");
-      if (keys.length === 0) {
-        listOutput.innerText = "No keys saved.";
-      } else {
-        listOutput.innerText =
-          "== Saved Keys ==\n" +
-          keys
-            .map(
-              (k, i) =>
-                `${i + 1}. ${k.key} (added ${new Date(k.date).toLocaleString()})`
-            )
-            .join("\n");
-      }
-      terminal.appendChild(listOutput);
-      newPrompt(); // <-- prompt after output
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to list keys.";
-      terminal.appendChild(errLine);
-      newPrompt(); // <-- prompt after error
-    });
-  break;
+          if (subCmd === "list") {
+            fetch("/api/store/catalog")
+              .then(res => res.json())
+              .then(catalog => {
+                let out = "== Available Packages ==\n\n";
+                if (catalog.length === 0) out += "No packages found in catalog.";
+                catalog.forEach(app => {
+                  out += `${app.id.padEnd(20)} - ${app.title}\n`;
+                });
+                const outDiv = document.createElement("div");
+                outDiv.innerText = out;
+                terminal.appendChild(outDiv);
+                terminal.scrollTop = terminal.scrollHeight;
+                newPrompt();
+              })
+              .catch(() => {
+                const errDiv = document.createElement("div");
+                errDiv.innerText = "E: Failed to fetch package catalog.";
+                terminal.appendChild(errDiv);
+                newPrompt();
+              });
+            return;
+          }
 
-case "delkey":
-  const keyToDelete = cmd.slice(7).trim();
-  if (!keyToDelete) {
-    outputLine.innerText = "E: Please specify a key to delete.";
-    terminal.appendChild(outputLine);
-    newPrompt(); // prompt here because no fetch
-    break;
-  }
+          if (subCmd === "install") {
+            if (!targetApp) {
+              outputLine.innerText = "E: You must specify a package to install.";
+              terminal.appendChild(outputLine);
+              return newPrompt();
+            }
 
-  fetch("/delete-key", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key: keyToDelete }),
-  })
-    .then((res) => res.text())
-    .then((msg) => {
-      const resultLine = document.createElement("div");
-      resultLine.innerText = msg;
-      terminal.appendChild(resultLine);
-      newPrompt(); // <-- prompt after output
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to delete key.";
-      terminal.appendChild(errLine);
-      newPrompt(); // <-- prompt after error
-    });
-  break;
+            outputLine.innerText = `Searching for package ${targetApp}...`;
+            terminal.appendChild(outputLine);
+            terminal.scrollTop = terminal.scrollHeight;
 
-case "fetch":
-  fetch("/sysinfo")
-    .then((res) => res.json())
-    .then((info) => {
-      if (info.error) throw new Error(info.error);
+            fetch("/api/store/catalog")
+              .then(res => res.json())
+              .then(catalog => {
+                const app = catalog.find(a => a.id === targetApp);
+                if (!app) {
+                  const errDiv = document.createElement("div");
+                  errDiv.innerText = `E: Package '${targetApp}' not found.`;
+                  terminal.appendChild(errDiv);
+                  return newPrompt();
+                }
 
-      const hours = Math.floor(info.Uptime / 3600);
-      const minutes = Math.floor((info.Uptime % 3600) / 60);
+                const queueDiv = document.createElement("div");
+                queueDiv.innerText = `${targetApp} is queued to be installed...`;
+                terminal.appendChild(queueDiv);
+                terminal.scrollTop = terminal.scrollHeight;
 
-      const fetchOutput = document.createElement("div");
-      fetchOutput.innerText = `                    
+                setTimeout(() => {
+                  const fetchDiv = document.createElement("div");
+                  fetchDiv.innerText = `Fetching package ${targetApp}...`;
+                  terminal.appendChild(fetchDiv);
+                  terminal.scrollTop = terminal.scrollHeight;
+
+                  fetch("/api/store/install", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ appId: app.id, title: app.title, icon: app.icon, repoUrl: app.repoUrl })
+                  })
+                  .then(res => res.json())
+                  .then(installRes => {
+                    const resDiv = document.createElement("div");
+                    if (installRes.success) {
+                      resDiv.innerText = `Unpacking ${app.id}...\nSetting up ${app.id}...\nAdding package to app list...\n${app.id} installed successfully.`;
+                      window.parent.postMessage({
+                        type: 'app-installed-live',
+                        app: { appId: app.id, title: app.title, icon: app.icon, url: `apps/${app.id}/index.html` }
+                      }, '*');
+                    } else {
+                      resDiv.innerText = `E: Sub-process returned an error code: ${installRes.error}`;
+                    }
+                    terminal.appendChild(resDiv);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    newPrompt();
+                  });
+                }, 800);
+              })
+              .catch(() => {
+                const errDiv = document.createElement("div");
+                errDiv.innerText = "E: Network error during installation phase.";
+                terminal.appendChild(errDiv);
+                newPrompt();
+              });
+            return;
+          }
+
+          if (subCmd === "remove") {
+            if (!targetApp) {
+              outputLine.innerText = "E: You must specify a package to remove.";
+              terminal.appendChild(outputLine);
+              return newPrompt();
+            }
+
+            outputLine.innerText = `Searching for package ${targetApp}...`;
+            terminal.appendChild(outputLine);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            fetch("/get-settings")
+              .then(res => res.json())
+              .then(config => {
+                const installedApps = config.installedApps || [];
+                const isInstalled = installedApps.find(a => a.appId === targetApp);
+
+                if (!isInstalled) {
+                  const errDiv = document.createElement("div");
+                  errDiv.innerText = `E: Package '${targetApp}' is not installed.`;
+                  terminal.appendChild(errDiv);
+                  return newPrompt();
+                }
+
+                const rmDiv = document.createElement("div");
+                rmDiv.innerText = `Removing ${targetApp}...`;
+                terminal.appendChild(rmDiv);
+                terminal.scrollTop = terminal.scrollHeight;
+
+                fetch("/api/store/uninstall", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ appId: targetApp })
+                })
+                .then(res => res.json())
+                .then(data => {
+                  const resDiv = document.createElement("div");
+                  if (data.success) {
+                     resDiv.innerText = `${targetApp} removed successfully.`;
+                     window.parent.postMessage({ type: 'app-uninstalled-live', appId: targetApp }, '*');
+                  } else {
+                     resDiv.innerText = `E: Could not remove package: ${data.error}`;
+                  }
+                  terminal.appendChild(resDiv);
+                  terminal.scrollTop = terminal.scrollHeight;
+                  newPrompt();
+                });
+              })
+              .catch(() => {
+                 const errDiv = document.createElement("div");
+                 errDiv.innerText = "E: Failed to connect to local package manager.";
+                 terminal.appendChild(errDiv);
+                 newPrompt();
+              });
+            return;
+          }
+
+          if (subCmd === "update") {
+            outputLine.innerText = `Fetching catalog...`;
+            terminal.appendChild(outputLine);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            fetch("/api/store/update")
+              .then(res => res.json())
+              .then(data => {
+                setTimeout(() => { 
+                  const updDiv = document.createElement("div");
+                  updDiv.innerText = `Updating catalog...`;
+                  terminal.appendChild(updDiv);
+                  terminal.scrollTop = terminal.scrollHeight;
+
+                  setTimeout(() => {
+                    const doneDiv = document.createElement("div");
+                    if (data.success) {
+                      doneDiv.innerText = `\nDone. ${data.addedCount} new packages added to local repository.`;
+                    } else {
+                      doneDiv.innerText = `\nE: ${data.error}`;
+                    }
+                    terminal.appendChild(doneDiv);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    newPrompt();
+                  }, 600);
+                }, 600);
+              })
+              .catch(() => {
+                const errDiv = document.createElement("div");
+                errDiv.innerText = "\nE: Network error while fetching catalog.";
+                terminal.appendChild(errDiv);
+                terminal.scrollTop = terminal.scrollHeight;
+                newPrompt();
+              });
+            return;
+          }
+
+          if (subCmd === "upgrade") {
+            outputLine.innerText = `Reading package lists...`;
+            terminal.appendChild(outputLine);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            setTimeout(() => {
+              const depDiv = document.createElement("div");
+              depDiv.innerText = `Building dependency tree... Done\nReading state information... Done`;
+              terminal.appendChild(depDiv);
+              terminal.scrollTop = terminal.scrollHeight;
+
+              setTimeout(() => {
+                const calcDiv = document.createElement("div");
+                calcDiv.innerText = `Calculating upgrade...`;
+                terminal.appendChild(calcDiv);
+                terminal.scrollTop = terminal.scrollHeight;
+
+                fetch("/api/store/check-upgrades")
+                  .then(res => res.json())
+                  .then(data => {
+                    const resDiv = document.createElement("div");
+                    if (data.upgrades && data.upgrades.length > 0) {
+                       resDiv.innerText = `The following packages will be upgraded:\n  ${data.upgrades.join(" ")}\n${data.upgrades.length} upgraded, 0 newly installed, 0 to remove.`;
+                       terminal.appendChild(resDiv);
+                       terminal.scrollTop = terminal.scrollHeight;
+                       
+                       window.awaitingUpgradeConfirm = true;
+                       newPrompt("Do you want to continue? [Y/n] ");
+                    } else {
+                       resDiv.innerText = `Done\n0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.`;
+                       terminal.appendChild(resDiv);
+                       terminal.scrollTop = terminal.scrollHeight;
+                       newPrompt();
+                    }
+                  })
+                  .catch(() => {
+                     const errDiv = document.createElement("div");
+                     errDiv.innerText = "E: Failed to check for upgrades.";
+                     terminal.appendChild(errDiv);
+                     terminal.scrollTop = terminal.scrollHeight;
+                     newPrompt();
+                  });
+              }, 500);
+            }, 500);
+            return;
+          }
+
+          outputLine.innerText = `E: Invalid operation ${subCmd}`;
+          terminal.appendChild(outputLine);
+          return newPrompt();
+
+        // --- ASYNC COMMANDS ---
+        case "addkey":
+          const keyValue = cmd.slice(7).trim();
+          if (!keyValue) {
+            outputLine.innerText = "E: Please specify a key to add.";
+            terminal.appendChild(outputLine);
+            return newPrompt(); 
+          }
+
+          fetch("/save-key", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: keyValue }),
+          })
+            .then((res) => res.text())
+            .then((msg) => {
+              const resultLine = document.createElement("div");
+              resultLine.innerText = msg;
+              terminal.appendChild(resultLine);
+              newPrompt(); 
+            })
+            .catch(() => {
+              const errLine = document.createElement("div");
+              errLine.innerText = "E: Failed to save key.";
+              terminal.appendChild(errLine);
+              newPrompt(); 
+            });
+          return;
+
+        case "listkeys":
+          fetch("/list-keys")
+            .then((res) => res.json())
+            .then((keys) => {
+              const listOutput = document.createElement("div");
+              if (keys.length === 0) {
+                listOutput.innerText = "No keys saved.";
+              } else {
+                listOutput.innerText =
+                  "== Saved Keys ==\n" +
+                  keys
+                    .map(
+                      (k, i) =>
+                        `${i + 1}. ${k.key} (added ${new Date(k.date).toLocaleString()})`
+                    )
+                    .join("\n");
+              }
+              terminal.appendChild(listOutput);
+              newPrompt(); 
+            })
+            .catch(() => {
+              const errLine = document.createElement("div");
+              errLine.innerText = "E: Failed to list keys.";
+              terminal.appendChild(errLine);
+              newPrompt(); 
+            });
+          return;
+
+        case "delkey":
+          const keyToDelete = cmd.slice(7).trim();
+          if (!keyToDelete) {
+            outputLine.innerText = "E: Please specify a key to delete.";
+            terminal.appendChild(outputLine);
+            return newPrompt(); 
+          }
+
+          fetch("/delete-key", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ key: keyToDelete }),
+          })
+            .then((res) => res.text())
+            .then((msg) => {
+              const resultLine = document.createElement("div");
+              resultLine.innerText = msg;
+              terminal.appendChild(resultLine);
+              newPrompt(); 
+            })
+            .catch(() => {
+              const errLine = document.createElement("div");
+              errLine.innerText = "E: Failed to delete key.";
+              terminal.appendChild(errLine);
+              newPrompt(); 
+            });
+          return;
+
+        case "fetch":
+          fetch("/sysinfo")
+            .then((res) => res.json())
+            .then((info) => {
+              if (info.error) throw new Error(info.error);
+
+              const hours = Math.floor(info.Uptime / 3600);
+              const minutes = Math.floor((info.Uptime % 3600) / 60);
+
+              const fetchOutput = document.createElement("div");
+              fetchOutput.innerText = `                    
     @@@@@                            ┌──────────Basic Info──────────┐
  @@@@@@@@@@@      @@@@@@             OS: mariowOS PRE-RELEASE 1 (Insiders)   
     @@@@@         @@@@@@             Uptime: ${hours}h ${minutes}m
      @@@         @@@@@@@@            CPU: ${info.CPU}
-              @@@@@@@@@@@@@@         RAM: ${info.RAM} (Free: ${info.FreeRAM})
+              @@@@@@@@@@@@@@         RAM: ${info.RAM}
           @@@@@@@@@@@@@@@@@@@@@@     Engine: Lillium Engine 
         @@@@@@@@@@@@@@@@@@@@@@@@@@   
            @@@@@@@@@@@@@@@@@@@@      ┌──────────Shell Info──────────┐
@@ -311,29 +611,28 @@ case "fetch":
    @@@@@@@@@@@                       © mariowstech and the mariowOS team
       @@@@@                          All rights reserved.                           
 `;
-      terminal.appendChild(fetchOutput);
-      terminal.scrollTop = terminal.scrollHeight;
+              terminal.appendChild(fetchOutput);
+              terminal.scrollTop = terminal.scrollHeight;
 
-      newPrompt();
-    })
-    .catch(() => {
-      const errLine = document.createElement("div");
-      errLine.innerText = "E: Failed to fetch system info.";
-      terminal.appendChild(errLine);
-      newPrompt();
-    });
-  break;
+              newPrompt();
+            })
+            .catch(() => {
+              const errLine = document.createElement("div");
+              errLine.innerText = "E: Failed to fetch system info.";
+              terminal.appendChild(errLine);
+              newPrompt();
+            });
+          return;
 
         default:
           outputLine.innerText = `Command not found: ${cmd}`;
           terminal.appendChild(outputLine);
       }
 
+      // Synchronous commands fall through to here
       terminal.scrollTop = terminal.scrollHeight;
       newPrompt();
     }
-
-
   </script>
 </body>
 </html>

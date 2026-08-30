@@ -1,12 +1,9 @@
 {
-  "passwordHash": "$2b$10$edIWcG95.ZwvkpY0VD5UqO6.DZDy/0r7uH1UoD2zUGikb0yJAPAMq",
+  "passwordHash": null,
   "quickSettings": {
     "wifi": true,
     "bluetooth": true,
     "dnd": false,
-    "powerMode": "Balanced",
-    "volume": 100
-  },
-  "username": "mariow",
-  "rules": []
+    "powerMode": "Balanced"
+  }
 }

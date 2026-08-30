@@ -1,7 +1,8 @@
 [
   {
     "id": "1787833566966",
-    "content": "",
-    "name": "Note"
+    "content": "<div><font size=\"5\"><b>Hello!</b></font></div><div><font size=\"3\">This is a test of the new notes app. You can now make text <b>bolder</b>, <i>italics</i> and <u>underline</u> important words, i can also make text <font color=\"#33d17a\">green</font> like my <u>wife</u>'s eyes!! Oh, and also emojis&nbsp;</font>💗</div><div><br></div><div>Checklist</div><div><ul><li>Get groceries</li><li>Build mariowOS</li><li>Fix bugs</li><br></ul></div><div><div align=\"center\">Center texts are so cool, just like mariowOS!</div><ul><br></ul></div>",
+    "name": "Note",
+    "color": "#5c7cfa"
   }
 ]

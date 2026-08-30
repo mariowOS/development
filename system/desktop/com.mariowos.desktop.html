@@ -66,7 +66,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       width: 1048px; height: 600px; background: rgba(18, 22, 32, 0.85) !important;
       backdrop-filter: blur(40px) saturate(210%); -webkit-backdrop-filter: blur(40px) saturate(210%);
       border-radius: 16px; opacity: 0; overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important; z-index: 50;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important; z-index: 300;
       will-change: transform, opacity, width, height; transform: rotate(0deg);
     }
 
@@ -91,12 +91,19 @@ Questions? https://discord.gg/YDVxw6jfbH
     .action-btn.close-btn { font-size: 18px !important; }
     .action-btn.close-btn:hover { color: #ff5f56; }
 
+    /* Glass overlay for unfocused iframe click detection */
+    .popup-glass {
+      position: absolute; top: 36px; left: 0; width: 100%; height: calc(100% - 36px);
+      z-index: 10; background: transparent; display: none;
+    }
+    .popup:not(.focused) .popup-glass { display: block; }
+
     .popup-frame { width: 100%; height: calc(100% - 36px); background: transparent !important; }
 
     .status-bar {
       position: absolute; bottom: 0; left: 0; width: 100vw; height: 48px;
       display: flex; align-items: center; justify-content: space-between;
-      z-index: 100; padding: 0 12px; box-sizing: border-box; background: transparent !important; 
+      z-index: 1000; padding: 0 12px; box-sizing: border-box; background: transparent !important; 
       animation: taskbarSlideUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
     .status-bar-bg {
@@ -165,7 +172,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important; border-radius: 18px; padding: 8px;
       min-width: 220px; max-height: 380px; overflow-y: auto; overflow-x: hidden; opacity: 0; visibility: hidden;
       transform: translateY(10px) scale(0.97); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.25s ease;
-      z-index: 200; transform-origin: bottom center; box-sizing: border-box;
+      z-index: 1100; transform-origin: bottom center; box-sizing: border-box;
     }
     .dropdown.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); pointer-events: auto; }
     .dropdown-item {
@@ -429,6 +436,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup1')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/settings/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -448,6 +456,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup2')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe id="browserFrame" data-default-src="https://mariowotech.github.io/mariowOS-landpages/browser-homepage/" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -460,6 +469,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup3')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/help/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -472,6 +482,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup4')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/music/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -484,6 +495,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup5')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/notes/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -496,6 +508,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup6')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="https://organizations.minnit.chat/744784529789521/c/Main?embed" src="about:blank" class="popup-frame" id="chattable"></iframe>
   </div>
 
@@ -508,6 +521,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup7')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/store/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -520,6 +534,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup8')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/terminal/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -532,6 +547,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup9')">close</span>
       </div>
     </div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
     <iframe data-default-src="apps/calculator/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
@@ -779,7 +795,6 @@ Questions? https://discord.gg/YDVxw6jfbH
       }
     }
 
-// Set up Local Volume Display state logic
     const volSlider = document.getElementById('volumeSlider');
     const volVal = document.getElementById('volumeValue');
     const volIcon = document.getElementById('volumeIcon');
@@ -798,12 +813,10 @@ Questions? https://discord.gg/YDVxw6jfbH
     }
 
     if (volSlider) {
-      // Load saved volume on boot
       const savedVol = localStorage.getItem('hmos_system_volume') || 70;
       volSlider.value = savedVol;
       updateVolumeUI(savedVol);
 
-      // 1. Fires continuously while dragging (Updates UI & Apps instantly)
       volSlider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value);
         updateVolumeUI(val);
@@ -815,11 +828,10 @@ Questions? https://discord.gg/YDVxw6jfbH
         });
       });
 
-      // 2. Fires once when you let go of the slider (Syncs with the OS Backend)
       volSlider.addEventListener('change', async (e) => {
         const val = parseInt(e.target.value);
         localStorage.setItem('hmos_system_volume', val);
-        updateQSBackend('volume', val); // Saves to quick settings JSON
+        updateQSBackend('volume', val); 
         
         try {
           await fetch("/api/system/set-volume", {
@@ -1133,8 +1145,15 @@ Questions? https://discord.gg/YDVxw6jfbH
       popup.addEventListener("animationend", onAnimationEnd);
     }
 
-    function getHighestZIndex(elems) { let hi = 50; for (let i = 0; i < elems.length; i++) { const z = parseInt(elems[i].style.zIndex, 10) || 0; if (z > hi) hi = z; } return hi; }
-    function focusPopup(popup) { const activePopups = document.getElementsByClassName("popup"); popup.style.zIndex = getHighestZIndex(activePopups) + 1; updateContextBar(); }
+    function getHighestZIndex(elems) { let hi = 300; for (let i = 0; i < elems.length; i++) { const z = parseInt(elems[i].style.zIndex, 10) || 0; if (z > hi) hi = z; } return hi; }
+    
+    function focusPopup(popup) { 
+      const activePopups = document.getElementsByClassName("popup");
+      Array.from(activePopups).forEach(p => p.classList.remove("focused"));
+      popup.classList.add("focused");
+      popup.style.zIndex = getHighestZIndex(activePopups) + 1; 
+      updateContextBar(); 
+    }
 
     function makeDraggable(el, handle, minTop) {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -1201,7 +1220,10 @@ Questions? https://discord.gg/YDVxw6jfbH
       }
     }
 
-    document.addEventListener('mousedown', (e) => { const header = e.target.closest('.popup-header'); if (header) focusPopup(header.parentElement); });
+    document.addEventListener('mousedown', (e) => { 
+      const popup = e.target.closest('.popup'); 
+      if (popup && e.target.closest('.popup-header')) focusPopup(popup); 
+    });
 
     function openSpotlight() { const s = document.getElementById('spotlightSearch'); s.classList.add('active'); const input = document.getElementById('spotlightInput'); input.value = ''; handleSpotlightInput(''); setTimeout(() => input.focus(), 100); }
     function closeSpotlight() { document.getElementById('spotlightSearch').classList.remove('active'); document.getElementById('spotlightInput').value = ''; }
@@ -1264,7 +1286,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     }
     setupDropdown("actionsBtn", "actionsDropdown"); setupDropdown("contextBtn", "contextDropdown");
     setupDropdown("activitiesBtn", "activitiesDropdown"); setupDropdown("notificationsBtn", "notificationsDropdown"); setupDropdown("clockBtn", "calendarDropdown");
-    setupDropdown("volumeBtn", "volumeDropdown"); // Initialized the volume dropdown setup
+    setupDropdown("volumeBtn", "volumeDropdown"); 
     
     document.addEventListener('click', (e) => { if (!e.target.closest('.dropdown')) { document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open')); } });
 
@@ -1296,13 +1318,13 @@ Questions? https://discord.gg/YDVxw6jfbH
           dropdown.appendChild(btn);
           
           const popupDiv = document.createElement("div"); popupDiv.id = app.appId; popupDiv.className = "popup"; 
-          popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${app.appId}')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><iframe data-default-src="${app.url}" src="about:blank" class="popup-frame"></iframe>`; 
+          popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${app.appId}')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><div class="popup-glass" onclick="focusPopup(this.parentElement)"></div><iframe data-default-src="${app.url}" src="about:blank" class="popup-frame"></iframe>`; 
           document.body.appendChild(popupDiv);
           
           updateDock();
 
-          const notifIcon = (app.icon && (app.icon.includes('/') || app.icon.includes('.'))) ? "📱" : (app.icon || "📦");
-          showNotification("App Installata", `${app.title} è pronta all'uso!`, notifIcon);
+          const notifIcon = (app.icon && (app.icon.includes('/') || app.icon.includes('.'))) ? "📦" : (app.icon || "📦");
+          showNotification("App is installed", `${app.title} is ready to use!`, notifIcon);
         }
       }
       
@@ -1317,7 +1339,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         const popupDiv = document.getElementById(appId); if (popupDiv) { setTimeout(() => popupDiv.remove(), 200); } 
         updateDock();
         
-        showNotification("App Rimossa", "L'applicazione è stata disinstallata.", "🗑️");
+        showNotification("App removed", "The application has been removed.", "🗑️");
       }
       if (e.data.type === "load-youafter") { document.getElementById("popup1").querySelector("iframe").src = "apps/settings/assets/youafter.html"; }
       if (e.data.type === 'clear-settings') { try { const res = await fetch('/config.json'); const cfg = await res.json(); await fetch('/clear-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ passwordHash: cfg.passwordHash }) }); e.source.postMessage({ type: 'settings-cleared' }, '*'); } catch (err) { e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*'); } }
@@ -1357,7 +1379,7 @@ Questions? https://discord.gg/YDVxw6jfbH
             dropdown.appendChild(btn);
             
             const popupDiv = document.createElement("div"); popupDiv.id = app.appId; popupDiv.className = "popup"; 
-            popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${app.appId}')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><iframe data-default-src="${app.url}" src="about:blank" class="popup-frame"></iframe>`; 
+            popupDiv.innerHTML = `<div class="popup-header"><span>${app.title}</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${app.appId}')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${app.appId}')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${app.appId}')">close</span></div></div><div class="popup-glass" onclick="focusPopup(this.parentElement)"></div><iframe data-default-src="${app.url}" src="about:blank" class="popup-frame"></iframe>`; 
             document.body.appendChild(popupDiv);
           });
         }

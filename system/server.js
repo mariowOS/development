@@ -1,4 +1,4 @@
-// mariowOS Backend (kernel/server.js) - (C) 2025 mariowstech and the mariowOS team 
+// mariowOS Backend (kernel/server.js) - (C) 2026 mariowstech and the mariowOS team 
 // Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
 // Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
 // This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
@@ -23,7 +23,6 @@ function getRawGithubUrl(repoUrl) {
   if (!repoUrl) return null;
   const cleanUrl = repoUrl.replace(/\.git$/, '');
   const match = cleanUrl.match(/github\.com\/([^/]+\/[^/]+)/);
-  // Defaults to main branch for the Store UI icon
   return match ? `https://raw.githubusercontent.com/${match[1]}/main/icon.png` : null;
 }
 
@@ -70,7 +69,6 @@ app.use(express.json());
 app.use("/desktop", express.static(path.join(__dirname, "desktop")));
 app.use("/loginui", express.static(path.join(__dirname, "loginui")));
 
-// Deprecated redirect kept for legacy compatibility
 app.get('/desktop/apps/settings/assets/you.html', (req, res, next) => {
   if (config && config.username && config.email && !req.query.edit) return res.redirect('/desktop/apps/settings/assets/youafter.html');
   next();
@@ -112,13 +110,10 @@ app.post("/api/system/set-volume", express.json(), (req, res) => {
   let cmd = "";
 
   if (currentOS === "linux") {
-    // Uses PulseAudio by default, falls back to raw ALSA if pulse isn't available
     cmd = `amixer -D pulse sset Master ${volNum}% || amixer sset Master ${volNum}%`;
   } else if (currentOS === "darwin") {
-    // macOS native volume control
     cmd = `osascript -e "set volume output volume ${volNum}"`;
   } else if (currentOS === "win32") {
-    // Windows requires 3rd party CLI tools like NirCmd, echoing as placeholder
     cmd = `echo Windows volume set to ${volNum}%`;
   }
 
@@ -471,19 +466,70 @@ app.post("/api/system/reset-desktop", (req, res) => {
 });
 
 // --- STORE & APPS (Package Manager) ---
-const catalogFile = path.join(__dirname, "store-catalog.json");
-if (!fs.existsSync(catalogFile)) {
-  fs.writeFileSync(catalogFile, JSON.stringify([{ id: 'app_sysinfo', title: 'SysMonitor', developer: 'mariowOS Team', desc: 'Advanced system monitor.', icon: '📊', repoUrl: 'https://github.com/mariowstech/sysmonitor-example.git' }], null, 2));
+const REMOTE_CATALOG_URL = "https://raw.githubusercontent.com/mariowOS/store-catalog/main/store-catalog.json";
+const localDevCatalogFile = path.join(__dirname, "local-dev-catalog.json");
+
+if (!fs.existsSync(localDevCatalogFile)) {
+  fs.writeFileSync(localDevCatalogFile, JSON.stringify([]));
 }
 
-app.get("/api/store/catalog", (req, res) => res.json(JSON.parse(fs.readFileSync(catalogFile, "utf8"))));
+app.get("/api/store/catalog", async (req, res) => {
+  let catalog = [];
+  
+  try {
+    const response = await fetch(REMOTE_CATALOG_URL);
+    if (response.ok) {
+      const remoteCatalog = await response.json();
+      catalog = [...remoteCatalog];
+      fs.writeFileSync(path.join(__dirname, "store-catalog.json"), JSON.stringify(catalog, null, 2));
+    }
+  } catch (err) {
+    if (fs.existsSync(path.join(__dirname, "store-catalog.json"))) {
+      catalog = JSON.parse(fs.readFileSync(path.join(__dirname, "store-catalog.json"), "utf8"));
+    }
+  }
+
+  if (fs.existsSync(localDevCatalogFile)) {
+    const localDevCatalog = JSON.parse(fs.readFileSync(localDevCatalogFile, "utf8"));
+    catalog = [...catalog, ...localDevCatalog];
+  }
+
+  res.json(catalog);
+});
+
+// Calculate differences for 'get update' terminal command
+app.get("/api/store/update", async (req, res) => {
+  let oldCatalog = [];
+  const catalogPath = path.join(__dirname, "store-catalog.json");
+  
+  if (fs.existsSync(catalogPath)) {
+    oldCatalog = JSON.parse(fs.readFileSync(catalogPath, "utf8"));
+  }
+  const oldIds = new Set(oldCatalog.map(a => a.id));
+
+  try {
+    const response = await fetch(REMOTE_CATALOG_URL);
+    if (!response.ok) throw new Error("Fetch failed");
+    const remoteCatalog = await response.json();
+    
+    let addedCount = 0;
+    remoteCatalog.forEach(app => {
+      if (!oldIds.has(app.id)) addedCount++;
+    });
+
+    fs.writeFileSync(catalogPath, JSON.stringify(remoteCatalog, null, 2));
+    res.json({ success: true, addedCount });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to fetch remote catalog" });
+  }
+});
 
 app.post("/api/store/publish", appIconUpload.single("iconFile"), (req, res) => {
   const { id, title, developer, desc, icon, repoUrl } = req.body;
   if (!id || !title || !repoUrl) return res.status(400).json({ success: false, error: "Dati mancanti" });
   
-  const catalog = JSON.parse(fs.readFileSync(catalogFile, "utf8"));
-  if (catalog.find(app => app.id === id)) return res.status(400).json({ success: false, error: "App ID già esistente" });
+  const localDevCatalog = JSON.parse(fs.readFileSync(localDevCatalogFile, "utf8"));
+  if (localDevCatalog.find(app => app.id === id)) return res.status(400).json({ success: false, error: "App ID già in uso localmente" });
 
   let finalIcon = icon; 
   if (req.file) {
@@ -492,9 +538,10 @@ app.post("/api/store/publish", appIconUpload.single("iconFile"), (req, res) => {
     finalIcon = getRawGithubUrl(repoUrl);
   }
   
-  catalog.push({ id, title, developer: developer || 'Unknown', desc, icon: finalIcon || '📦', repoUrl });
-  fs.writeFileSync(catalogFile, JSON.stringify(catalog, null, 2));
-  res.json({ success: true, message: "App pubblicata!" });
+  localDevCatalog.push({ id, title, developer: developer || 'Unknown', desc, icon: finalIcon || '📦', repoUrl });
+  fs.writeFileSync(localDevCatalogFile, JSON.stringify(localDevCatalog, null, 2));
+  
+  res.json({ success: true, message: "App added locally! To publish globally, submit a PR to the mariowOS/store-catalog repository." });
 });
 
 const installProgress = {};
@@ -508,20 +555,23 @@ app.post("/api/store/install", express.json(), async (req, res) => {
   if (!isValidAppId(appId)) {
     return res.status(400).json({ success: false, error: "Invalid app ID" });
   }
+  
   const targetPath = path.join(__dirname, "desktop/apps", appId);
 
+  if (fs.existsSync(targetPath)) {
+    fs.rmSync(targetPath, { recursive: true, force: true });
+  }
+
   installProgress[appId] = { progress: 0, status: 'downloading' };
-  res.json({ success: true, message: "Download started" });
 
   let localIconPath = icon;
   
-  // Download the raw icon directly to the assets folder so it stays cached locally
   if (repoUrl && repoUrl.includes('github.com')) {
     const rawIconUrl = getRawGithubUrl(repoUrl);
     if (rawIconUrl) {
       try {
         let iconRes = await fetch(rawIconUrl);
-        if (!iconRes.ok) iconRes = await fetch(rawIconUrl.replace('/main/', '/master/')); // Fallback branch
+        if (!iconRes.ok) iconRes = await fetch(rawIconUrl.replace('/main/', '/master/')); 
         
         if (iconRes.ok) {
           const buffer = await iconRes.arrayBuffer();
@@ -552,14 +602,18 @@ app.post("/api/store/install", express.json(), async (req, res) => {
   git.on('close', (code) => {
     if (code !== 0) {
       installProgress[appId] = { progress: 0, status: 'error' };
-      return;
+      return res.status(500).json({ success: false, error: "Installation failed during git clone" });
     }
+    
     installProgress[appId] = { progress: 100, status: 'done' };
+    
     if (!config.installedApps) config.installedApps = [];
     if (!config.installedApps.find(app => app.appId === appId)) {
       config.installedApps.push({ appId, title, icon: localIconPath, url: `apps/${appId}/index.html` });
       fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
     }
+    
+    res.json({ success: true, message: "Installation complete" });
   });
 });
 
