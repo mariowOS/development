@@ -212,21 +212,52 @@ Questions? https://discord.gg/YDVxw6jfbH
     .media-btn:active { transform: scale(0.9); }
 
     .hmos-toggles-col { display: flex; flex-direction: column; gap: 12px; width: 155px; }
-    .qs-tile-hmos { flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; display: flex; align-items: center; padding: 8px; gap: 12px; transition: transform 0.15s ease, background 0.2s ease; }
-    .qs-tile-hmos:active { transform: scale(0.96); }
-    .hmos-icon-bg { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); cursor: pointer; }
+    .qs-tile-hmos { flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; display: flex; align-items: center; padding: 8px; gap: 12px; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), background 0.3s ease; }
+    .qs-tile-hmos:active { transform: scale(0.97); }
+    .hmos-icon-bg { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer; }
     .qs-tile-hmos.active .hmos-icon-bg, .hmos-circle-toggle.active .hmos-icon-bg { background: var(--m3-accent-active); color: #fff; }
     .hmos-text-container { display: flex; flex-direction: column; overflow: hidden; flex: 1; cursor: pointer; }
     .hmos-title { font-size: 13px; font-weight: 500; color: #fff; line-height: 1.1; margin-bottom: 2px;}
     .hmos-subtitle { font-size: 10px; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .hmos-bottom-row { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-around; }
-    .hmos-circle-toggle { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.15s ease; }
-    .hmos-circle-toggle:active { transform: scale(0.92); }
+    .hmos-circle-toggle { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+    .hmos-circle-toggle:active { transform: scale(0.95); }
     .hmos-circle-toggle .hmos-icon-bg { width: 46px; height: 46px; }
     .hmos-circle-toggle .hmos-label { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.85); }
 
-    .qs-subpanel { display: none; flex-direction: column; background: rgba(255, 255, 255, 0.06) !important; border-radius: 16px; padding: 10px; margin-bottom: 12px; gap: 8px; box-sizing: border-box; width: 100%; }
+    /* New Smooth Subpanel Logic */
+    .qs-subpanel { 
+      display: flex; 
+      flex-direction: column; 
+      background: rgba(255, 255, 255, 0.06) !important; 
+      border-radius: 16px; 
+      box-sizing: border-box; 
+      width: 100%; 
+      transform-origin: top center; 
+      overflow: hidden; 
+      
+      /* Collapsed State */
+      max-height: 0; 
+      opacity: 0; 
+      padding: 0 10px; 
+      margin-bottom: 0; 
+      
+      /* Smooth expanding animation targeting layout properties */
+      transition: max-height 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                  opacity 0.25s ease, 
+                  padding 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                  margin-bottom 0.35s cubic-bezier(0.25, 1, 0.5, 1); 
+    }
+    
+    /* Expanded State */
+    .qs-subpanel.active { 
+      max-height: 300px; 
+      opacity: 1; 
+      padding: 10px; 
+      margin-bottom: 12px; 
+    }
+    
     .qs-subpanel-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--m3-accent-active); padding: 0 4px 4px 4px; }
     .qs-subpanel-list { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; padding-right: 2px; }
     .qs-list-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 10px; font-size: 13px; background: rgba(255, 255, 255, 0.08) !important; cursor: pointer; transition: background 0.15s; }
@@ -358,7 +389,7 @@ Questions? https://discord.gg/YDVxw6jfbH
               <div class="hmos-toggles-col">
                 <div class="qs-tile-hmos active" id="tileWifi">
                   <div class="hmos-icon-bg" onclick="event.stopPropagation(); toggleQS('wifi')"><span class="material-symbols-outlined" id="iconWifi">wifi</span></div>
-                  <div class="hmos-text-container" onclick="toggleSubPanel('wifi')">
+                  <div class="hmos-text-container" id="wifiTextContainer">
                     <span class="hmos-title" id="titleWifi">WLAN</span>
                     <span class="hmos-subtitle" id="subWifi">On</span>
                   </div>
@@ -393,10 +424,17 @@ Questions? https://discord.gg/YDVxw6jfbH
             </div>
           </div>
 
+          <!-- SUBPANELS (now with .active classes instead of display toggling) -->
           <div class="qs-subpanel" id="panelWifi">
             <div class="qs-subpanel-header"><span>WLAN Networks</span><span class="material-symbols-outlined" onclick="toggleQS('wifi')" style="cursor:pointer; font-size:16px;">power_settings_new</span></div>
             <div class="qs-subpanel-list" id="wifiList"><div style="font-size:11px; color:#aaa; text-align:center;">Scanning networks...</div></div>
           </div>
+
+          <div class="qs-subpanel" id="panelEthernet">
+            <div class="qs-subpanel-header"><span>Ethernet Ports</span><span class="material-symbols-outlined" style="cursor:pointer; font-size:16px; opacity:0.5;">settings_ethernet</span></div>
+            <div class="qs-subpanel-list" id="ethList"><div style="font-size:11px; color:#aaa; text-align:center;">Loading stats...</div></div>
+          </div>
+
           <div class="qs-subpanel" id="panelBt">
             <div class="qs-subpanel-header"><span>Bluetooth Devices</span><span class="material-symbols-outlined" onclick="toggleQS('bluetooth')" style="cursor:pointer; font-size:16px;">power_settings_new</span></div>
             <div class="qs-subpanel-list" id="btList"><div style="font-size:11px; color:#aaa; text-align:center;">Searching devices...</div></div>
@@ -567,7 +605,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     const RESERVED_TOP = 12;
 
     let notificationsHistory = [];
-    let qsState = { wifi: true, bluetooth: true, dnd: false, powerMode: "Balanced", connectedWifi: null, connectedBt: null };
+    let qsState = { wifi: true, bluetooth: true, dnd: false, powerMode: "Balanced", connectedWifi: null, connectedBt: null, isEthernet: false };
     let dynamicInstalledApps = [];
     
     let runningApps = new Set();
@@ -589,7 +627,6 @@ Questions? https://discord.gg/YDVxw6jfbH
     
     function getAllApps() { return [...builtInApps, ...dynamicInstalledApps]; }
 
-    // Unified wrapper to close app menu after click
     function launchAppFromMenu(appId) {
       openPopup(appId);
       document.getElementById('actionsDropdown').classList.remove('open');
@@ -859,11 +896,29 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     function renderQuickSettings() {
       const tileWifi = document.getElementById("tileWifi");
-      tileWifi.className = `qs-tile-hmos ${qsState.wifi ? 'active' : 'inactive'}`;
-      document.getElementById("iconWifi").textContent = qsState.wifi ? "wifi" : "wifi_off";
-      document.getElementById("subWifi").textContent = qsState.wifi ? (qsState.connectedWifi || "On") : "Off";
+      const iconWifi = document.getElementById("iconWifi");
+      const titleWifi = document.getElementById("titleWifi");
+      const subWifi = document.getElementById("subWifi");
+      const textContainer = document.getElementById("wifiTextContainer");
+
+      if (qsState.isEthernet) {
+        tileWifi.className = `qs-tile-hmos active`;
+        iconWifi.textContent = "settings_ethernet";
+        titleWifi.textContent = "Ethernet";
+        subWifi.textContent = "Connected";
+        textContainer.onclick = (e) => { e.stopPropagation(); toggleSubPanel('ethernet'); };
+      } else {
+        tileWifi.className = `qs-tile-hmos ${qsState.wifi ? 'active' : 'inactive'}`;
+        iconWifi.textContent = qsState.wifi ? "wifi" : "wifi_off";
+        titleWifi.textContent = "WLAN";
+        subWifi.textContent = qsState.wifi ? (qsState.connectedWifi || "On") : "Off";
+        textContainer.onclick = (e) => { e.stopPropagation(); toggleSubPanel('wifi'); };
+      }
+
       const trayWifiIcon = document.getElementById("trayWifiIcon");
-      if (trayWifiIcon) trayWifiIcon.textContent = qsState.wifi ? "wifi" : "wifi_off";
+      if (trayWifiIcon) {
+        trayWifiIcon.textContent = qsState.isEthernet ? "settings_ethernet" : (qsState.wifi ? "wifi" : "wifi_off");
+      }
 
       const tileBt = document.getElementById("tileBt");
       tileBt.className = `qs-tile-hmos ${qsState.bluetooth ? 'active' : 'inactive'}`;
@@ -886,10 +941,13 @@ Questions? https://discord.gg/YDVxw6jfbH
     async function updateQSBackend(setting, value) { try { await fetch("/api/system/quick-settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ setting, value }) }); } catch (err) {} }
 
     function toggleQS(setting) {
+      if (setting === 'wifi' && qsState.isEthernet) return;
       qsState[setting] = !qsState[setting];
       renderQuickSettings(); updateQSBackend(setting, qsState[setting]);
-      if (setting === 'wifi' && !qsState.wifi) document.getElementById('panelWifi').style.display = 'none';
-      if (setting === 'bluetooth' && !qsState.bluetooth) document.getElementById('panelBt').style.display = 'none';
+      
+      // Close subpanels gracefully if disabled
+      if (setting === 'wifi' && !qsState.wifi) document.getElementById('panelWifi').classList.remove('active');
+      if (setting === 'bluetooth' && !qsState.bluetooth) document.getElementById('panelBt').classList.remove('active');
     }
 
     function applyLabFlagEffects(flags) {
@@ -908,11 +966,59 @@ Questions? https://discord.gg/YDVxw6jfbH
       renderQuickSettings(); updateQSBackend("powerMode", qsState.powerMode);
     }
 
+    let activeSubPanel = null;
     async function toggleSubPanel(type) {
-      const panelWifi = document.getElementById("panelWifi"), panelBt = document.getElementById("panelBt"), dropdown = document.getElementById("notificationsDropdown");
-      if (type === 'wifi') { panelBt.style.display = 'none'; const isOpening = panelWifi.style.display !== 'flex'; panelWifi.style.display = isOpening ? 'flex' : 'none'; if (isOpening) await fetchNetworks(); } 
-      else if (type === 'bt') { panelWifi.style.display = 'none'; const isOpening = panelBt.style.display !== 'flex'; panelBt.style.display = isOpening ? 'flex' : 'none'; if (isOpening) await fetchBtDevices(); }
-      setTimeout(() => { dropdown.scrollTo({ top: dropdown.scrollHeight, behavior: 'smooth' }); }, 50);
+      const panels = {
+        wifi: document.getElementById("panelWifi"),
+        bt: document.getElementById("panelBt"),
+        ethernet: document.getElementById("panelEthernet")
+      };
+      
+      const dropdown = document.getElementById("notificationsDropdown");
+      
+      // If clicking the already active one, close it
+      if (activeSubPanel === type) {
+        panels[type].classList.remove('active');
+        activeSubPanel = null;
+        return;
+      }
+
+      // Close all others and open the clicked one
+      Object.values(panels).forEach(p => p.classList.remove('active'));
+      panels[type].classList.add('active');
+      activeSubPanel = type;
+
+      if (type === 'wifi') await fetchNetworks();
+      if (type === 'bt') await fetchBtDevices();
+      if (type === 'ethernet') await fetchEthernetStats();
+
+      // Smooth scroll to bottom if needed, allow transition to start first
+      setTimeout(() => { dropdown.scrollTo({ top: dropdown.scrollHeight, behavior: 'smooth' }); }, 150);
+    }
+
+    async function fetchEthernetStats() {
+      const listContainer = document.getElementById("ethList");
+      try {
+        const res = await fetch("/api/system/ethernet-stats");
+        const data = await res.json();
+        if (data.interfaces && data.interfaces.length > 0) {
+          listContainer.innerHTML = data.interfaces.map(iface => `
+            <div class="qs-list-item connected" style="cursor: default;">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="material-symbols-outlined" style="font-size:18px;">settings_ethernet</span>
+                  <span style="font-weight:600;">${iface.name}</span>
+                </div>
+                <span style="font-size:10px; color:#ddd; margin-left:26px;">IP: ${iface.ip}</span>
+              </div>
+              <span style="font-size:11px; font-weight:500; text-align:right;">Connected</span>
+            </div>`).join('');
+        } else {
+          listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Ethernet ports active</div>`;
+        }
+      } catch (err) {
+        listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">Failed to get stats</div>`;
+      }
     }
 
     async function fetchNetworks() {
@@ -1301,7 +1407,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         try {
           const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
           if (data && (data.action === 'newMessage' || data.type === 'message' || data.event === 'notification')) {
-             showNotification("Messaging", "New message received", "💬");
+              showNotification("Messaging", "New message received", "💬");
           }
         } catch(err) { /* Silent fail */ }
       }

@@ -1,9 +1,28 @@
 {
-  "passwordHash": null,
+  "passwordHash": "$2b$10$EpkPHJQ1SQtVFcgMyW7SW.StuxD3cf0kT8yTJsuja0/XR1cpF7o9m",
   "quickSettings": {
     "wifi": true,
     "bluetooth": true,
     "dnd": false,
-    "powerMode": "Balanced"
-  }
+    "powerMode": "Balanced",
+    "connectedWifi": "Disconnected",
+    "connectedBt": "Bluetooth",
+    "isEthernet": true
+  },
+  "username": "mariow",
+  "installedApps": [
+    {
+      "appId": "sandbox",
+      "title": "Sandbox",
+      "icon": "📦",
+      "url": "apps/sandbox/index.html"
+    },
+    {
+      "appId": "weather",
+      "title": "Weather",
+      "icon": "https://raw.githubusercontent.com/mariowstech/weather/main/icon.png",
+      "url": "apps/weather/index.html"
+    }
+  ],
+  "rules": []
 }

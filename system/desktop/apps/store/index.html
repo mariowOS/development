@@ -195,6 +195,26 @@
     textarea.pub-input { resize: vertical; min-height: 100px; }
     .publish-status { font-size: 13px; margin-top: 16px; font-weight: 500; text-align: center; }
     .loading-text { color: var(--text-secondary); font-size: 14px; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
+
+    /* STORE EULA OVERLAY */
+    #store-eula-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .store-eula-modal {
+      background: var(--bg-sidebar); color: var(--text-primary); 
+      padding: 24px; border-radius: var(--radius-lg); width: 400px; max-width: 90%; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: inherit;
+      border: 1px solid var(--border-light);
+    }
+    .store-eula-modal h2 { margin-top: 0; font-size: 18px; margin-bottom: 8px; }
+    .store-eula-box {
+      background: var(--bg-input); padding: 12px; border-radius: 8px; font-family: monospace;
+      font-size: 12px; margin: 16px 0; height: 100px; overflow-y: auto; color: var(--text-secondary);
+      border: 1px solid var(--border-light); white-space: pre-wrap;
+    }
+    .store-eula-actions { display: flex; justify-content: flex-end; gap: 12px; }
   </style>
 </head>
 <body>
@@ -283,10 +303,27 @@
           </div>
           
           <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
+          <textarea id="pubEula" class="pub-input" placeholder="Custom EULA / License Agreement (Optional - Leave empty to auto-fetch from GitHub repo)" rows="3"></textarea>
           <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)">
+          
           <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 8px;">Submit for Review</button>
           <div id="publishStatus" class="publish-status"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EULA Overlay -->
+  <div id="store-eula-overlay">
+    <div class="store-eula-modal">
+      <h2>License Agreement</h2>
+      <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--text-primary);"></strong> by <span id="eula-app-dev" style="color: var(--accent);"></span>.</p>
+      <div class="store-eula-box">
+        <!-- EULA dynamic text will be injected here -->
+      </div>
+      <div class="store-eula-actions">
+        <button class="btn-action" style="background: var(--btn-gray); color: var(--text-primary);" onclick="declineEula()">Decline</button>
+        <button class="btn-action primary" onclick="acceptEula()">I Agree</button>
       </div>
     </div>
   </div>
@@ -424,9 +461,10 @@
       }
       
       btnI.disabled = false;
+      
       btnI.onclick = isInst
         ? () => window.parent.postMessage({ type: 'open-app-from-store', appId: currentAppOpen.id }, '*')
-        : () => actOnApp('install');
+        : () => promptEula();
 
       btnU.style.display = isInst ? 'inline-block' : 'none';
       btnU.textContent = 'Uninstall';
@@ -435,6 +473,59 @@
 
     function openInstalledApp(appId) {
       window.parent.postMessage({ type: 'open-app-from-store', appId }, '*');
+    }
+    
+    // --- EULA LOGIC ---
+    function showEulaModal(eulaText) {
+      document.getElementById("eula-app-title").innerText = currentAppOpen.title;
+      document.getElementById("eula-app-dev").innerText = currentAppOpen.developer || "Unknown Developer";
+      document.querySelector(".store-eula-box").innerText = eulaText;
+      document.getElementById("store-eula-overlay").style.display = "flex";
+    }
+
+    async function promptEula() {
+      if (!currentAppOpen) return;
+
+      // 1. Check if the app catalog has a custom EULA stored
+      if (currentAppOpen.eula) {
+        showEulaModal(currentAppOpen.eula);
+        return;
+      }
+
+      // 2. If not, hit the backend to check for standard GitHub licenses
+      const btn = document.getElementById('btnInstall');
+      const origText = btn.textContent;
+      btn.textContent = 'CHECKING...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/store/eula', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ repoUrl: currentAppOpen.repoUrl })
+        });
+        const data = await res.json();
+
+        if (data.eula) {
+          showEulaModal(data.eula);
+        } else {
+          actOnApp('install');
+        }
+      } catch (err) {
+        actOnApp('install');
+      } finally {
+        btn.textContent = origText;
+        btn.disabled = false;
+      }
+    }
+
+    function declineEula() {
+      document.getElementById("store-eula-overlay").style.display = "none";
+    }
+
+    function acceptEula() {
+      document.getElementById("store-eula-overlay").style.display = "none";
+      actOnApp('install'); 
     }
 
     async function actOnApp(action) {
@@ -462,12 +553,10 @@
 
         if (action === 'install') {
           installedAppsList.push(currentAppOpen.id);
-          // Post the LIVE success event to the desktop
           window.parent.postMessage({
             type: 'app-installed-live',
             app: {
               appId: currentAppOpen.id, title: currentAppOpen.title,
-              // Keep using the remote/current icon in memory for immediate UI response
               icon: currentAppOpen.icon, url: `apps/${currentAppOpen.id}/index.html`
             }
           }, '*');
@@ -497,6 +586,7 @@
       const descVal = document.getElementById('pubDesc').value.trim();
       const repoVal = document.getElementById('pubRepo').value.trim();
       const iconTextVal = document.getElementById('pubIconText').value.trim();
+      const eulaVal = document.getElementById('pubEula').value.trim();
       const fileInput = document.getElementById('pubIconFile');
 
       if (!idVal || !titleVal || !devVal || !descVal || !repoVal) {
@@ -512,12 +602,15 @@
       formData.append('desc', descVal);
       formData.append('repoUrl', repoVal);
 
+      if (eulaVal) {
+        formData.append('eula', eulaVal);
+      }
+
       if (fileInput.files.length > 0) {
         formData.append('iconFile', fileInput.files[0]);
       } else if (iconTextVal) {
         formData.append('icon', iconTextVal);
       }
-      // If both are empty, the backend will automatically pull from GitHub raw
 
       try {
         const res = await fetch('/api/store/publish', {
@@ -535,6 +628,7 @@
         document.getElementById('pubTitle').value = '';
         document.getElementById('pubDev').value = '';
         document.getElementById('pubDesc').value = '';
+        document.getElementById('pubEula').value = '';
         document.getElementById('pubRepo').value = '';
         document.getElementById('pubIconText').value = '';
         document.getElementById('pubIconFile').value = '';
