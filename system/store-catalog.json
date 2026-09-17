@@ -1,13 +1,5 @@
 [
   {
-    "id": "app_sysinfo",
-    "title": "SysMonitor",
-    "developer": "mariowOS Team",
-    "desc": "not an app.",
-    "icon": "📊",
-    "repoUrl": "https://github.com/mariowstech/sysmonitor-example.git"
-  },
-  {
     "id": "weather",
     "title": "Weather",
     "developer": "mariowstech",

@@ -456,7 +456,10 @@ Questions? https://discord.gg/YDVxw6jfbH
     <div class="spotlight-box-wrapper">
       <div class="spotlight-input-bar">
         <span class="material-symbols-outlined spotlight-icon">search</span>
-        <input type="text" id="spotlightInput" class="spotlight-input" placeholder="Spotlight Search..." oninput="handleSpotlightInput(this.value)" onkeydown="handleSpotlightKeydown(event)">
+        <div style="position: relative; flex: 1; display: flex; align-items: center;">
+          <input type="text" id="spotlightAutofill" class="spotlight-input" disabled style="position: absolute; left: 0; top: 0; width: 100%; color: rgba(255,255,255,0.3); pointer-events: none; background: transparent;">
+          <input type="text" id="spotlightInput" class="spotlight-input" placeholder="Spotlight Search..." oninput="handleSpotlightInput(this.value)" onkeydown="handleSpotlightKeydown(event)" style="position: relative; z-index: 1; background: transparent;">
+        </div>
       </div>
       <div id="spotlightResults" class="spotlight-results"></div>
     </div>
@@ -1332,25 +1335,87 @@ Questions? https://discord.gg/YDVxw6jfbH
     });
 
     function openSpotlight() { const s = document.getElementById('spotlightSearch'); s.classList.add('active'); const input = document.getElementById('spotlightInput'); input.value = ''; handleSpotlightInput(''); setTimeout(() => input.focus(), 100); }
-    function closeSpotlight() { document.getElementById('spotlightSearch').classList.remove('active'); document.getElementById('spotlightInput').value = ''; }
+    
+    function closeSpotlight() { 
+      document.getElementById('spotlightSearch').classList.remove('active'); 
+      document.getElementById('spotlightInput').value = ''; 
+      document.getElementById('spotlightAutofill').value = ''; 
+    }
 
     function handleSpotlightInput(query) {
-      const resultsDiv = document.getElementById('spotlightResults'); resultsDiv.innerHTML = ''; const q = query.trim().toLowerCase();
-      if (!q) { resultsDiv.style.display = 'none'; return; }
-      resultsDiv.style.display = 'block'; const allApps = getAllApps(); const matchedApps = allApps.filter(app => app.title.toLowerCase().includes(q));
+      const resultsDiv = document.getElementById('spotlightResults'); 
+      const autofillInput = document.getElementById('spotlightAutofill');
+      resultsDiv.innerHTML = ''; 
+      
+      if (!query.trim()) { 
+        resultsDiv.style.display = 'none'; 
+        autofillInput.value = '';
+        return; 
+      }
+      
+      const q = query.trim().toLowerCase();
+      resultsDiv.style.display = 'block'; 
+      const allApps = getAllApps(); 
+      
+      const startsWithApps = allApps.filter(app => app.title.toLowerCase().startsWith(q));
+      const includesApps = allApps.filter(app => app.title.toLowerCase().includes(q) && !app.title.toLowerCase().startsWith(q));
+      
+      const matchedApps = [...startsWithApps, ...includesApps];
+      
+      const autofillMatch = startsWithApps.length > 0 ? startsWithApps[0] : null;
+      
+      if (autofillMatch) {
+        autofillInput.value = query + autofillMatch.title.substring(query.length);
+      } else {
+        autofillInput.value = '';
+      }
+
       if (matchedApps.length > 0) {
         matchedApps.forEach((app, index) => {
-          const item = document.createElement('div'); item.className = 'spotlight-result-item' + (index === 0 ? ' selected' : ''); item.onclick = () => { openPopup(app.id || app.appId); closeSpotlight(); };
+          const item = document.createElement('div'); 
+          item.className = 'spotlight-result-item' + (index === 0 ? ' selected' : ''); 
+          item.onclick = () => { openPopup(app.id || app.appId); closeSpotlight(); };
           item.innerHTML = `${app.icon && app.icon.includes('/') ? `<img src="${app.icon}" class="spotlight-item-icon">` : `<span class="material-symbols-outlined spotlight-item-icon" style="font-size:22px; color:var(--m3-accent-active);">${app.icon || 'apps'}</span>`} <span style="font-weight: 500;">${app.title}</span> <span style="margin-left: auto; font-size: 11px; opacity: 0.5;">Application</span>`;
           resultsDiv.appendChild(item);
         });
       }
-      const webItem = document.createElement('div'); webItem.className = 'spotlight-result-item' + (matchedApps.length === 0 ? ' selected' : ''); webItem.onclick = () => performSpotlightWebSearch(query);
-      webItem.innerHTML = `<span class="material-symbols-outlined spotlight-item-icon" style="font-size:22px; color:#64c8ff;">search</span> <span>Search Google for "<b>${query}</b>"</span> <span style="margin-left: auto; font-size: 11px; opacity: 0.5;">Web</span>`; resultsDiv.appendChild(webItem);
+      
+      const webItem = document.createElement('div'); 
+      webItem.className = 'spotlight-result-item' + (matchedApps.length === 0 ? ' selected' : ''); 
+      webItem.onclick = () => performSpotlightWebSearch(query);
+      webItem.innerHTML = `<span class="material-symbols-outlined spotlight-item-icon" style="font-size:22px; color:#64c8ff;">search</span> <span>Search Google for "<b>${query}</b>"</span> <span style="margin-left: auto; font-size: 11px; opacity: 0.5;">Web</span>`; 
+      resultsDiv.appendChild(webItem);
     }
+
     function handleSpotlightKeydown(e) {
-      if (e.key === 'Enter') { const query = e.target.value.trim(); if (!query) return; const q = query.toLowerCase(); const allApps = getAllApps(); const appMatch = allApps.find(app => app.title.toLowerCase() === q || app.title.toLowerCase().startsWith(q)); if (appMatch) { openPopup(appMatch.id || appMatch.appId); closeSpotlight(); } else { performSpotlightWebSearch(query); } } else if (e.key === 'Escape') { closeSpotlight(); }
+      const autofillInput = document.getElementById('spotlightAutofill');
+      
+      if (e.key === 'Tab' || (e.key === 'ArrowRight' && e.target.selectionStart === e.target.value.length)) {
+        if (autofillInput && autofillInput.value) {
+          e.preventDefault();
+          e.target.value = autofillInput.value;
+          handleSpotlightInput(autofillInput.value);
+          return;
+        }
+      }
+      
+      if (e.key === 'Enter') { 
+        const query = e.target.value.trim(); 
+        if (!query) return; 
+        const q = query.toLowerCase(); 
+        const allApps = getAllApps(); 
+        const appMatch = allApps.find(app => app.title.toLowerCase() === q || app.title.toLowerCase().startsWith(q)); 
+        if (appMatch) { 
+          openPopup(appMatch.id || appMatch.appId); 
+          closeSpotlight(); 
+        } else { 
+          performSpotlightWebSearch(query); 
+        } 
+      } else if (e.key === 'Escape') { 
+        closeSpotlight(); 
+      }
     }
+
     function performSpotlightWebSearch(query) {
       if (!query.trim()) return; let url = `https://www.google.com/search?q=${encodeURIComponent(query.trim())}`;
       if (/^https?:\/\//i.test(query.trim()) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(query.trim())) { url = query.trim().startsWith('http') ? query.trim() : 'https://' + query.trim(); }
