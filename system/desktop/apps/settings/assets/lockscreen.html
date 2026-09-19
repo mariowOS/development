@@ -40,6 +40,7 @@
     padding: 12px;
     border-radius: 6px;
     transition: background 0.2s;
+    position: relative;
   }
   .list-item:hover { background: rgba(255, 255, 255, 0.06); }
   
@@ -56,19 +57,62 @@
   .item-title { font-size: 14px; font-weight: 500; }
   .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
 
-  .item-right select {
+  /* macOS Themed Custom Selectors */
+  .custom-select-wrapper { position: relative; }
+  .select-btn {
     background: rgba(0, 0, 0, 0.25);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 6px 10px;
+    padding: 6px 10px 6px 14px;
     border-radius: 6px;
     font-family: inherit;
     font-size: 13px;
-    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 150px;
     cursor: pointer;
+    transition: border 0.2s;
   }
-  .item-right select:focus { border-color: #0a84ff; }
-  .item-right select option { background: #1c1c1e; color: white; }
+  .select-btn:hover { border-color: rgba(255, 255, 255, 0.3); }
+  .select-btn.active { border-color: #0a84ff; box-shadow: 0 0 0 1px #0a84ff; }
+  .select-btn .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.6); }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 200px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-menu::-webkit-scrollbar { width: 4px; }
+  .dropdown-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+  .dropdown-item {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+    color: white;
+  }
+  .dropdown-item:hover { background: #0a84ff; color: white; }
 
   /* macOS Toggle Switch */
   .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -106,13 +150,14 @@
           <div class="item-subtitle">Typeface used on the lockscreen</div>
         </div>
       </div>
-      <div class="item-right">
-        <select id="clockFont" onchange="saveSettings()">
-          <option value="Poppins">Poppins</option>
-          <option value="Inter">Inter</option>
-          <option value="Roboto Mono">Roboto Mono</option>
-          <option value="system-ui">System Default</option>
-        </select>
+      <div class="item-right custom-select-wrapper">
+        <div class="select-btn" id="fontBtn" onclick="toggleMenu('fontMenu', this, event)">
+          <span id="fontLabel">Poppins</span>
+          <span class="material-symbols-outlined">unfold_more</span>
+        </div>
+        <div class="dropdown-menu" id="fontMenu">
+          <!-- Populated by JS -->
+        </div>
       </div>
     </div>
     
@@ -124,13 +169,18 @@
           <div class="item-subtitle">Font weight of the time</div>
         </div>
       </div>
-      <div class="item-right">
-        <select id="clockWeight" onchange="saveSettings()">
-          <option value="300">Light</option>
-          <option value="400">Regular</option>
-          <option value="600">Semi-Bold</option>
-          <option value="700">Bold</option>
-        </select>
+      <div class="item-right custom-select-wrapper">
+        <div class="select-btn" id="weightBtn" onclick="toggleMenu('weightMenu', this, event)">
+          <span id="weightLabel">Semi-Bold</span>
+          <span class="material-symbols-outlined">unfold_more</span>
+        </div>
+        <div class="dropdown-menu" id="weightMenu">
+          <div class="dropdown-item" onclick="selectWeight('300', 'Light')">Light</div>
+          <div class="dropdown-item" onclick="selectWeight('400', 'Regular')">Regular</div>
+          <div class="dropdown-item" onclick="selectWeight('600', 'Semi-Bold')">Semi-Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('700', 'Bold')">Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('900', 'Black')">Black</div>
+        </div>
       </div>
     </div>
   </div>
@@ -147,7 +197,7 @@
       </div>
       <div class="item-right">
         <label class="switch">
-          <input type="checkbox" id="liveWallpaper" onchange="saveSettings()">
+          <input type="checkbox" id="liveWallpaper" onchange="saveToggle()">
           <span class="slider"></span>
         </label>
       </div>
@@ -157,21 +207,93 @@
 </div>
 
 <script>
-  function loadSettings() {
-    document.getElementById('clockFont').value = localStorage.getItem('clockFont') || 'Poppins';
-    document.getElementById('clockWeight').value = localStorage.getItem('clockWeight') || '600';
-    document.getElementById('liveWallpaper').checked = localStorage.getItem('liveWallpaper') === 'true';
+  const googleFonts = [
+    "Poppins", "Inter", "Roboto Mono", "Montserrat", 
+    "Oswald", "Pacifico", "Space Grotesk", "Playfair Display", 
+    "Ubuntu", "Caveat", "Cinzel", "Righteous", "system-ui"
+  ];
+
+  function injectFont(fontName) {
+    if (fontName === 'system-ui') return;
+    const fontId = 'font-' + fontName.replace(/\s+/g, '-');
+    if (!document.getElementById(fontId)) {
+      const link = document.createElement('link');
+      link.id = fontId;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;600;700&display=swap`;
+      document.head.appendChild(link);
+    }
   }
 
-  function saveSettings() {
-    localStorage.setItem('clockFont', document.getElementById('clockFont').value);
-    localStorage.setItem('clockWeight', document.getElementById('clockWeight').value);
+  function populateFonts() {
+    const fontMenu = document.getElementById('fontMenu');
+    googleFonts.forEach(font => {
+      injectFont(font);
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.style.fontFamily = font !== 'system-ui' ? `'${font}', sans-serif` : 'system-ui';
+      div.textContent = font === 'system-ui' ? 'System Default' : font;
+      div.onclick = () => selectFont(font, div.textContent);
+      fontMenu.appendChild(div);
+    });
+  }
+
+  function toggleMenu(menuId, btn, e) {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      if (menu.id !== menuId) menu.classList.remove('show');
+    });
+    document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('active'));
     
+    const menu = document.getElementById(menuId);
+    if (!menu.classList.contains('show')) {
+      menu.classList.add('show');
+      btn.classList.add('active');
+    } else {
+      menu.classList.remove('show');
+    }
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
+  });
+
+  function selectFont(val, label) {
+    document.getElementById('fontLabel').textContent = label;
+    document.getElementById('fontLabel').style.fontFamily = val !== 'system-ui' ? `'${val}', sans-serif` : 'system-ui';
+    localStorage.setItem('clockFont', val);
+    notifyUpdate();
+  }
+
+  function selectWeight(val, label) {
+    document.getElementById('weightLabel').textContent = label;
+    localStorage.setItem('clockWeight', val);
+    notifyUpdate();
+  }
+
+  function saveToggle() {
     const isLive = document.getElementById('liveWallpaper').checked;
     localStorage.setItem('liveWallpaper', isLive ? 'true' : 'false');
-    
-    // Notify the OS/Lockscreen to update immediately
+    notifyUpdate();
+  }
+
+  function notifyUpdate() {
     window.parent.postMessage({ type: 'update-lockscreen-settings' }, '*');
+  }
+
+  function loadSettings() {
+    populateFonts();
+    const currentFont = localStorage.getItem('clockFont') || 'Poppins';
+    const currentWeight = localStorage.getItem('clockWeight') || '600';
+    
+    document.getElementById('fontLabel').textContent = currentFont === 'system-ui' ? 'System Default' : currentFont;
+    document.getElementById('fontLabel').style.fontFamily = currentFont !== 'system-ui' ? `'${currentFont}', sans-serif` : 'system-ui';
+    
+    const weightMap = { '300': 'Light', '400': 'Regular', '600': 'Semi-Bold', '700': 'Bold', '900': 'Black' };
+    document.getElementById('weightLabel').textContent = weightMap[currentWeight] || 'Semi-Bold';
+    
+    document.getElementById('liveWallpaper').checked = localStorage.getItem('liveWallpaper') === 'true';
   }
 
   window.onload = loadSettings;

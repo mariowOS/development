@@ -1,302 +1,389 @@
+<!-- 
+mariowOS SHA (Settings Host Application) - (C) 2026 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lockscreen Settings</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <script src="/desktop/assets/monet-engine.js"></script>
+
 <style>
+:root {
+    --mac-accent: #0a84ff;
+    --mac-sidebar: rgba(22, 22, 25, 0.65);
+    --mac-border: rgba(255, 255, 255, 0.08);
+    --mac-text: #ffffff;
+    --mac-text-secondary: rgba(255, 255, 255, 0.55);
+    --mac-hover: rgba(255, 255, 255, 0.1);
+    --mac-search-bg: rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+
   body {
-    font-family: 'Poppins', sans-serif;
-    color: white;
     margin: 0;
-    padding: 10px 0 40px 0;
+    font-family: 'Poppins', sans-serif;
     background: transparent;
-    overflow-x: hidden;
+    color: var(--mac-text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    overscroll-behavior: none; 
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sidebar {
+    width: 250px;
+    background: var(--mac-sidebar);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
+    border-right: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05); 
   }
-  .container {
-    width: 100%;
-    padding: 0 10px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+
+  .sidebar::-webkit-scrollbar { width: 0px; }
+
+  /* Profile Banner - More Circular Pill */
+  .profile-banner {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px; margin: 16px 12px 8px 12px;
+    border-radius: 10px; cursor: pointer; user-select: none;
+    transition: background 0.1s;
   }
-  .panel {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    padding: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-  }
-  .list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border-radius: 6px;
-    transition: background 0.2s;
-    position: relative;
-  }
-  .list-item:hover { background: rgba(255, 255, 255, 0.06); }
   
-  .item-left { display: flex; align-items: center; gap: 12px; }
-  .icon-badge {
-    display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 6px; color: white;
-  }
-  .icon-badge .material-symbols-outlined { font-size: 16px; }
-  .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
-  .bg-blue { background: linear-gradient(180deg, #0a84ff, #007aff); }
-  .bg-purple { background: linear-gradient(180deg, #bf5af2, #af52de); }
+  .profile-banner:hover:not(.active) { background: var(--mac-hover); }
+  .profile-banner.active { background: var(--mac-accent); }
+  .profile-banner.active .title, .profile-banner.active .subtitle { color: #ffffff; }
 
-  .item-title { font-size: 14px; font-weight: 500; }
-  .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+  .profile-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: var(--mac-hover); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .profile-banner .title { font-weight: 500; font-size: 13px; color: var(--mac-text); margin-bottom: 2px;}
+  .profile-banner .subtitle { font-size: 11px; color: var(--mac-text-secondary); display: block !important; }
 
-  /* macOS Themed Custom Selectors */
-  .custom-select-wrapper { position: relative; }
-  .select-btn {
-    background: rgba(0, 0, 0, 0.25);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 6px 10px 6px 14px;
-    border-radius: 6px;
+  /* Search Bar */
+  .search { padding: 4px 12px 12px 12px; }
+
+  .search-wrapper { position: relative; display: flex; align-items: center; }
+  .search-wrapper .material-symbols-outlined { position: absolute; left: 8px; color: var(--mac-text-secondary); font-size: 16px; }
+
+  .search input {
+    width: 100%;
+    padding: 6px 12px 6px 28px;
+    border-radius: 10px; /* More circular */
+    border: 1px solid transparent;
+    outline: none;
+    background: var(--mac-search-bg);
+    color: var(--mac-text);
     font-family: inherit;
     font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 150px;
-    cursor: pointer;
-    transition: border 0.2s;
+    transition: all 0.2s ease;
   }
-  .select-btn:hover { border-color: rgba(255, 255, 255, 0.3); }
-  .select-btn.active { border-color: #0a84ff; box-shadow: 0 0 0 1px #0a84ff; }
-  .select-btn .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.6); }
 
-  .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    width: 200px;
-    max-height: 220px;
-    overflow-y: auto;
-    background: rgba(28, 28, 30, 0.85);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
-    padding: 4px;
-    z-index: 100;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-5px);
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  .search input:focus {
+    border-color: var(--mac-accent);
+    box-shadow: 0 0 0 1px var(--mac-accent);
   }
-  .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-  .dropdown-menu::-webkit-scrollbar { width: 4px; }
-  .dropdown-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 
-  .dropdown-item {
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 13px;
-    cursor: pointer;
+  /* Dividers */
+  .sidebar-divider { height: 1px; background: var(--mac-border); margin: 4px 14px; }
+
+  /* Pill Menu Layout */
+  .menu { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 2px; 
+    padding: 8px 12px 16px 12px; 
+  }
+  
+  .menu-item { 
+    background: transparent; 
+    padding: 6px 8px; 
+    border-radius: 10px; /* More circular floating pill shape */
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    user-select: none; 
     transition: background 0.1s;
-    color: white;
   }
-  .dropdown-item:hover { background: #0a84ff; color: white; }
+  
+  .menu-item:hover:not(.active) { background: var(--mac-hover); }
+  .menu-item.active { background: var(--mac-accent); }
 
-  /* macOS Toggle Switch */
-  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(255, 255, 255, 0.15); transition: .3s; border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Colored Icon Badges */
+  .icon-bg { 
+    display: flex; align-items: center; justify-content: center; 
+    width: 24px; height: 24px; border-radius: 6px; 
+    color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
   }
-  .slider:before {
-    position: absolute; content: ""; height: 20px; width: 20px; left: 1px; bottom: 1px;
-    background-color: white; transition: .3s; border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-  input:checked + .slider { background-color: #34c759; border-color: #34c759; }
-  input:checked + .slider:before { transform: translateX(20px); }
+  .icon-bg .material-symbols-outlined { font-size: 15px; font-weight: 400; }
 
-  .section-title {
-    font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.5);
-    margin: 0 0 -10px 4px; text-transform: uppercase; letter-spacing: 0.5px;
-  }
-  html::-webkit-scrollbar { display: none; }
+  .c-wifi { background: linear-gradient(180deg, #0a84ff, #007aff); }
+  .c-bt { background: linear-gradient(180deg, #0a84ff, #007aff); }
+  .c-ethernet { background: linear-gradient(180deg, #98989d, #706f76); }
+  .c-apps { background: linear-gradient(180deg, #ff3b30, #ff453a); }
+  .c-security { background: linear-gradient(180deg, #8e8e93, #636366); }
+  .c-wallpaper { background: linear-gradient(180deg, #34c759, #28cd41); }
+  .c-lockscreen { background: linear-gradient(180deg, #bf5af2, #af52de); }
+  .c-functions { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
+  .c-system { background: linear-gradient(180deg, #5e5ce6, #5856d6); }
+  .c-updater { background: linear-gradient(180deg, #32d74b, #28cd41); }
+  .c-about { background: linear-gradient(180deg, #64d2ff, #2bc0ff); }
+
+  .menu-item .text-group { display: flex; flex-direction: column; }
+  .menu-item .title { font-weight: 400; font-size: 13px; color: var(--mac-text); }
+  .menu-item.active .title { color: #ffffff; font-weight: 500; }
+  .menu-item:not(.profile-banner) .subtitle { display: none; }
+
+  /* Main Content Area */
+  .content { flex: 1; padding: 40px; overflow: hidden !important; display: flex; flex-direction: column; box-sizing: border-box; position: relative; background: transparent; }
+  .content iframe { width: 100%; height: 100% !important; border: none; display: block; overflow: hidden !important; }
+  .popup-frame { width: 100%; border: none; background: transparent; display: block; overflow: hidden !important; }
+  .content h2 { margin-top: 0; margin-bottom: 24px; font-size: 24px; font-weight: 600; color: var(--mac-text); }
+
 </style>
 </head>
 <body>
-<div class="container">
-  
-  <div class="section-title">Clock Style</div>
-  <div class="panel">
-    <div class="list-item">
-      <div class="item-left">
-        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">text_fields</span></div>
-        <div>
-          <div class="item-title">Clock Font</div>
-          <div class="item-subtitle">Typeface used on the lockscreen</div>
-        </div>
-      </div>
-      <div class="item-right custom-select-wrapper">
-        <div class="select-btn" id="fontBtn" onclick="toggleMenu('fontMenu', this, event)">
-          <span id="fontLabel">Poppins</span>
-          <span class="material-symbols-outlined">unfold_more</span>
-        </div>
-        <div class="dropdown-menu" id="fontMenu">
-          <!-- Populated by JS -->
-        </div>
+
+  <div class="sidebar">
+
+    <div class="profile-banner menu-item active" onclick="loadPage('you', this)">
+      <img src="/desktop/assets/avatar.user.png" class="profile-avatar" id="sidebarAvatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
+      <div class="text-group">
+        <div class="title" id="sidebarUsername">mariowOS User</div>
+        <div class="subtitle" id="sidebarEmail">mariowOS Account</div>
       </div>
     </div>
-    
-    <div class="list-item">
-      <div class="item-left">
-        <div class="icon-badge bg-blue"><span class="material-symbols-outlined">format_bold</span></div>
-        <div>
-          <div class="item-title">Clock Thickness</div>
-          <div class="item-subtitle">Font weight of the time</div>
+
+    <div class="search">
+      <div class="search-wrapper">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search">
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="menu">
+      <div class="menu-item" onclick="loadPage('wifi', this)">
+        <div class="icon-bg c-wifi"><span class="material-symbols-outlined">wifi</span></div>
+        <div class="text-group">
+          <div class="title">Wi-Fi</div>
+          <div class="subtitle">Wireless networks</div>
         </div>
       </div>
-      <div class="item-right custom-select-wrapper">
-        <div class="select-btn" id="weightBtn" onclick="toggleMenu('weightMenu', this, event)">
-          <span id="weightLabel">Semi-Bold</span>
-          <span class="material-symbols-outlined">unfold_more</span>
+      <div class="menu-item" onclick="loadPage('bluetooth', this)">
+        <div class="icon-bg c-bt"><span class="material-symbols-outlined">bluetooth</span></div>
+        <div class="text-group">
+          <div class="title">Bluetooth</div>
+          <div class="subtitle">Wireless devices</div>
         </div>
-        <div class="dropdown-menu" id="weightMenu">
-          <div class="dropdown-item" onclick="selectWeight('300', 'Light')">Light</div>
-          <div class="dropdown-item" onclick="selectWeight('400', 'Regular')">Regular</div>
-          <div class="dropdown-item" onclick="selectWeight('600', 'Semi-Bold')">Semi-Bold</div>
-          <div class="dropdown-item" onclick="selectWeight('700', 'Bold')">Bold</div>
-          <div class="dropdown-item" onclick="selectWeight('900', 'Black')">Black</div>
+      </div>
+      
+      <div class="menu-item" id="ethernetTab" style="display: none;" onclick="loadPage('ethernet', this)">
+        <div class="icon-bg c-ethernet"><span class="material-symbols-outlined">settings_ethernet</span></div>
+        <div class="text-group">
+          <div class="title">Ethernet</div>
+          <div class="subtitle">Wired network stats</div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="menu-item" onclick="loadPage('system', this)">
+        <div class="icon-bg c-system"><span class="material-symbols-outlined">settings</span></div>
+        <div class="text-group">
+          <div class="title">General</div>
+          <div class="subtitle">Rules, time, reset</div>
+        </div>
+      </div>
+      
+      <div class="menu-item" onclick="loadPage('apps', this)">
+        <div class="icon-bg c-apps"><span class="material-symbols-outlined">grid_view</span></div>
+        <div class="text-group">
+          <div class="title">Apps</div>
+          <div class="subtitle">Installed applications</div>
+        </div>
+      </div>
+      
+      <div class="menu-item" onclick="loadPage('security', this)">
+        <div class="icon-bg c-security"><span class="material-symbols-outlined">lock</span></div>
+        <div class="text-group">
+          <div class="title">Security</div>
+          <div class="subtitle">Passwords & resets</div>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="loadPage('wallpaper', this)">
+        <div class="icon-bg c-wallpaper"><span class="material-symbols-outlined">palette</span></div>
+        <div class="text-group">
+          <div class="title">Wallpaper & Style</div>
+          <div class="subtitle">Background, icons, colors</div>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="loadPage('lockscreen', this)">
+        <div class="icon-bg c-lockscreen"><span class="material-symbols-outlined">screen_lock_portrait</span></div>
+        <div class="text-group">
+          <div class="title">Lockscreen</div>
+          <div class="subtitle">Clock style, live wallpaper</div>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="menu-item" onclick="loadPage('functions', this)">
+        <div class="icon-bg c-functions"><span class="material-symbols-outlined">science</span></div>
+        <div class="text-group">
+          <div class="title">Functions Lab</div>
+          <div class="subtitle">Experimental features</div>
+        </div>
+      </div>
+      
+      <div class="menu-item" onclick="loadPage('updater', this)">
+        <div class="icon-bg c-updater"><span class="material-symbols-outlined">update</span></div>
+        <div class="text-group">
+          <div class="title">Updater</div>
+          <div class="subtitle">Software updates</div>
+        </div>
+      </div>
+      
+      <div class="menu-item" onclick="loadPage('about', this)">
+        <div class="icon-bg c-about"><span class="material-symbols-outlined">info</span></div>
+        <div class="text-group">
+          <div class="title">About</div>
+          <div class="subtitle">System information</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="section-title">Background</div>
-  <div class="panel">
-    <div class="list-item">
-      <div class="item-left">
-        <div class="icon-badge bg-purple"><span class="material-symbols-outlined">animation</span></div>
-        <div>
-          <div class="item-title">Live Wallpaper</div>
-          <div class="item-subtitle">Animated dynamic background (Applies to DE too)</div>
-        </div>
-      </div>
-      <div class="item-right">
-        <label class="switch">
-          <input type="checkbox" id="liveWallpaper" onchange="saveToggle()">
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-  </div>
+  <div class="content" id="content"></div>
 
-</div>
-
-<script>
-  const googleFonts = [
-    "Poppins", "Inter", "Roboto Mono", "Montserrat", 
-    "Oswald", "Pacifico", "Space Grotesk", "Playfair Display", 
-    "Ubuntu", "Caveat", "Cinzel", "Righteous", "system-ui"
-  ];
-
-  function injectFont(fontName) {
-    if (fontName === 'system-ui') return;
-    const fontId = 'font-' + fontName.replace(/\s+/g, '-');
-    if (!document.getElementById(fontId)) {
-      const link = document.createElement('link');
-      link.id = fontId;
-      link.rel = 'stylesheet';
-      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;600;700&display=swap`;
-      document.head.appendChild(link);
-    }
+<script> 
+  function censorEmail(email) {
+    if (!email || !email.includes('@')) return email;
+    const [name, domain] = email.split('@');
+    if (name.length <= 2) return name[0] + '*@' + domain;
+    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1] + '@' + domain;
   }
 
-  function populateFonts() {
-    const fontMenu = document.getElementById('fontMenu');
-    googleFonts.forEach(font => {
-      injectFont(font);
-      const div = document.createElement('div');
-      div.className = 'dropdown-item';
-      div.style.fontFamily = font !== 'system-ui' ? `'${font}', sans-serif` : 'system-ui';
-      div.textContent = font === 'system-ui' ? 'System Default' : font;
-      div.onclick = () => selectFont(font, div.textContent);
-      fontMenu.appendChild(div);
+  async function fetchServerInfo() {
+    try {
+      const response = await fetch('/get-settings');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.username) document.getElementById('sidebarUsername').innerText = data.username;
+        const emailLabel = document.getElementById('sidebarEmail');
+        if (data.email) emailLabel.innerText = censorEmail(data.email);
+      }
+    } catch (err) {}
+    const avatarImg = document.getElementById('sidebarAvatar');
+    avatarImg.src = `/desktop/assets/avatar.user.png?t=${new Date().getTime()}`;
+  }
+
+  async function checkEthernetStatus() {
+    try {
+      const res = await fetch('/api/system/ethernet-stats');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.interfaces && data.interfaces.length > 0) {
+          const invalidKeywords = ['vethernet', 'wsl', 'hyper-v', 'virtual', 'vmware', 'vbox', 'tailscale', 'zerotier', 'vpn', 'bluetooth'];
+          const realEth = data.interfaces.filter(eth => {
+            const lowerName = eth.name.toLowerCase();
+            return !invalidKeywords.some(keyword => lowerName.includes(keyword));
+          });
+          if (realEth.length > 0) {
+            document.getElementById('ethernetTab').style.display = 'flex';
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  const pageTitles = {
+    you: null,
+    wifi: "Wi-Fi",
+    bluetooth: "Bluetooth",
+    ethernet: "Ethernet",
+    apps: "Apps",
+    security: "Security",
+    wallpaper: "Wallpaper & Style",
+    lockscreen: "Lockscreen",
+    functions: "Functions Lab",
+    system: "General",
+    updater: "Updater",
+    about: null
+  };
+
+  const pages = {
+    you: "assets/you.html",
+    wifi: "assets/wifi.html",
+    bluetooth: "assets/bluetooth.html",
+    ethernet: "assets/ethernet.html",
+    apps: "assets/apps.html",
+    security: "assets/security.html",
+    wallpaper: "assets/wallpaper.html",
+    lockscreen: "assets/lockscreen.html",
+    functions: "assets/lab.html",
+    system: "assets/systemsettings.html",
+    updater: "assets/update-mirror-2.html",
+    about: "assets/about.html"
+  };
+
+  function loadPage(pageKey, el) {
+    const contentDiv = document.getElementById("content");
+    const title = pageTitles[pageKey];
+    const src = pages[pageKey];
+
+    let html = "";
+    if (title) html += `<h2>${title}</h2>`;
+    html += `<iframe src="${src}" class="popup-frame"${pageKey === 'about' ? ' scrolling="no"' : ''}></iframe>`;
+
+    contentDiv.innerHTML = html;
+    document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
+    if (el) el.classList.add("active");
+  }
+
+  const searchInput = document.querySelector(".search input");
+  const menuItems = document.querySelectorAll(".menu-item");
+
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+    let firstMatch = null;
+    menuItems.forEach(item => {
+      const title = item.querySelector(".title").textContent.toLowerCase();
+      const subtitle = item.querySelector(".subtitle").textContent.toLowerCase();
+      if (title.includes(query) || subtitle.includes(query)) {
+        item.style.display = "flex";
+        if (!firstMatch) firstMatch = item;
+      } else {
+        item.style.display = "none";
+      }
     });
-  }
-
-  function toggleMenu(menuId, btn, e) {
-    e.stopPropagation();
-    document.querySelectorAll('.dropdown-menu').forEach(menu => {
-      if (menu.id !== menuId) menu.classList.remove('show');
-    });
-    document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('active'));
-    
-    const menu = document.getElementById(menuId);
-    if (!menu.classList.contains('show')) {
-      menu.classList.add('show');
-      btn.classList.add('active');
-    } else {
-      menu.classList.remove('show');
+    if (firstMatch) {
+      const matchAttr = firstMatch.getAttribute("onclick");
+      if (matchAttr) {
+        const page = matchAttr.match(/'([^']+)'/)[1];
+        loadPage(page, firstMatch);
+      }
     }
-  }
-
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
-    document.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
   });
 
-  function selectFont(val, label) {
-    document.getElementById('fontLabel').textContent = label;
-    document.getElementById('fontLabel').style.fontFamily = val !== 'system-ui' ? `'${val}', sans-serif` : 'system-ui';
-    localStorage.setItem('clockFont', val);
-    notifyUpdate();
-  }
-
-  function selectWeight(val, label) {
-    document.getElementById('weightLabel').textContent = label;
-    localStorage.setItem('clockWeight', val);
-    notifyUpdate();
-  }
-
-  function saveToggle() {
-    const isLive = document.getElementById('liveWallpaper').checked;
-    localStorage.setItem('liveWallpaper', isLive ? 'true' : 'false');
-    notifyUpdate();
-  }
-
-  function notifyUpdate() {
-    window.parent.postMessage({ type: 'update-lockscreen-settings' }, '*');
-  }
-
-  function loadSettings() {
-    populateFonts();
-    const currentFont = localStorage.getItem('clockFont') || 'Poppins';
-    const currentWeight = localStorage.getItem('clockWeight') || '600';
-    
-    document.getElementById('fontLabel').textContent = currentFont === 'system-ui' ? 'System Default' : currentFont;
-    document.getElementById('fontLabel').style.fontFamily = currentFont !== 'system-ui' ? `'${currentFont}', sans-serif` : 'system-ui';
-    
-    const weightMap = { '300': 'Light', '400': 'Regular', '600': 'Semi-Bold', '700': 'Bold', '900': 'Black' };
-    document.getElementById('weightLabel').textContent = weightMap[currentWeight] || 'Semi-Bold';
-    
-    document.getElementById('liveWallpaper').checked = localStorage.getItem('liveWallpaper') === 'true';
-  }
-
-  window.onload = loadSettings;
+  window.onload = () => {
+    fetchServerInfo();
+    checkEthernetStatus();
+    loadPage('you', document.querySelector('.profile-banner'));
+  };
 </script>
 </body>
 </html>
