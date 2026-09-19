@@ -1,12 +1,19 @@
 [
   {
+    "id": "app_sysinfo",
+    "title": "SysMonitor",
+    "developer": "mariowOS Team",
+    "desc": "not an app.",
+    "icon": "📊",
+    "repoUrl": "https://github.com/mariowstech/sysmonitor-example.git"
+  },
+  {
     "id": "weather",
     "title": "Weather",
     "developer": "mariowstech",
-    "desc": "The official weather app for mariowOS.",
+    "desc": "hi",
     "icon": "https://raw.githubusercontent.com/mariowstech/weather/main/icon.png",
-    "repoUrl": "https://github.com/mariowstech/weather.git",
-    "eula": "This app is opensource and free to use, but it needs your location and internet connection to work. You can review the source code at https://github.com/mariowstech/weather, to analyze the code and see if it is safe to use. This app is not affiliated with any weather service provider."
+    "repoUrl": "https://github.com/mariowstech/weather.git"
   },
   {
     "id": "tiles",

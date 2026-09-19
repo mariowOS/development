@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Settings</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      color: white; 
+      margin: 0; 
+      padding: 10px 0 40px 0; 
+      background: transparent; 
+      overflow-x: hidden;
+      overflow-y: auto; 
+    }
+
+    .container {
+      width: 100%;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    /* macOS Panel Groups - Full Width Edge-to-Edge Style */
+    .panel { 
+      background: rgba(255, 255, 255, 0.06); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 10px; 
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .list-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .list-item:last-child { border-bottom: none; }
+
+    .item-left { display: flex; align-items: center; gap: 14px; }
+    
+    .icon-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: white;
+      flex-shrink: 0;
+    }
+    .icon-badge .material-symbols-outlined { font-size: 18px; }
+
+    /* Colors */
+    .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
+    .bg-danger { background: linear-gradient(180deg, #ff3b30, #ff453a); }
+
+    .item-title { font-size: 14px; font-weight: 500; }
+    .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
+    
+    .danger-text .item-title { color: #ff453a; }
+
+    .item-right { color: rgba(255, 255, 255, 0.3); display: flex; align-items: center; }
+
+    /* Expandable Edit Area */
+    .edit-panel {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .edit-panel input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 14px; 
+      border-radius: 8px; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      background: rgba(0, 0, 0, 0.25); 
+      color: white; 
+      font-family: inherit; 
+      font-size: 13px; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    
+    .edit-panel input:focus { border-color: #0a84ff; }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .btn { 
+      padding: 8px 16px; 
+      border-radius: 6px; 
+      border: none; 
+      background: #0a84ff; 
+      color: white; 
+      font-weight: 500; 
+      font-size: 13px;
+      cursor: pointer; 
+      font-family: inherit; 
+      transition: background 0.2s; 
+    }
+    .btn:hover { background: #007aff; }
+
+    html::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <div class="panel">
+    <!-- Change Password -->
+    <div class="list-item" onclick="toggleDropdown('pwdDrop')">
+      <div class="item-left">
+        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">password</span></div>
+        <div>
+          <div class="item-title">Set or Change Password</div>
+          <div class="item-subtitle">Update your login credentials</div>
+        </div>
+      </div>
+      <div class="item-right"><span class="material-symbols-outlined" id="pwdIcon">expand_more</span></div>
+    </div>
+    
+    <!-- Hidden Form -->
+    <div class="edit-panel" id="pwdDrop">
+      <input type="text" id="secUser" placeholder="Username">
+      <input type="password" id="secPass" placeholder="New Password">
+      <div class="btn-row">
+        <button class="btn" onclick="savePassword()">Update Security Info</button>
+      </div>
+    </div>
+
+    <!-- Clear Password -->
+    <div class="list-item" onclick="removePassword()">
+      <div class="item-left">
+        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">lock_open</span></div>
+        <div>
+          <div class="item-title">Clear Password</div>
+          <div class="item-subtitle">Allow logging in without a password</div>
+        </div>
+      </div>
+      <div class="item-right"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <!-- Reset Desktop -->
+    <div class="list-item danger-text" onclick="resetDesktop()">
+      <div class="item-left">
+        <div class="icon-badge bg-danger"><span class="material-symbols-outlined">wallpaper</span></div>
+        <div>
+          <div class="item-title">Reset Desktop Layout</div>
+          <div class="item-subtitle">Clears active wallpaper and avatar</div>
+        </div>
+      </div>
+      <div class="item-right"></div>
+    </div>
+    
+    <!-- Factory Reset -->
+    <div class="list-item danger-text" onclick="factoryReset()">
+      <div class="item-left">
+        <div class="icon-badge bg-danger"><span class="material-symbols-outlined">warning</span></div>
+        <div>
+          <div class="item-title">Factory Reset System</div>
+          <div class="item-subtitle">Erase network configs and user data</div>
+        </div>
+      </div>
+      <div class="item-right"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  async function loadUserData() {
+    try {
+      const res = await fetch('/get-settings');
+      const data = await res.json();
+      if (data.username) {
+        document.getElementById('secUser').value = data.username;
+      }
+    } catch (e) {}
+  }
+
+  function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    const icon = document.getElementById('pwdIcon');
+    
+    if (el.style.display === 'flex') {
+      el.style.display = 'none';
+      icon.innerText = 'expand_more';
+    } else {
+      el.style.display = 'flex';
+      icon.innerText = 'expand_less';
+    }
+  }
+
+  async function savePassword() {
+    const username = document.getElementById('secUser').value;
+    const newPassword = document.getElementById('secPass').value;
+
+    if (!username || !newPassword) {
+      alert("Both fields are required.");
+      return;
+    }
+
+    await fetch('/set-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, newPassword })
+    });
+    alert("Password updated successfully.");
+    document.getElementById('secPass').value = '';
+    toggleDropdown('pwdDrop');
+  }
+
+  async function removePassword() {
+    if (confirm("Are you sure you want to remove your password? Anyone will be able to log in without it.")) {
+      await fetch('/clear-password');
+      alert("Password cleared.");
+    }
+  }
+
+  async function resetDesktop() {
+    if (confirm("Reset desktop wallpaper and avatar to default?")) {
+      await fetch('/api/system/reset-desktop', { method: 'POST' });
+      alert("Desktop reset. Reloading system...");
+      window.parent.location.reload();
+    }
+  }
+
+  async function factoryReset() {
+    if (confirm("WARNING: This will erase all system preferences. Continue?")) {
+      await fetch('/api/system/factory-reset', { method: 'POST' });
+      alert("System reset. Rebooting kernel...");
+      window.parent.location.href = "/";
+    }
+  }
+
+  loadUserData();
+</script>
+
+</body>
+</html>

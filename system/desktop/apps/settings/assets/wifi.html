@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <style>
+    body { font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 10px 0; overflow-y: auto; }
+    .panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .row:last-child { border-bottom: none; }
+    .row.clickable { cursor: pointer; transition: background 0.2s; }
+    .row.clickable:hover { background: rgba(255,255,255,0.1); }
+    .left { display: flex; align-items: center; gap: 12px; }
+    .title { font-size: 14px; font-weight: 500; }
+    .subtitle { font-size: 12px; color: rgba(255,255,255,0.5); }
+    
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    input:checked + .slider { background-color: #34c759; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .pwd-dropdown { display: none; padding: 12px 16px; background: rgba(0,0,0,0.15); border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; gap: 10px; }
+    .pwd-dropdown input { flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.25); color: white; font-family: inherit; font-size: 13px; outline: none; }
+    .pwd-dropdown input:focus { border-color: #0a84ff; }
+    .pwd-dropdown button { padding: 8px 16px; border-radius: 6px; border: none; background: #0a84ff; color: white; font-weight: 500; cursor: pointer; font-family: inherit; }
+    .pwd-dropdown button:hover { background: #007aff; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="row">
+      <div class="left">
+        <span class="material-symbols-outlined">wifi</span>
+        <div class="title">Wi-Fi</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="wifiToggle" onchange="toggleWifi(this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="panel" id="networksPanel">
+    <div class="row"><div class="subtitle">Scanning for networks...</div></div>
+  </div>
+
+  <script>
+    async function loadWifi() {
+      const qsRes = await fetch('/api/system/quick-settings');
+      const qs = await qsRes.json();
+      document.getElementById('wifiToggle').checked = qs.wifi;
+
+      if (!qs.wifi) {
+        document.getElementById('networksPanel').innerHTML = `<div class="row"><div class="subtitle">Wi-Fi is disabled.</div></div>`;
+        return;
+      }
+
+      const netRes = await fetch('/api/system/networks');
+      const data = await netRes.json();
+      
+      let html = '';
+      if(data.networks && data.networks.length > 0) {
+        
+        // Filter out Windows netsh BSSID bugs (exactly 2 hex chars) and empty SSIDs
+        const validNetworks = data.networks.filter(net => {
+           if (!net.ssid || net.ssid.trim() === "") return false;
+           if (net.ssid.length === 2 && /^[0-9a-fA-F]{2}$/.test(net.ssid)) return false;
+           return true;
+        });
+
+        // Deduplicate remaining SSIDs
+        const uniqueMap = new Map();
+        validNetworks.forEach(net => {
+          if (!uniqueMap.has(net.ssid)) uniqueMap.set(net.ssid, net);
+        });
+
+        const cleanList = Array.from(uniqueMap.values());
+
+        if (cleanList.length > 0) {
+          cleanList.forEach((net, index) => {
+            const safeId = "net-" + index;
+            html += `
+              <div class="row clickable" onclick="expandNetwork('${safeId}', '${net.ssid}', ${net.secured})">
+                <div class="left">
+                  <span class="material-symbols-outlined" style="color: ${net.connected ? '#0a84ff' : 'white'}">wifi</span>
+                  <div>
+                    <div class="title" style="color: ${net.connected ? '#0a84ff' : 'white'}">${net.ssid}</div>
+                    <div class="subtitle" id="status-${safeId}">${net.connected ? 'Connected' : ''}</div>
+                  </div>
+                </div>
+                ${net.secured ? '<span class="material-symbols-outlined" style="font-size: 16px; opacity: 0.5;">lock</span>' : ''}
+              </div>
+            `;
+            
+            if (net.secured) {
+              html += `
+                <div class="pwd-dropdown" id="pwd-${safeId}">
+                  <input type="password" id="input-${safeId}" placeholder="Enter password for ${net.ssid}" onkeydown="if(event.key === 'Enter') doConnect('${safeId}', '${net.ssid}')">
+                  <button onclick="doConnect('${safeId}', '${net.ssid}')">Join</button>
+                </div>
+              `;
+            }
+          });
+        } else {
+          html = `<div class="row"><div class="subtitle">No networks found.</div></div>`;
+        }
+      } else {
+        html = `<div class="row"><div class="subtitle">No networks found.</div></div>`;
+      }
+      document.getElementById('networksPanel').innerHTML = html;
+    }
+
+    async function toggleWifi(el) {
+      await fetch('/api/system/quick-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setting: 'wifi', value: el.checked })
+      });
+      loadWifi();
+    }
+
+    function expandNetwork(safeId, ssid, secured) {
+      document.querySelectorAll('.pwd-dropdown').forEach(el => el.style.display = 'none');
+      if (!secured) {
+        doConnect(safeId, ssid, "");
+        return;
+      }
+      const dropdown = document.getElementById(`pwd-${safeId}`);
+      if (dropdown) {
+        dropdown.style.display = 'flex';
+        document.getElementById(`input-${safeId}`).focus();
+      }
+    }
+
+    async function doConnect(safeId, ssid) {
+      const inputEl = document.getElementById(`input-${safeId}`);
+      const password = inputEl ? inputEl.value : "";
+      
+      const dropdown = document.getElementById(`pwd-${safeId}`);
+      if (dropdown) dropdown.style.display = 'none';
+
+      const statusEl = document.getElementById(`status-${safeId}`);
+      if (statusEl) {
+        statusEl.innerText = "Connecting...";
+        statusEl.style.color = "var(--mac-text-secondary)";
+      }
+
+      await fetch('/api/system/connect-wifi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ssid, password })
+      });
+      loadWifi();
+    }
+
+    loadWifi();
+  </script>
+</body>
+</html>

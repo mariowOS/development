@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <style>
+    body { font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 10px 0; overflow-y: auto; }
+    .panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .row:last-child { border-bottom: none; }
+    .left { display: flex; align-items: center; gap: 16px; }
+    .title { font-size: 14px; font-weight: 500; }
+    .subtitle { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .app-icon { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: rgba(255,255,255,0.1); }
+    
+    .btn-danger {
+      background: rgba(255, 59, 48, 0.15);
+      color: #ff453a;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .btn-danger:hover { background: rgba(255, 59, 48, 0.3); }
+  </style>
+</head>
+<body>
+  <div class="panel" id="appsPanel">
+    <div class="row"><div class="subtitle">Loading installed apps...</div></div>
+  </div>
+
+  <script>
+    async function loadApps() {
+      try {
+        const res = await fetch('/get-settings');
+        const config = await res.json();
+        const apps = config.installedApps || [];
+
+        let html = '';
+        if (apps.length > 0) {
+          apps.forEach(app => {
+            html += `
+              <div class="row">
+                <div class="left">
+                  <img src="${app.icon || '📦'}" class="app-icon" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
+                  <div>
+                    <div class="title">${app.title || app.appId}</div>
+                    <div class="subtitle">${app.appId}</div>
+                  </div>
+                </div>
+                <button class="btn-danger" onclick="uninstallApp('${app.appId}')">Uninstall</button>
+              </div>
+            `;
+          });
+        } else {
+          html = `<div class="row"><div class="subtitle">No applications installed. Open Store to discover apps.</div></div>`;
+        }
+        document.getElementById('appsPanel').innerHTML = html;
+      } catch (e) {
+        document.getElementById('appsPanel').innerHTML = `<div class="row"><div class="subtitle">Error loading apps.</div></div>`;
+      }
+    }
+
+    async function uninstallApp(appId) {
+      if (!confirm(`Are you sure you want to uninstall ${appId}?`)) return;
+      
+      await fetch('/api/store/uninstall', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appId })
+      });
+      loadApps();
+    }
+
+    loadApps();
+  </script>
+</body>
+</html>

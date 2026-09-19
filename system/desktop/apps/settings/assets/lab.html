@@ -1,123 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Functions Lab</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-body {
-  font-family: 'Poppins', sans-serif;
-  color: #fff;
-  margin: 0;
-  padding: 24px;
-  background: transparent;
-  overflow-y: auto;
-}
-.container { max-width: 560px; }
-.header { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
-.warning {
-  background: rgba(255,150,50,0.08);
-  border: 1px solid rgba(255,150,50,0.2);
-  border-radius: 14px;
-  padding: 18px 22px;
-  margin-bottom: 20px;
-}
-.warning .w-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffbb77;
-  margin-bottom: 4px;
-}
-.warning .w-desc {
-  font-size: 12px;
-  color: #996;
-  line-height: 1.5;
-}
-.card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-  padding: 16px 20px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.card:hover { background: rgba(255,255,255,0.06); }
-.card-title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
-.card-desc { font-size: 12px; color: #888; }
-.toggle {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  background: #333;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.3s;
-  flex-shrink: 0;
-}
-.toggle.active { background: #3584e4; }
-.toggle::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.toggle.active::after { transform: translateX(20px); }
-html::-webkit-scrollbar { display: none; }
-</style>
-<link rel="stylesheet" href="/desktop/assets/material-you.css">
-<script src="/desktop/assets/monet-engine.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Functions Lab</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      color: white; 
+      margin: 0; 
+      padding: 10px 0; 
+      background: transparent; 
+      overflow-x: hidden; 
+      overflow-y: auto;
+    }
+
+    .container {
+      width: 100%;
+      position: relative;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    /* macOS Panel Groups - Full Width Edge-to-Edge Style */
+    .panel { 
+      background: rgba(255, 255, 255, 0.06); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 10px; 
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .list-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .list-item:last-child { border-bottom: none; }
+
+    .item-left { display: flex; align-items: center; gap: 14px; }
+    
+    .icon-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: white;
+      flex-shrink: 0;
+    }
+    .icon-badge .material-symbols-outlined { font-size: 18px; }
+
+    /* macOS Gradients */
+    .bg-dark { background: linear-gradient(180deg, #5e5ce6, #5856d6); }
+    .bg-perf { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
+    .bg-anim { background: linear-gradient(180deg, #ff375f, #ff2d55); }
+    .bg-dev { background: linear-gradient(180deg, #8e8e93, #636366); }
+
+    .item-title { font-size: 14px; font-weight: 500; }
+    .item-subtitle { 
+      font-size: 12px; 
+      color: rgba(255, 255, 255, 0.5); 
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* Warning Panel */
+    .warning-panel {
+      background: rgba(255, 159, 10, 0.1);
+      border-color: rgba(255, 159, 10, 0.2);
+    }
+    .warning-item {
+      cursor: default;
+    }
+    .warning-item:hover { background: transparent; }
+
+    /* macOS Switches */
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    input:checked + .slider { background-color: #34c759; }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    html::-webkit-scrollbar { display: none; }
+  </style>
 </head>
 <body>
+
 <div class="container">
-  <div class="warning">
-    <div class="w-title">⚠️ Experimental Features</div>
-    <div class="w-desc">These features are unstable and may cause unexpected behavior. Use at your own risk.</div>
+  
+  <div class="panel warning-panel">
+    <div class="list-item warning-item">
+      <div class="item-left">
+        <div class="icon-badge" style="background: linear-gradient(180deg, #ff9f0a, #ffb340);"><span class="material-symbols-outlined">warning</span></div>
+        <div>
+          <div class="item-title" style="color: #ff9f0a;">Experimental Features</div>
+          <div class="item-subtitle" style="color: rgba(255, 159, 10, 0.8);">These features are unstable and may cause unexpected behavior. Use at your own risk.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="card" onclick="toggleLab('darkMode', this)">
-    <div>
-      <div class="card-title">Dark Mode Experiments</div>
-      <div class="card-desc">Test new dark mode variations</div>
+  <div class="panel">
+    <div class="list-item" onclick="toggleSwitch('tog-darkMode')">
+      <div class="item-left">
+        <div class="icon-badge bg-dark"><span class="material-symbols-outlined">dark_mode</span></div>
+        <div>
+          <div class="item-title">Dark Mode Experiments</div>
+          <div class="item-subtitle">Test new dark mode variations</div>
+        </div>
+      </div>
+      <label class="switch" onclick="event.stopPropagation()">
+        <input type="checkbox" id="tog-darkMode" onchange="toggleLab('darkMode', this)">
+        <span class="slider"></span>
+      </label>
     </div>
-    <div class="toggle" id="tog-darkMode"></div>
+
+    <div class="list-item" onclick="toggleSwitch('tog-performance')">
+      <div class="item-left">
+        <div class="icon-badge bg-perf"><span class="material-symbols-outlined">speed</span></div>
+        <div>
+          <div class="item-title">Performance Tuning</div>
+          <div class="item-subtitle">Advanced optimization settings</div>
+        </div>
+      </div>
+      <label class="switch" onclick="event.stopPropagation()">
+        <input type="checkbox" id="tog-performance" onchange="toggleLab('performance', this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="list-item" onclick="toggleSwitch('tog-animations')">
+      <div class="item-left">
+        <div class="icon-badge bg-anim"><span class="material-symbols-outlined">motion_photos_on</span></div>
+        <div>
+          <div class="item-title">New Animations</div>
+          <div class="item-subtitle">Preview experimental animation effects</div>
+        </div>
+      </div>
+      <label class="switch" onclick="event.stopPropagation()">
+        <input type="checkbox" id="tog-animations" onchange="toggleLab('animations', this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="list-item" onclick="toggleSwitch('tog-developer')">
+      <div class="item-left">
+        <div class="icon-badge bg-dev"><span class="material-symbols-outlined">code</span></div>
+        <div>
+          <div class="item-title">Developer Options</div>
+          <div class="item-subtitle">Enable advanced debugging features</div>
+        </div>
+      </div>
+      <label class="switch" onclick="event.stopPropagation()">
+        <input type="checkbox" id="tog-developer" onchange="toggleLab('developer', this)">
+        <span class="slider"></span>
+      </label>
+    </div>
   </div>
 
-  <div class="card" onclick="toggleLab('performance', this)">
-    <div>
-      <div class="card-title">Performance Tuning</div>
-      <div class="card-desc">Advanced optimization settings</div>
-    </div>
-    <div class="toggle" id="tog-performance"></div>
-  </div>
-
-  <div class="card" onclick="toggleLab('animations', this)">
-    <div>
-      <div class="card-title">New Animations</div>
-      <div class="card-desc">Preview experimental animation effects</div>
-    </div>
-    <div class="toggle" id="tog-animations"></div>
-  </div>
-
-  <div class="card" onclick="toggleLab('developer', this)">
-    <div>
-      <div class="card-title">Developer Options</div>
-      <div class="card-desc">Enable advanced debugging features</div>
-    </div>
-    <div class="toggle" id="tog-developer"></div>
-  </div>
 </div>
 
 <script>
+// Toggle switch helper for when user clicks anywhere on the row
+function toggleSwitch(id) {
+  const checkbox = document.getElementById(id);
+  checkbox.checked = !checkbox.checked;
+  // Manually trigger the onchange event
+  checkbox.dispatchEvent(new Event('change'));
+}
+
 // Store lab preferences in localStorage
 const labs = ['darkMode', 'performance', 'animations', 'developer'];
 
@@ -125,15 +190,12 @@ labs.forEach(key => {
   const saved = localStorage.getItem('lab-' + key);
   if (saved === 'true') {
     const tog = document.getElementById('tog-' + key);
-    if (tog) tog.classList.add('active');
+    if (tog) tog.checked = true;
   }
 });
 
-function toggleLab(key, card) {
-  const tog = document.getElementById('tog-' + key);
-  if (!tog) return;
-
-  const nowActive = tog.classList.toggle('active');
+function toggleLab(key, inputEl) {
+  const nowActive = inputEl.checked;
   localStorage.setItem('lab-' + key, nowActive);
 
   // Also save to server config
@@ -142,10 +204,6 @@ function toggleLab(key, card) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ [key]: nowActive })
   }).catch(() => {});
-
-  // Visual feedback
-  card.style.transform = 'scale(0.98)';
-  setTimeout(() => { card.style.transform = ''; }, 150);
 
   const name = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
   window.parent.postMessage({
@@ -156,5 +214,6 @@ function toggleLab(key, card) {
   }, '*');
 }
 </script>
+
 </body>
 </html>

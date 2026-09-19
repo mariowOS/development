@@ -193,13 +193,21 @@ app.get("/api/system/quick-settings", (req, res) => {
   for (const [name, nets] of Object.entries(interfaces)) {
     const lowerName = name.toLowerCase();
     
+    // Ignore wireless and virtual adapters
     if (
       lowerName.includes('wi-fi') || 
       lowerName.includes('wlan') || 
       lowerName.includes('wireless') || 
       lowerName.includes('virtual') || 
       lowerName.includes('vbox') || 
-      lowerName.includes('vmware')
+      lowerName.includes('vmware') ||
+      lowerName.includes('vethernet') ||
+      lowerName.includes('wsl') ||
+      lowerName.includes('hyper-v') ||
+      lowerName.includes('tailscale') ||
+      lowerName.includes('zerotier') ||
+      lowerName.includes('vpn') ||
+      lowerName.includes('bluetooth')
     ) continue;
 
     if (currentOS === 'darwin' && lowerName === 'en0') continue;
@@ -287,13 +295,21 @@ app.get("/api/system/ethernet-stats", (req, res) => {
   for (const [name, nets] of Object.entries(interfaces)) {
     const lowerName = name.toLowerCase();
     
+    // Ignore wireless and virtual adapters
     if (
       lowerName.includes('wi-fi') || 
       lowerName.includes('wlan') || 
       lowerName.includes('wireless') || 
       lowerName.includes('virtual') || 
       lowerName.includes('vbox') || 
-      lowerName.includes('vmware')
+      lowerName.includes('vmware') ||
+      lowerName.includes('vethernet') ||
+      lowerName.includes('wsl') ||
+      lowerName.includes('hyper-v') ||
+      lowerName.includes('tailscale') ||
+      lowerName.includes('zerotier') ||
+      lowerName.includes('vpn') ||
+      lowerName.includes('bluetooth')
     ) continue;
 
     if (currentOS === 'darwin' && lowerName === 'en0') continue;
@@ -941,7 +957,7 @@ setInterval(() => {
 
 // --- SANDBOX VM ENGINE ---
 const sandboxBaseDir = path.join(__dirname, "desktop/apps/sandbox");
-const activeVMs = {}; // Keeps track of running VMs mapped by vmId -> { process, port }
+const activeVMs = {}; 
 let currentSandboxPort = 3001;
 
 function findServerJs(dir) {
@@ -959,7 +975,6 @@ function findServerJs(dir) {
   return null;
 }
 
-// Write the file to a temp spot first, so we can parse req.body.vmId properly
 const sandboxUpload = multer({ 
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
@@ -979,7 +994,6 @@ app.post("/api/sandbox/upload", sandboxUpload.single("vmZip"), (req, res) => {
     return res.status(400).json({ success: false, error: "Virtual Machine ID is required." });
   }
 
-  // Define isolated folder just for this VM
   const vmDisk = path.join(sandboxBaseDir, vmId, "disk");
   
   if (fs.existsSync(vmDisk)) fs.rmSync(vmDisk, { recursive: true, force: true });
@@ -995,7 +1009,7 @@ app.post("/api/sandbox/upload", sandboxUpload.single("vmZip"), (req, res) => {
   }
 
   exec(extractCmd, (err, stdout, stderr) => {
-    if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath); // Cleanup temp zip
+    if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath); 
     
     if (err) {
       console.error("Extraction error:", err.message || stderr);
@@ -1013,7 +1027,6 @@ app.post("/api/sandbox/start", (req, res) => {
   const vmId = req.body.vmId;
   if (!vmId) return res.status(400).json({ success: false, error: "Missing VM ID." });
 
-  // If this specific VM is already running, return its active port
   if (activeVMs[vmId]) return res.json({ success: true, running: true, port: activeVMs[vmId].port });
   
   const vmDisk = path.join(sandboxBaseDir, vmId, "disk");
@@ -1025,7 +1038,7 @@ app.post("/api/sandbox/start", (req, res) => {
 
   const vmCwd = path.dirname(targetServerJs);
   const wrapperPath = path.join(vmCwd, 'sandbox-wrapper.js');
-  const assignPort = currentSandboxPort++; // Assign a dynamic isolated port per VM
+  const assignPort = currentSandboxPort++; 
 
   const wrapperCode = `
     const http = require('http');
@@ -1068,13 +1081,11 @@ app.post("/api/sandbox/delete", (req, res) => {
   const vmId = req.body.vmId;
   if (!vmId) return res.status(400).json({ success: false });
 
-  // Stop if running
   if (activeVMs[vmId]) {
     activeVMs[vmId].process.kill();
     delete activeVMs[vmId];
   }
 
-  // Delete its unique file structure
   const vmFolder = path.join(sandboxBaseDir, vmId);
   if (fs.existsSync(vmFolder)) {
     fs.rmSync(vmFolder, { recursive: true, force: true });
@@ -1084,7 +1095,6 @@ app.post("/api/sandbox/delete", (req, res) => {
 });
 
 app.get("/api/sandbox/status", (req, res) => {
-  // Returns a map of all currently running VMs and their isolated ports
   const statusMap = {};
   Object.keys(activeVMs).forEach(id => {
     statusMap[id] = { running: true, port: activeVMs[id].port };

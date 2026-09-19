@@ -1,460 +1,302 @@
-<!-- 
-mariowOS SHA (Settings Host Application) - (C) 2025 mariowstech and the mariowOS team 
-Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
-Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
-This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Settings</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-  <link rel="stylesheet" href="/desktop/assets/material-you.css">
-  <script src="/desktop/assets/monet-engine.js"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lockscreen Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 <style>
-:root {
-    --m3-accent-active: #3584e4; 
-    --m3-accent-on-active: #ffffff;
-    --md-sys-color-background: #141218;
-    --md-sys-color-surface: rgba(29, 27, 32, 0.65);
-    --md-sys-color-surface-container: rgba(255, 255, 255, 0.06);
-    --md-sys-color-surface-container-high: rgba(255, 255, 255, 0.12);
-    --md-sys-color-on-surface: #e6e0e9;
-    --md-sys-color-on-surface-variant: #cac4d0;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
   body {
-    margin: 0;
     font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
-    color: var(--md-sys-color-on-surface);
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    overscroll-behavior: none; 
-  }
-
-  /* Material You Sidebar Style with Glassmorphism */
-  .sidebar {
-    width: 320px;
-    background: var(--md-sys-color-surface);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    color: white;
+    margin: 0;
+    padding: 10px 0 40px 0;
+    background: transparent;
+    overflow-x: hidden;
     overflow-y: auto;
-    border-right: 1px solid var(--m3-glass-border);
   }
-
-  .sidebar::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-  }
-
-  .sidebar-header {
-    padding: 0 12px;
-  }
-
-  .sidebar h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  /* Material 3 Search Bar */
-  .search {
+  .container {
     width: 100%;
-  }
-
-  .search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .search-wrapper .material-symbols-outlined {
-    position: absolute;
-    left: 14px;
-    color: var(--md-sys-color-on-surface-variant);
-    font-size: 20px;
-  }
-
-  .search input {
-    width: 100%;
-    padding: 12px 16px 12px 44px;
-    border-radius: 28px;
-    border: 1px solid transparent;
-    outline: none;
-    background: var(--md-sys-color-surface-container);
-    color: var(--md-sys-color-on-surface);
-    font-family: inherit;
-    font-size: 14px;
-    transition: all 0.2s ease;
-  }
-
-  .search input:focus {
-    background: var(--md-sys-color-surface-container-high);
-    border-color: var(--m3-accent-active);
-    box-shadow: 0 0 0 1px var(--m3-accent-active);
-  }
-
-  .search input::placeholder {
-    color: var(--md-sys-color-on-surface-variant);
-  }
-
-  /* Material 3 Dynamic Navigation Items */
-  .menu {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .menu-item {
-    background: transparent;
-    padding: 12px 16px;
-    border-radius: 28px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    user-select: none;
-  }
-
-  .menu-item:hover {
-    background: var(--md-sys-color-surface-container);
-  }
-
-.menu-item.active {
-    background: var(--m3-accent-active) !important;
-    color: var(--m3-accent-on-active) !important;
-  }
-
-  .menu-item.active .icon,
-  .menu-item.active .title {
-    color: var(--m3-accent-on-active) !important;
-    font-weight: 600;
-  }
-
-  .menu-item.active .subtitle {
-    color: var(--m3-accent-on-active) !important;
-    opacity: 0.8;
-  }
-
-  .menu-item .text-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .menu-item .title {
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--md-sys-color-on-surface);
-    transition: color 0.2s;
-  }
-
-  .menu-item.active .title {
-    color: var(--m3-accent-on-active);
-    font-weight: 600;
-  }
-
-  .menu-item .subtitle {
-    font-size: 12px;
-    color: var(--md-sys-color-on-surface-variant);
-    transition: color 0.2s;
-  }
-
-  .menu-item.active .subtitle {
-    color: rgba(5, 33, 30, 0.75);
-  }
-
-  /* Main Content Area */
-  .content {
-    flex: 1;
-    padding: 32px;
-    overflow: hidden !important;
-    display: flex;
-    flex-direction: column;
+    padding: 0 10px;
     box-sizing: border-box;
-    position: relative;
-    background: transparent;
-  }
-
-  .content iframe {
-    width: 100%;
-    height: 100% !important;
-    border: none;
-    display: block;
-    overflow: hidden !important;
-  }
-
-  .popup-frame {
-    width: 100%;
-    border: none;
-    background: transparent;
-    display: block;
-    overflow: hidden !important;
-  }
-
-  .content h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--md-sys-color-on-surface);
-  }
-
-  .placeholder-view {
     display: flex;
     flex-direction: column;
+    gap: 20px;
+  }
+  .panel {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  .list-item {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: var(--md-sys-color-on-surface-variant);
+    padding: 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    position: relative;
   }
-
-  .placeholder-view h3 {
-    font-weight: 400;
-    font-size: 20px;
-    margin: 0;
-    color: var(--md-sys-color-outline);
-  }
-
-  /* Draggable window fix */
-  .window {
-    position: absolute;
-    will-change: transform;
-  }
+  .list-item:hover { background: rgba(255, 255, 255, 0.06); }
   
-  a {
-    text-decoration: none;
-    color: var(--m3-accent-active);
+  .item-left { display: flex; align-items: center; gap: 12px; }
+  .icon-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px; color: white;
   }
+  .icon-badge .material-symbols-outlined { font-size: 16px; }
+  .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
+  .bg-blue { background: linear-gradient(180deg, #0a84ff, #007aff); }
+  .bg-purple { background: linear-gradient(180deg, #bf5af2, #af52de); }
 
-  html::-webkit-scrollbar {
-    display: none;
+  .item-title { font-size: 14px; font-weight: 500; }
+  .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+
+  /* macOS Themed Custom Selectors */
+  .custom-select-wrapper { position: relative; }
+  .select-btn {
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 10px 6px 14px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 150px;
+    cursor: pointer;
+    transition: border 0.2s;
   }
+  .select-btn:hover { border-color: rgba(255, 255, 255, 0.3); }
+  .select-btn.active { border-color: #0a84ff; box-shadow: 0 0 0 1px #0a84ff; }
+  .select-btn .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.6); }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 200px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-menu::-webkit-scrollbar { width: 4px; }
+  .dropdown-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+  .dropdown-item {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+    color: white;
+  }
+  .dropdown-item:hover { background: #0a84ff; color: white; }
+
+  /* macOS Toggle Switch */
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.15); transition: .3s; border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 20px; width: 20px; left: 1px; bottom: 1px;
+    background-color: white; transition: .3s; border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  input:checked + .slider { background-color: #34c759; border-color: #34c759; }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  .section-title {
+    font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 -10px 4px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  html::-webkit-scrollbar { display: none; }
 </style>
 </head>
 <body>
-
-  <!-- Material You Navigation Sidebar -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <h1>Settings</h1>
+<div class="container">
+  
+  <div class="section-title">Clock Style</div>
+  <div class="panel">
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">text_fields</span></div>
+        <div>
+          <div class="item-title">Clock Font</div>
+          <div class="item-subtitle">Typeface used on the lockscreen</div>
+        </div>
+      </div>
+      <div class="item-right custom-select-wrapper">
+        <div class="select-btn" id="fontBtn" onclick="toggleMenu('fontMenu', this, event)">
+          <span id="fontLabel">Poppins</span>
+          <span class="material-symbols-outlined">unfold_more</span>
+        </div>
+        <div class="dropdown-menu" id="fontMenu">
+          <!-- Populated by JS -->
+        </div>
+      </div>
     </div>
-
-    <div class="search">
-      <div class="search-wrapper">
-        <span class="material-symbols-outlined">search</span>
-        <input type="text" placeholder="Search settings...">
-      </div>
-    </div>
-
-    <div class="menu">
-      <div class="menu-item active" onclick="loadPage('you', this)">
-        <span class="material-symbols-outlined icon">person</span>
-        <div class="text-group">
-          <div class="title">You</div>
-          <div class="subtitle">Your profile & account</div>
+    
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-blue"><span class="material-symbols-outlined">format_bold</span></div>
+        <div>
+          <div class="item-title">Clock Thickness</div>
+          <div class="item-subtitle">Font weight of the time</div>
         </div>
       </div>
-
-      <div class="menu-item" onclick="loadPage('wallpaper', this)">
-        <span class="material-symbols-outlined icon">palette</span>
-        <div class="text-group">
-          <div class="title">Wallpaper & style</div>
-          <div class="subtitle">Background, icons, colors</div>
+      <div class="item-right custom-select-wrapper">
+        <div class="select-btn" id="weightBtn" onclick="toggleMenu('weightMenu', this, event)">
+          <span id="weightLabel">Semi-Bold</span>
+          <span class="material-symbols-outlined">unfold_more</span>
         </div>
-      </div>
-
-      <div class="menu-item" onclick="loadPage('functions', this)">
-        <span class="material-symbols-outlined icon">science</span>
-        <div class="text-group">
-          <div class="title">Functions lab</div>
-          <div class="subtitle">Experimental features</div>
-        </div>
-      </div>
-
-      <div class="menu-item" onclick="loadPage('system', this)">
-        <span class="material-symbols-outlined icon">settings</span>
-        <div class="text-group">
-          <div class="title">System</div>
-          <div class="subtitle">Rules, time, reset</div>
-        </div>
-      </div>
-
-      <div class="menu-item" onclick="loadPage('updater', this)">
-        <span class="material-symbols-outlined icon">update</span>
-        <div class="text-group">
-          <div class="title">Updater</div>
-          <div class="subtitle">Software updates</div>
-        </div>
-      </div>
-
-      <div class="menu-item" onclick="loadPage('about', this)">
-        <span class="material-symbols-outlined icon">info</span>
-        <div class="text-group">
-          <div class="title">About</div>
-          <div class="subtitle">System information </div>
+        <div class="dropdown-menu" id="weightMenu">
+          <div class="dropdown-item" onclick="selectWeight('300', 'Light')">Light</div>
+          <div class="dropdown-item" onclick="selectWeight('400', 'Regular')">Regular</div>
+          <div class="dropdown-item" onclick="selectWeight('600', 'Semi-Bold')">Semi-Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('700', 'Bold')">Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('900', 'Black')">Black</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Content Container -->
-  <div class="content" id="content">
-    <div class="placeholder-view">
-      <h3>What's cooking, good looking?</h3>
+  <div class="section-title">Background</div>
+  <div class="panel">
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-purple"><span class="material-symbols-outlined">animation</span></div>
+        <div>
+          <div class="item-title">Live Wallpaper</div>
+          <div class="item-subtitle">Animated dynamic background (Applies to DE too)</div>
+        </div>
+      </div>
+      <div class="item-right">
+        <label class="switch">
+          <input type="checkbox" id="liveWallpaper" onchange="saveToggle()">
+          <span class="slider"></span>
+        </label>
+      </div>
     </div>
   </div>
 
-<script> 
-  // Page Display Logic
-  const pages = {
-    you: `
-      <h2>mariowOS Profile</h2>
-      <iframe src="assets/you.html" class="popup-frame"></iframe>
-    `,
-    wallpaper: `
-      <h2>Wallpaper & style</h2>
-      <iframe src="assets/wallpaper.html" class="popup-frame"></iframe>
-    `,
-    functions: `
-      <h2>Functions lab</h2>
-      <iframe src="assets/lab.html" class="popup-frame"></iframe>
-    `,
-    system: `
-      <h2>System</h2>
-      <iframe src="assets/systemsettings.html" class="popup-frame"></iframe>
-    `,
-    updater: `
-      <h2>Updater</h2>
-      <iframe src="assets/update-mirror-2.html" class="popup-frame"></iframe>
-    `,
-    about: `
-      <iframe src="assets/about.html" class="popup-frame" scrolling="no"></iframe>
-    `
-  };
+</div>
 
-  function loadPage(page, el) {
-    document.getElementById("content").innerHTML = pages[page];
+<script>
+  const googleFonts = [
+    "Poppins", "Inter", "Roboto Mono", "Montserrat", 
+    "Oswald", "Pacifico", "Space Grotesk", "Playfair Display", 
+    "Ubuntu", "Caveat", "Cinzel", "Righteous", "system-ui"
+  ];
 
-    if (page === "you") {
-      setTimeout(loadProfileEditor, 50);
+  function injectFont(fontName) {
+    if (fontName === 'system-ui') return;
+    const fontId = 'font-' + fontName.replace(/\s+/g, '-');
+    if (!document.getElementById(fontId)) {
+      const link = document.createElement('link');
+      link.id = fontId;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;600;700&display=swap`;
+      document.head.appendChild(link);
     }
-
-    document.querySelectorAll(".menu-item").forEach(item => item.classList.remove("active"));
-    if (el) el.classList.add("active");
   }
 
-  // Search filtering logic
-  const searchInput = document.querySelector(".search input");
-  const menuItems = document.querySelectorAll(".menu-item");
-
-  searchInput.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase();
-    let firstMatch = null;
-
-    menuItems.forEach(item => {
-      const title = item.querySelector(".title").textContent.toLowerCase();
-      const subtitle = item.querySelector(".subtitle").textContent.toLowerCase();
-
-      if (title.includes(query) || subtitle.includes(query)) {
-        item.style.display = "flex";
-        if (!firstMatch) firstMatch = item;
-      } else {
-        item.style.display = "none";
-      }
+  function populateFonts() {
+    const fontMenu = document.getElementById('fontMenu');
+    googleFonts.forEach(font => {
+      injectFont(font);
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.style.fontFamily = font !== 'system-ui' ? `'${font}', sans-serif` : 'system-ui';
+      div.textContent = font === 'system-ui' ? 'System Default' : font;
+      div.onclick = () => selectFont(font, div.textContent);
+      fontMenu.appendChild(div);
     });
+  }
 
-    if (firstMatch) {
-      const page = firstMatch.getAttribute("onclick").match(/'([^']+)'/)[1];
-      loadPage(page, firstMatch);
+  function toggleMenu(menuId, btn, e) {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      if (menu.id !== menuId) menu.classList.remove('show');
+    });
+    document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('active'));
+    
+    const menu = document.getElementById(menuId);
+    if (!menu.classList.contains('show')) {
+      menu.classList.add('show');
+      btn.classList.add('active');
+    } else {
+      menu.classList.remove('show');
     }
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
   });
 
-  // Profile functions
-  function saveProfile() {
-    const username = document.getElementById("usernameInput")?.value.trim();
-    const password = document.getElementById("passwordInput")?.value.trim();
-    const pfpFile = document.getElementById("pfpUpload")?.files[0];
-
-    if (username) localStorage.setItem("username", username);
-    if (password) localStorage.setItem("password", password);
-
-    if (pfpFile) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        localStorage.setItem("avatar", reader.result);
-        const pfpPreview = document.getElementById("pfpPreview");
-        if (pfpPreview) pfpPreview.src = reader.result;
-      };
-      reader.readAsDataURL(pfpFile);
-    }
-
-    alert("Profile saved!");
+  function selectFont(val, label) {
+    document.getElementById('fontLabel').textContent = label;
+    document.getElementById('fontLabel').style.fontFamily = val !== 'system-ui' ? `'${val}', sans-serif` : 'system-ui';
+    localStorage.setItem('clockFont', val);
+    notifyUpdate();
   }
 
-  function loadProfileEditor() {
-    const savedUsername = localStorage.getItem("username");
-    const savedPassword = localStorage.getItem("password");
-    const savedAvatar = localStorage.getItem("avatar");
-
-    const usernameInput = document.getElementById("usernameInput");
-    const passwordInput = document.getElementById("passwordInput");
-    const pfpPreview = document.getElementById("pfpPreview");
-
-    if (savedUsername && usernameInput) usernameInput.value = savedUsername;
-    if (savedPassword && passwordInput) passwordInput.value = savedPassword;
-    if (savedAvatar && pfpPreview) pfpPreview.src = savedAvatar;
+  function selectWeight(val, label) {
+    document.getElementById('weightLabel').textContent = label;
+    localStorage.setItem('clockWeight', val);
+    notifyUpdate();
   }
 
-  function saveFromSettings() {
-    const newUser = document.getElementById("settingsUsername")?.value.trim();
-    const newPass = document.getElementById("settingsPassword")?.value.trim();
-
-    if (!newUser || !newPass) {
-      alert("Fields cannot be empty!");
-      return;
-    }
-
-    localStorage.setItem("username", newUser);
-    localStorage.setItem("password", newPass);
-
-    alert("Credentials updated!");
+  function saveToggle() {
+    const isLive = document.getElementById('liveWallpaper').checked;
+    localStorage.setItem('liveWallpaper', isLive ? 'true' : 'false');
+    notifyUpdate();
   }
 
-  window.addEventListener('message', (e) => {
-  if (e.data && (e.data.type === 'monet-update' || e.data.type === 'theme-update')) {
-    if (e.data.accent) {
-      document.documentElement.style.setProperty('--m3-accent-active', e.data.accent);
-    }
-    if (e.data.onAccent) {
-      document.documentElement.style.setProperty('--m3-accent-on-active', e.data.onAccent);
-    }
+  function notifyUpdate() {
+    window.parent.postMessage({ type: 'update-lockscreen-settings' }, '*');
   }
-});
+
+  function loadSettings() {
+    populateFonts();
+    const currentFont = localStorage.getItem('clockFont') || 'Poppins';
+    const currentWeight = localStorage.getItem('clockWeight') || '600';
+    
+    document.getElementById('fontLabel').textContent = currentFont === 'system-ui' ? 'System Default' : currentFont;
+    document.getElementById('fontLabel').style.fontFamily = currentFont !== 'system-ui' ? `'${currentFont}', sans-serif` : 'system-ui';
+    
+    const weightMap = { '300': 'Light', '400': 'Regular', '600': 'Semi-Bold', '700': 'Bold', '900': 'Black' };
+    document.getElementById('weightLabel').textContent = weightMap[currentWeight] || 'Semi-Bold';
+    
+    document.getElementById('liveWallpaper').checked = localStorage.getItem('liveWallpaper') === 'true';
+  }
+
+  window.onload = loadSettings;
 </script>
-
 </body>
 </html>
-
-<!-- "I'm not saying it's Material You, but if Google saw this UI, they'd try to buy it and deprecate it two years later." -->

@@ -23,11 +23,10 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     --m3-accent-active: #5c7cfa;
   }
 
+  /* Applied transparency to html and body, removed hardcoded colors/gradients */
   html, body {
     margin: 0; padding: 0; height: 100%; font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at 10% 10%, rgba(92, 124, 250, 0.15), transparent 50%), 
-                radial-gradient(circle at 90% 90%, rgba(200, 100, 250, 0.08), transparent 50%), 
-                #12141a;
+    background: transparent;
     color: var(--m3-text-color); -webkit-font-smoothing: antialiased; overflow: hidden;
     display: flex; flex-direction: column;
   }
@@ -37,7 +36,6 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   @keyframes toastAppOut { from { opacity: 1; transform: translate3d(-50%, 0, 0); } to { opacity: 0; transform: translate3d(-50%, 20px, 0); } }
 
   /* Toolbar Styles */
-/* Toolbar Styles */
   .toolbar {
     position: relative;
     display: flex; align-items: center; gap: 6px; padding: 8px 16px;

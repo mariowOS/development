@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <style>
+    body { font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 10px 0; overflow-y: auto; }
+    .panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+    .row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .row:last-child { border-bottom: none; }
+    .row.clickable { cursor: pointer; transition: background 0.2s; }
+    .row.clickable:hover { background: rgba(255,255,255,0.1); }
+    .left { display: flex; align-items: center; gap: 12px; }
+    .title { font-size: 14px; font-weight: 500; }
+    .subtitle { font-size: 12px; color: rgba(255,255,255,0.5); }
+    
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: #34c759; }
+    input:checked + .slider:before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <div class="row">
+      <div class="left">
+        <span class="material-symbols-outlined">bluetooth</span>
+        <div class="title">Bluetooth</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="btToggle" onchange="toggleBt(this)">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="panel" id="btPanel">
+    <div class="row"><div class="subtitle">Searching for devices...</div></div>
+  </div>
+
+  <script>
+    async function loadBt() {
+      const qsRes = await fetch('/api/system/quick-settings');
+      const qs = await qsRes.json();
+      document.getElementById('btToggle').checked = qs.bluetooth;
+
+      if (!qs.bluetooth) {
+        document.getElementById('btPanel').innerHTML = `<div class="row"><div class="subtitle">Bluetooth is disabled.</div></div>`;
+        return;
+      }
+
+      const res = await fetch('/api/system/bt-devices');
+      const data = await res.json();
+      
+      let html = '';
+      if (data.devices && data.devices.length > 0) {
+        // Strict filter to wipe out Windows protocol / transport driver spam
+        const invalidKeywords = ['generic', 'attribute', 'service', 'profile', 'intel', 'adapter', 'enumerator', 'avrcp', 'transport', 'rfcomm', 'protocol', 'tdi'];
+        const cleanDevices = data.devices.filter(dev => {
+          const lowerName = dev.name.toLowerCase();
+          return !invalidKeywords.some(keyword => lowerName.includes(keyword));
+        });
+
+        if (cleanDevices.length > 0) {
+          cleanDevices.forEach((dev, index) => {
+            let icon = dev.type === 'headset' ? 'headphones' : 'devices';
+            const safeId = "bt-" + index;
+            html += `
+              <div class="row clickable" onclick="connectBt('${safeId}', '${dev.name}', '${dev.mac}')">
+                <div class="left">
+                  <span class="material-symbols-outlined" style="color: ${dev.connected ? '#0a84ff' : 'white'}">${icon}</span>
+                  <div>
+                    <div class="title" style="color: ${dev.connected ? '#0a84ff' : 'white'}">${dev.name}</div>
+                    <div class="subtitle" id="status-${safeId}">${dev.connected ? 'Connected' : 'Not Connected'}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          html = `<div class="row"><div class="subtitle">No user devices found.</div></div>`;
+        }
+      } else {
+        html = `<div class="row"><div class="subtitle">No devices found.</div></div>`;
+      }
+      document.getElementById('btPanel').innerHTML = html;
+    }
+
+    async function toggleBt(el) {
+      await fetch('/api/system/quick-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setting: 'bluetooth', value: el.checked })
+      });
+      loadBt();
+    }
+
+    async function connectBt(safeId, name, mac) {
+      const statusEl = document.getElementById(`status-${safeId}`);
+      if (statusEl) statusEl.innerText = "Connecting...";
+
+      await fetch('/api/system/connect-bt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, mac })
+      });
+      loadBt(); 
+    }
+
+    loadBt();
+  </script>
+</body>
+</html>

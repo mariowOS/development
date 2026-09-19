@@ -10,29 +10,26 @@
   
   <style>
     :root {
-      --bg-main: transparent;
-      --bg-sidebar: #1C1C1E;
-      --bg-topbar: transparent;
+      --mac-accent: #1c85ff;
+      --mac-sidebar: rgba(28, 28, 30, 0.85);
+      --mac-border: rgba(255, 255, 255, 0.06);
+      --mac-text: #ffffff;
+      --mac-text-secondary: rgba(255, 255, 255, 0.7);
+      --mac-hover: rgba(255, 255, 255, 0.08);
+      --mac-search-bg: rgba(0, 0, 0, 0.4);
       
+      --bg-main: transparent;
+      --bg-topbar: transparent;
       --bg-card: rgba(255, 255, 255, 0.05);
       --bg-card-hover: rgba(255, 255, 255, 0.09);
-      --bg-input: rgba(255, 255, 255, 0.06);
       
-      --text-primary: #FFFFFF;
-      --text-secondary: rgba(255, 255, 255, 0.55);
-      
-      --accent: #3A78FF; 
-      --accent-hover: #5A91F7;
-      --accent-light: rgba(58, 120, 255, 0.15);
-      
-      --border-light: rgba(255, 255, 255, 0.04);
-      --btn-gray: rgba(255, 255, 255, 0.08);
-      --btn-gray-hover: rgba(255, 255, 255, 0.12);
+      --btn-gray: rgba(255, 255, 255, 0.1);
+      --btn-gray-hover: rgba(255, 255, 255, 0.15);
       
       --radius-sm: 8px;
-      --radius-md: 16px;
-      --radius-lg: 20px;
-      --radius-xl: 24px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
       --squircle: 22%;
     }
 
@@ -41,24 +38,50 @@
     body {
       margin: 0; padding: 0; display: flex; height: 100vh;
       background: var(--bg-main); font-family: 'Poppins', sans-serif;
-      color: var(--text-primary); user-select: none; overflow: hidden;
+      color: var(--mac-text); user-select: none; overflow: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
+    /* macOS 15 Sidebar */
     .sidebar {
-      width: 220px; background: var(--bg-sidebar); display: flex; flex-direction: column;
-      padding: 24px 12px; flex-shrink: 0; z-index: 10; border-right: 1px solid var(--border-light);
+      width: 240px; 
+      background: var(--mac-sidebar); 
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      display: flex; flex-direction: column;
+      padding: 16px 0; flex-shrink: 0; z-index: 10; 
+      border-right: 1px solid rgba(0, 0, 0, 0.5);
     }
 
-    .nav-item {
-      padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 6px;
-      cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-primary);
-      display: flex; align-items: center; gap: 12px; transition: background 0.2s ease;
+    .sidebar-header {
+      padding: 8px 20px 16px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mac-text);
     }
-    .nav-item .material-symbols-outlined { font-size: 20px; color: var(--text-primary); transition: color 0.2s; }
-    .nav-item:hover { background: var(--bg-card); }
-    .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
-    .nav-item.active .material-symbols-outlined { color: var(--accent); }
+
+    /* Floating Pill Navigation */
+    .nav-item {
+      padding: 6px 10px; 
+      border-radius: var(--radius-md); 
+      margin: 2px 12px;
+      cursor: pointer; font-size: 13px; font-weight: 400; color: var(--mac-text);
+      display: flex; align-items: center; gap: 12px; transition: background 0.1s ease;
+    }
+    .nav-item:hover:not(.active) { background: var(--mac-hover); }
+    .nav-item.active { background: var(--mac-accent); color: #ffffff; font-weight: 500; }
+
+    /* Colored Icon Badges */
+    .icon-bg { 
+      display: flex; align-items: center; justify-content: center; 
+      width: 28px; height: 28px; border-radius: 8px; 
+      color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+      flex-shrink: 0;
+    }
+    .icon-bg .material-symbols-outlined { font-size: 18px; font-weight: 400; color: #ffffff; }
+
+    .c-discover { background: linear-gradient(180deg, #1c85ff, #0066d6); }
+    .c-publish { background: linear-gradient(180deg, #ff9f0a, #d98608); }
 
     .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
@@ -68,24 +91,25 @@
     }
     .nav-arrows { display: flex; gap: 8px; }
     .nav-arrow-btn {
-      width: 32px; height: 32px; border-radius: 8px; border: none;
-      background: var(--bg-input); display: flex; align-items: center; justify-content: center;
-      color: var(--text-primary); cursor: pointer; transition: background 0.2s;
+      width: 30px; height: 30px; border-radius: var(--radius-sm); border: none;
+      background: transparent; display: flex; align-items: center; justify-content: center;
+      color: var(--mac-text-secondary); cursor: pointer; transition: background 0.2s, color 0.2s;
     }
-    .nav-arrow-btn:hover { background: var(--bg-card-hover); }
+    .nav-arrow-btn:hover { background: var(--mac-hover); color: var(--mac-text); }
 
+    /* macOS 15 Search Bar */
     .search-bar {
-      flex: 1; max-width: 400px; height: 36px; background: var(--bg-input);
-      border-radius: 100px; display: flex; align-items: center; padding: 0 16px; gap: 10px;
-      border: 1px solid transparent; transition: border 0.2s, background 0.2s;
+      flex: 1; max-width: 400px; height: 32px; background: var(--mac-search-bg);
+      border-radius: var(--radius-sm); display: flex; align-items: center; padding: 0 12px; gap: 8px;
+      border: 1px solid transparent; transition: border 0.2s;
     }
-    .search-bar:focus-within { border: 1px solid var(--accent); background: var(--bg-card); }
-    .search-bar .material-symbols-outlined { font-size: 18px; color: var(--text-secondary); }
+    .search-bar:focus-within { border: 1px solid var(--mac-accent); }
+    .search-bar .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.5); }
     .search-bar input {
       border: none; background: transparent; flex: 1;
-      font-family: inherit; font-size: 13px; color: var(--text-primary);
+      font-family: inherit; font-size: 13px; color: var(--mac-text);
     }
-    .search-bar input::placeholder { color: var(--text-secondary); }
+    .search-bar input::placeholder { color: rgba(255,255,255,0.4); }
 
     .main { flex: 1; overflow-y: auto; position: relative; background: transparent; }
     .main::-webkit-scrollbar { width: 6px; }
@@ -99,15 +123,15 @@
     .hero-card {
       background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
       display: flex; flex-direction: column; justify-content: space-between; height: 140px;
-      position: relative; overflow: hidden; cursor: pointer; border: 1px solid var(--border-light);
+      position: relative; overflow: hidden; cursor: pointer; border: 1px solid var(--mac-border);
     }
-    .hero-card:nth-child(1) { background: linear-gradient(135deg, rgba(58, 120, 255, 0.2) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
-    .hero-card:nth-child(2) { background: linear-gradient(135deg, rgba(255, 171, 64, 0.15) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
+    .hero-card:nth-child(1) { background: linear-gradient(135deg, rgba(28, 133, 255, 0.2) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
+    .hero-card:nth-child(2) { background: linear-gradient(135deg, rgba(255, 159, 10, 0.15) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
     .hero-card h1 { margin: 0; font-size: 18px; font-weight: 600; z-index: 2; color: #FFF; letter-spacing: -0.3px; }
     .hero-card p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.75; z-index: 2; color: #FFF; line-height: 1.4; max-width: 85%; }
     .hero-emoji { font-size: 56px; position: absolute; right: 16px; bottom: -8px; opacity: 0.9; }
 
-    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: var(--text-primary); letter-spacing: -0.2px; }
+    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: var(--mac-text); letter-spacing: -0.2px; }
 
     .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
     .app-card {
@@ -115,104 +139,104 @@
       border-radius: var(--radius-lg); cursor: pointer; border: 1px solid transparent;
       transition: background 0.2s ease, border 0.2s ease;
     }
-    .app-card:hover { background: var(--bg-card-hover); border: 1px solid var(--border-light); }
+    .app-card:hover { background: var(--bg-card-hover); border: 1px solid var(--mac-border); }
     
     .card-icon {
-      width: 52px; height: 52px; background: var(--bg-input); border-radius: var(--squircle);
+      width: 52px; height: 52px; background: var(--mac-search-bg); border-radius: var(--squircle);
       display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;
-      border: 1px solid var(--border-light); overflow: hidden;
+      border: 1px solid var(--mac-border); overflow: hidden;
     }
     .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-    .card-title { font-size: 15px; font-weight: 600; margin: 0; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px; }
-    .card-desc { font-size: 12px; color: var(--text-secondary); margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-title { font-size: 14px; font-weight: 500; margin: 0; color: var(--mac-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px; }
+    .card-desc { font-size: 12px; color: var(--mac-text-secondary); margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .btn-get {
-      background: var(--btn-gray); color: var(--accent); border: none; padding: 6px 16px;
+      background: var(--btn-gray); color: var(--mac-accent); border: none; padding: 6px 16px;
       font-size: 12px; font-weight: 600; border-radius: 100px; cursor: pointer; font-family: inherit;
       transition: background 0.2s, transform 0.1s; flex-shrink: 0; letter-spacing: 0.3px;
     }
     .btn-get:hover { background: var(--btn-gray-hover); }
     .btn-get:active { transform: scale(0.95); }
-    .btn-get.installed { background: var(--btn-gray); color: var(--text-primary); }
+    .btn-get.installed { background: var(--btn-gray); color: var(--mac-text); }
 
     .lp-header {
       display: flex; gap: 24px; margin-bottom: 32px; align-items: center;
       background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--mac-border);
     }
     .lp-icon {
-      width: 96px; height: 96px; background: var(--bg-input); border-radius: var(--squircle);
+      width: 96px; height: 96px; background: var(--mac-search-bg); border-radius: var(--squircle);
       display: flex; align-items: center; justify-content: center; font-size: 48px; flex-shrink: 0;
-      border: 1px solid var(--border-light); overflow: hidden;
+      border: 1px solid var(--mac-border); overflow: hidden;
     }
     .lp-info { flex: 1; }
-    .lp-title { font-size: 28px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-primary); letter-spacing: -0.4px; }
-    .lp-dev { font-size: 14px; color: var(--accent); margin: 0 0 20px 0; font-weight: 500; }
+    .lp-title { font-size: 28px; font-weight: 600; margin: 0 0 6px 0; color: var(--mac-text); letter-spacing: -0.4px; }
+    .lp-dev { font-size: 14px; color: var(--mac-accent); margin: 0 0 20px 0; font-weight: 500; }
     .lp-actions { display: flex; align-items: center; gap: 12px; }
     
     .btn-action {
-      border: none; padding: 10px 32px; font-size: 14px; font-weight: 600; border-radius: 100px;
+      border: none; padding: 10px 32px; font-size: 13px; font-weight: 600; border-radius: 100px;
       cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
     .btn-action:active { transform: scale(0.96); }
-    .btn-action.primary { background: var(--accent); color: #FFF; }
-    .btn-action.primary:hover { background: var(--accent-hover); }
-    .btn-action.primary:disabled { background: var(--btn-gray); color: var(--text-secondary); cursor: not-allowed; }
+    .btn-action.primary { background: var(--mac-accent); color: #FFF; }
+    .btn-action.primary:hover { background: #0066d6; }
+    .btn-action.primary:disabled { background: var(--btn-gray); color: var(--mac-text-secondary); cursor: not-allowed; }
 
     .btn-uninstall {
-      background: transparent; border: 1px solid var(--border-light); color: #FF5A5A;
-      font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 100px; padding: 9px 24px;
+      background: transparent; border: 1px solid var(--mac-border); color: #FF453A;
+      font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 100px; padding: 9px 24px;
     }
-    .btn-uninstall:hover { background: rgba(255, 90, 90, 0.1); border-color: transparent; }
-    .lp-error { color: #FF5A5A; font-size: 13px; margin-top: 12px; }
+    .btn-uninstall:hover { background: rgba(255, 69, 58, 0.1); border-color: transparent; }
+    .lp-error { color: #FF453A; font-size: 13px; margin-top: 12px; }
     
     .lp-desc-container {
       background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--mac-border);
     }
-    .lp-desc-title { font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: var(--text-primary); }
-    .lp-desc { color: var(--text-secondary); line-height: 1.6; font-size: 14px; margin: 0; }
+    .lp-desc-title { font-size: 16px; font-weight: 600; margin: 0 0 16px 0; color: var(--mac-text); }
+    .lp-desc { color: var(--mac-text-secondary); line-height: 1.6; font-size: 13px; margin: 0; }
 
     .btn-back {
       display: none; align-items: center; gap: 4px; background: transparent; border: none;
-      color: var(--text-secondary); padding: 0 0 20px 0; cursor: pointer; font-family: inherit;
-      font-size: 14px; font-weight: 500; transition: color 0.2s;
+      color: var(--mac-text-secondary); padding: 0 0 20px 0; cursor: pointer; font-family: inherit;
+      font-size: 13px; font-weight: 500; transition: color 0.2s;
     }
-    .btn-back:hover { color: var(--text-primary); }
+    .btn-back:hover { color: var(--mac-text); }
     .btn-back .material-symbols-outlined { font-size: 18px; }
 
     .pub-card {
       background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
-      border: 1px solid var(--border-light); max-width: 600px;
+      border: 1px solid var(--mac-border); max-width: 600px;
     }
     .pub-input {
-      width: 100%; padding: 14px 18px; margin-bottom: 16px; background: var(--bg-input);
-      border: 1px solid transparent; color: var(--text-primary); border-radius: var(--radius-md);
-      font-family: inherit; font-size: 14px; transition: border 0.2s, background 0.2s;
+      width: 100%; padding: 10px 14px; margin-bottom: 16px; background: var(--mac-search-bg);
+      border: 1px solid transparent; color: var(--mac-text); border-radius: var(--radius-sm);
+      font-family: inherit; font-size: 13px; transition: border 0.2s;
     }
-    .pub-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.08); }
-    .pub-input::placeholder { color: var(--text-secondary); }
+    .pub-input:focus { border-color: var(--mac-accent); }
+    .pub-input::placeholder { color: rgba(255,255,255,0.4); }
     textarea.pub-input { resize: vertical; min-height: 100px; }
     .publish-status { font-size: 13px; margin-top: 16px; font-weight: 500; text-align: center; }
-    .loading-text { color: var(--text-secondary); font-size: 14px; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
+    .loading-text { color: var(--mac-text-secondary); font-size: 13px; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
 
     /* STORE EULA OVERLAY */
     #store-eula-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8); z-index: 9999;
+      background: rgba(0,0,0,0.6); z-index: 9999;
       align-items: center; justify-content: center;
     }
     .store-eula-modal {
-      background: var(--bg-sidebar); color: var(--text-primary); 
-      padding: 24px; border-radius: var(--radius-lg); width: 400px; max-width: 90%; 
+      background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      color: var(--mac-text); padding: 24px; border-radius: var(--radius-lg); width: 400px; max-width: 90%; 
       box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: inherit;
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--mac-border);
     }
-    .store-eula-modal h2 { margin-top: 0; font-size: 18px; margin-bottom: 8px; }
+    .store-eula-modal h2 { margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
     .store-eula-box {
-      background: var(--bg-input); padding: 12px; border-radius: 8px; font-family: monospace;
-      font-size: 12px; margin: 16px 0; height: 100px; overflow-y: auto; color: var(--text-secondary);
-      border: 1px solid var(--border-light); white-space: pre-wrap;
+      background: var(--mac-search-bg); padding: 12px; border-radius: var(--radius-sm); font-family: monospace;
+      font-size: 11px; margin: 16px 0; height: 100px; overflow-y: auto; color: var(--mac-text-secondary);
+      border: 1px solid transparent; white-space: pre-wrap;
     }
     .store-eula-actions { display: flex; justify-content: flex-end; gap: 12px; }
   </style>
@@ -220,11 +244,14 @@
 <body>
 
   <div class="sidebar">
+    <div class="sidebar-header">App Store</div>
     <div class="nav-item active" id="nav-discover" onclick="switchView('home')">
-      <span class="material-symbols-outlined">explore</span> Discover
+      <div class="icon-bg c-discover"><span class="material-symbols-outlined">explore</span></div>
+      <span class="title">Discover</span>
     </div>
     <div class="nav-item" id="nav-publish" onclick="switchView('publish')">
-      <span class="material-symbols-outlined">developer_mode</span> Submit App
+      <div class="icon-bg c-publish"><span class="material-symbols-outlined">developer_mode</span></div>
+      <span class="title">Submit App</span>
     </div>
   </div>
 
@@ -298,8 +325,8 @@
           
           <div style="display: flex; gap: 12px; margin-bottom: 16px;">
             <input type="text" id="pubIconText" class="pub-input" placeholder="Emoji (Leave empty to fetch from GitHub)" style="margin-bottom: 0; flex: 1;">
-            <div style="display: flex; align-items: center; color: var(--text-secondary); font-size: 13px;">OR</div>
-            <input type="file" id="pubIconFile" class="pub-input" accept="image/png, image/jpeg" style="margin-bottom: 0; flex: 2; padding: 10px;">
+            <div style="display: flex; align-items: center; color: var(--mac-text-secondary); font-size: 13px;">OR</div>
+            <input type="file" id="pubIconFile" class="pub-input" accept="image/png, image/jpeg" style="margin-bottom: 0; flex: 2; padding: 6px 10px;">
           </div>
           
           <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
@@ -317,12 +344,12 @@
   <div id="store-eula-overlay">
     <div class="store-eula-modal">
       <h2>License Agreement</h2>
-      <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--text-primary);"></strong> by <span id="eula-app-dev" style="color: var(--accent);"></span>.</p>
+      <p style="font-size: 13px; color: var(--mac-text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--mac-text);"></strong> by <span id="eula-app-dev" style="color: var(--mac-accent);"></span>.</p>
       <div class="store-eula-box">
         <!-- EULA dynamic text will be injected here -->
       </div>
       <div class="store-eula-actions">
-        <button class="btn-action" style="background: var(--btn-gray); color: var(--text-primary);" onclick="declineEula()">Decline</button>
+        <button class="btn-action" style="background: var(--btn-gray); color: var(--mac-text);" onclick="declineEula()">Decline</button>
         <button class="btn-action primary" onclick="acceptEula()">I Agree</button>
       </div>
     </div>
@@ -336,7 +363,6 @@
 
     const renderIcon = (iconStr) => {
       if (!iconStr) return '📦';
-      // Checks for physical file paths OR raw.githubusercontent http links
       if (iconStr.includes('/') || iconStr.includes('.')) {
         return `<img src="${iconStr}" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;">`;
       }
@@ -454,7 +480,7 @@
       btnI.className = `btn-action primary ${isInst ? 'installed' : ''}`;
       if (isInst) {
         btnI.style.background = 'var(--btn-gray)';
-        btnI.style.color = 'var(--text-primary)';
+        btnI.style.color = 'var(--mac-text)';
       } else {
         btnI.style.background = '';
         btnI.style.color = '';
@@ -486,13 +512,11 @@
     async function promptEula() {
       if (!currentAppOpen) return;
 
-      // 1. Check if the app catalog has a custom EULA stored
       if (currentAppOpen.eula) {
         showEulaModal(currentAppOpen.eula);
         return;
       }
 
-      // 2. If not, hit the backend to check for standard GitHub licenses
       const btn = document.getElementById('btnInstall');
       const origText = btn.textContent;
       btn.textContent = 'CHECKING...';
@@ -577,7 +601,7 @@
 
     async function submitApp() {
       const status = document.getElementById('publishStatus');
-      status.style.color = 'var(--text-secondary)';
+      status.style.color = 'var(--mac-text-secondary)';
       status.textContent = 'Publishing...';
 
       const idVal = document.getElementById('pubId').value.trim();
@@ -590,7 +614,7 @@
       const fileInput = document.getElementById('pubIconFile');
 
       if (!idVal || !titleVal || !devVal || !descVal || !repoVal) {
-        status.style.color = '#FF5A5A';
+        status.style.color = '#FF453A';
         status.textContent = 'All fields are required.';
         return;
       }
@@ -621,7 +645,7 @@
         const r = await res.json();
         if (!r.success) throw new Error(r.error);
 
-        status.style.color = '#4ADE80';
+        status.style.color = '#32d74b';
         status.textContent = 'Success! Your app is now available on Discover.';
         
         document.getElementById('pubId').value = '';
@@ -635,7 +659,7 @@
 
         setTimeout(() => { initStore(); switchView('home'); }, 1500);
       } catch (err) {
-        status.style.color = '#FF5A5A';
+        status.style.color = '#FF453A';
         status.textContent = 'Error: ' + err.message;
       }
     }

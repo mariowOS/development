@@ -9,7 +9,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" id="default-font">
 <style>
 * { box-sizing: border-box; }
 html,body {
@@ -25,194 +25,101 @@ body {
   display:flex; align-items:center; justify-content:center;
   color:#fff; overflow:hidden;
   transform: translateZ(0); /* force GPU on body */
+  transition: background 0.5s ease;
+}
+
+/* --- LIVE WALLPAPER CSS EFFECT --- */
+body.live-wallpaper-active {
+  background: linear-gradient(-45deg, #0a0a0a, #1a2a6c, #b21f1f, #fdbb2d) !important;
+  background-size: 400% 400% !important;
+  animation: liveGradient 15s ease infinite !important;
+}
+@keyframes liveGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @keyframes loginRiseUp {
-  from {
-    opacity: 0;
-    /* Manteniamo il -50% per centrare sull'asse X e partiamo più in basso di 40px */
-    transform: translate3d(-50%, 40px, 0);
-  }
-  to {
-    opacity: 1;
-    /* Manteniamo il -50% e torniamo alla posizione Y originale (0) */
-    transform: translate3d(-50%, 0, 0);
-  }
+  from { opacity: 0; transform: translate3d(-50%, 40px, 0); }
+  to { opacity: 1; transform: translate3d(-50%, 0, 0); }
 }
 
 @keyframes datetimeRiseUp {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 160px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 120px, 0);
-  }
+  from { opacity: 0; transform: translate3d(0, 160px, 0); }
+  to { opacity: 1; transform: translate3d(0, 120px, 0); }
 }
 
-/* --- ANIMAZIONE DI USCITA (FALL DOWN EFFECT) --- */
 @keyframes fallDownExit {
-  from {
-    opacity: 1;
-    /* Preserviamo il centraggio X anche all'inizio della caduta */
-    transform: translate3d(-50%, 0, 0);
-  }
-  to {
-    opacity: 0;
-    /* Preserviamo il centraggio X e spingiamo giù su Y */
-    transform: translate3d(-50%, 400px, 0);
-  }
+  from { opacity: 1; transform: translate3d(-50%, 0, 0); }
+  to { opacity: 0; transform: translate3d(-50%, 400px, 0); }
 }
 
 @keyframes datetimeFallDownExit {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 120px, 0);
-  }
-  to {
-    opacity: 0;
-    transform: translate3d(0, 500px, 0);
-  }
+  from { opacity: 1; transform: translate3d(0, 120px, 0); }
+  to { opacity: 0; transform: translate3d(0, 500px, 0); }
 }
 
 .datetime {
-  position:absolute;
-  top: 0;
-  left: 0;
-  width:100%;
-  text-align:center;
-  pointer-events:none;
-  /* Animazione ingresso fluida */
+  position:absolute; top: 0; left: 0; width:100%; text-align:center; pointer-events:none;
   transform: translate3d(0, 120px, 0); 
   animation: datetimeRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
   will-change: transform, opacity;
 }
 
-/* Classe aggiunta via JS al momento dello sblocco */
-.datetime.unlock-falling {
-  animation: datetimeFallDownExit 0.55s cubic-bezier(0.32, 0, 0.67, 0) forwards !important;
-}
+.datetime.unlock-falling { animation: datetimeFallDownExit 0.55s cubic-bezier(0.32, 0, 0.67, 0) forwards !important; }
 
 .datetime .date {
-  font-size:22px;
-  color:rgba(255,255,255,0.94);
-  margin-bottom:6px;
-  text-shadow:0 4px 14px rgba(0,0,0,0.35);
+  font-size:22px; color:rgba(255,255,255,0.94); margin-bottom:6px;
+  text-shadow:0 4px 14px rgba(0,0,0,0.35); transition: font-family 0.3s ease;
 }
 .datetime .time {
-  font-size:120px;
-  font-weight:600;
-  line-height:0.9;
-  color:rgba(255,255,255,0.98);
-  text-shadow:0 8px 30px rgba(0,0,0,0.45);
+  font-size:120px; font-weight:600; line-height:0.9; color:rgba(255,255,255,0.98);
+  text-shadow:0 8px 30px rgba(0,0,0,0.45); transition: font-family 0.3s ease, font-weight 0.3s ease;
 }
 
 .center-stack {
-  position: absolute;
-  bottom: 160px;
-  left: 50%;
-  transform: translate3d(-50%, 0, 0);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  /* Animazione ingresso ritardata rispetto a date/time */
-  animation: loginRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
-  will-change: transform, opacity;
+  position: absolute; bottom: 160px; left: 50%; transform: translate3d(-50%, 0, 0);
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  animation: loginRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; will-change: transform, opacity;
 }
-
-/* Classe aggiunta via JS al momento dello sblocco */
-.center-stack.unlock-falling {
-  animation: fallDownExit 0.5s cubic-bezier(0.32, 0, 0.67, 0) forwards !important;
-}
+.center-stack.unlock-falling { animation: fallDownExit 0.5s cubic-bezier(0.32, 0, 0.67, 0) forwards !important; }
 
 .avatar {
-  width:58px;
-  height:58px;
-  border-radius:50%;
+  width:58px; height:58px; border-radius:50%;
   background:url("/desktop/assets/avatar.png") center/cover no-repeat;
   box-shadow:0 6px 18px rgba(0,0,0,0.55), inset 0 -4px 10px rgba(0,0,0,0.12);
-  transition: background-image 0.3s ease;
-  transform: translateZ(0);
+  transition: background-image 0.3s ease; transform: translateZ(0);
 }
 
 .unlock-pill {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius:999px;
-  width:340px;
-  height:48px;
-  overflow:hidden;
-  border:2px solid transparent;
-  transition: border-color 0.3s ease;
-  box-shadow:0 8px 24px rgba(0,0,0,0.25);
-  transform: translateZ(0); /* blur on GPU */
-  will-change: transform, border-color;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter:blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius:999px; width:340px; height:48px; overflow:hidden;
+  border:2px solid transparent; transition: border-color 0.3s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,0.25); transform: translateZ(0); will-change: transform, border-color;
 }
 
 .unlock-pill input {
-  flex:1;
-  height:100%;
-  padding:0 20px;
-  background:rgba(255,255,255,0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border:none;
-  outline:none;
-  color:white;
-  font-size:18px;
-  font-family: 'Poppins';
+  flex:1; height:100%; padding:0 20px; background:rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border:none; outline:none; color:white; font-size:18px; font-family: 'Poppins';
 }
 
 #forgotPassword {
-  flex:1;
-  height:100%;
-  padding:0 20px;
-  text-decoration: none;
-  border:none;
-  outline:none;
-  color: #ffffff;
-  font-size:18px;
-  font-family: 'Poppins';
+  flex:1; height:100%; padding:0 20px; text-decoration: none; border:none; outline:none;
+  color: #ffffff; font-size:18px; font-family: 'Poppins';
 }
 
 .unlock-pill button {
-  width:56px;
-  height:100%;
-  border:none;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  width:56px; height:100%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
   transition:transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
-  border-top-right-radius:999px;
-  border-bottom-right-radius:999px;
-  position:relative;
-  z-index:2;
-  will-change: transform;
+  border-top-right-radius:999px; border-bottom-right-radius:999px; position:relative; z-index:2; will-change: transform;
 }
-
-.unlock-pill button:hover {
-  transform: scale3d(1.04, 1.04, 1);
-}
-
-.unlock-pill button:active {
-  transform: scale3d(0.95, 0.95, 1);
-  box-shadow:inset 0 1px 1px rgba(0,0,0,0.2);
-}
-
-.unlock-pill.wrong {
-  border-color: rgba(255, 59, 48, 1);
-  animation: shake 0.45s cubic-bezier(.36, .07, .19, .97) both, fadeBorder 1s forwards;
-}
-
-#loginBtn:hover{
-  background-color:#c0c0c0;
-}
+.unlock-pill button:hover { transform: scale3d(1.04, 1.04, 1); }
+.unlock-pill button:active { transform: scale3d(0.95, 0.95, 1); box-shadow:inset 0 1px 1px rgba(0,0,0,0.2); }
+.unlock-pill.wrong { border-color: rgba(255, 59, 48, 1); animation: shake 0.45s cubic-bezier(.36, .07, .19, .97) both, fadeBorder 1s forwards; }
+#loginBtn:hover{ background-color:#c0c0c0; }
 
 @keyframes shake {
   10%, 90% { transform: translate3d(-4px, 0, 0); }
@@ -221,66 +128,24 @@ body {
   40%, 60% { transform: translate3d(8px, 0, 0); }
 }
 
-@keyframes fadeBorder {
-  0% { border-color:rgba(255,59,48,1); }
-  100% { border-color:transparent; }
-}
-
-@media (max-width:520px) {
-  .datetime .time { font-size:72px; }
-  .unlock-pill { width:calc(100% - 40px); height:44px; }
-  .avatar { width:52px; height:52px; }
-}
-
-#loginBtn {
-  background-color:#d9d9d9;
-}
+@keyframes fadeBorder { 0% { border-color:rgba(255,59,48,1); } 100% { border-color:transparent; } }
+@media (max-width:520px) { .datetime .time { font-size:72px; } .unlock-pill { width:calc(100% - 40px); height:44px; } .avatar { width:52px; height:52px; } }
+#loginBtn { background-color:#d9d9d9; }
 
 .popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.55);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  transform: translateZ(0);
+  position: fixed; inset: 0; background: rgba(255, 255, 255, 0.55);
+  display: none; align-items: center; justify-content: center; z-index: 999; transform: translateZ(0);
 }
 .popup {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 16px;
-  padding: 30px 40px;
-  text-align: center;
-  max-width: 400px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 30px 40px; text-align: center; max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-.popup h1 {
-  margin-top: 0;
-  font-weight: 600;
-  font-size: 26px;
-  color: #000000;
-}
-.popup p {
-  color: rgba(0, 0, 0, 0.85);
-  font-size: 15px;
-  margin: 12px 0 24px;
-}
-.popup-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-}
+.popup h1 { margin-top: 0; font-weight: 600; font-size: 26px; color: #000000; }
+.popup p { color: rgba(0, 0, 0, 0.85); font-size: 15px; margin: 12px 0 24px; }
+.popup-buttons { display: flex; justify-content: center; gap: 14px; }
 .popup-buttons button {
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-family: 'Poppins';
-  font-weight: 500;
-  transition: transform 0.2s ease, background 0.2s ease;
-  will-change: transform;
+  padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: 'Poppins'; font-weight: 500; transition: transform 0.2s ease, background 0.2s ease; will-change: transform;
 }
 .popup-buttons button:hover { transform: scale3d(1.04, 1.04, 1); }
 #closePopup { background: #bdbdbd; color: #fff; }
@@ -316,6 +181,48 @@ body {
   </div>
 
 <script>
+// --- Custom Lockscreen Settings Sync & Dynamic Google Fonts ---
+function applyCustomSettings() {
+  const font = localStorage.getItem('clockFont') || 'Poppins';
+  const weight = localStorage.getItem('clockWeight') || '600';
+  const isLive = localStorage.getItem('liveWallpaper') === 'true';
+
+  // Inject Google Font dynamically if not system-ui
+  if (font !== 'system-ui') {
+    let fontLink = document.getElementById('dynamic-google-font');
+    if (!fontLink) {
+      fontLink = document.createElement('link');
+      fontLink.id = 'dynamic-google-font';
+      fontLink.rel = 'stylesheet';
+      document.head.appendChild(fontLink);
+    }
+    fontLink.href = `https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@300;400;600;700;900&display=swap`;
+  }
+
+  const timeEl = document.getElementById('time');
+  const dateEl = document.getElementById('date');
+  
+  const fontStr = font === 'system-ui' ? 'system-ui' : `'${font}', sans-serif`;
+  timeEl.style.fontFamily = fontStr;
+  dateEl.style.fontFamily = fontStr;
+  timeEl.style.fontWeight = weight;
+
+  if (isLive) {
+    document.body.classList.add('live-wallpaper-active');
+  } else {
+    document.body.classList.remove('live-wallpaper-active');
+  }
+}
+
+// Listen for updates from settings
+window.addEventListener('storage', (e) => {
+  if (['clockFont', 'clockWeight', 'liveWallpaper'].includes(e.key)) {
+    applyCustomSettings();
+  }
+});
+// Apply initially
+applyCustomSettings();
+
 function updateDateTime() {
   const now = new Date();
   const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
@@ -352,11 +259,8 @@ async function attemptUnlock() {
     if (lowered.includes('❌') || lowered.includes('wrong') || lowered.includes('no password')) {
       showWrong();
     } else {
-      // PASSWORD CORRETTA - Avvia l'effetto caduta fluida
       datetimeBlock.classList.add('unlock-falling');
       centerStackBlock.classList.add('unlock-falling');
-      
-      // Ritardo millimetrico controllato per far completare la caduta prima del cambio pagina
       setTimeout(() => {
         window.location.href = '/desktop/com.mariowos.desktop.html';
       }, 520);
@@ -393,23 +297,28 @@ redirectPopup.addEventListener('click', () => {
   window.location.href = '/desktop/fallback/com.mariowos.desktop.html';
 });
 
+// Override background logic if live wallpaper is NOT active
 fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
     .then(res => {
-      if (res.ok) {
-        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-      } else {
-        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
+      if (!document.body.classList.contains('live-wallpaper-active')) {
+        if (res.ok) {
+          document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+        } else {
+          document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+        }
       }
     });
 window.addEventListener("DOMContentLoaded", () => {
     let wallpaper = localStorage.getItem("wallpaper");
     if (!wallpaper) wallpaper = "../../../assets/wallpaper.factory.png";
 
-    document.body.style.backgroundImage = `url('${wallpaper}')`;
+    if (!document.body.classList.contains('live-wallpaper-active')) {
+      document.body.style.backgroundImage = `url('${wallpaper}')`;
+    }
 
     // Check for user avatar
     fetch("/desktop/assets/avatar.user.png", { method: "HEAD" })
@@ -418,9 +327,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 document.querySelector('.avatar').style.backgroundImage = 'url("/desktop/assets/avatar.user.png?ts=' + Date.now() + '")';
             }
         })
-        .catch(() => {
-            // Keep default avatar.png
-        });
+        .catch(() => {});
 });
 
 // ===== Forced Light Mode System =====
