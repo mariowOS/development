@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sandbox Pro</title>
+  
+  <!-- Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: transparent;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Top Toolbar */
+    .toolbar {
+      height: 48px;
+      background: rgba(10, 10, 15, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 4px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .toolbar-brand {
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-right: 24px;
+      color: #ffffff;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 0 8px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #ffffff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .icon-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+    .icon-btn:active:not(:disabled) { transform: scale(0.95); }
+    .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* Top Right Progress Indicator */
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-right: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.3s;
+    }
+    
+    .status-dot-global {
+      width: 8px; 
+      height: 8px; 
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    
+    .status-dot-global.active { 
+      background: #4caf50; 
+      box-shadow: 0 0 8px #4caf50; 
+    }
+    
+    .status-dot-global.busy { 
+      background: #4daafc; 
+      box-shadow: 0 0 8px #4daafc;
+      animation: pulse 1s infinite alternate; 
+    }
+    
+    .status-dot-global.stopping { 
+      background: #ff9800; 
+      box-shadow: 0 0 8px #ff9800;
+      animation: pulse 1s infinite alternate; 
+    }
+    
+    @keyframes pulse { 
+      from { opacity: 0.4; } 
+      to { opacity: 1; } 
+    }
+
+    /* Main Layout */
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Library Sidebar */
+    .sidebar {
+      width: 280px;
+      min-width: 200px;
+      max-width: 500px;
+      background: rgba(10, 10, 15, 0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      transition: width 0.3s cubic-bezier(0.2, 0, 0, 1), min-width 0.3s, opacity 0.3s;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .sidebar.collapsed {
+      width: 0 !important;
+      min-width: 0;
+      border-right: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .library-header {
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .vm-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+    }
+
+    .vm-item {
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #dddddd;
+      transition: background 0.15s;
+    }
+    
+    .vm-item:hover { background: rgba(255, 255, 255, 0.08); color: #ffffff; }
+    
+    .vm-item.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-weight: 500;
+      border-left: 3px solid #ffffff;
+      padding-left: 13px;
+    }
+
+    .vm-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .vm-indicator.running {
+      background: #4caf50;
+      box-shadow: 0 0 6px #4caf50;
+    }
+    
+    .vm-actions {
+      display: flex;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .vm-item:hover .vm-actions { opacity: 1; }
+    
+    .action-icon {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.5);
+      transition: color 0.2s;
+    }
+    .action-icon:hover { color: #ffffff; }
+    .action-icon.delete:hover { color: #ff5f56; }
+
+    /* Inline Input */
+    .inline-input {
+      flex: 1;
+      min-width: 0; 
+      box-sizing: border-box;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 4px 6px;
+      margin: 0;
+      outline: none;
+    }
+
+    /* Resizer */
+    .resizer {
+      width: 4px;
+      background: transparent;
+      cursor: col-resize;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .resizer:hover, .resizer.active { background: #ffffff; }
+    
+    /* Disappear completely when sidebar is hidden */
+    .sidebar.collapsed + .resizer {
+      width: 0;
+      pointer-events: none;
+    }
+
+    /* VM Work Area */
+    .vm-area {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.9);
+      position: relative;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* -------------------------------------
+       Windows 11 Setup Circles Background
+       ------------------------------------- */
+    .win11-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      background-color: #000000;
+      pointer-events: none;
+    }
+
+    .circle1 {
+      width: 90vw; height: 90vw;
+      top: -30vh; left: -20vw;
+      position: absolute;
+      animation: circle1Path 15s linear infinite, fadeCircleIn 1332ms ease-out;
+      border-radius: 100vw;
+      background: radial-gradient(50% 50% at 50% 50%, rgba(12, 119, 255, 0.3) 15.62%, rgba(12, 119, 255, 0) 100%);
+      transform-origin: 40% 60%;
+    }
+
+    .circle2 {
+      width: 100vw; height: 100vw;
+      bottom: -40vh; right: -20vw;
+      position: absolute;
+      animation: circle2Path 20s linear infinite, fadeCircleIn 1332ms ease-out;
+      border-radius: 100vw;
+      background: radial-gradient(50% 50% at 50% 50%, rgba(0, 56, 255, 0.3) 15.62%, rgba(12, 119, 255, 0) 100%);
+      transform-origin: 60% 40%;
+    }
+
+    .circle3 {
+      width: 80vw; height: 80vw;
+      top: 10vh; left: 10vw;
+      position: absolute;
+      animation: circle3Path 30s linear infinite, fadeCircleIn 1332ms ease-out;
+      border-radius: 100vw;
+      background: radial-gradient(50% 50% at 50% 50%, rgba(65, 56, 210, 0.5) 15.62%, rgba(65, 56, 210, 0) 100%);
+      transform-origin: 50% 30%;
+    }
+
+    /* Pause animations completely when VM is running */
+    .home-screen.hidden ~ .win11-bg .circle1,
+    .home-screen.hidden ~ .win11-bg .circle2,
+    .home-screen.hidden ~ .win11-bg .circle3,
+    .home-screen.hidden .circle1,
+    .home-screen.hidden .circle2,
+    .home-screen.hidden .circle3 {
+      animation-play-state: paused !important;
+    }
+
+    @keyframes fadeCircleIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes circle1Path {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes circle2Path {
+      0% { transform: rotate(360deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    @keyframes circle3Path {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Welcome Screen Content */
+    .home-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent; 
+      z-index: 10;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    
+    .home-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .home-title {
+      position: relative; z-index: 2;
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #ffffff;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    
+    .home-subtitle {
+      position: relative; z-index: 2;
+      font-size: 16px;
+      color: #79c8ff;
+      margin-bottom: 40px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .welcome-grid {
+      position: relative; z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      max-width: 750px;
+      width: 100%;
+      padding: 0 24px;
+      box-sizing: border-box;
+    }
+
+    .welcome-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(20, 25, 35, 0.4);
+      backdrop-filter: blur(35px);
+      -webkit-backdrop-filter: blur(35px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, opacity 0.2s, border-color 0.2s;
+      text-align: left;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    
+    .welcome-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .welcome-card:hover:not(.disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.02);
+    }
+    .welcome-card:active:not(.disabled) {
+      transform: scale(0.98);
+    }
+
+    .card-icon {
+      font-size: 36px !important;
+      color: #ffffff;
+    }
+
+    .card-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.3;
+    }
+
+    /* Custom Remote Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1; visibility: visible;
+    }
+    .modal-content {
+      background: #1e1e1e;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      width: 340px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      display: flex; flex-direction: column; gap: 16px;
+      transform: translateY(20px);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.active .modal-content { transform: translateY(0); }
+    .modal-title { margin: 0; font-size: 18px; font-weight: 500; }
+    .modal-desc { margin: 0; font-size: 13px; color: rgba(255,255,255,0.6); }
+    .modal-input {
+      width: 100%; box-sizing: border-box;
+      padding: 12px; background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px; color: #fff; font-family: inherit; font-size: 14px;
+      outline: none; transition: border-color 0.2s;
+    }
+    .modal-input:focus { border-color: #ffffff; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+    .btn {
+      padding: 8px 16px; border-radius: 8px; border: none; font-weight: 500; font-family: inherit;
+      cursor: pointer; transition: opacity 0.2s, background 0.2s;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-cancel { background: transparent; color: #fff; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.1); }
+    .btn-primary { background: #ffffff; color: #000; }
+    .btn-primary:hover { background: #e0e0e0; }
+
+    /* Actual VM Frame */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    iframe.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Toolbar -->
+  <div class="toolbar">
+    <button class="icon-btn" onclick="toggleSidebar()" title="Toggle Library Sidebar">
+      <span class="material-symbols-outlined">view_sidebar</span>
+    </button>
+    <div class="toolbar-brand">
+      <span class="material-symbols-outlined" style="color: #ffffff;">dns</span>
+      Sandbox
+    </div>
+    
+    <div class="toolbar-divider"></div>
+    
+    <button class="icon-btn" id="tb-boot" onclick="bootVM()" title="Power On">
+      <span class="material-symbols-outlined" style="color: #4caf50;">play_arrow</span>
+    </button>
+    <button class="icon-btn" id="tb-stop" onclick="stopVM()" title="Shut Down Guest" disabled>
+      <span class="material-symbols-outlined" style="color: #ff5f56;">stop</span>
+    </button>
+    
+    <div class="toolbar-divider"></div>
+    
+    <button class="icon-btn" id="tb-ext" onclick="openExternal()" title="Open in Web Browser" disabled>
+      <span class="material-symbols-outlined">open_in_new</span>
+    </button>
+    
+    <div style="flex: 1;"></div>
+    
+    <!-- Top Right Progress Indicator -->
+    <div class="status-pill" id="global-status">
+      <div class="status-dot-global" id="global-status-dot"></div>
+      <span id="global-status-text">Stopped</span>
+    </div>
+    
+    <button class="icon-btn" onclick="toggleFullscreen()" title="Fullscreen VM">
+      <span class="material-symbols-outlined">fullscreen</span>
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    
+    <!-- Library Sidebar (Collapsed by default) -->
+    <div class="sidebar collapsed" id="sidebar">
+      <div class="library-header">
+        Virtual Machines
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="material-symbols-outlined" style="font-size: 18px; cursor: pointer; color: #fff;" onclick="createNewVM()" title="New Virtual Machine">add</span>
+          <span class="material-symbols-outlined" style="font-size: 16px; cursor: pointer; color: #fff;" onclick="toggleSidebar()" title="Collapse">push_pin</span>
+        </div>
+      </div>
+      <ul class="vm-list" id="vm-list">
+        <!-- Rendered via JS -->
+      </ul>
+    </div>
+
+    <!-- Draggable Resizer -->
+    <div class="resizer" id="resizer"></div>
+
+    <!-- VM Display Area -->
+    <div class="vm-area" id="vm-area">
+      
+      <!-- Authentic Windows 11 Circles Background -->
+      <div class="win11-bg">
+        <div class="circle1"></div>
+        <div class="circle2"></div>
+        <div class="circle3"></div>
+      </div>
+
+      <!-- Home Screen -->
+      <div class="home-screen" id="home-screen">
+        <h2 class="home-title">Welcome to mariowOS Sandbox!</h2>
+        
+        <!-- Context Subtitle -->
+        <div class="home-subtitle">
+          <span class="material-symbols-outlined" style="font-size: 20px;">computer</span>
+          <span id="home-subtitle-text">mariowOS Default</span>
+        </div>
+        
+        <div class="welcome-grid">
+          
+          <!-- Boot VM -->
+          <div class="welcome-card" id="card-boot" onclick="bootVM()">
+            <span class="material-symbols-outlined card-icon">settings_backup_restore</span>
+            <div class="card-text">
+              <div class="card-title">Boot this sandbox</div>
+              <div class="card-subtitle" id="boot-status">You have to mount the disk first</div>
+            </div>
+          </div>
+          
+          <!-- New VM -->
+          <div class="welcome-card" onclick="createNewVM()">
+            <span class="material-symbols-outlined card-icon">add_box</span>
+            <div class="card-text">
+              <div class="card-title">New sandbox</div>
+              <div class="card-subtitle">Creates a new sandbox instance.</div>
+            </div>
+          </div>
+          
+          <!-- Remote Sandbox -->
+          <div class="welcome-card" onclick="openRemoteModal()">
+            <span class="material-symbols-outlined card-icon">cast_connected</span>
+            <div class="card-text">
+              <div class="card-title">Remote sandbox</div>
+              <div class="card-subtitle">Use a remote sandbox from another PC.</div>
+            </div>
+          </div>
+          
+          <!-- Open / Mount Zip -->
+          <input type="file" id="zipInput" accept=".zip" style="display: none;">
+          <div class="welcome-card" onclick="document.getElementById('zipInput').click()">
+            <span class="material-symbols-outlined card-icon">folder_open</span>
+            <div class="card-text">
+              <div class="card-title" id="upload-status">Mount disk</div>
+              <div class="card-subtitle">Mount a mariowOS .zip to use as a disk.</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Pure Black VM Canvas -->
+      <iframe id="vm-frame"></iframe>
+    </div>
+  </div>
+
+  <!-- Custom Remote Connect Modal -->
+  <div class="modal-overlay" id="remote-modal">
+    <div class="modal-content">
+      <h3 class="modal-title">Remote Sandbox</h3>
+      <p class="modal-desc">Enter the IP address and port of the running remote instance.</p>
+      <input type="text" id="remote-ip" class="modal-input" placeholder="e.g. 192.168.1.54:3000">
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="closeRemoteModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="connectRemote()">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const resizer = document.getElementById('resizer');
+    const vmArea = document.getElementById('vm-area');
+    const homeScreen = document.getElementById('home-screen');
+    const vmFrame = document.getElementById('vm-frame');
+    const vmList = document.getElementById('vm-list');
+    
+    const tbBoot = document.getElementById('tb-boot');
+    const tbStop = document.getElementById('tb-stop');
+    const tbExt = document.getElementById('tb-ext');
+    const zipInput = document.getElementById('zipInput');
+    const uploadStatus = document.getElementById('upload-status');
+    const bootStatus = document.getElementById('boot-status');
+    const bootCard = document.getElementById('card-boot');
+    const homeSubtitleText = document.getElementById('home-subtitle-text');
+    
+    const globalStatusText = document.getElementById('global-status-text');
+    const globalStatusDot = document.getElementById('global-status-dot');
+    
+    let runningVMs = {};
+    let editingVmId = null;
+    let isStopping = false; 
+
+    // --- Dynamic VM Library Logic ---
+    let vms = JSON.parse(localStorage.getItem('sandbox_vms')) || [{ id: 'vm_default', name: 'mariowOS Default', hasZip: false }];
+    let activeVmId = vms[0] ? vms[0].id : null;
+
+    // --- Global Status Indicator ---
+    function setGlobalStatus(state, text) {
+      globalStatusText.innerText = text;
+      globalStatusDot.className = 'status-dot-global ' + state;
+    }
+
+    function renderVMs() {
+      vmList.innerHTML = '';
+      vms.forEach(vm => {
+        const li = document.createElement('li');
+        const isActive = vm.id === activeVmId;
+        li.className = `vm-item ${isActive ? 'active' : ''}`;
+        
+        li.onclick = () => {
+          if (editingVmId !== vm.id && !isStopping) selectVM(vm.id);
+        };
+        
+        const isThisRunning = !!runningVMs[vm.id];
+        let iconName = vm.isRemote ? 'cast_connected' : (vm.hasZip ? 'dns' : 'computer');
+        
+        if (editingVmId === vm.id) {
+          li.innerHTML = `
+            <span class="vm-indicator ${isThisRunning ? 'running' : ''}"></span>
+            <span class="material-symbols-outlined" style="font-size: 18px;">${iconName}</span>
+            <input type="text" class="inline-input" value="${vm.name}" 
+                   onblur="commitRename('${vm.id}', this.value)" 
+                   onkeydown="if(event.key==='Enter') this.blur()" 
+                   onclick="event.stopPropagation()">
+          `;
+          setTimeout(() => li.querySelector('input').focus(), 0);
+        } else {
+          li.innerHTML = `
+            <span class="vm-indicator ${isThisRunning ? 'running' : ''}"></span>
+            <span class="material-symbols-outlined" style="font-size: 18px;">${iconName}</span>
+            <span style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${vm.name}</span>
+            <div class="vm-actions">
+              <span class="material-symbols-outlined action-icon" onclick="event.stopPropagation(); startRename('${vm.id}')" title="Rename">edit_square</span>
+              <span class="material-symbols-outlined action-icon delete" onclick="event.stopPropagation(); deleteVM('${vm.id}')" title="Delete">delete</span>
+            </div>
+          `;
+        }
+        vmList.appendChild(li);
+      });
+
+      // Update Welcome Screen text based on active VM capabilities
+      const activeVm = vms.find(v => v.id === activeVmId);
+      if (activeVm) {
+        homeSubtitleText.innerText = activeVm.name;
+        
+        if (activeVm.isRemote) {
+          bootStatus.innerText = "Connect to remote instance";
+          bootCard.classList.remove('disabled');
+        } else if (activeVm.hasZip) {
+          bootStatus.innerText = "Load the sandbox with the current config";
+          bootCard.classList.remove('disabled');
+        } else {
+          bootStatus.innerText = "You have to mount the disk first";
+          bootCard.classList.add('disabled');
+        }
+      }
+    }
+
+    function createNewVM() {
+      if (sidebar.classList.contains('collapsed')) {
+          sidebar.classList.remove('collapsed');
+      }
+
+      const newVm = { id: 'vm_' + Date.now(), name: 'New Virtual Machine', hasZip: false };
+      vms.push(newVm);
+      saveVMs();
+      activeVmId = newVm.id;
+      editingVmId = newVm.id;
+      updateUI();
+    }
+
+    function startRename(id) {
+      editingVmId = id;
+      renderVMs();
+    }
+
+    function commitRename(id, newName) {
+      const vm = vms.find(v => v.id === id);
+      if (vm && newName.trim()) {
+        vm.name = newName.trim();
+        saveVMs();
+      }
+      editingVmId = null;
+      renderVMs();
+    }
+
+    function deleteVM(id) {
+      const targetVm = vms.find(v => v.id === id);
+      
+      if (targetVm && !targetVm.isRemote) {
+        fetch('/api/sandbox/delete', { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ vmId: id }) 
+        }).catch(err => console.error("Silently failed to delete from backend.", err));
+      }
+
+      vms = vms.filter(v => v.id !== id);
+      
+      if (vms.length === 0) {
+        vms.push({ id: 'vm_default', name: 'mariowOS Default', hasZip: false });
+      }
+
+      if (activeVmId === id) activeVmId = vms[0].id;
+      
+      saveVMs();
+      selectVM(activeVmId);
+    }
+
+    function saveVMs() {
+      localStorage.setItem('sandbox_vms', JSON.stringify(vms));
+    }
+
+    function selectVM(id) {
+      activeVmId = id;
+      updateUI();
+    }
+
+    // --- Remote Sandbox Modal Logic ---
+    function openRemoteModal() {
+      document.getElementById('remote-modal').classList.add('active');
+      document.getElementById('remote-ip').focus();
+    }
+    
+    function closeRemoteModal() {
+      document.getElementById('remote-modal').classList.remove('active');
+      document.getElementById('remote-ip').value = '';
+    }
+
+    function connectRemote() {
+      let ip = document.getElementById('remote-ip').value.trim();
+      if (!ip) return;
+      
+      if (!ip.startsWith('http://') && !ip.startsWith('https://')) {
+        ip = 'http://' + ip;
+      }
+
+      const newVm = { 
+        id: 'vm_remote_' + Date.now(), 
+        name: ip.replace(/^https?:\/\//, ''), 
+        isRemote: true, 
+        url: ip, 
+        hasZip: true 
+      };
+      
+      vms.push(newVm);
+      saveVMs();
+      closeRemoteModal();
+      selectVM(newVm.id);
+      bootVM(); // Automatically connect
+    }
+
+    // --- Sidebar Resizing ---
+    let isResizing = false;
+    resizer.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      resizer.classList.add('active');
+      document.body.style.cursor = 'col-resize';
+      vmFrame.style.pointerEvents = 'none'; 
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      if (sidebar.classList.contains('collapsed')) return;
+      const newWidth = e.clientX;
+      if (newWidth > 200 && newWidth < 500) {
+        sidebar.style.width = newWidth + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        resizer.classList.remove('active');
+        document.body.style.cursor = 'default';
+        vmFrame.style.pointerEvents = 'auto';
+      }
+    });
+
+    function toggleSidebar() { sidebar.classList.toggle('collapsed'); }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) vmArea.requestFullscreen().catch(()=>{});
+      else document.exitFullscreen();
+    }
+
+    // --- VM Status Logic ---
+    function fetchStatus() {
+      if (isStopping) return; 
+      
+      fetch('/api/sandbox/status')
+        .then(res => res.json())
+        .then(data => {
+          const newRunning = data.active || {};
+          Object.keys(runningVMs).forEach(id => {
+             if (runningVMs[id].isRemote) newRunning[id] = runningVMs[id];
+          });
+          runningVMs = newRunning;
+          updateUI();
+        })
+        .catch(() => {});
+    }
+
+    function updateUI() {
+      if (isStopping) return;
+      
+      renderVMs();
+      const isViewingRunningVm = !!runningVMs[activeVmId];
+
+      if (isViewingRunningVm) {
+        tbBoot.disabled = true;
+        tbStop.disabled = false;
+        tbExt.disabled = false;
+        
+        homeScreen.classList.add('hidden');
+        vmFrame.classList.add('visible');
+        setGlobalStatus('active', 'Running');
+        
+        let targetUrl = '';
+        if (runningVMs[activeVmId].isRemote) {
+            targetUrl = runningVMs[activeVmId].url;
+        } else {
+            targetUrl = `http://localhost:${runningVMs[activeVmId].port}`;
+        }
+        if (vmFrame.src !== targetUrl) vmFrame.src = targetUrl;
+        
+      } else {
+        tbBoot.disabled = false;
+        tbStop.disabled = true;
+        tbExt.disabled = true;
+        
+        homeScreen.classList.remove('hidden');
+        vmFrame.classList.remove('visible');
+        setGlobalStatus('stopped', 'Stopped');
+        
+        setTimeout(() => { if (!runningVMs[activeVmId]) vmFrame.src = ""; }, 300);
+      }
+    }
+
+    // --- Image Upload ---
+    zipInput.addEventListener('change', (e) => {
+      if (!e.target.files.length) return;
+      
+      const activeVm = vms.find(v => v.id === activeVmId);
+      if (activeVm && activeVm.isRemote) {
+         alert("Cannot mount a disk image to a Remote Sandbox connection.");
+         e.target.value = '';
+         return;
+      }
+      
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('vmId', activeVmId);
+      formData.append('vmZip', file);
+      
+      uploadStatus.innerText = "Extracting virtual disk...";
+      uploadStatus.style.color = "#ffffff";
+      setGlobalStatus('busy', 'Uploading...');
+      
+      fetch('/api/sandbox/upload', { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          uploadStatus.innerText = "Image mounted successfully.";
+          uploadStatus.style.color = "#4caf50";
+          
+          if(activeVm) activeVm.hasZip = true;
+          saveVMs();
+          updateUI(); 
+          
+          setTimeout(() => {
+             uploadStatus.innerText = "Mount disk";
+             uploadStatus.style.color = "#ffffff";
+          }, 4000);
+        } else {
+          alert("Error: " + data.error);
+          uploadStatus.innerText = "Upload failed.";
+          updateUI();
+        }
+      })
+      .catch(err => { 
+        uploadStatus.innerText = "Upload failed."; 
+        updateUI();
+      });
+      
+      e.target.value = '';
+    });
+
+    // --- Boot & Shutdown ---
+    function bootVM() {
+      if (runningVMs[activeVmId]) return;
+      
+      const activeVm = vms.find(v => v.id === activeVmId);
+      if(!activeVm || !activeVm.hasZip) return; 
+      
+      setGlobalStatus('busy', 'Booting...');
+      
+      if (activeVm.isRemote) {
+         runningVMs[activeVmId] = { isRemote: true, url: activeVm.url };
+         updateUI();
+         return;
+      }
+
+      homeScreen.classList.add('hidden'); 
+      
+      fetch('/api/sandbox/start', { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ vmId: activeVmId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) { 
+           runningVMs[activeVmId] = { port: data.port }; 
+           updateUI(); 
+        } else { 
+           alert(data.error); 
+           updateUI(); 
+        }
+      })
+      .catch(() => updateUI());
+    }
+
+    function stopVM() {
+      if (!runningVMs[activeVmId] || isStopping) return;
+      
+      isStopping = true;
+      setGlobalStatus('stopping', 'Stopping...');
+      
+      setTimeout(() => {
+        const activeVm = vms.find(v => v.id === activeVmId);
+        
+        if (activeVm && activeVm.isRemote) {
+           delete runningVMs[activeVmId];
+           isStopping = false;
+           updateUI();
+           return;
+        }
+
+        fetch('/api/sandbox/stop', { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ vmId: activeVmId })
+        })
+        .then(res => res.json())
+        .then(() => {
+          delete runningVMs[activeVmId];
+          isStopping = false;
+          updateUI();
+        })
+        .catch(() => {
+          isStopping = false;
+          updateUI();
+        });
+      }, 2000);
+    }
+
+    function openExternal() { 
+      if(runningVMs[activeVmId]) {
+         if (runningVMs[activeVmId].isRemote) {
+             window.open(runningVMs[activeVmId].url, '_blank');
+         } else {
+             window.open(`http://localhost:${runningVMs[activeVmId].port}`, '_blank'); 
+         }
+      }
+    }
+
+    // Modal Enter Key support
+    document.getElementById('remote-ip').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') connectRemote();
+    });
+
+    // Init 
+    renderVMs();
+    if(activeVmId) selectVM(activeVmId);
+    fetchStatus();
+  </script>
+</body>
+</html>
