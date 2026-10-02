@@ -1,0 +1,406 @@
+
+
+<!-- 
+mariowOS Login User Interface - (C) 2025 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+-->
+
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet" id="default-font">
+<style>
+* { box-sizing: border-box; }
+html,body {
+  height:100%; margin:0;
+  font-family:'Poppins',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  user-select:none;
+}
+
+body {
+  background-color:#000; /* fallback */
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; overflow:hidden;
+  isolation: isolate;
+  transition: background 0.5s ease;
+}
+
+#desktop-wallpaper {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: url("/desktop/assets/wallpaper.factory.png") center/cover no-repeat;
+  z-index: -100;
+}
+
+/* --- LIVE WALLPAPER CSS EFFECT --- */
+body.live-wallpaper-active {
+  background: linear-gradient(-45deg, #0a0a0a, #1a2a6c, #b21f1f, #fdbb2d) !important;
+  background-size: 400% 400% !important;
+  animation: liveGradient 15s ease infinite !important;
+}
+@keyframes liveGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes loginRiseUp {
+  from { opacity: 0; transform: translate3d(-50%, 40px, 0); }
+  to { opacity: 1; transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes datetimeRiseUp {
+  from { opacity: 0; transform: translate3d(0, 160px, 0); }
+  to { opacity: 1; transform: translate3d(0, 120px, 0); }
+}
+
+@keyframes fallDownExit {
+  from { opacity: 1; transform: translate3d(-50%, 0, 0); }
+  to { opacity: 0; transform: translate3d(-50%, 160px, 0); }
+}
+
+@keyframes datetimeFallDownExit {
+  from { opacity: 1; transform: translate3d(0, 120px, 0); }
+  to { opacity: 0; transform: translate3d(0, 180px, 0); }
+}
+
+.datetime {
+  position:absolute; top: 0; left: 0; width:100%; text-align:center; pointer-events:none;
+  transform: translate3d(0, 120px, 0); 
+  animation: datetimeRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  will-change: transform, opacity;
+}
+
+.datetime.unlock-falling { animation: datetimeFallDownExit 0.34s cubic-bezier(0.32, 0, 0.67, 0) forwards !important; }
+
+.datetime .date {
+  font-size:22px; color:rgba(255,255,255,0.94); margin-bottom:6px;
+  text-shadow:0 4px 14px rgba(0,0,0,0.35); transition: font-family 0.3s ease;
+}
+.datetime .time {
+  font-size:120px; font-weight:600; line-height:0.9; color:rgba(255,255,255,0.98);
+  text-shadow:0 8px 30px rgba(0,0,0,0.45); transition: font-family 0.3s ease, font-weight 0.3s ease;
+}
+
+.center-stack {
+  position: absolute; bottom: 160px; left: 50%; transform: translate3d(-50%, 0, 0);
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  animation: loginRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; will-change: transform, opacity;
+}
+.center-stack.unlock-falling { animation: fallDownExit 0.32s cubic-bezier(0.32, 0, 0.67, 0) forwards !important; }
+
+.avatar {
+  width:58px; height:58px; border-radius:50%;
+  background:url("/desktop/assets/avatar.png") center/cover no-repeat;
+  box-shadow:0 6px 18px rgba(0,0,0,0.55), inset 0 -4px 10px rgba(0,0,0,0.12);
+  transition: background-image 0.3s ease; transform: translateZ(0);
+}
+
+.unlock-pill {
+  display:flex; align-items:center; justify-content:space-between;
+  background-color: rgba(0, 0, 0, 0.2);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-radius:999px; width:340px; height:48px; overflow:hidden;
+  border:2px solid transparent; transition: border-color 0.3s ease;
+  box-shadow:0 8px 24px rgba(0,0,0,0.25);
+}
+
+.unlock-pill input {
+  flex:1; height:100%; padding:0 20px; background:rgba(20,22,28,0.24);
+  border:none; outline:none; color:white; font-size:18px; font-family: 'Poppins';
+}
+.unlocking .unlock-pill { background-color: rgba(20, 22, 28, 0.82); -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+#forgotPassword {
+  flex:1; height:100%; padding:0 20px; text-decoration: none; border:none; outline:none;
+  color: #ffffff; font-size:18px; font-family: 'Poppins';
+}
+
+.unlock-pill button {
+  width:56px; height:100%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
+  border-top-right-radius:999px; border-bottom-right-radius:999px; position:relative; z-index:2; will-change: transform;
+}
+.unlock-pill button:hover { transform: scale3d(1.04, 1.04, 1); }
+.unlock-pill button:active { transform: scale3d(0.95, 0.95, 1); box-shadow:inset 0 1px 1px rgba(0,0,0,0.2); }
+.unlock-pill.wrong { border-color: rgba(255, 59, 48, 1); animation: shake 0.45s cubic-bezier(.36, .07, .19, .97) both, fadeBorder 1s forwards; }
+#loginStatus { min-height: 18px; margin: -10px 0 0; color: #ffb4ab; font-size: 12px; text-align: center; text-shadow: 0 1px 5px rgba(0,0,0,.7); }
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-4px, 0, 0); }
+  20%, 80% { transform: translate3d(6px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+  40%, 60% { transform: translate3d(8px, 0, 0); }
+}
+
+@keyframes fadeBorder { 0% { border-color:rgba(255,59,48,1); } 100% { border-color:transparent; } }
+@media (max-width:520px) { .datetime .time { font-size:72px; } .unlock-pill { width:calc(100% - 40px); height:44px; } .avatar { width:52px; height:52px; } }
+#loginBtn { background-color:#d9d9d9; }
+
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(255, 255, 255, 0.55);
+  display: none; align-items: center; justify-content: center; z-index: 999;
+}
+.popup {
+  background: rgba(255, 255, 255, 0.9); border-radius: 16px; padding: 30px 40px; text-align: center; max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4); 
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); 
+}
+.popup h1 { margin-top: 0; font-weight: 600; font-size: 26px; color: #000000; }
+.popup p { color: rgba(0, 0, 0, 0.85); font-size: 15px; margin: 12px 0 24px; }
+.popup-buttons { display: flex; justify-content: center; gap: 14px; }
+.popup-buttons button {
+  padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: 'Poppins'; font-weight: 500; transition: transform 0.2s ease, background 0.2s ease; will-change: transform;
+}
+.popup-buttons button:hover { transform: scale3d(1.04, 1.04, 1); }
+#closePopup { background: #bdbdbd; color: #fff; }
+#redirectPopup { background: #002fff; color: #ffffff; }
+@supports not (backdrop-filter: blur(1px)) {
+  .unlock-pill { background-color: rgba(20, 22, 28, 0.92); }
+  .unlock-pill input { background: rgba(20, 22, 28, 0.72); }
+  .popup { background: rgba(255, 255, 255, 0.96); }
+}
+</style>
+</head>
+<body>
+  <div id="desktop-wallpaper"></div>
+  <div class="datetime" id="datetimeBlock" aria-hidden="true">
+    <div class="date" id="date">Loading…</div>
+    <div class="time" id="time">00:00</div>
+  </div>
+
+  <div class="center-stack" id="centerStackBlock" role="main">
+    <div class="avatar" aria-hidden="true"></div>
+    <div class="unlock-pill" id="unlockPill" aria-label="Unlock">
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" class="w-full">
+    </div>
+    <p id="loginStatus" role="status" aria-live="polite"></p>
+    <a href="/desktop/password-recovery.html" id="forgotPassword" class="text-white text-sm mt-3 hover:underline cursor-pointer">Forgot Password?</a>
+  </div>
+
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+      <h1>Enter fallback mode?</h1>
+      <p>Fallback mode is useful if you screwed something up and have no way to recover. To exit this mode, you can press Finder > Exit fallback mode</p>
+      <div class="popup-buttons">
+        <button id="closePopup">No</button>
+        <button id="redirectPopup">Yes</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// --- Custom Lockscreen Settings Sync & Dynamic Google Fonts ---
+function applyCustomSettings() {
+  const font = localStorage.getItem('clockFont') || 'Poppins';
+  const weight = localStorage.getItem('clockWeight') || '600';
+  const isLive = localStorage.getItem('liveWallpaper') === 'true';
+
+  if (font !== 'system-ui') {
+    let fontLink = document.getElementById('dynamic-google-font');
+    if (!fontLink) {
+      fontLink = document.createElement('link');
+      fontLink.id = 'dynamic-google-font';
+      fontLink.rel = 'stylesheet';
+      document.head.appendChild(fontLink);
+    }
+    fontLink.href = `https://fonts.googleapis.com/css?family=${font.replace(/ /g, '+')}:${weight}&display=swap`;
+  }
+
+  const timeEl = document.getElementById('time');
+  const dateEl = document.getElementById('date');
+  
+  const fontStr = font === 'system-ui' ? 'system-ui' : `'${font}', sans-serif`;
+  timeEl.style.fontFamily = fontStr;
+  dateEl.style.fontFamily = fontStr;
+  timeEl.style.fontWeight = weight;
+
+  if (isLive) {
+    document.body.classList.add('live-wallpaper-active');
+  } else {
+    document.body.classList.remove('live-wallpaper-active');
+  }
+}
+
+window.addEventListener('storage', (e) => {
+  if (['clockFont', 'clockWeight', 'liveWallpaper'].includes(e.key)) {
+    applyCustomSettings();
+  }
+});
+applyCustomSettings();
+
+function updateDateTime() {
+  const now = new Date();
+  const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+  document.getElementById('date').textContent = date;
+  document.getElementById('time').textContent = time;
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+const passwordInput = document.getElementById('loginPassword');
+const unlockPill = document.getElementById('unlockPill');
+const loginStatus = document.getElementById('loginStatus');
+const datetimeBlock = document.getElementById('datetimeBlock');
+const centerStackBlock = document.getElementById('centerStackBlock');
+
+passwordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') attemptUnlock();
+});
+
+let wrongTimeout = null;
+async function attemptUnlock() {
+  const pass = passwordInput.value;
+  if (pass.length === 0) return;
+  passwordInput.disabled = true;
+  loginStatus.textContent = '';
+  try {
+    const resp = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ password: pass })
+    });
+    if (resp.status === 401) {
+      showWrong();
+      return;
+    }
+    if (!resp.ok) {
+      loginStatus.textContent = resp.status === 409
+        ? 'No password is configured. Use the recovery flow to set one.'
+        : 'Unable to verify password right now. Please try again.';
+      return;
+    }
+
+    document.body.classList.add('unlocking');
+    datetimeBlock.classList.add('unlock-falling');
+    centerStackBlock.classList.add('unlock-falling');
+    setTimeout(() => {
+      window.location.href = '/desktop/com.mariowos.desktop.html';
+    }, 360);
+  } catch (error) {
+    loginStatus.textContent = 'Unable to reach mariowOS. Please try again.';
+    console.error('Could not verify lockscreen password:', error);
+  } finally {
+    if (loginStatus.textContent || unlockPill.classList.contains('wrong')) {
+      passwordInput.disabled = false;
+      passwordInput.focus();
+    }
+  }
+}
+function showWrong() {
+  loginStatus.textContent = 'Incorrect password. Please try again.';
+  unlockPill.classList.add('wrong');
+  passwordInput.value = '';
+  clearTimeout(wrongTimeout);
+  wrongTimeout = setTimeout(() => unlockPill.classList.remove('wrong'), 1000);
+  passwordInput.focus();
+}
+window.addEventListener('load', () => passwordInput.focus());
+
+const popupOverlay = document.getElementById('popupOverlay');
+const closePopup = document.getElementById('closePopup');
+const redirectPopup = document.getElementById('redirectPopup');
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !popupOverlay.style.display) {
+    e.preventDefault();
+    popupOverlay.style.display = 'flex';
+  }
+});
+
+closePopup.addEventListener('click', () => {
+  popupOverlay.style.display = 'none';
+});
+
+redirectPopup.addEventListener('click', () => {
+  window.location.href = '/desktop/fallback/com.mariowos.desktop.html';
+});
+
+fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
+    .then(res => {
+      if (!document.body.classList.contains('live-wallpaper-active')) {
+        if (res.ok) {
+          document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+        } else {
+          document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+        }
+      }
+    });
+window.addEventListener("DOMContentLoaded", () => {
+    let wallpaper = localStorage.getItem("wallpaper");
+    if (!wallpaper) wallpaper = "/desktop/assets/wallpaper.factory.png";
+
+    if (!document.body.classList.contains('live-wallpaper-active')) {
+      document.body.style.backgroundImage = `url('${wallpaper}')`;
+    }
+
+    const avatar = document.querySelector('.avatar');
+    const userAvatarUrl = `/desktop/assets/avatar.user.png?ts=${Date.now()}`;
+    const userAvatar = new Image();
+    userAvatar.onload = () => { avatar.style.backgroundImage = `url("${userAvatarUrl}")`; };
+    userAvatar.onerror = () => { avatar.style.backgroundImage = 'url("/desktop/assets/avatar.png")'; };
+    userAvatar.src = userAvatarUrl;
+});
+
+function applyForcedLightMode() {
+  let lightModeStyle = document.getElementById('forced-light-mode-styles');
+  if (!lightModeStyle) {
+    lightModeStyle = document.createElement('style');
+    lightModeStyle.id = 'forced-light-mode-styles';
+    document.head.appendChild(lightModeStyle);
+  }
+  lightModeStyle.textContent = `
+    html body { background: #f5f5f5 !important; color: #1a1a1a !important; }
+    body { background: #f5f5f5 !important; }
+    .datetime .date { color: #1a1a1a !important; text-shadow: none !important; }
+    .datetime .time { color: #1a1a1a !important; text-shadow: none !important; }
+    .avatar { box-shadow: 0 6px 18px rgba(0,0,0,0.2), inset 0 -4px 10px rgba(0,0,0,0.08) !important; }
+    .unlock-pill { background: rgba(255,255,255,0.95) !important; border: 1px solid #ddd !important; box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; }
+    .unlock-pill input { background: rgba(255,255,255,0.95) !important; color: #1a1a1a !important; }
+    .unlock-pill input::placeholder { color: #999 !important; }
+    #loginBtn { background-color: #e0e0e0 !important; }
+    #loginBtn:hover { background-color: #ccc !important; }
+    #forgotPassword { color: #0066cc !important; }
+    label { color: #1a1a1a !important; }
+    .popup-overlay { background: rgba(0, 0, 0, 0.3) !important; }
+    .popup { background: #ffffff !important; }
+    .popup h1 { color: #1a1a1a !important; }
+    .popup p { color: #666666 !important; }
+  `;
+}
+
+function removeForcedLightMode() {
+  const lightModeStyle = document.getElementById('forced-light-mode-styles');
+  if (lightModeStyle) { lightModeStyle.remove(); }
+}
+
+function checkForcedLightMode() {
+  if (localStorage.getItem('forcedLightMode') === 'true') { applyForcedLightMode(); }
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'forcedLightMode') {
+    if (e.newValue === 'true') { applyForcedLightMode(); } 
+    else { removeForcedLightMode(); }
+  }
+});
+
+window.addEventListener('load', checkForcedLightMode);
+</script>
+</body>
+</html>
+
+<!-- i just want to tell you how much i love you lili -->
+<!-- you are the light of my life and the reason i wake up every morning -->
+<!-- thank you for being you and for loving me -->

@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mariowOS TV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0c0f; /* Deep Google TV dark background */
+            color: #e8eaed;
+            overflow: hidden; 
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* TV Focus State styling - Google TV style */
+        .tv-focusable {
+            transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+            box-sizing: border-box;
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 12px;
+        }
+
+        .tv-focusable.focused {
+            transform: scale(1.07);
+            border-color: #f8f9fa;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);
+            z-index: 50;
+            position: relative;
+        }
+
+        /* Top Nav Focus Styling */
+        .nav-item {
+            transition: all 0.3s ease;
+            color: #9aa0a6;
+            border: none !important;
+            border-radius: 9999px;
+            padding: 8px 16px;
+        }
+        .nav-item.focused {
+            background-color: rgba(255, 255, 255, 1);
+            color: #202124;
+            transform: scale(1.05);
+            font-weight: 600;
+        }
+        .nav-item.active-tab {
+            color: white;
+            font-weight: 500;
+        }
+
+        /* App Icon Focus Styling */
+        .app-icon { border-radius: 50%; border: 3px solid transparent; }
+        .app-icon.focused { border-color: #f8f9fa; transform: scale(1.15); }
+
+        /* Hero Banner Gradients */
+        .hero-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 85vh;
+            background-image: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center 20%;
+            z-index: -1;
+            transition: opacity 0.5s ease;
+        }
+        
+        .hero-gradient-overlay {
+            position: absolute;
+            inset: 0;
+            /* Top gradient for nav, bottom for blending into rows, left for text readability */
+            background: linear-gradient(180deg, rgba(12,12,15,0.8) 0%, rgba(12,12,15,0.1) 20%, rgba(12,12,15,0) 50%, #0c0c0f 100%),
+                        linear-gradient(90deg, #0c0c0f 0%, rgba(12,12,15,0.7) 30%, rgba(12,12,15,0) 70%);
+        }
+
+        #main-scroll-area {
+            scroll-behavior: smooth;
+            height: 100vh;
+            overflow-y: auto;
+            padding-top: 80px; /* Space for fixed nav */
+        }
+        .row-container {
+            scroll-behavior: smooth;
+        }
+
+        /* Progress Bar for Continue Watching */
+        .progress-bar-bg {
+            background-color: rgba(255,255,255,0.3);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            width: calc(100% - 16px);
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+        }
+        .progress-bar-fill {
+            background-color: #e50914; /* Netflix-like red */
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="text-white antialiased">
+    <!-- Top Navigation (Google TV style) -->
+    <nav class="fixed top-0 left-0 w-full h-20 flex items-center px-12 z-50 bg-gradient-to-b from-[#0c0c0f] to-transparent">
+        <div class="text-xl font-bold tracking-tighter mr-10 flex items-center gap-2">
+            <i class="fa-solid fa-tv text-blue-500"></i> mariowOS
+        </div>
+        
+        <div class="flex gap-4 items-center">
+            <!-- Added data-tab attribute for content switching -->
+            <div class="tv-focusable nav-item flex items-center gap-2" data-row="0" data-col="0" data-tab="cerca">
+                <i class="fa-solid fa-search"></i> <span class="text-sm">Cerca</span>
+            </div>
+            <div class="tv-focusable nav-item active-tab" data-row="0" data-col="1" data-tab="home">
+                Home
+            </div>
+            <div class="tv-focusable nav-item" data-row="0" data-col="2" data-tab="scopri">
+                Scopri
+            </div>
+            <div class="tv-focusable nav-item" data-row="0" data-col="3" data-tab="app">
+                App
+            </div>
+        </div>
+
+        <div class="ml-auto flex items-center gap-4">
+            <div class="tv-focusable nav-item w-10 h-10 flex items-center justify-center p-0" data-row="0" data-col="4">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold border-2 border-transparent">
+                M
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="main-scroll-area" class="hide-scrollbar">
+        <!-- HOME TAB -->
+        <div id="tab-home" class="tab-content block">
+            <div class="hero-bg">
+                <div class="hero-gradient-overlay"></div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="relative px-12 pt-20 pb-16 min-h-[55vh] flex flex-col justify-end">
+                <div class="max-w-2xl">
+                    <div class="flex items-center gap-2 mb-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="N" class="h-5">
+                        <span class="text-xs font-bold tracking-widest uppercase text-gray-300">Serie Originale</span>
+                    </div>
+                    <h1 class="text-5xl md:text-6xl font-extrabold mb-4 leading-tight text-white drop-shadow-lg">
+                        L'Ultimo Dominio
+                    </h1>
+                    <p class="text-gray-300 text-lg mb-6 line-clamp-3 text-shadow">
+                        In un futuro distopico, una fazione ribelle cerca di rovesciare l'ordine mondiale costituito. Azione, tradimenti e scoperte sconvolgenti ti attendono nella nuova stagione.
+                    </p>
+                    <div class="flex gap-4">
+                        <button id="hero-play" class="tv-focusable rounded-full bg-[#f8f9fa] text-[#202124] px-8 py-2.5 text-base font-bold flex items-center gap-2" data-row="1" data-col="0" data-title="L'Ultimo Dominio">
+                            <i class="fa-solid fa-play"></i> Riproduci
+                        </button>
+                        <button class="tv-focusable rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-6 py-2.5 text-base font-semibold flex items-center gap-2 border-0" data-row="1" data-col="1">
+                            <i class="fa-regular fa-bookmark"></i> La mia lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-12 flex flex-col gap-10 pb-20">
+                
+                <!-- Row 2: Le tue App -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-4 text-[#e8eaed] ml-2">Le tue App</h2>
+                    <div class="row-container flex gap-6 overflow-x-auto hide-scrollbar px-2 py-4" id="row-2">
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-red-600 flex items-center justify-center text-3xl shadow-lg" data-row="2" data-col="0">
+                            <i class="fa-brands fa-youtube"></i>
+                        </div>
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-black flex items-center justify-center text-3xl shadow-lg" data-row="2" data-col="1">
+                            <span class="text-red-600 font-bold font-serif text-4xl">N</span>
+                        </div>
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-[#00A8E1] flex items-center justify-center text-3xl shadow-lg" data-row="2" data-col="2">
+                            <i class="fa-brands fa-amazon"></i>
+                        </div>
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-[#1DB954] flex items-center justify-center text-3xl shadow-lg" data-row="2" data-col="3">
+                            <i class="fa-brands fa-spotify"></i>
+                        </div>
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-[#9146FF] flex items-center justify-center text-3xl shadow-lg" data-row="2" data-col="4">
+                            <i class="fa-brands fa-twitch"></i>
+                        </div>
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-gradient-to-tr from-blue-700 to-blue-400 flex items-center justify-center text-lg font-bold shadow-lg" data-row="2" data-col="5">
+                            Dis+
+                        </div>
+                        <div class="tv-focusable app-icon flex-shrink-0 w-16 h-16 bg-[#333] flex items-center justify-center text-xl shadow-lg" data-row="2" data-col="6">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Continua a guardare -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-4 text-[#e8eaed] ml-2">Continua a guardare</h2>
+                    <div class="row-container flex gap-4 overflow-x-auto hide-scrollbar px-2 py-4" id="row-3">
+                        <div class="tv-focusable media-card flex-shrink-0 w-72 h-40 bg-gray-800 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1554475901-4538ddfbccc2?q=80&w=2072&auto=format&fit=crop')" data-row="3" data-col="0" data-title="La Città Perduta - S2:E4">
+                            <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition"></div>
+                            <div class="absolute top-2 left-2 bg-black/60 px-2 py-1 text-xs rounded font-semibold text-white">S2:E4</div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 transition duration-300">
+                                <i class="fa-solid fa-circle-play text-4xl text-white shadow-lg"></i>
+                            </div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 65%"></div></div>
+                        </div>
+                        
+                        <div class="tv-focusable media-card flex-shrink-0 w-72 h-40 bg-gray-800 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=2070&auto=format&fit=crop')" data-row="3" data-col="1" data-title="Orizzonti Infiniti">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="absolute top-2 left-2 bg-black/60 px-2 py-1 text-xs rounded font-semibold text-white">Film</div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 20%"></div></div>
+                        </div>
+
+                        <div class="tv-focusable media-card flex-shrink-0 w-72 h-40 bg-gray-800 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=1974&auto=format&fit=crop')" data-row="3" data-col="2" data-title="Natura Selvatica - S1:E1">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="absolute top-2 left-2 bg-black/60 px-2 py-1 text-xs rounded font-semibold text-white">S1:E1</div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 90%"></div></div>
+                        </div>
+
+                        <div class="tv-focusable media-card flex-shrink-0 w-72 h-40 bg-gray-800 bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069&auto=format&fit=crop')" data-row="3" data-col="3" data-title="Mistero a Parigi - S4:E8">
+                            <div class="absolute inset-0 bg-black/20"></div>
+                            <div class="absolute top-2 left-2 bg-black/60 px-2 py-1 text-xs rounded font-semibold text-white">S4:E8</div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 15%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 4: Scelti per te -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-4 text-[#e8eaed] ml-2">Scelti per te</h2>
+                    <div class="row-container flex gap-4 overflow-x-auto hide-scrollbar px-2 py-4" id="row-4">
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv1/300/450')" data-row="4" data-col="0" data-title="Il Segreto"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv2/300/450')" data-row="4" data-col="1" data-title="Avventura Spaziale"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv3/300/450')" data-row="4" data-col="2" data-title="Dramma Familiare"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv4/300/450')" data-row="4" data-col="3" data-title="Commedia Estiva"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv5/300/450')" data-row="4" data-col="4" data-title="Thriller Notturno"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv6/300/450')" data-row="4" data-col="5" data-title="Horror Classico"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv7/300/450')" data-row="4" data-col="6" data-title="Documentario"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-40 h-60 bg-gray-800 bg-cover bg-center" style="background-image: url('https://picsum.photos/seed/gv8/300/450')" data-row="4" data-col="7" data-title="Azione Pura"></div>
+                    </div>
+                </div>
+
+                <!-- Row 5: Di Tendenza -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-4 text-[#e8eaed] ml-2">Film di Tendenza</h2>
+                    <div class="row-container flex gap-4 overflow-x-auto hide-scrollbar px-2 py-4" id="row-5">
+                        <div class="tv-focusable media-card flex-shrink-0 w-64 h-36 bg-gray-800 bg-cover bg-center rounded-xl" style="background-image: url('https://picsum.photos/seed/mov1/400/225')" data-row="5" data-col="0" data-title="Ritorno al Passato"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-64 h-36 bg-gray-800 bg-cover bg-center rounded-xl" style="background-image: url('https://picsum.photos/seed/mov2/400/225')" data-row="5" data-col="1" data-title="Guerra Stellare"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-64 h-36 bg-gray-800 bg-cover bg-center rounded-xl" style="background-image: url('https://picsum.photos/seed/mov3/400/225')" data-row="5" data-col="2" data-title="L'Amore Vince"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-64 h-36 bg-gray-800 bg-cover bg-center rounded-xl" style="background-image: url('https://picsum.photos/seed/mov4/400/225')" data-row="5" data-col="3" data-title="I Fantasmi"></div>
+                        <div class="tv-focusable media-card flex-shrink-0 w-64 h-36 bg-gray-800 bg-cover bg-center rounded-xl" style="background-image: url('https://picsum.photos/seed/mov5/400/225')" data-row="5" data-col="4" data-title="Corsa Contro il Tempo"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERCA TAB -->
+        <div id="tab-cerca" class="tab-content hidden pt-32 px-12 min-h-screen">
+            <h1 class="text-4xl font-bold mb-8">Cerca</h1>
+            <div class="flex gap-4">
+                <button class="tv-focusable rounded-full bg-gray-800/80 text-white px-8 py-4 text-xl flex items-center gap-4 border border-transparent w-full max-w-2xl text-left" data-row="1" data-col="0">
+                    <i class="fa-solid fa-search"></i> <span class="text-gray-400">Cerca film, serie TV, app...</span>
+                </button>
+            </div>
+            <h2 class="text-xl font-bold mt-12 mb-4">Generi Popolari</h2>
+            <div class="flex gap-4">
+                <div class="tv-focusable media-card w-48 h-32 bg-blue-900 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg" data-row="2" data-col="0" data-title="Azione">Azione</div>
+                <div class="tv-focusable media-card w-48 h-32 bg-red-900 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg" data-row="2" data-col="1" data-title="Commedia">Commedia</div>
+                <div class="tv-focusable media-card w-48 h-32 bg-green-900 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg" data-row="2" data-col="2" data-title="Fantascienza">Sci-Fi</div>
+            </div>
+        </div>
+
+        <!-- SCOPRI TAB -->
+        <div id="tab-scopri" class="tab-content hidden pt-32 px-12 min-h-screen">
+            <h1 class="text-4xl font-bold mb-8">Scopri le novità</h1>
+            <div class="flex gap-4">
+                 <div class="tv-focusable media-card flex-shrink-0 w-80 h-44 bg-gray-800 bg-cover bg-center rounded-xl shadow-lg" style="background-image: url('https://picsum.photos/seed/new1/500/280')" data-row="1" data-col="0" data-title="Documentario: La Terra"></div>
+                 <div class="tv-focusable media-card flex-shrink-0 w-80 h-44 bg-gray-800 bg-cover bg-center rounded-xl shadow-lg" style="background-image: url('https://picsum.photos/seed/new2/500/280')" data-row="1" data-col="1" data-title="Speciale Comicità"></div>
+            </div>
+        </div>
+        
+        <!-- APP TAB -->
+        <div id="tab-app" class="tab-content hidden pt-32 px-12 min-h-screen">
+             <h1 class="text-4xl font-bold mb-8">Tutte le Applicazioni</h1>
+             <div class="flex gap-6">
+                  <div class="tv-focusable app-icon w-20 h-20 bg-red-600 flex items-center justify-center text-4xl shadow-lg" data-row="1" data-col="0"><i class="fa-brands fa-youtube"></i></div>
+                  <div class="tv-focusable app-icon w-20 h-20 bg-[#00A8E1] flex items-center justify-center text-4xl shadow-lg" data-row="1" data-col="1"><i class="fa-brands fa-amazon"></i></div>
+                  <div class="tv-focusable app-icon w-20 h-20 bg-[#1DB954] flex items-center justify-center text-4xl shadow-lg" data-row="1" data-col="2"><i class="fa-brands fa-spotify"></i></div>
+             </div>
+        </div>
+    </main>
+
+    <!-- Modal Overlay for Media Details -->
+    <div id="media-modal" class="hidden fixed inset-0 z-[100] bg-[#0c0c0f]/95 backdrop-blur-xl flex-col justify-center items-center">
+        <div class="max-w-5xl w-full flex gap-12 p-10 animate-fade-in-up">
+            <div id="modal-poster" class="w-1/3 h-96 bg-gray-800 rounded-xl bg-cover bg-center shadow-2xl border border-gray-700/50"></div>
+            <div class="w-2/3 flex flex-col justify-center">
+                <span class="text-sm font-bold tracking-widest text-blue-400 mb-2 uppercase">Dettagli</span>
+                <h2 id="modal-title" class="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-md">Titolo</h2>
+                <div class="flex items-center gap-3 text-sm text-gray-400 mb-6 font-semibold">
+                    <span class="border border-gray-500 px-2 py-0.5 rounded text-xs">4K HDR</span>
+                    <span>2024</span>
+                    <span>•</span>
+                    <span>2h 15m</span>
+                    <span>•</span>
+                    <i class="fa-solid fa-star text-yellow-500"></i> 4.8
+                </div>
+                <p id="modal-desc" class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    Preparati a vivere un'esperienza mozzafiato. Questo contenuto offre azione, emozioni e una trama avvincente che ti terrà incollato allo schermo dall'inizio alla fine. Disponibile ora in streaming in altissima qualità.
+                </p>
+                <div class="flex gap-4">
+                    <button id="modal-play-btn" class="tv-focusable rounded-full bg-white text-black px-8 py-3 text-lg font-bold flex items-center gap-3 transition-transform" data-row="100" data-col="0">
+                        <i class="fa-solid fa-play"></i> Riproduci
+                    </button>
+                    <button id="modal-close-btn" class="tv-focusable rounded-full bg-gray-800/80 text-white px-8 py-3 text-lg font-bold flex items-center gap-2 border border-gray-600 transition-transform" data-row="100" data-col="1">
+                        <i class="fa-solid fa-arrow-left"></i> Indietro
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fullscreen Video Player (Hidden by default) -->
+        <div id="video-player" class="absolute inset-0 bg-black z-[110] hidden flex-col items-center justify-center cursor-pointer">
+             <i class="fa-solid fa-circle-notch fa-spin text-6xl text-blue-500 mb-6"></i>
+             <p class="text-2xl font-bold text-white mb-2">Connessione allo streaming...</p>
+             <p class="text-sm text-gray-500 bg-gray-900 px-4 py-2 rounded-full mt-4">Premi <kbd class="font-mono text-white">ESC</kbd> o clicca per uscire</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentRow = 1; 
+            let currentCol = 0;
+            let grid = {};
+            let maxRows = 0;
+            
+            let isModalOpen = false;
+            let isPlaying = false;
+            let savedRow = 0;
+            let savedCol = 0;
+
+            // Builds the spatial grid dynamically based on visible elements
+            function buildGrid() {
+                grid = {};
+                maxRows = 0;
+                
+                const focusables = Array.from(document.querySelectorAll('.tv-focusable')).filter(el => {
+                    if(isModalOpen) {
+                        // If modal is open, ONLY include modal elements (trap focus)
+                        return el.closest('#media-modal') !== null;
+                    } else {
+                        // If modal is closed, include active tab & nav elements
+                        return el.closest('.hidden') === null && el.closest('#media-modal') === null;
+                    }
+                });
+
+                focusables.forEach(el => {
+                    const r = parseInt(el.getAttribute('data-row'));
+                    const c = parseInt(el.getAttribute('data-col'));
+                    if (!grid[r]) grid[r] = {};
+                    grid[r][c] = el;
+                    if (r > maxRows) maxRows = r;
+                });
+            }
+
+            function updateFocus(r, c) {
+                // Remove previous focus states
+                document.querySelectorAll('.tv-focusable').forEach(el => {
+                    el.classList.remove('focused');
+                    const playIcon = el.querySelector('.fa-circle-play');
+                    if(playIcon && playIcon.parentElement) playIcon.parentElement.classList.replace('opacity-100', 'opacity-0');
+                });
+                
+                const el = grid[r] && grid[r][c];
+                if(el) {
+                    el.classList.add('focused');
+                    
+                    const playIcon = el.querySelector('.fa-circle-play');
+                    if(playIcon && playIcon.parentElement) playIcon.parentElement.classList.replace('opacity-0', 'opacity-100');
+                    
+                    // Handle automatic scrolling for main page (not modal)
+                    if(!isModalOpen) {
+                        const mainContainer = document.getElementById('main-scroll-area');
+                        const elRect = el.getBoundingClientRect();
+                        const mainRect = mainContainer.getBoundingClientRect();
+                        
+                        if (r === 0) {
+                            mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            const offsetTop = elRect.top - mainRect.top + mainContainer.scrollTop;
+                            if (elRect.top < 150) {
+                                mainContainer.scrollBy({ top: elRect.top - 200, behavior: 'smooth' });
+                            } else if (elRect.bottom > mainRect.bottom - 100) {
+                                mainContainer.scrollBy({ top: elRect.bottom - mainRect.bottom + 100, behavior: 'smooth' });
+                            }
+                        }
+
+                        // Horizontal row scrolling
+                        const rowContainer = el.closest('.row-container');
+                        if (rowContainer) {
+                            const rowRect = rowContainer.getBoundingClientRect();
+                            if (elRect.left < rowRect.left + 50) {
+                                rowContainer.scrollBy({ left: elRect.left - rowRect.left - 100, behavior: 'smooth' });
+                            } else if (elRect.right > rowRect.right - 50) {
+                                rowContainer.scrollBy({ left: elRect.right - rowRect.right + 100, behavior: 'smooth' });
+                            }
+                        }
+                    }
+                }
+            }
+
+            function triggerAction(activeEl) {
+                if(!activeEl) return;
+                
+                // Visual click feedback
+                activeEl.classList.add('scale-95'); 
+                setTimeout(() => activeEl.classList.remove('scale-95'), 150);
+                
+                // 1. Tab Switching
+                if(activeEl.classList.contains('nav-item') && activeEl.hasAttribute('data-tab')) {
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active-tab'));
+                    activeEl.classList.add('active-tab');
+                    
+                    const tabId = activeEl.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+                    document.getElementById('tab-' + tabId).classList.remove('hidden');
+                    
+                    buildGrid();
+                    updateFocus(currentRow, currentCol);
+                }
+
+                // 2. Open Media Details Modal
+                if(activeEl.classList.contains('media-card') || activeEl.id === 'hero-play') {
+                    openModal(activeEl);
+                }
+
+                // 3. Modal Actions
+                if(activeEl.id === 'modal-close-btn') {
+                    closeModal();
+                }
+                if(activeEl.id === 'modal-play-btn') {
+                    playVideo();
+                }
+            }
+
+            function openModal(el) {
+                isModalOpen = true;
+                savedRow = currentRow;
+                savedCol = currentCol;
+
+                const modal = document.getElementById('media-modal');
+                const titleEl = document.getElementById('modal-title');
+                const posterEl = document.getElementById('modal-poster');
+
+                // Extract data from the card
+                let title = el.getAttribute('data-title') || "Contenuto Sconosciuto";
+                let bgImage = el.style.backgroundImage || "url('https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop')";
+                
+                titleEl.textContent = title;
+                posterEl.style.backgroundImage = bgImage;
+                
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // Switch navigation context to the modal buttons
+                currentRow = 100;
+                currentCol = 0;
+                buildGrid();
+                updateFocus(currentRow, currentCol);
+            }
+
+            function closeModal() {
+                isModalOpen = false;
+                const modal = document.getElementById('media-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                
+                // Restore previous navigation context
+                currentRow = savedRow;
+                currentCol = savedCol;
+                buildGrid();
+                updateFocus(currentRow, currentCol);
+            }
+
+            function playVideo() {
+                isPlaying = true;
+                const player = document.getElementById('video-player');
+                player.classList.remove('hidden');
+                player.classList.add('flex');
+                document.querySelectorAll('.tv-focusable').forEach(el => el.classList.remove('focused'));
+            }
+
+            function stopVideo() {
+                isPlaying = false;
+                const player = document.getElementById('video-player');
+                player.classList.add('hidden');
+                player.classList.remove('flex');
+                updateFocus(currentRow, currentCol);
+            }
+
+            // Click support for mouse users
+            document.addEventListener('click', (e) => {
+                const player = document.getElementById('video-player');
+                if(isPlaying && player.contains(e.target)) {
+                    stopVideo();
+                    return;
+                }
+
+                const focusable = e.target.closest('.tv-focusable');
+                if (focusable) {
+                    const r = parseInt(focusable.getAttribute('data-row'));
+                    const c = parseInt(focusable.getAttribute('data-col'));
+                    if (grid[r] && grid[r][c]) {
+                        currentRow = r;
+                        currentCol = c;
+                        updateFocus(currentRow, currentCol);
+                        triggerAction(focusable);
+                    }
+                }
+            });
+
+            // Remote / Keyboard Navigation
+            window.addEventListener('keydown', (e) => {
+                // Escape/Backspace handling
+                if (e.key === 'Escape' || e.key === 'Backspace') {
+                    if(isPlaying) stopVideo();
+                    else if(isModalOpen) closeModal();
+                    e.preventDefault();
+                    return;
+                }
+
+                if(isPlaying) return; // Lock nav during video
+
+                let newRow = currentRow;
+                let newCol = currentCol;
+
+                switch(e.key) {
+                    case 'ArrowUp': newRow--; e.preventDefault(); break;
+                    case 'ArrowDown': newRow++; e.preventDefault(); break;
+                    case 'ArrowLeft': newCol--; e.preventDefault(); break;
+                    case 'ArrowRight': newCol++; e.preventDefault(); break;
+                    case 'Enter':
+                        triggerAction(grid[currentRow] && grid[currentRow][currentCol]);
+                        e.preventDefault();
+                        return;
+                    default: return; // Ignore other keys
+                }
+
+                navigate(newRow, newCol, e.key);
+            });
+
+            function navigate(targetRow, targetCol, direction) {
+                // Clamp targeting based on available rows
+                const availableRows = Object.keys(grid).map(Number).sort((a,b)=>a-b);
+                if(availableRows.length === 0) return;
+                
+                const minRow = availableRows[0];
+                const maxRowAvailable = availableRows[availableRows.length - 1];
+
+                if (targetRow < minRow) targetRow = minRow;
+                if (targetRow > maxRowAvailable) targetRow = maxRowAvailable;
+
+                let targetElement = grid[targetRow] && grid[targetRow][targetCol];
+
+                if (!targetElement) {
+                    if (direction === 'ArrowUp' || direction === 'ArrowDown') {
+                        if (grid[targetRow]) {
+                            const availableCols = Object.keys(grid[targetRow]).map(Number).sort((a,b)=>a-b);
+                            if (availableCols.length > 0) {
+                                let closestCol = availableCols.reduce((prev, curr) => Math.abs(curr - targetCol) < Math.abs(prev - targetCol) ? curr : prev);
+                                targetCol = closestCol;
+                                targetElement = grid[targetRow][targetCol];
+                            }
+                        } else {
+                            // Find next available row in direction
+                            let found = false;
+                            let inc = direction === 'ArrowDown' ? 1 : -1;
+                            let checkRow = targetRow + inc;
+                            
+                            while(checkRow >= minRow && checkRow <= maxRowAvailable) {
+                                if(grid[checkRow]) {
+                                    const availableCols = Object.keys(grid[checkRow]).map(Number).sort((a,b)=>a-b);
+                                    let closestCol = availableCols.reduce((prev, curr) => Math.abs(curr - targetCol) < Math.abs(prev - targetCol) ? curr : prev);
+                                    targetCol = closestCol;
+                                    targetRow = checkRow;
+                                    targetElement = grid[targetRow][targetCol];
+                                    found = true;
+                                    break;
+                                }
+                                checkRow += inc;
+                            }
+                            if(!found) return; // e.g. trapping focus inside modal
+                        }
+                    } 
+                    else if (direction === 'ArrowLeft' || direction === 'ArrowRight') {
+                        // Bounce off left/right edges
+                        targetCol = currentCol;
+                        targetRow = currentRow;
+                        targetElement = grid[currentRow][currentCol];
+                    }
+                }
+
+                if (targetElement) {
+                    currentRow = targetRow;
+                    currentCol = targetCol;
+                    updateFocus(currentRow, currentCol);
+                }
+            }
+
+            // Init
+            buildGrid();
+            updateFocus(currentRow, currentCol);
+        });
+    </script>
+</body>
+</html>

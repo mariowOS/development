@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallpaper Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  margin: 0;
+  padding: 10px 0 40px 0;
+  background: transparent;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.container {
+  width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.panel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.upload-area {
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 32px 20px;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.15);
+}
+.upload-area:hover { border-color: #0a84ff; background: rgba(10, 132, 255, 0.05); }
+.upload-area.dragover { border-color: #0a84ff; background: rgba(10, 132, 255, 0.1); }
+.upload-icon { font-size: 36px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+.file-input { display: none; }
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #0a84ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn:hover { background: #007aff; }
+.btn:active { transform: scale(0.99); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+
+.preview-area { display: none; }
+.preview-area img {
+  width: 100%;
+  border-radius: 8px;
+  max-height: 220px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.status { font-size: 13px; text-align: center; min-height: 18px; color: rgba(255, 255, 255, 0.6); }
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 -10px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+html::-webkit-scrollbar { display: none; }
+</style>
+<link rel="stylesheet" href="/desktop/assets/material-you.css">
+<script src="/desktop/assets/monet-engine.js"></script>
+</head>
+<body>
+<div class="container">
+  
+  <div class="section-title">Upload Custom Wallpaper</div>
+  <div class="panel">
+    <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon"><span class="material-symbols-outlined" style="font-size: 36px;">add_photo_alternate</span></div>
+      <div class="upload-text">Click or drop image here</div>
+      <div class="upload-hint">PNG or JPEG recommended</div>
+      <input type="file" id="fileInput" class="file-input" accept="image/png,image/jpeg" onchange="previewFile(event)">
+    </div>
+
+    <div class="preview-area" id="previewArea">
+      <img id="previewImg" src="" alt="Preview">
+    </div>
+
+    <button class="btn" id="applyBtn" onclick="applyWallpaper()" disabled>Apply Wallpaper</button>
+    <div id="status" class="status"></div>
+  </div>
+
+  <div class="section-title">Defaults</div>
+  <div class="panel" style="padding: 12px;">
+    <div class="list-item" onclick="resetToFactory()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(180deg, #8e8e93, #636366); display: flex; align-items: center; justify-content: center;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">wallpaper</span>
+        </div>
+        <div>
+          <div style="font-size: 14px; font-weight: 500;">Restore Default Wallpaper</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Revert back to factory desktop background</div>
+        </div>
+      </div>
+      <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.3);">chevron_right</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let selectedFile = null;
+
+function previewFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('previewArea').style.display = 'block';
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('applyBtn').disabled = false;
+    document.getElementById('status').textContent = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function applyWallpaper() {
+  if (!selectedFile) return;
+  const status = document.getElementById('status');
+  const btn = document.getElementById('applyBtn');
+  btn.disabled = true;
+  status.textContent = 'Uploading...';
+  status.style.color = 'rgba(255,255,255,0.6)';
+
+  const formData = new FormData();
+  formData.append('wallpaper', selectedFile);
+
+  try {
+    const res = await fetch('/upload-wallpaper', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      status.textContent = 'Wallpaper applied successfully!';
+      status.style.color = '#34c759';
+      window.parent.postMessage({ type: 'apply-wallpaper' }, '*');
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+    status.style.color = '#ff3b30';
+  }
+  btn.disabled = false;
+}
+
+function resetToFactory() {
+  if (confirm("Restore default factory wallpaper?")) {
+    fetch('/api/system/reset-desktop', { method: 'POST' })
+      .then(() => {
+        document.getElementById('status').textContent = 'Factory wallpaper restored';
+        document.getElementById('status').style.color = '#34c759';
+        document.getElementById('previewArea').style.display = 'none';
+        document.getElementById('applyBtn').disabled = true;
+        selectedFile = null;
+        window.parent.postMessage({ type: 'apply-wallpaper' }, '*');
+      });
+  }
+}
+
+// Drag and drop support
+const dropArea = document.getElementById('dropArea');
+dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
+dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+dropArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    previewFile({ target: { files: [file] } });
+  }
+});
+</script>
+</body>
+</html>

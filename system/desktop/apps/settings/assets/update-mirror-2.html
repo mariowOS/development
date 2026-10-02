@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mariowOS Update Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 400px;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.card {
+  text-align: center;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Logo ── */
+.logo-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.logo-img {
+  width: 200px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
+  transition: filter 0.5s;
+  position: relative;
+}
+
+.logo-img.updating {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(53,132,228,0.3)) brightness(1); }
+  50% { filter: drop-shadow(0 0 28px rgba(53,132,228,0.6)) brightness(1.1); }
+}
+
+.logo-img.done {
+  filter: drop-shadow(0 0 18px rgba(52,199,89,0.4));
+}
+
+/* ── Progress bar ── */
+.progress-track {
+  width: 200px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  margin: 0 auto 8px auto;
+  overflow: hidden;
+  display: none;
+}
+
+.progress-track.visible { display: block; }
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3584e4, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(53,132,228,0.4);
+}
+
+.progress-fill.complete {
+  background: linear-gradient(90deg, #34c759, #60d680);
+  box-shadow: 0 0 12px rgba(52,199,89,0.5);
+}
+
+.pct-text {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+  transition: color 0.5s;
+  display: none;
+}
+
+.pct-text.visible { display: block; }
+
+.pct-text.complete {
+  color: #34c759;
+}
+
+/* ── Status ── */
+.status {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ccc;
+  margin-bottom: 8px;
+  min-height: 28px;
+}
+
+.status-update {
+  font-size: 13px;
+  color: #888;
+  min-height: 20px;
+}
+
+/* ── Version info ── */
+.version-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 16px 0 24px 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.version-row span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.version-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.version-dot.current { background: #3584e4; }
+.version-dot.latest { background: #34c759; }
+
+/* ── Changelog ── */
+.changelog {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  text-align: left;
+  display: none;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.changelog-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.changelog-text {
+  font-size: 13px;
+  color: #bbb;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.changelog::-webkit-scrollbar { width: 4px; }
+.changelog::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+/* ── Button ── */
+.btn {
+  background: #3584e4;
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.25s ease;
+  display: none;
+  margin: 0 auto;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(53, 132, 228, 0.3);
+}
+
+.btn:hover {
+  background: #2a6dc4;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(53, 132, 228, 0.4);
+}
+
+.btn:active { transform: scale(0.97); }
+
+.links {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.links a {
+  color: #555;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+.links a:hover { color: #888; }
+
+/* ── Space particles ── */
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: starFloat var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+.particle.s1 { width: 1.5px; height: 1.5px; opacity: 0.5; }
+.particle.s2 { width: 2px; height: 2px; opacity: 0.7; }
+.particle.s3 { width: 3px; height: 3px; opacity: 0.9; box-shadow: 0 0 4px rgba(255,255,255,0.5); }
+
+@keyframes starFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0); }
+  15% { opacity: var(--max-opacity, 1); }
+  85% { opacity: var(--max-opacity, 1); }
+  100% { opacity: 0; transform: translateY(-80px) scale(1); }
+}
+
+body {
+  display: block;
+  min-height: 100%;
+  height: 100%;
+  overflow: auto;
+  color: #f7f7f8;
+  font-family: 'Poppins', sans-serif;
+  background: transparent;
+}
+
+.card {
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+  margin: 0;
+  padding: 26px 0 20px;
+  text-align: left;
+}
+
+.update-section + .update-section { margin-top: 26px; }
+
+.section-label {
+  margin: 0 0 8px;
+  color: rgba(255,255,255,.78);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: .01em;
+}
+
+.update-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.update-row {
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.update-row:hover {
+  border-color: rgba(255,255,255,.14);
+  background: rgba(255,255,255,.085);
+}
+
+.update-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(150deg, rgba(255,255,255,.22), rgba(255,255,255,.07));
+  color: #fff;
+}
+
+.update-icon .material-symbols-outlined { font-size: 25px; }
+.update-icon img { width: 100%; height: 100%; object-fit: cover; }
+.update-icon.success {
+  border-radius: 12px;
+  background: linear-gradient(180deg, #34c759 0%, #2fca46 52%, #28cd41 100%);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 2px 6px rgba(0,0,0,.16);
+}
+.update-icon.success .material-symbols-outlined {
+  font-size: 27px;
+  font-variation-settings: 'FILL' 1, 'wght' 700;
+}
+.update-icon.system { background: transparent; }
+.update-icon.system img { width: 48px; height: 48px; object-fit: contain; }
+.update-icon.system.success {
+  background: linear-gradient(180deg, #34c759 0%, #2fca46 52%, #28cd41 100%);
+}
+
+.update-copy { min-width: 0; flex: 1; }
+
+.update-title {
+  overflow: hidden;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+}
+
+.update-subtitle {
+  overflow: hidden;
+  margin-top: 2px;
+  color: rgba(255,255,255,.76);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.update-action {
+  flex: 0 0 auto;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 9px;
+  padding: 7px 11px;
+  background: rgba(255,255,255,.09);
+  color: #fff;
+  font: 500 12px/1.2 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background .16s ease, transform .16s ease;
+}
+
+.update-action:hover { background: rgba(255,255,255,.16); }
+.update-action:active { transform: scale(.97); }
+.update-action:disabled { opacity: .45; cursor: wait; }
+
+.update-action.primary {
+  border-color: transparent;
+  background: #3584e4;
+}
+.update-action.primary:hover { background: #4a93ed; }
+
+.apps-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 3px 4px 0;
+}
+
+.progress-view {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: rgba(255,255,255,.72);
+  font-size: 11px;
+}
+
+.progress-track {
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin: 0;
+  border-radius: 4px;
+  background: rgba(255,255,255,.12);
+}
+
+.progress-fill {
+  border-radius: inherit;
+  background: #60a5fa;
+  box-shadow: none;
+}
+
+.progress-fill.complete { background: #00d326; box-shadow: none; }
+
+.notice {
+  margin: 10px 0 0;
+  color: rgba(255,255,255,.62);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.notice.error { color: #ff8a80; }
+
+.links {
+  justify-content: flex-start;
+  gap: 16px;
+  margin: 16px 0 0;
+}
+
+.links a { color: rgba(255,255,255,.5); font-size: 11px; }
+.links a:hover { color: rgba(255,255,255,.85); }
+
+@media (max-width: 420px) {
+  .card { padding: 20px 0 16px; }
+  .update-row { gap: 10px; padding: 12px; }
+  .update-title { font-size: 17px; }
+  .update-subtitle { font-size: 11px; }
+  .update-action { padding: 7px 8px; font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<main class="card" id="app">
+  <section class="update-section" aria-labelledby="systemLabel">
+    <h2 class="section-label" id="systemLabel">System</h2>
+    <div class="update-panel" aria-live="polite">
+      <div class="update-row">
+        <div class="update-icon system" aria-hidden="true">
+          <img src="/desktop/assets/icons/stars.png" alt="">
+        </div>
+        <div class="update-copy">
+          <div class="update-title" id="systemTitle">Checking for updates...</div>
+          <div class="update-subtitle" id="systemSubtitle">Connecting to the update service</div>
+        </div>
+        <button class="update-action primary" id="systemAction" type="button" hidden></button>
+      </div>
+      <div class="progress-view" id="systemProgress" hidden>
+        <div class="progress-meta"><span id="systemProgressStatus"></span><span id="systemProgressPercent"></span></div>
+        <div class="progress-track"><div class="progress-fill" id="systemProgressFill"></div></div>
+      </div>
+    </div>
+    <p class="notice" id="systemNotice" hidden></p>
+  </section>
+
+  <section class="update-section" aria-labelledby="appsLabel">
+    <h2 class="section-label" id="appsLabel">Apps</h2>
+    <div class="update-panel" id="appsPanel" aria-live="polite">
+      <div class="update-row">
+        <div class="update-icon" aria-hidden="true"><span class="material-symbols-outlined">sync</span></div>
+        <div class="update-copy">
+          <div class="update-title">Checking installed apps...</div>
+          <div class="update-subtitle">Looking for component updates</div>
+        </div>
+      </div>
+    </div>
+    <p class="notice" id="appsNotice" hidden></p>
+  </section>
+
+  <nav class="links" aria-label="Update resources">
+    <a href="changechannel.html">Update channel</a>
+    <a href="roadmap.html">Roadmap</a>
+  </nav>
+</main>
+
+<script>
+const appNames = {
+  calculator: ['Calculator', 'calculator.png', 'calculate'],
+  desktop: ['Desktop', 'stars.png', 'desktop_windows'],
+  explorer: ['Explorer', 'files.png', 'folder_open'],
+  feedback: ['Feedback', 'feedback.png', 'feedback'],
+  help: ['Help', 'stars.png', 'help'],
+  music: ['Music', 'music.png', 'music_note'],
+  notes: ['Notes', 'notes.png', 'edit_note'],
+  settings: ['Settings', 'settings.png', 'settings'],
+  store: ['Store', 'store.png', 'storefront'],
+  terminal: ['Terminal', 'terminal.png', 'terminal']
+};
+
+let activeUpdate = null;
+let pendingApps = [];
+
+function setNotice(id, message, isError = false) {
+  const notice = document.getElementById(id);
+  notice.textContent = message || '';
+  notice.hidden = !message;
+  notice.classList.toggle('error', isError);
+}
+
+function setAction(button, label, handler) {
+  button.textContent = label;
+  button.onclick = handler;
+  button.hidden = false;
+}
+
+function setSystemStatus(icon, title, subtitle, success = false) {
+  const iconElement = document.querySelector('#systemTitle').closest('.update-row').querySelector('.update-icon');
+  iconElement.classList.toggle('success', success);
+  if (success) {
+    const check = document.createElement('span');
+    check.className = 'material-symbols-outlined';
+    check.textContent = 'check';
+    iconElement.replaceChildren(check);
+  } else if (icon === 'auto_awesome') {
+    const stars = document.createElement('img');
+    stars.src = '/desktop/assets/icons/stars.png';
+    stars.alt = '';
+    iconElement.replaceChildren(stars);
+  } else {
+    const symbol = document.createElement('span');
+    symbol.className = 'material-symbols-outlined';
+    symbol.textContent = icon;
+    iconElement.replaceChildren(symbol);
+  }
+  document.getElementById('systemTitle').textContent = title;
+  document.getElementById('systemSubtitle').textContent = subtitle;
+}
+
+function setBusy(isBusy) {
+  document.querySelectorAll('.update-action').forEach(button => {
+    button.disabled = isBusy;
+  });
+}
+
+async function checkSystemUpdates() {
+  const action = document.getElementById('systemAction');
+  action.hidden = true;
+  setNotice('systemNotice', '');
+  try {
+    const response = await fetch('/api/system/check-update', { cache: 'no-store' });
+    const data = await response.json();
+    if (!response.ok || data.error) throw new Error(data.error || 'Update check failed');
+
+    if (data.updateAvailable) {
+      setSystemStatus('auto_awesome', `mariowOS v${data.latest}`,
+        data.changelog || `System update available · v${data.current} → v${data.latest}`);
+      setAction(action, 'Install & restart', startSystemUpdate);
+    } else {
+      setSystemStatus('check', 'mariowOS is up to date', `Version ${data.current}`, true);
+    }
+  } catch (error) {
+    setSystemStatus('cloud_off', 'System update unavailable', 'Could not reach the update service');
+    setAction(action, 'Try again', checkSystemUpdates);
+    setNotice('systemNotice', error.message, true);
+    console.error('System update check failed:', error);
+  }
+}
+
+function makeAppRow(name, update) {
+  const [label, iconFile, symbol] = appNames[name] || [name, '', 'apps'];
+  const row = document.createElement('div');
+  row.className = 'update-row';
+
+  const icon = document.createElement('div');
+  icon.className = 'update-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  if (iconFile) {
+    const image = document.createElement('img');
+    image.src = `/desktop/assets/icons/${iconFile}`;
+    image.alt = '';
+    image.onerror = () => {
+      const fallback = document.createElement('span');
+      fallback.className = 'material-symbols-outlined';
+      fallback.textContent = symbol;
+      icon.replaceChildren(fallback);
+    };
+    icon.appendChild(image);
+  } else {
+    const iconSymbol = document.createElement('span');
+    iconSymbol.className = 'material-symbols-outlined';
+    iconSymbol.textContent = symbol;
+    icon.appendChild(iconSymbol);
+  }
+
+  const copy = document.createElement('div');
+  copy.className = 'update-copy';
+  const title = document.createElement('div');
+  title.className = 'update-title';
+  title.textContent = label;
+  const subtitle = document.createElement('div');
+  subtitle.className = 'update-subtitle';
+  subtitle.textContent = update
+    ? `Update available · ${update.current} → ${update.latest}`
+    : 'All apps updated.';
+  copy.append(title, subtitle);
+  row.append(icon, copy);
+  return row;
+}
+
+function renderApps(updates) {
+  const panel = document.getElementById('appsPanel');
+  panel.replaceChildren();
+  pendingApps = updates;
+
+  if (!updates.length) {
+    const row = document.createElement('div');
+    row.className = 'update-row';
+    const icon = document.createElement('div');
+    icon.className = 'update-icon success';
+    icon.setAttribute('aria-hidden', 'true');
+    const check = document.createElement('span');
+    check.className = 'material-symbols-outlined';
+    check.textContent = 'check';
+    icon.appendChild(check);
+    const copy = document.createElement('div');
+    copy.className = 'update-copy';
+    const title = document.createElement('div');
+    title.className = 'update-title';
+    title.textContent = 'All apps updated.';
+    copy.appendChild(title);
+    row.append(icon, copy);
+    panel.appendChild(row);
+    return;
+  }
+
+  updates.forEach(update => panel.appendChild(makeAppRow(update.name, update)));
+  const footer = document.createElement('div');
+  footer.className = 'apps-footer';
+  const action = document.createElement('button');
+  action.className = 'update-action primary';
+  action.type = 'button';
+  action.textContent = `Update ${updates.length === 1 ? 'app' : 'apps'}`;
+  action.addEventListener('click', startSotaUpdate);
+  footer.appendChild(action);
+  panel.appendChild(footer);
+}
+
+async function checkAppUpdates() {
+  setNotice('appsNotice', '');
+  try {
+    const response = await fetch('/api/system/check-sota-update', { cache: 'no-store' });
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error(data.error || 'SOTA update check failed');
+    renderApps(data.updates || []);
+  } catch (error) {
+    const panel = document.getElementById('appsPanel');
+    panel.replaceChildren(makeAppRow('apps', null));
+    panel.firstElementChild.querySelector('.update-title').textContent = 'Could not check apps';
+    panel.firstElementChild.querySelector('.update-subtitle').textContent = 'The update service could not be reached';
+    setNotice('appsNotice', error.message, true);
+    console.error('SOTA update check failed:', error);
+  }
+}
+
+function updateProgress(kind, percent, status) {
+  const progress = document.getElementById(`${kind}Progress`);
+  const fill = document.getElementById(`${kind}ProgressFill`);
+  progress.hidden = false;
+  document.getElementById(`${kind}ProgressStatus`).textContent = status || 'Updating...';
+  document.getElementById(`${kind}ProgressPercent`).textContent = `${Math.round(percent)}%`;
+  fill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+  fill.classList.toggle('complete', percent >= 100);
+}
+
+function startSystemUpdate() {
+  if (activeUpdate) return;
+  activeUpdate = 'system';
+  const action = document.getElementById('systemAction');
+  action.hidden = true;
+  document.getElementById('systemProgress').hidden = false;
+  setBusy(true);
+  startProgressStream('system', '/api/system/ota-update');
+}
+
+function startSotaUpdate() {
+  if (activeUpdate || !pendingApps.length) return;
+  activeUpdate = 'apps';
+  document.querySelector('#appsPanel .apps-footer')?.remove();
+  const progress = document.getElementById('appsProgress');
+  if (progress) progress.hidden = false;
+  else {
+    const view = document.createElement('div');
+    view.className = 'progress-view';
+    view.id = 'appsProgress';
+    view.innerHTML = '<div class="progress-meta"><span id="appsProgressStatus"></span><span id="appsProgressPercent"></span></div><div class="progress-track"><div class="progress-fill" id="appsProgressFill"></div></div>';
+    document.getElementById('appsPanel').appendChild(view);
+  }
+  setBusy(true);
+  startProgressStream('apps', '/api/system/sota-update');
+}
+
+function startProgressStream(kind, url) {
+  const eventSource = new EventSource(url);
+  eventSource.onmessage = event => {
+    let data;
+    try {
+      data = JSON.parse(event.data);
+    } catch (error) {
+      eventSource.close();
+      finishUpdate(kind, false, 'The update service returned an invalid response.');
+      console.error('Could not parse update progress:', error);
+      return;
+    }
+    updateProgress(kind, data.percent, data.status);
+    if (!data.finished) return;
+    eventSource.close();
+    finishUpdate(kind, data.percent >= 100, data.status || 'Update finished.');
+  };
+  eventSource.onerror = () => {
+    eventSource.close();
+    finishUpdate(kind, false, 'Connection to the update service was lost.');
+  };
+}
+
+function finishUpdate(kind, succeeded, message) {
+  activeUpdate = null;
+  setBusy(false);
+  if (kind === 'system') {
+    const action = document.getElementById('systemAction');
+    if (succeeded) {
+      setSystemStatus('check', 'System update installed', 'Restart mariowOS to finish applying it.', true);
+      setAction(action, 'Restart', () => window.parent.location.reload());
+    } else {
+      setSystemStatus('error', 'System update failed', 'Your system was not updated.');
+      setAction(action, 'Try again', startSystemUpdate);
+      setNotice('systemNotice', message, true);
+    }
+    return;
+  }
+
+  const progress = document.getElementById('appsProgress');
+  if (progress) progress.hidden = true;
+  if (succeeded) {
+    setNotice('appsNotice', message);
+    checkAppUpdates();
+  } else {
+    setNotice('appsNotice', message, true);
+    checkAppUpdates().then(() => setNotice('appsNotice', message, true));
+  }
+}
+
+Promise.all([checkSystemUpdates(), checkAppUpdates()]);
+</script>
+</body>
+</html>

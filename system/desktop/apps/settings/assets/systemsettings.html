@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Settings</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      color: white; 
+      margin: 0; 
+      padding: 10px 0; 
+      background: transparent; 
+      overflow-x: hidden; 
+      overflow-y: auto;
+    }
+
+    .container {
+      width: 100%;
+      position: relative;
+      min-height: 450px;
+    }
+
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      box-sizing: border-box;
+      transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1), opacity 0.35s cubic-bezier(0.2, 0, 0, 1);
+      will-change: transform, opacity;
+    }
+
+    .page.hidden {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .hub-frame {
+      display: block;
+      width: 100%;
+      height: 560px;
+      border: 0;
+      background: transparent;
+    }
+
+    .sub-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      color: #0a84ff;
+      transition: opacity 0.2s;
+    }
+    .sub-header:hover { opacity: 0.8; }
+    .sub-header h2 { font-size: 20px; font-weight: 500; margin: 0; color: white; letter-spacing: -0.3px; margin-left: 4px; }
+    
+    .panel { 
+      background: rgba(255, 255, 255, 0.06); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 10px; 
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .list-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .list-item:last-child { border-bottom: none; }
+
+    .item-left { display: flex; align-items: center; gap: 14px; }
+    
+    .icon-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: white;
+    }
+    .icon-badge .material-symbols-outlined { font-size: 18px; }
+
+    .bg-rules { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
+    .bg-time { background: linear-gradient(180deg, #5e5ce6, #5856d6); }
+    .bg-reset { background: linear-gradient(180deg, #8e8e93, #636366); }
+    .bg-danger { background: linear-gradient(180deg, #ff3b30, #ff453a); }
+    .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
+
+    .item-title { font-size: 14px; font-weight: 500; }
+    .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
+    
+    .danger-text .item-title { color: #ff453a; }
+
+    .item-right { color: rgba(255, 255, 255, 0.3); display: flex; align-items: center; }
+    .item-right .material-symbols-outlined { font-size: 20px; }
+
+    html::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <div class="page" id="mainPage">
+    <div class="panel">
+      <div class="list-item" onclick="navigateToPage('rules')">
+        <div class="item-left">
+          <div class="icon-badge bg-rules"><span class="material-symbols-outlined">rule_folder</span></div>
+          <div>
+            <div class="item-title">Rules</div>
+            <div class="item-subtitle">Create actions for specific events</div>
+          </div>
+        </div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+
+      <div class="list-item" onclick="navigateToPage('time')">
+        <div class="item-left">
+          <div class="icon-badge bg-time"><span class="material-symbols-outlined">schedule</span></div>
+          <div>
+            <div class="item-title">Time & Date</div>
+            <div class="item-subtitle">Clock and date settings</div>
+          </div>
+        </div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+
+      <div class="list-item" onclick="navigateToPage('reset')">
+        <div class="item-left">
+          <div class="icon-badge bg-reset"><span class="material-symbols-outlined">settings_backup_restore</span></div>
+          <div>
+            <div class="item-title">Reset Options</div>
+            <div class="item-subtitle">Data reset, desktop reset, factory reset</div>
+          </div>
+        </div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page hidden" id="rulesPage" style="transform: translateX(40%);">
+    <iframe class="hub-frame" src="rules.html" title="Rules settings"></iframe>
+  </div>
+
+  <div class="page hidden" id="timePage" style="transform: translateX(40%);">
+    <iframe class="hub-frame" src="time.html" title="Time and date settings"></iframe>
+  </div>
+
+  <div class="page hidden" id="resetPage" style="transform: translateX(40%);">
+    <div class="sub-header" onclick="goBackToMain('reset')">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+      <h2>Reset Options</h2>
+    </div>
+    
+    <div class="panel">
+      <div class="list-item" onclick="navigateToFile('reset-settings.html')">
+        <div class="item-left">
+          <div class="icon-badge bg-gray"><span class="material-symbols-outlined">settings_backup_restore</span></div>
+          <div class="item-title">Reset Settings</div>
+        </div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <div class="list-item danger-text" onclick="navigateToFile('assets/reset-desktop.html')">
+        <div class="item-left">
+          <div class="icon-badge bg-danger"><span class="material-symbols-outlined">wallpaper</span></div>
+          <div>
+            <div class="item-title">Reset Desktop Layout</div>
+            <div class="item-subtitle">Clears active wallpaper and avatar</div>
+          </div>
+        </div>
+        <div class="item-right"></div>
+      </div>
+      <div class="list-item danger-text" onclick="navigateToFile('assets/factory-reset.html')">
+        <div class="item-left">
+          <div class="icon-badge bg-danger"><span class="material-symbols-outlined">warning</span></div>
+          <div>
+            <div class="item-title">Factory Reset System</div>
+            <div class="item-subtitle">Erase network configs and user data</div>
+          </div>
+        </div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+    </div>
+
+    <!-- Enter Recovery Mode Access Point -->
+    <div class="panel">
+      <div class="list-item" onclick="requirePassword(() => window.top.location.href = '/recovery/')">
+        <div class="item-left">
+          <div class="icon-badge bg-gray"><span class="material-symbols-outlined">build</span></div>
+          <div>
+            <div class="item-title">Enter Recovery Mode</div>
+            <div class="item-subtitle">Reboot to advanced recovery options</div>
+          </div>
+        </div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function requirePassword(onSuccess, onCancel) {
+  if (window.parent && window.parent.requirePassword) {
+    window.parent.requirePassword(onSuccess, onCancel);
+  } else {
+    console.warn("Parent window password handler not found.");
+  }
+}
+
+const main = document.getElementById('mainPage');
+const pages = {
+  rules: document.getElementById('rulesPage'),
+  time: document.getElementById('timePage'),
+  reset: document.getElementById('resetPage')
+};
+let currentPage = null;
+
+function navigateToPage(name) {
+  const page = pages[name];
+  if (!page) return;
+  currentPage = name;
+  page.classList.remove('hidden');
+  page.style.visibility = 'visible';
+  requestAnimationFrame(() => {
+    main.style.transform = 'translateX(-30%)';
+    main.style.opacity = '0';
+    page.style.transform = 'translateX(0)';
+    page.style.opacity = '1';
+  });
+}
+
+function goBackToMain(name) {
+  const page = pages[name];
+  if (!page) return;
+  page.style.transform = 'translateX(40%)';
+  page.style.opacity = '0';
+  main.style.transform = 'translateX(0)';
+  main.style.opacity = '1';
+  main.style.visibility = 'visible';
+  currentPage = null;
+  setTimeout(() => {
+    page.classList.add('hidden');
+    page.style.visibility = 'hidden';
+  }, 350);
+}
+
+window.closeSettingsSubmenu = function(name) {
+  if (name === 'rules' || name === 'time') goBackToMain(name);
+};
+
+function navigateToFile(file) {
+  requirePassword(() => {
+    window.location.href = file;
+  });
+}
+</script>
+</body>
+</html>

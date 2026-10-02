@@ -1,0 +1,1622 @@
+
+
+<!-- 
+mariowOS Terminal - (C) 2026 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <style>
+    @font-face {
+      font-family: 'MesloLGS NF';
+      src: url('https://cdn.jsdelivr.net/gh/romkatv/powerlevel10k-media@master/MesloLGS%20NF%20Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'Unifont Ex Mono';
+      src: url('unifont-ex-mono.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    * { 
+      margin: 0; padding: 0; box-sizing: border-box; 
+      /* JetBrains Mono come font primario, Meslo in background per garantire i glifi Powerline */
+      font-family: 'JetBrains Mono', 'MesloLGS NF', 'Unifont Ex Mono', monospace !important; 
+      color: #fff; 
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    html, body { height: 100%; background: #000; overflow: hidden; }
+    a { color: #92d9ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    #terminals-container { width: 100%; height: 100%; position: relative; }
+
+    .terminal {
+      padding: 15px 20px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+      height: 100vh; overflow-y: auto; user-select: none; scrollbar-width: none;
+      -ms-overflow-style: none; position: absolute; top: 0; left: 0; width: 100%;
+      outline: none;
+    }
+    .terminal::-webkit-scrollbar { display: none; }
+    
+    /* Oh-my-posh styling - Ripristinato con glifi testuali puri e allineamento flex */
+    .posh-arrow-start { 
+      color: #000000; 
+      background: #ffffff; 
+      font-size: 14px; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      height: 20px; 
+      vertical-align: middle; 
+    }
+    .posh-block-user { 
+      background: #ffffff; 
+      color: #000000; 
+      padding: 0 4px 0 0px; 
+      font-weight: bold; 
+      font-size: 12px;
+      display: inline-flex; 
+      align-items: center; 
+      height: 20px; 
+      vertical-align: middle;
+    }
+    .posh-arrow-user { 
+      color: #ffffff; 
+      background: #92d9ff; 
+      font-size: 14px; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      height: 20px; 
+      vertical-align: middle; 
+    }
+    .posh-block-path { 
+      background: #92d9ff; 
+      color: #000000; 
+      padding: 0 8px; 
+      font-size: 12px; 
+      display: inline-flex; 
+      align-items: center; 
+      height: 20px; 
+      vertical-align: middle; 
+    }
+    .posh-arrow-path { 
+      color: #92d9ff; 
+      background: transparent; 
+      font-size: 14px; 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      height: 20px; 
+      vertical-align: middle; 
+      margin-right: 8px; 
+    }
+
+    .prompt-line { display: flex; align-items: center; flex-wrap: nowrap; min-height: 20px; height: 20px; line-height: 20px; white-space: pre; }
+    .input-wrapper { position: relative; display: inline-block; min-width: 2px; line-height: 20px; white-space: pre; }
+    .input { color: #fff; position: relative; z-index: 2; font-size: 13px; line-height: 20px; white-space: pre; }
+    .prediction { color: #555; position: absolute; top: 0; left: 0; z-index: 1; pointer-events: none; white-space: pre; font-size: 13px; line-height: 20px; }
+    
+    .cursor { display: inline-block; width: 7px; height: 15px; background: #ffffff; margin-left: 4px; vertical-align: middle; }
+    
+    /* Syntax & UI Colors */
+    .spinner { color: #00ff00; font-weight: bold; }
+    .color-blue { color: #92d9ff; }
+    .color-green { color: #27c93f; }
+    .color-yellow { color: #ffbd2e; }
+    .color-red { color: #ff5f56; }
+    .color-gray { color: #aaaaaa; }
+    
+    /* Command Tables */
+    .term-table {
+      border-collapse: collapse;
+      margin-top: 4px;
+      margin-bottom: 16px;
+      width: 100%;
+      max-width: 750px;
+      font-size: 13px;
+    }
+    .term-table th, .term-table td {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 12px;
+      text-align: left;
+    }
+    .term-table td {
+      color: #dddddd;
+    }
+    .term-table th {
+      color: #ffffff;
+      font-weight: normal;
+    }
+    
+    ::selection { background: #fff; color: #000; }
+
+    /* dmgr UI Overlay styles */
+    #dmgr-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #92d9ff; z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
+    .dmgr-window { background: #111; border: 1px solid rgba(255,255,255,0.2); box-shadow: 8px 8px 0px #000; padding: 30px; width: 500px; text-align: center; }
+    .dmgr-title { color: #fff; margin-bottom: 40px; font-weight: bold; }
+    .dmgr-title.red { color: #ff5f56; }
+    .dmgr-subtitle { color: #92d9ff; margin-bottom: 10px; }
+    .dmgr-text, .dmgr-item { color: #fff; padding: 5px; margin-bottom: 5px; }
+    .dmgr-list { text-align: left; display: inline-block; margin-bottom: 40px; }
+    .dmgr-item.focused { background: rgba(255,255,255,0.2); }
+    .dmgr-item span.star { color: #ffbd2e; }
+    .dmgr-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 20px; }
+    .dmgr-btn { color: #fff; padding: 5px 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .dmgr-btn.focused { background: rgba(255,255,255,0.3); }
+
+    #nano-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: #000; }
+    .nano-window { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; min-width: 0; min-height: 0; background: #000; color: #eee; }
+    .nano-header { position: relative; display: flex; align-items: center; justify-content: space-between; flex: 0 0 20px; min-height: 20px; padding: 1px 8px; background: #c0c0c0; color: #111; font-size: 12px; line-height: 18px; }
+    .nano-header > span { color: #111; }
+    #nano-filename { position: absolute; left: 25%; right: 25%; overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+    #nano-modified { position: relative; z-index: 1; margin-left: auto; }
+    #nano-editor { flex: 1; width: 100%; min-height: 0; resize: none; border: 0; outline: none; padding: 12px 3px 2px; background: #000; color: #eee; font: 13px/1.2 'JetBrains Mono', monospace; tab-size: 2; pointer-events: none; white-space: pre; overflow: auto; }
+    .nano-footer { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); flex: 0 0 auto; background: #000; color: #eee; font: 12px/1.4 'JetBrains Mono', monospace; }
+    .nano-shortcut { display: flex; align-items: center; min-width: 0; white-space: nowrap; }
+    .nano-shortcut kbd { display: inline-block; flex: 0 0 auto; padding: 0 3px; background: #c0c0c0; color: #111; font: inherit; }
+    .nano-shortcut span { overflow: hidden; padding-left: 4px; text-overflow: clip; }
+    #nano-status { position: absolute; left: 50%; bottom: 34px; z-index: 1; transform: translateX(-50%); max-width: calc(100% - 16px); overflow: hidden; padding: 0 8px; background: #c0c0c0; color: #111; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+    #nano-help { position: absolute; inset: 20px 0 36px; z-index: 2; display: none; overflow: auto; padding: 16px; background: #000; color: #eee; white-space: pre-wrap; }
+    @media (max-width: 600px) {
+      .nano-footer { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .nano-shortcut { font-size: 10px; }
+      #nano-filename { left: 18%; right: 18%; }
+      #nano-status { bottom: 58px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="terminals-container"></div>
+
+  <!-- DMGR TUI -->
+  <div id="dmgr-overlay">
+    <div class="dmgr-window" id="dmgr-screen1">
+      <div class="dmgr-title">Installed desktops</div>
+      <div class="dmgr-list" id="dmgr-desktop-list"></div>
+      <div class="dmgr-buttons"><div class="dmgr-btn" id="dmgr-btn-ok">[ OK ]</div></div>
+    </div>
+    
+    <div class="dmgr-window" id="dmgr-screen2" style="display:none;">
+      <div class="dmgr-title red">!! SWITCHING DE !!</div>
+      <div class="dmgr-subtitle">SUMMARY:</div>
+      <div class="dmgr-text" id="dmgr-summary-text"></div>
+      <div class="dmgr-text">com.mariowos.loginui -> unchanged</div>
+      <div class="dmgr-buttons" style="margin-top: 40px;">
+        <div class="dmgr-btn" id="dmgr-btn-no">[ NO ]</div>
+        <div class="dmgr-btn" id="dmgr-btn-yes">[ YES ]</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="nano-overlay" role="dialog" aria-modal="true" aria-label="Nano text editor">
+    <div class="nano-window">
+      <div class="nano-header">
+        <span>GNU nano 2.0.9</span>
+        <span id="nano-filename"></span>
+        <span id="nano-modified"></span>
+      </div>
+      <textarea id="nano-editor" spellcheck="false" aria-label="File contents"></textarea>
+      <div id="nano-help"></div>
+      <div id="nano-status" aria-live="polite"></div>
+      <div class="nano-footer" aria-label="Keyboard shortcuts">
+        <div class="nano-shortcut"><kbd>^G</kbd><span>Get Help</span></div>
+        <div class="nano-shortcut"><kbd>^O</kbd><span>WriteOut</span></div>
+        <div class="nano-shortcut"><kbd>^R</kbd><span>Read File</span></div>
+        <div class="nano-shortcut"><kbd>^Y</kbd><span>Prev Page</span></div>
+        <div class="nano-shortcut"><kbd>^K</kbd><span>Cut Text</span></div>
+        <div class="nano-shortcut"><kbd>^C</kbd><span>Cur Pos</span></div>
+        <div class="nano-shortcut"><kbd>^X</kbd><span>Exit</span></div>
+        <div class="nano-shortcut"><kbd>^J</kbd><span>Justify</span></div>
+        <div class="nano-shortcut"><kbd>^W</kbd><span>Where Is</span></div>
+        <div class="nano-shortcut"><kbd>^V</kbd><span>Next Page</span></div>
+        <div class="nano-shortcut"><kbd>^U</kbd><span>UnCut Text</span></div>
+        <div class="nano-shortcut"><kbd>^T</kbd><span>To Spell</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const terminalsContainer = document.getElementById("terminals-container");
+    const dmgrOverlay = document.getElementById("dmgr-overlay");
+    const nanoOverlay = document.getElementById("nano-overlay");
+    const nanoEditor = document.getElementById("nano-editor");
+    const nanoStatus = document.getElementById("nano-status");
+    const nanoHelp = document.getElementById("nano-help");
+    const nanoModified = document.getElementById("nano-modified");
+    const IS_EMBEDDED = window.parent !== window;
+
+    // Multi-tab state
+    let tabs = [];
+    let activeTabId = null;
+    let tabsContainer;
+    let sysUsername = "user";
+    let cursorVisible = true;
+    let globalCatalog = [];
+    const knownCommands = ["dmgr", "help", "about", "clear", "echo", "math", "cd", "ls", "mkdir", "rm", "nano", "lili", "addkey", "delkey", "listkeys", "fetch", "get"];
+    let nanoTarget = null;
+    let nanoOriginalContent = "";
+    let nanoConfirmDiscard = false;
+    let nanoMode = "edit";
+    let nanoInputBuffer = "";
+    let nanoCutBuffer = "";
+
+    // DMGR State Machine 
+    let dmgrActive = false, dmgrScreen = 1, availableDEs = [], selectedDEIndex = 0, focusIndex = 0, confirmFocusIndex = 0;
+    let currentActiveDE = "com.mariowos.desktop.html";
+
+    window.awaitingLicenseConfirm = false; window.pendingInstallApp = null;
+    window.awaitingUpgradeConfirm = false; window.awaitingTilesSwitchConfirm = false;
+
+    // --- TAB & UI INJECTION LOGIC ---
+    if (IS_EMBEDDED) {
+      const frame = window.frameElement;
+      const osHeader = frame ? frame.closest('.popup').querySelector('.popup-header') : window.parent.document.querySelector('#popup8 .popup-header');
+      
+      if (osHeader) {
+        if (!window.parent.document.getElementById('term-os-styles')) {
+          const style = window.parent.document.createElement('style');
+          style.id = 'term-os-styles';
+          style.textContent = `
+            .notes-tab-btn { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px; color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500; cursor: pointer; position: relative; height: 28px; box-sizing: border-box; transition: all 0.2s; font-family: 'Poppins', sans-serif !important; user-select: none; overflow: hidden; margin-top: 8px; }
+            .notes-tab-btn span { font-family: 'Poppins', sans-serif !important; }
+            .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+            .notes-tab-btn.active { background: rgba(194, 243, 235, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(194, 243, 235, 0.25); margin-top: 2px; }
+            .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #c2f3eb; border-bottom: none; pointer-events: none; }
+            .tab-color-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; transition: background 0.2s; z-index: 2; pointer-events: none; }
+            .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; z-index: 3; position: relative;}
+            .notes-tab-close:hover { opacity: 1; color: #ff5252; }
+            .notes-tab-btn.dragging { opacity: 0.4; }
+            .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
+            #term-tab-context-menu {
+              position: fixed; z-index: 10000; 
+              background: rgba(24, 25, 28, 0.35) !important;
+              backdrop-filter: blur(30px) saturate(200%) !important;
+              -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+              border: 1px solid rgba(255,255,255,0.15);
+              border-radius: 12px; padding: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+              display: none; flex-direction: column; font-family: 'Poppins', sans-serif;
+            }
+            .color-dot { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; transition: transform 0.15s; box-sizing: border-box; }
+            .color-dot:hover { transform: scale(1.2); }
+          `;
+          window.parent.document.head.appendChild(style);
+        }
+
+        if (!window.parent.document.getElementById('term-tab-context-menu')) {
+          const cm = window.parent.document.createElement('div');
+          cm.id = 'term-tab-context-menu';
+          cm.innerHTML = `
+            <div style="font-size: 10px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.5px;">GROUP COLOR</div>
+            <div style="display: flex; gap: 8px;">
+              <div class="color-dot" data-color="transparent" style="border: 1px solid rgba(255,255,255,0.3);" title="None"></div>
+              <div class="color-dot" data-color="#ff5f56" style="background: #ff5f56;" title="Red"></div>
+              <div class="color-dot" data-color="#ffbd2e" style="background: #ffbd2e;" title="Yellow"></div>
+              <div class="color-dot" data-color="#27c93f" style="background: #27c93f;" title="Green"></div>
+              <div class="color-dot" data-color="#92d9ff" style="background: #92d9ff;" title="Blue"></div>
+              <div class="color-dot" data-color="#c864fa" style="background: #c864fa;" title="Purple"></div>
+            </div>
+          `;
+          window.parent.document.body.appendChild(cm);
+          window.parent.document.addEventListener('click', (e) => {
+            if (cm.style.display === 'flex' && !cm.contains(e.target)) cm.style.display = 'none';
+          });
+        }
+
+        const actionsDiv = osHeader.querySelector('.window-actions');
+        
+        if (osHeader.querySelector('#os-term-tabs')) osHeader.querySelector('#os-term-tabs').remove();
+        if (osHeader.querySelector('#os-term-actions')) osHeader.querySelector('#os-term-actions').remove();
+
+        tabsContainer = window.parent.document.createElement('div');
+        tabsContainer.id = 'os-term-tabs';
+        tabsContainer.style.cssText = 'display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move;';
+        
+        const termActions = window.parent.document.createElement('div');
+        termActions.id = 'os-term-actions';
+        termActions.style.cssText = 'display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-right: 8px; margin-top: 4px;';
+        termActions.innerHTML = `<button class="browser-nav-btn" id="os-term-new" title="New Tab" style="background:transparent; border:none; color:rgba(255,255,255,0.7); cursor:pointer; padding:4px; display:flex; align-items:center; border-radius:4px;"><span class="material-symbols-outlined" style="font-size: 18px;">add</span></button>`;
+        
+        if (actionsDiv) {
+          osHeader.insertBefore(tabsContainer, actionsDiv);
+          osHeader.insertBefore(termActions, actionsDiv);
+        } else {
+          osHeader.appendChild(tabsContainer);
+          osHeader.appendChild(termActions);
+        }
+
+        termActions.querySelector('#os-term-new').addEventListener('click', () => createTab());
+        
+        let activeContextTabId = null;
+        const parentCm = window.parent.document.getElementById('term-tab-context-menu');
+        parentCm.querySelectorAll('.color-dot').forEach(dot => {
+          dot.addEventListener('click', () => {
+            if (activeContextTabId) {
+              const color = dot.dataset.color;
+              const tabObj = tabs.find(t => t.id === activeContextTabId);
+              if (tabObj) {
+                tabObj.color = color;
+                const tabEl = tabsContainer.querySelector(`[data-id="${activeContextTabId}"]`);
+                if (tabEl) {
+                  const line = tabEl.querySelector('.tab-color-line');
+                  if (line) line.style.background = color;
+                }
+              }
+            }
+            parentCm.style.display = 'none';
+          });
+        });
+
+        window.openTabContextMenu = function(e, id) {
+          e.preventDefault();
+          activeContextTabId = id;
+          parentCm.style.display = 'flex';
+          parentCm.style.left = Math.min(e.clientX, window.innerWidth - 150) + 'px';
+          parentCm.style.top = (e.clientY + 10) + 'px';
+        };
+      }
+    }
+
+    function buildTabElement(id, name, color="transparent") {
+      const doc = IS_EMBEDDED ? window.parent.document : document;
+      const win = IS_EMBEDDED ? window.parent : window;
+      const btn = doc.createElement('div');
+      btn.className = 'notes-tab-btn';
+      btn.dataset.id = id;
+
+      const colorLine = doc.createElement('div');
+      colorLine.className = 'tab-color-line';
+      colorLine.style.background = color;
+      btn.appendChild(colorLine);
+
+      const span = doc.createElement('span');
+      span.textContent = name;
+      span.style.zIndex = "3";
+      span.style.position = "relative";
+      span.style.outline = "none"; 
+      span.style.minWidth = "20px";
+      span.style.display = "inline-block";
+      span.style.whiteSpace = "nowrap";
+
+      span.addEventListener('dblclick', (e) => {
+        e.stopPropagation(); span.contentEditable = "true"; btn.setAttribute('draggable', false); span.style.cursor = "text"; span.focus();
+        const selection = win.getSelection(); const range = doc.createRange(); range.selectNodeContents(span); selection.removeAllRanges(); selection.addRange(range);
+      });
+
+      const finishEditing = () => {
+        if (span.contentEditable !== "true") return;
+        span.contentEditable = "false"; btn.setAttribute('draggable', true); span.style.cursor = "inherit";
+        const newName = span.textContent.trim() || "bash"; span.textContent = newName;
+        const tab = tabs.find(t => t.id === id); if (tab) tab.name = newName;
+      };
+
+      span.addEventListener('blur', finishEditing);
+      span.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); span.blur(); } });
+
+      const closeBtn = doc.createElement('button'); closeBtn.className = 'notes-tab-close'; closeBtn.textContent = '×';
+      closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(id); });
+
+      btn.appendChild(span); btn.appendChild(closeBtn);
+      btn.addEventListener('click', () => switchTab(id));
+      
+      if (IS_EMBEDDED) btn.addEventListener('contextmenu', (e) => window.openTabContextMenu(e, id));
+      
+      btn.setAttribute('draggable', true);
+      btn.addEventListener('dragstart', dragStart); btn.addEventListener('dragover', dragOver);
+      btn.addEventListener('dragleave', dragLeave); btn.addEventListener('drop', dropTab); btn.addEventListener('dragend', dragEnd);
+
+      return btn;
+    }
+
+    function createTab(name = "bash") {
+      const id = Date.now().toString();
+      const termDiv = document.createElement('div');
+      termDiv.className = 'terminal'; termDiv.id = `term-${id}`; termDiv.tabIndex = 0;
+      termDiv.addEventListener("click", () => { if (!dmgrActive) termDiv.focus(); });
+      terminalsContainer.appendChild(termDiv);
+
+      const tabState = {
+        id, name, color: "transparent", element: termDiv,
+        currentDirectory: "/home",
+        completion: null,
+        history: [], historyIndex: -1, inputBuffer: "", currentInput: null, currentCursor: null, currentPrediction: null,
+        awaitingPassword: false, authCallback: null, passwordBuffer: "",
+        awaitingAutoInstall: false, pendingAutoInstallApp: null
+      };
+      
+      tabs.push(tabState);
+      if (tabsContainer) {
+        const btn = buildTabElement(id, name, "transparent");
+        tabsContainer.appendChild(btn);
+      }
+      
+      newPrompt(tabState);
+      switchTab(id);
+      if (IS_EMBEDDED) window.parent.postMessage({ type: "terminal-ready" }, window.location.origin);
+    }
+
+    function switchTab(id) {
+      activeTabId = id;
+      tabs.forEach(t => {
+        if (t.id === id) { t.element.style.display = 'block'; t.element.scrollTop = t.element.scrollHeight; } 
+        else { t.element.style.display = 'none'; }
+      });
+      if (tabsContainer) {
+        tabsContainer.querySelectorAll('.notes-tab-btn').forEach(b => { b.classList.toggle('active', b.dataset.id === id); });
+      }
+    }
+
+    function closeTab(id) {
+      const index = tabs.findIndex(t => t.id === id);
+      if (index === -1) return;
+      tabs[index].element.remove(); tabs.splice(index, 1);
+      
+      if (tabsContainer) { const btn = tabsContainer.querySelector(`[data-id="${id}"]`); if (btn) btn.remove(); }
+      if (tabs.length > 0) switchTab(tabs[Math.max(0, index - 1)].id); else createTab(); 
+    }
+
+    window.addEventListener("message", async event => {
+      if (!IS_EMBEDDED || event.source !== window.parent || event.origin !== window.location.origin || event.data.type !== "set-working-directory") return;
+      const tab = tabs.find(item => item.id === activeTabId);
+      if (!tab || typeof event.data.path !== "string") return;
+      try {
+        const directoryPath = normalizeVirtualPath(event.data.path, "/home");
+        await getDirectoryContents(directoryPath);
+        tab.currentDirectory = directoryPath;
+        updatePromptPath(tab);
+      } catch (error) {
+        appendFileCommandError(tab, `Unable to open directory: ${error.message}`);
+        newPrompt(tab);
+      }
+    });
+
+    // --- Drag & Drop logic ---
+    let dragged = null;
+    function dragStart(e){ dragged = e.currentTarget; dragged.classList.add('dragging'); }
+    function dragOver(e){ e.preventDefault(); if(e.currentTarget !== dragged) { e.currentTarget.classList.add('drag-over'); } }
+    function dragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+    function dragEnd(e){ if(dragged) dragged.classList.remove('dragging'); tabsContainer.querySelectorAll('.notes-tab-btn').forEach(b => b.classList.remove('drag-over')); }
+    function dropTab(e){
+      e.preventDefault(); const target = e.currentTarget; target.classList.remove('drag-over');
+      if(dragged && target !== dragged){
+        const draggedIndex = [...tabsContainer.children].indexOf(dragged); const targetIndex = [...tabsContainer.children].indexOf(target);
+        if(draggedIndex < targetIndex){ tabsContainer.insertBefore(dragged, target.nextSibling); const tabObj = tabs.splice(draggedIndex,1)[0]; tabs.splice(targetIndex,0,tabObj); } 
+        else { tabsContainer.insertBefore(dragged, target); const tabObj = tabs.splice(draggedIndex,1)[0]; tabs.splice(targetIndex,0,tabObj); }
+      }
+    }
+
+    // --- INITIALIZATION ---
+    fetch("/get-settings").then(res => res.json()).then(config => {
+        // Developer Options Verification
+        if (config.developer === false) {
+            terminalsContainer.innerHTML = `
+                <div style="padding: 20px; font-size: 14px;">
+                    For your security, Terminal requires developer options to be enabled to work.<br>
+                    You can enable them in <a href="#" style="color: #92d9ff;" onclick="window.parent.postMessage({type: 'launch-app', appId: 'settings', url: 'index.html#functions'}, '*')">settings > lab</a>.
+                </div>
+            `;
+            return;
+        }
+
+        if (config.username) sysUsername = config.username.toLowerCase().replace(/\s+/g, '');
+        fetch("/api/store/catalog").then(r=>r.json()).then(c => globalCatalog = c).catch(()=>{});
+        createTab("bash");
+    }).catch(() => createTab("bash"));
+
+
+    setInterval(() => {
+      tabs.forEach(t => { if (t.currentCursor) t.currentCursor.style.visibility = cursorVisible ? "visible" : "hidden"; });
+      cursorVisible = !cursorVisible;
+    }, 500);
+
+    // --- PREDICTION ---
+    function updatePrediction(tab) {
+        if (tab.awaitingPassword || window.awaitingLicenseConfirm || window.awaitingUpgradeConfirm || tab.awaitingAutoInstall) {
+            tab.currentPrediction.textContent = ""; return;
+        }
+        
+        const input = tab.inputBuffer;
+        if (!input) { tab.currentPrediction.textContent = ""; return; }
+        
+        const possible = knownCommands.find(c => c.startsWith(input));
+        if (possible) {
+            tab.currentPrediction.textContent = input + possible.substring(input.length);
+        } else {
+            tab.currentPrediction.textContent = "";
+        }
+    }
+
+    window.addEventListener("click", (event) => {
+      if (nanoOverlay.contains(event.target)) return;
+      if (!dmgrActive) { const active = tabs.find(t => t.id === activeTabId); if(active) active.element.focus(); }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (nanoOverlay.style.display === "flex") return;
+      if (dmgrActive) {
+        e.preventDefault();
+        if (dmgrScreen === 1) {
+          if (e.key === "ArrowDown") focusIndex = Math.min(focusIndex + 1, availableDEs.length);
+          if (e.key === "ArrowUp") focusIndex = Math.max(focusIndex - 1, 0);
+          if (e.key === "Enter" || e.key === " ") { if (focusIndex < availableDEs.length) selectedDEIndex = focusIndex; else showDmgrScreen2(); }
+          renderDmgr1();
+        } else if (dmgrScreen === 2) {
+          if (e.key === "ArrowRight" || e.key === "ArrowLeft") confirmFocusIndex = confirmFocusIndex === 0 ? 1 : 0;
+          if (e.key === "Enter" || e.key === " ") {
+            if (confirmFocusIndex === 1) {
+              if (availableDEs[selectedDEIndex] === currentActiveDE) closeDmgr("dmgr: No changes made. Target DE is already active.");
+              else { dmgrActive = false; dmgrOverlay.style.display = "none"; window.parent.location.href = `/desktop/${availableDEs[selectedDEIndex]}`; }
+            } else { closeDmgr("dmgr: Operation cancelled."); }
+          }
+          renderDmgr2();
+        }
+        return;
+      }
+
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (!tab) return;
+
+      if(e.ctrlKey && e.key === 't') { e.preventDefault(); createTab(); return; }
+      if(e.ctrlKey && e.key === 'w') { e.preventDefault(); closeTab(tab.id); return; }
+
+      if (["Backspace", "Enter", "ArrowUp", "ArrowDown", "Tab", "ArrowRight"].includes(e.key) || (e.key.length === 1 && !e.ctrlKey && !e.metaKey)) e.preventDefault();
+      if (!tab.currentInput) return;
+
+      if (e.key === "Tab") {
+          completeFilePath(tab);
+          return;
+      }
+
+      if (e.key === "ArrowRight") {
+          if (tab.currentPrediction && tab.currentPrediction.textContent) {
+              tab.inputBuffer = tab.currentPrediction.textContent;
+              tab.currentInput.textContent = tab.inputBuffer;
+              updatePrediction(tab);
+          }
+          return;
+      }
+
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+          tab.completion = null;
+          if (tab.awaitingPassword) tab.passwordBuffer += e.key;
+          else tab.inputBuffer += e.key;
+      }
+      else if (e.key === "Backspace") {
+          tab.completion = null;
+          if (tab.awaitingPassword) tab.passwordBuffer = tab.passwordBuffer.slice(0, -1);
+          else tab.inputBuffer = tab.inputBuffer.slice(0, -1);
+      }
+      else if (e.key === "Enter") {
+        if (tab.awaitingPassword) {
+            const pwd = tab.passwordBuffer;
+            tab.passwordBuffer = "";
+            tab.awaitingPassword = false;
+            tab.currentInput.textContent = "*".repeat(pwd.length);
+            
+            fetch("/api/system/verify-password", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: pwd })
+            }).then(r=>r.json()).then(data => {
+                if (data.success) { if (tab.authCallback) tab.authCallback(); } 
+                else { 
+                    const err = document.createElement("div"); err.innerHTML = "<span class='color-red'>su: Authentication failure</span>";
+                    tab.element.appendChild(err); newPrompt(tab);
+                }
+            });
+            return;
+        }
+
+        const cmd = tab.inputBuffer.trim();
+        tab.completion = null;
+
+        if (!cmd) {
+            newPrompt(tab);
+            return;
+        }
+
+        executeCommand(cmd, tab);
+        
+        if (!window.awaitingUpgradeConfirm && !window.awaitingLicenseConfirm && !window.awaitingTilesSwitchConfirm && !tab.awaitingAutoInstall) {
+          tab.history.push(cmd); tab.historyIndex = tab.history.length;
+        }
+        
+        tab.inputBuffer = "";
+        tab.currentPrediction.textContent = "";
+        return;
+      } 
+      else if (e.key === "ArrowUp") { tab.completion = null; if (tab.historyIndex > 0) { tab.historyIndex--; tab.inputBuffer = tab.history[tab.historyIndex]; } }
+      else if (e.key === "ArrowDown") { tab.completion = null; if (tab.historyIndex < tab.history.length - 1) { tab.historyIndex++; tab.inputBuffer = tab.history[tab.historyIndex]; } else { tab.historyIndex = tab.history.length; tab.inputBuffer = ""; } }
+
+      if (tab.awaitingPassword) tab.currentInput.textContent = "*".repeat(tab.passwordBuffer.length);
+      else tab.currentInput.textContent = tab.inputBuffer;
+      
+      updatePrediction(tab);
+      tab.element.scrollTop = tab.element.scrollHeight;
+    });
+
+    function updatePromptPath(tab, line = tab.currentCursor?.parentElement) {
+      const pathLabel = line?.querySelector(".posh-block-path");
+      if (!pathLabel) return;
+      const pathParts = tab.currentDirectory.split("/").filter(Boolean);
+      pathLabel.textContent = tab.currentDirectory === "/home" ? "" : (pathParts[pathParts.length - 1] || "/");
+    }
+
+    function newPrompt(tab, prefix = null, hideInput = false) {
+      if (tab.currentCursor) {
+        tab.currentCursor.remove();
+      }
+
+      const line = document.createElement("div");
+      line.className = "prompt-line";
+      line.style.marginBottom = "2px";
+      
+      let pfxHtml = prefix;
+      if (prefix === null) {
+          pfxHtml = `<span class="posh-arrow-start"></span><span class="posh-block-user"> ${sysUsername}@mariowos</span><span class="posh-arrow-user"></span><span class="posh-block-path"></span><span class="posh-arrow-path"></span>`;
+      }
+      
+      line.innerHTML = `${pfxHtml}<div class="input-wrapper"><span class="prediction"></span><span class="input"></span></div><span class="cursor"></span>`;
+      if (prefix === null) updatePromptPath(tab, line);
+      tab.element.appendChild(line); tab.element.scrollTop = tab.element.scrollHeight;
+      
+      tab.currentInput = line.querySelector(".input"); 
+      tab.currentPrediction = line.querySelector(".prediction");
+      tab.currentCursor = line.querySelector(".cursor"); 
+      tab.inputBuffer = "";
+      tab.passwordBuffer = "";
+    }
+
+    function requireAuth(tab, callback) {
+        tab.awaitingPassword = true;
+        tab.authCallback = callback;
+        newPrompt(tab, `<span class="color-yellow">Password required for system operation: </span>`, true);
+    }
+
+    function normalizeVirtualPath(targetPath, currentDirectory) {
+      const normalizedInput = targetPath.replace(/\\/g, "/");
+      const parts = normalizedInput.startsWith("/")
+        ? []
+        : currentDirectory.split("/").filter(Boolean);
+
+      normalizedInput.split("/").forEach(part => {
+        if (!part || part === ".") return;
+        if (part === "..") parts.pop();
+        else parts.push(part);
+      });
+      return `/${parts.join("/")}`;
+    }
+
+    function parseCommandArguments(command) {
+      const tokens = command.match(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^\s]+/g) || [];
+      return tokens.map(token => {
+        if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+          return token.slice(1, -1);
+        }
+        return token;
+      });
+    }
+
+    async function getDirectoryContents(directoryPath) {
+      const response = await fetch(`/api/system/files?path=${encodeURIComponent(directoryPath)}`);
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || "Unable to read directory");
+      return data;
+    }
+
+    function getCompletionTarget(input, currentDirectory) {
+      const commandMatch = input.match(/^(cd|nano)\s+(.*)$/);
+      if (!commandMatch) return null;
+      const command = commandMatch[1];
+      const argumentsText = commandMatch[2];
+      const tokenMatch = argumentsText.match(/(?:^|\s)(.*)$/);
+      const rawToken = tokenMatch ? tokenMatch[1] : "";
+      const tokenStart = input.length - rawToken.length;
+      const quoted = rawToken.startsWith('"') || rawToken.startsWith("'");
+      const token = quoted ? rawToken.slice(1).replace(/["']$/, "") : rawToken;
+      const directoryPart = token.endsWith("/")
+        ? token.slice(0, -1)
+        : token.slice(0, token.lastIndexOf("/"));
+      const prefix = token.endsWith("/") ? "" : token.slice(token.lastIndexOf("/") + 1);
+      const searchDirectory = directoryPart
+        ? normalizeVirtualPath(directoryPart, currentDirectory)
+        : currentDirectory;
+
+      return {
+        command,
+        input,
+        tokenStart,
+        quote: quoted ? rawToken[0] : "",
+        token,
+        directoryPart: directoryPart ? `${directoryPart}/` : "",
+        prefix,
+        searchDirectory
+      };
+    }
+
+    async function completeFilePath(tab) {
+      const context = getCompletionTarget(tab.inputBuffer, tab.currentDirectory);
+      if (!context) {
+        if (tab.currentPrediction?.textContent) {
+          tab.inputBuffer = tab.currentPrediction.textContent;
+          tab.currentInput.textContent = tab.inputBuffer;
+          updatePrediction(tab);
+        }
+        return;
+      }
+
+      const existing = tab.completion;
+      if (existing && (tab.inputBuffer === existing.lastCompletedBuffer || tab.inputBuffer === existing.context.input)) {
+        if (!existing.candidates.length) return;
+        existing.index = (existing.index + 1) % existing.candidates.length;
+        const candidate = existing.candidates[existing.index];
+        const completedToken = `${existing.context.directoryPart}${candidate.name}${existing.context.command === "cd" && candidate.type === "folder" ? "/" : ""}`;
+        const quotedToken = existing.context.quote
+          ? `${existing.context.quote}${completedToken}${existing.context.quote}`
+          : (/\s/.test(completedToken) ? `"${completedToken}"` : completedToken);
+        tab.inputBuffer = `${existing.context.input.slice(0, existing.context.tokenStart)}${quotedToken}`;
+        tab.currentInput.textContent = tab.inputBuffer;
+        existing.lastCompletedBuffer = tab.inputBuffer;
+        updatePrediction(tab);
+        return;
+      }
+
+      tab.completion = null;
+      try {
+        if (context.command === "nano" && context.searchDirectory !== "/home" && !context.searchDirectory.startsWith("/home/")) {
+          throw new Error("nano completion is limited to your home partition");
+        }
+        const data = await getDirectoryContents(context.searchDirectory);
+        const prefix = context.prefix.toLocaleLowerCase();
+        const candidates = data.contents.filter(item =>
+          item.name.toLocaleLowerCase().startsWith(prefix) &&
+          (context.command !== "cd" || item.type === "folder")
+        );
+        if (candidates.length === 0) {
+          return;
+        }
+
+        tab.completion = { context, candidates, index: -1, lastCompletedBuffer: tab.inputBuffer };
+        const listing = document.createElement("div");
+        listing.className = "color-gray";
+        listing.style.whiteSpace = "pre-wrap";
+        listing.textContent = candidates.map(item => `${item.name}${item.type === "folder" ? "/" : ""}`).join("    ");
+        insertBeforePrompt(tab, listing);
+      } catch (error) {
+        const errorLine = document.createElement("div");
+        errorLine.className = "color-red";
+        errorLine.textContent = `E: completion: ${error.message}`;
+        insertBeforePrompt(tab, errorLine);
+      }
+    }
+
+    function insertBeforePrompt(tab, element) {
+      const activePrompt = tab.currentCursor?.parentElement;
+      if (activePrompt?.parentElement === tab.element) tab.element.insertBefore(element, activePrompt);
+      else tab.element.appendChild(element);
+      tab.element.scrollTop = tab.element.scrollHeight;
+    }
+
+    function appendFileCommandError(tab, message) {
+      const errorLine = document.createElement("div");
+      errorLine.className = "color-red";
+      errorLine.textContent = `E: ${message}`;
+      tab.element.appendChild(errorLine);
+      tab.element.scrollTop = tab.element.scrollHeight;
+    }
+
+    async function changeDirectory(tab, target) {
+      try {
+        const directoryPath = normalizeVirtualPath(target || "/home", tab.currentDirectory);
+        await getDirectoryContents(directoryPath);
+        tab.currentDirectory = directoryPath;
+      } catch (error) {
+        appendFileCommandError(tab, `cd: ${error.message}`);
+      }
+      newPrompt(tab);
+    }
+
+    async function listDirectory(tab, target) {
+      try {
+        const directoryPath = target
+          ? normalizeVirtualPath(target, tab.currentDirectory)
+          : tab.currentDirectory;
+        const data = await getDirectoryContents(directoryPath);
+        if (data.contents.length > 0) {
+          const output = document.createElement("div");
+          output.style.whiteSpace = "pre-wrap";
+          output.textContent = data.contents.map(item => `${item.name}${item.type === "folder" ? "/" : ""}`).join("\n");
+          tab.element.appendChild(output);
+        }
+      } catch (error) {
+        appendFileCommandError(tab, `ls: ${error.message}`);
+      }
+      tab.element.scrollTop = tab.element.scrollHeight;
+      newPrompt(tab);
+    }
+
+    function splitHomeTarget(targetPath) {
+      if (targetPath === "/home") return null;
+      if (!targetPath.startsWith("/home/")) throw new Error("only items in your home partition can be changed");
+      const separator = targetPath.lastIndexOf("/");
+      const parentPath = separator === 0 ? "/" : targetPath.slice(0, separator);
+      const name = targetPath.slice(separator + 1);
+      if (!name || name === "." || name === "..") throw new Error("invalid path");
+      return { parentPath, name };
+    }
+
+    async function makeDirectory(tab, requestedPath) {
+      try {
+        const targetPath = normalizeVirtualPath(requestedPath, tab.currentDirectory);
+        const target = splitHomeTarget(targetPath);
+        if (!target) throw new Error("cannot create a directory over /home");
+        await getDirectoryContents(target.parentPath);
+        const response = await fetch("/api/system/files/create-folder", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: target.parentPath, name: target.name })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "unable to create directory");
+        const output = document.createElement("div");
+        output.className = "color-green";
+        output.textContent = `Created directory: ${targetPath}`;
+        tab.element.appendChild(output);
+      } catch (error) {
+        appendFileCommandError(tab, `mkdir: ${error.message}`);
+      }
+      tab.element.scrollTop = tab.element.scrollHeight;
+      newPrompt(tab);
+    }
+
+    async function removePath(tab, requestedPath, recursive) {
+      try {
+        const targetPath = normalizeVirtualPath(requestedPath, tab.currentDirectory);
+        const target = splitHomeTarget(targetPath);
+        if (!target) throw new Error("refusing to remove /home");
+        const parent = await getDirectoryContents(target.parentPath);
+        const item = parent.contents.find(entry => entry.name === target.name);
+        if (!item) throw new Error("item not found");
+        if (item.type === "folder" && !recursive) throw new Error("is a directory (use rm -r)");
+
+        const response = await fetch("/api/system/files/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: target.parentPath, name: target.name, recursive })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "unable to remove item");
+        const output = document.createElement("div");
+        output.className = "color-green";
+        output.textContent = `Removed: ${targetPath}`;
+        tab.element.appendChild(output);
+      } catch (error) {
+        appendFileCommandError(tab, `rm: ${error.message}`);
+      }
+      tab.element.scrollTop = tab.element.scrollHeight;
+      newPrompt(tab);
+    }
+
+    async function openNano(tab, requestedPath) {
+      const targetPath = normalizeVirtualPath(requestedPath, tab.currentDirectory);
+      const separator = targetPath.lastIndexOf("/");
+      const directoryPath = separator === 0 ? "/" : targetPath.slice(0, separator);
+      const fileName = targetPath.slice(separator + 1);
+      if (!fileName || fileName === "." || fileName === "..") {
+        appendFileCommandError(tab, "nano: provide a file name.");
+        newPrompt(tab);
+        return;
+      }
+      if (directoryPath !== "/home" && !directoryPath.startsWith("/home/")) {
+        appendFileCommandError(tab, "nano: files can only be saved in your home partition.");
+        newPrompt(tab);
+        return;
+      }
+
+      try {
+        let content = "";
+        const response = await fetch(`/api/system/files/content?path=${encodeURIComponent(directoryPath)}&name=${encodeURIComponent(fileName)}`);
+        if (response.status !== 404) {
+          const data = await response.json();
+          if (!response.ok || !data.success) throw new Error(data.error || "Unable to open file");
+          content = data.content;
+        }
+
+        nanoTarget = { directoryPath, fileName, tab };
+        nanoOriginalContent = content;
+        document.getElementById("nano-filename").textContent = `File: ${targetPath}`;
+        nanoEditor.value = content;
+        nanoConfirmDiscard = false;
+        nanoMode = "edit";
+        nanoInputBuffer = "";
+        nanoCutBuffer = "";
+        nanoHelp.style.display = "none";
+        nanoStatus.textContent = "";
+        updateNanoModified();
+        nanoOverlay.style.display = "flex";
+        nanoEditor.focus();
+      } catch (error) {
+        appendFileCommandError(tab, `nano: ${error.message}`);
+        newPrompt(tab);
+      }
+    }
+
+    function updateNanoModified() {
+      nanoModified.textContent = nanoEditor.value === nanoOriginalContent ? "" : "Modified";
+    }
+
+    function nanoPrompt(mode, label) {
+      nanoMode = mode;
+      nanoInputBuffer = "";
+      nanoStatus.textContent = `${label} `;
+    }
+
+    function handleNanoPromptKey(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.key === "Escape") {
+        nanoMode = "edit";
+        nanoStatus.textContent = "";
+      } else if (event.key === "Enter") {
+        const value = nanoInputBuffer.trim();
+        const mode = nanoMode;
+        nanoMode = "edit";
+        nanoInputBuffer = "";
+        nanoStatus.textContent = "";
+        if (mode === "search") searchNano(value);
+        else if (mode === "read") readNanoFile(value);
+      } else if (event.key === "Backspace") {
+        nanoInputBuffer = nanoInputBuffer.slice(0, -1);
+        nanoStatus.textContent = `${nanoMode === "search" ? "Search" : "Read File"}: ${nanoInputBuffer}`;
+      } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
+        nanoInputBuffer += event.key;
+        nanoStatus.textContent = `${nanoMode === "search" ? "Search" : "Read File"}: ${nanoInputBuffer}`;
+      }
+    }
+
+    function searchNano(query) {
+      if (!query) return;
+      const text = nanoEditor.value;
+      const from = nanoEditor.selectionEnd;
+      const match = text.indexOf(query, from);
+      const start = match === -1 ? text.indexOf(query) : match;
+      if (start === -1) {
+        nanoStatus.textContent = `"${query}" not found`;
+        return;
+      }
+      nanoEditor.focus();
+      nanoEditor.setSelectionRange(start, start + query.length);
+      nanoStatus.textContent = "";
+    }
+
+    async function readNanoFile(requestedPath) {
+      if (!requestedPath) {
+        nanoStatus.textContent = "Read File cancelled";
+        return;
+      }
+      const targetPath = normalizeVirtualPath(requestedPath, nanoTarget.directoryPath);
+      const parts = splitHomeTarget(targetPath);
+      if (!parts) {
+        nanoStatus.textContent = "Read File: choose a file under /home";
+        return;
+      }
+      try {
+        const response = await fetch(`/api/system/files/content?path=${encodeURIComponent(parts.parentPath)}&name=${encodeURIComponent(parts.name)}`);
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "Unable to read file");
+        const start = nanoEditor.selectionStart;
+        const end = nanoEditor.selectionEnd;
+        nanoEditor.setRangeText(data.content, start, end, "end");
+        updateNanoModified();
+        nanoStatus.textContent = `Read ${targetPath}`;
+      } catch (error) {
+        nanoStatus.textContent = `Read failed: ${error.message}`;
+      }
+    }
+
+    function justifyNanoParagraph() {
+      const text = nanoEditor.value;
+      const cursor = nanoEditor.selectionStart;
+      const lineStart = text.lastIndexOf("\n", cursor - 1) + 1;
+      let paragraphStart = lineStart;
+      while (paragraphStart > 0) {
+        const previousEnd = paragraphStart - 1;
+        const previousStart = text.lastIndexOf("\n", previousEnd - 1) + 1;
+        if (!text.slice(previousStart, previousEnd).trim()) break;
+        paragraphStart = previousStart;
+      }
+      let paragraphEnd = text.indexOf("\n\n", cursor);
+      if (paragraphEnd === -1) paragraphEnd = text.length;
+      const paragraph = text.slice(paragraphStart, paragraphEnd).replace(/\s+/g, " ").trim();
+      const words = paragraph.split(" ");
+      const lines = [];
+      let line = "";
+      words.forEach(word => {
+        if (line && `${line} ${word}`.length > 72) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = line ? `${line} ${word}` : word;
+        }
+      });
+      if (line) lines.push(line);
+      const formatted = lines.join("\n");
+      nanoEditor.setRangeText(formatted, paragraphStart, paragraphEnd, "select");
+      nanoEditor.setSelectionRange(paragraphStart, paragraphStart + formatted.length);
+      updateNanoModified();
+    }
+
+    async function saveNano() {
+      if (!nanoTarget) return false;
+      const content = nanoEditor.value;
+      nanoStatus.textContent = "[ Writing... ]";
+      try {
+        const response = await fetch("/api/system/files/content", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            path: nanoTarget.directoryPath,
+            name: nanoTarget.fileName,
+            content
+          })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "Unable to save file");
+        nanoOriginalContent = content;
+        updateNanoModified();
+        nanoStatus.textContent = "[ Wrote file ]";
+        return true;
+      } catch (error) {
+        nanoStatus.textContent = `Save failed: ${error.message}`;
+        return false;
+      }
+    }
+
+    function closeNano(force = false) {
+      if (!nanoTarget) return;
+      if (!force && nanoEditor.value !== nanoOriginalContent) {
+        nanoConfirmDiscard = true;
+        nanoStatus.textContent = "Save modified buffer? (Y)es/(N)o";
+        return;
+      }
+      const tab = nanoTarget.tab;
+      nanoTarget = null;
+      nanoConfirmDiscard = false;
+      nanoMode = "edit";
+      nanoOverlay.style.display = "none";
+      newPrompt(tab);
+    }
+
+    nanoEditor.addEventListener("keydown", event => {
+      if (nanoMode === "search" || nanoMode === "read") {
+        handleNanoPromptKey(event);
+        return;
+      }
+      if (nanoConfirmDiscard) {
+        event.preventDefault();
+        event.stopPropagation();
+        const key = event.key.toLowerCase();
+        if (key === "y") {
+          nanoConfirmDiscard = false;
+          nanoMode = "edit";
+          saveNano().then(saved => {
+            if (!saved) {
+              nanoConfirmDiscard = true;
+              return;
+            }
+            if (nanoEditor.value === nanoOriginalContent) closeNano();
+            else {
+              nanoConfirmDiscard = true;
+              nanoStatus.textContent = "Buffer changed while saving. Press Y to save again or N to discard.";
+            }
+          });
+        } else if (key === "n") closeNano(true);
+        else if (key === "escape") {
+          nanoConfirmDiscard = false;
+          nanoStatus.textContent = "";
+          nanoEditor.focus();
+        } else {
+          nanoStatus.textContent = "Save modified buffer? Y=save N=discard Esc=cancel";
+        }
+        return;
+      }
+      if (event.ctrlKey) {
+        const key = event.key.toLowerCase();
+        if (["g", "j", "k", "o", "r", "s", "t", "u", "v", "w", "x", "y", "c"].includes(key)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        if (key === "g") {
+          nanoHelp.style.display = nanoHelp.style.display === "block" ? "none" : "block";
+          nanoHelp.textContent = "GNU nano keyboard help\n\nCtrl+O  WriteOut (save)\nCtrl+X  Exit\nCtrl+W  Search forward\nCtrl+R  Insert a file\nCtrl+K  Cut line or selection\nCtrl+U  Uncut\nCtrl+Y/V Previous/next page\nCtrl+C  Show cursor position\nCtrl+J  Reflow current paragraph\nCtrl+T  Spell check (not available)\n\nPress Ctrl+G again or Escape to return.";
+          return;
+        }
+        if (key === "o" || key === "s") { saveNano(); return; }
+        if (key === "x") { closeNano(); return; }
+        if (key === "w") { nanoPrompt("search", "Search:"); return; }
+        if (key === "r") { nanoPrompt("read", "Read File:"); return; }
+        if (key === "c") {
+          const beforeCursor = nanoEditor.value.slice(0, nanoEditor.selectionStart);
+          const lines = beforeCursor.split("\n");
+          nanoStatus.textContent = `Line ${lines.length}/${nanoEditor.value.split("\n").length}, Col ${lines[lines.length - 1].length + 1}`;
+          return;
+        }
+        if (key === "k") {
+          const start = nanoEditor.selectionStart;
+          const end = nanoEditor.selectionEnd;
+          if (start !== end) {
+            nanoCutBuffer = nanoEditor.value.slice(start, end);
+            nanoEditor.setRangeText("", start, end, "start");
+          } else {
+            const lineStart = nanoEditor.value.lastIndexOf("\n", start - 1) + 1;
+            let lineEnd = nanoEditor.value.indexOf("\n", start);
+            if (lineEnd === -1) lineEnd = nanoEditor.value.length;
+            else lineEnd += 1;
+            nanoCutBuffer = nanoEditor.value.slice(lineStart, lineEnd);
+            nanoEditor.setRangeText("", lineStart, lineEnd, "start");
+          }
+          updateNanoModified();
+          nanoStatus.textContent = "[ Cut text ]";
+          return;
+        }
+        if (key === "u") {
+          if (nanoCutBuffer) nanoEditor.setRangeText(nanoCutBuffer, nanoEditor.selectionStart, nanoEditor.selectionEnd, "end");
+          updateNanoModified();
+          nanoStatus.textContent = nanoCutBuffer ? "[ Uncut text ]" : "Nothing to uncut";
+          return;
+        }
+        if (key === "y" || key === "v") {
+          nanoEditor.scrollTop += (key === "y" ? -1 : 1) * nanoEditor.clientHeight * 0.8;
+          return;
+        }
+        if (key === "j") {
+          justifyNanoParagraph();
+          nanoStatus.textContent = "[ Paragraph justified ]";
+          return;
+        }
+        if (key === "t") {
+          nanoStatus.textContent = "Spell checking is not available";
+          return;
+        }
+      }
+      if (event.key === "Escape" && nanoHelp.style.display === "block") {
+        event.preventDefault();
+        nanoHelp.style.display = "none";
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        if (nanoMode !== "edit") {
+          nanoMode = "edit";
+          nanoInputBuffer = "";
+          nanoStatus.textContent = "";
+        } else if (nanoEditor.value !== nanoOriginalContent) {
+          nanoConfirmDiscard = true;
+          nanoStatus.textContent = "Save modified buffer? Y=save N=discard Esc=cancel";
+        } else {
+          closeNano();
+        }
+      }
+    });
+    nanoEditor.addEventListener("input", updateNanoModified);
+
+    function runProgressBar(tab, label, duration, onComplete) {
+        const line = document.createElement("div");
+        tab.element.appendChild(line);
+        let progress = 0;
+        const totalBars = 25;
+        
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 5) + 2;
+            if (progress > 100) progress = 100;
+            
+            const filled = Math.floor((progress / 100) * totalBars);
+            const empty = totalBars - filled;
+            line.innerHTML = `<span class="color-blue">${label}</span> [${'█'.repeat(filled)}${'-'.repeat(empty)}] ${progress}%`;
+            tab.element.scrollTop = tab.element.scrollHeight;
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(onComplete, 200);
+            }
+        }, duration / (100 / 3));
+    }
+
+    // --- DMGR UI FUNCTIONS ---
+    function launchDmgr() { 
+      dmgrActive = true; dmgrScreen = 1; focusIndex = 0; selectedDEIndex = 0;
+      try { const parentUrl = window.parent.location.pathname; const currentFile = parentUrl.substring(parentUrl.lastIndexOf('/') + 1); if (currentFile) currentActiveDE = currentFile; } catch(e) {}
+      fetch("/api/system/desktops").then(res => res.json()).then(data => {
+          availableDEs = data.desktops || ["com.mariowos.desktop.html"]; const foundIdx = availableDEs.indexOf(currentActiveDE); if(foundIdx !== -1) selectedDEIndex = foundIdx;
+          dmgrOverlay.style.display = "flex"; document.getElementById("dmgr-screen1").style.display = "block"; document.getElementById("dmgr-screen2").style.display = "none"; renderDmgr1();
+      }).catch(() => closeDmgr("E: Failed to read desktop environments."));
+    }
+    function renderDmgr1() {
+      const listDiv = document.getElementById("dmgr-desktop-list"); listDiv.innerHTML = "";
+      availableDEs.forEach((de, idx) => {
+        const item = document.createElement("div"); item.className = "dmgr-item" + (focusIndex === idx ? " focused" : "");
+        const star = selectedDEIndex === idx ? `<span class="star">*</span>` : ` `; item.innerHTML = `[ ${star} ] ${de.replace('.html','')}`; listDiv.appendChild(item);
+      });
+      const okBtn = document.getElementById("dmgr-btn-ok"); if (focusIndex === availableDEs.length) okBtn.classList.add("focused"); else okBtn.classList.remove("focused");
+    }
+    function showDmgrScreen2() {
+      dmgrScreen = 2; confirmFocusIndex = 0; document.getElementById("dmgr-screen1").style.display = "none"; document.getElementById("dmgr-screen2").style.display = "block";
+      document.getElementById("dmgr-summary-text").innerText = `${currentActiveDE.replace('.html','')} -> ${availableDEs[selectedDEIndex].replace('.html','')}`; renderDmgr2();
+    }
+    function renderDmgr2() {
+      document.getElementById("dmgr-btn-no").className = "dmgr-btn" + (confirmFocusIndex === 0 ? " focused" : "");
+      document.getElementById("dmgr-btn-yes").className = "dmgr-btn" + (confirmFocusIndex === 1 ? " focused" : "");
+    }
+    function closeDmgr(msg = "dmgr: Operation cancelled.") {
+      dmgrActive = false; dmgrOverlay.style.display = "none"; const tab = tabs.find(t => t.id === activeTabId); if(tab) { const out = document.createElement("div"); out.innerText = msg; tab.element.appendChild(out); newPrompt(tab); }
+    }
+
+    // --- INSTALL HELPER ---
+    function executeInstall(app, tab) {
+      runProgressBar(tab, `Fetching ${app.id}`, 800, () => {
+          runProgressBar(tab, `Unpacking ${app.id}`, 600, () => {
+              fetch("/api/store/install", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ appId: app.id, title: app.title, icon: app.icon, repoUrl: app.repoUrl })
+              })
+              .then(res => res.json())
+              .then(installRes => {
+                const resDiv = document.createElement("div");
+                if (installRes.success) {
+                  resDiv.innerHTML = `<span class="color-green">✔ ${app.id} installed successfully.</span>\n`;
+                  tab.element.appendChild(resDiv); tab.element.scrollTop = tab.element.scrollHeight;
+                  
+                  if (app.id === "tiles") {
+                    window.awaitingTilesSwitchConfirm = true;
+                    newPrompt(tab, "Do you want to switch to Tiles DE right now? [Y/n] ");
+                  } else {
+                    window.parent.postMessage({ type: 'app-installed-live', app: { appId: app.id, title: app.title, icon: app.icon, url: `apps/${app.id}/index.html` } }, '*');
+                    newPrompt(tab);
+                  }
+                } else {
+                  resDiv.innerHTML = `<span class="color-red">E: Sub-process returned an error code: ${installRes.error}</span>`;
+                  tab.element.appendChild(resDiv); tab.element.scrollTop = tab.element.scrollHeight;
+                  newPrompt(tab);
+                }
+              });
+          });
+      });
+    }
+
+    function executeCommand(cmd, tab) {
+      
+      if (tab.awaitingAutoInstall) {
+          tab.awaitingAutoInstall = false;
+          const ans = cmd.toLowerCase().trim();
+          const ansLine = document.createElement("div"); ansLine.innerText = ans; tab.element.appendChild(ansLine);
+          
+          if (ans === 'y' || ans === 'yes' || ans === '') {
+              requireAuth(tab, () => executeInstall(tab.pendingAutoInstallApp, tab));
+          } else {
+              const ab = document.createElement("div"); ab.innerText = `Installation cancelled.`;
+              tab.element.appendChild(ab); newPrompt(tab);
+          }
+          return;
+      }
+
+      if (window.awaitingTilesSwitchConfirm) {
+        window.awaitingTilesSwitchConfirm = false;
+        const ans = cmd.toLowerCase().trim();
+        const ansLine = document.createElement("div"); ansLine.innerText = ans; tab.element.appendChild(ansLine);
+        if (ans === 'y' || ans === 'yes' || ans === '') {
+          const swDiv = document.createElement("div"); swDiv.innerText = `Switching DE immediately...`;
+          tab.element.appendChild(swDiv); tab.element.scrollTop = tab.element.scrollHeight;
+          setTimeout(() => { window.parent.location.href = `/desktop/com.mariowos.tiles.html`; }, 500);
+        } else {
+          const abDiv = document.createElement("div"); abDiv.innerText = `Switch cancelled. You can use 'dmgr' to switch later.`;
+          tab.element.appendChild(abDiv); tab.element.scrollTop = tab.element.scrollHeight; newPrompt(tab);
+        }
+        return;
+      }
+
+      const outputLine = document.createElement("div");
+      const args = cmd.split(" ");
+      const rootCmd = args[0];
+      const parsedArgs = parseCommandArguments(cmd);
+
+      switch (rootCmd) {
+        case "dmgr":
+          launchDmgr();
+          return;
+
+        case "help":
+          outputLine.innerHTML = `
+            <div class="color-blue" style="margin-bottom: 8px;">General Commands:</div>
+            <table class="term-table">
+              <tr><th>command</th><th>description</th></tr>
+              <tr><td>help</td><td>Show this help message</td></tr>
+              <tr><td>about</td><td>About this terminal</td></tr>
+              <tr><td>clear</td><td>Clear the screen</td></tr>
+              <tr><td>echo [text]</td><td>Print a message</td></tr>
+              <tr><td>math [expr]</td><td>Simple math calculator</td></tr>
+              <tr><td>cd [directory]</td><td>Change the working directory (defaults to /home)</td></tr>
+              <tr><td>ls [directory]</td><td>List files and folders</td></tr>
+              <tr><td>mkdir &lt;directory&gt;</td><td>Create a directory in your home partition</td></tr>
+              <tr><td>rm [-r] &lt;path&gt;</td><td>Remove a file; use -r to remove a directory recursively</td></tr>
+              <tr><td>nano &lt;file&gt;</td><td>Edit and save a file in your home partition (Ctrl+S)</td></tr>
+              <tr><td>fetch</td><td>Show system information</td></tr>
+              <tr><td>lili</td><td>Show lili command</td></tr>
+            </table>
+            <div class="color-blue" style="margin-top: 16px; margin-bottom: 8px;">System Commands:</div>
+            <table class="term-table">
+              <tr><th>command</th><th>description</th></tr>
+              <tr><td>dmgr</td><td>Desktop Manager</td></tr>
+              <tr><td>get [cmd]</td><td>mariowOS package manager</td></tr>
+              <tr><td>addkey [key]</td><td>Adds a key into the system's keyring</td></tr>
+              <tr><td>delkey [key]</td><td>Deletes a key from the system's keyring</td></tr>
+              <tr><td>listkeys</td><td>List all the keys in the system's keyring</td></tr>
+            </table>`;
+          tab.element.appendChild(outputLine);
+          break;
+
+        case "about":
+          outputLine.innerText = `mariowOS Terminal (preview) - (C) 2026 mariowstech and the mariowOS team`;
+          tab.element.appendChild(outputLine);
+          break;
+
+        case "clear":
+          tab.element.innerHTML = "";
+          newPrompt(tab);
+          return;
+
+        case "cd":
+          if (parsedArgs.length > 2) {
+            appendFileCommandError(tab, "cd: usage: cd [directory]");
+            newPrompt(tab);
+          } else {
+            changeDirectory(tab, parsedArgs[1]);
+          }
+          return;
+
+        case "ls":
+          if (parsedArgs.length > 2) {
+            appendFileCommandError(tab, "ls: usage: ls [directory]");
+            newPrompt(tab);
+          } else {
+            listDirectory(tab, parsedArgs[1]);
+          }
+          return;
+
+        case "mkdir":
+          if (parsedArgs.length !== 2) {
+            appendFileCommandError(tab, "mkdir: usage: mkdir <directory>");
+            newPrompt(tab);
+          } else {
+            makeDirectory(tab, parsedArgs[1]);
+          }
+          return;
+
+        case "rm": {
+          const recursive = parsedArgs[1] === "-r";
+          const targetPath = recursive ? parsedArgs[2] : parsedArgs[1];
+          if (!targetPath || parsedArgs.length !== (recursive ? 3 : 2)) {
+            appendFileCommandError(tab, "rm: usage: rm [-r] <path>");
+            newPrompt(tab);
+          } else {
+            removePath(tab, targetPath, recursive);
+          }
+          return;
+        }
+
+        case "nano":
+          if (parsedArgs.length !== 2) {
+            appendFileCommandError(tab, "nano: usage: nano <file>");
+            newPrompt(tab);
+          } else {
+            openNano(tab, parsedArgs[1]);
+          }
+          return;
+
+        case "echo":
+          outputLine.innerText = cmd.slice(5);
+          tab.element.appendChild(outputLine);
+          break;
+
+        case "math":
+          try {
+            const expr = cmd.slice(5);
+            const result = eval(expr);
+            outputLine.innerText = `${expr} = ${result}`;
+          } catch {
+            outputLine.innerHTML = "<span class='color-red'>E: Invalid expression, check syntax.</span>";
+          }
+          tab.element.appendChild(outputLine);
+          break;
+
+        case "fetch":
+          fetch("/sysinfo")
+            .then((res) => res.json())
+            .then((info) => {
+              if (info.error) throw new Error(info.error);
+              const hours = Math.floor(info.Uptime / 3600);
+              const minutes = Math.floor((info.Uptime % 3600) / 60);
+              const fetchOutput = document.createElement("div");
+              fetchOutput.innerText = `                    
+    @@@@@                            ┌──────────Basic Info──────────┐
+ @@@@@@@@@@@      @@@@@@             OS: mariowOS 1.X (twix)
+    @@@@@         @@@@@@             Uptime: ${hours}h ${minutes}m
+     @@@         @@@@@@@@            CPU: ${info.CPU}
+              @@@@@@@@@@@@@@         RAM: ${info.RAM} (Free: ${info.FreeRAM})
+          @@@@@@@@@@@@@@@@@@@@@@     Engine: Lillium Engine 
+        @@@@@@@@@@@@@@@@@@@@@@@@@@   
+           @@@@@@@@@@@@@@@@@@@@      ┌──────────Shell Info──────────┐
+               @@@@@@@@@@@@          Shell: mariowOS DE (Tiles) V2
+                 @@@@@@@@            Build number/date: v1.0 06/09/2026 17:57PM
+       @@         @@@@@@             Kernel: 1.0-wuhuaguo-mst (mwos@mariowos) 
+      @@@@@        @@@@              
+   @@@@@@@@@@@                       
+      @@@@@                          © mariowstech and the mariowOS team                        
+`;
+              tab.element.appendChild(fetchOutput); tab.element.scrollTop = tab.element.scrollHeight; newPrompt(tab);
+            }).catch(() => {
+              outputLine.innerHTML = "<span class='color-red'>E: Failed to fetch system info.</span>";
+              tab.element.appendChild(outputLine); newPrompt(tab);
+            });
+          return;
+          
+        case "listkeys":
+          fetch("/list-keys")
+            .then((res) => res.json())
+            .then((keys) => {
+              const listOutput = document.createElement("div");
+              if (keys.length === 0) {
+                listOutput.innerText = "No keys saved.";
+              } else {
+                let html = `<div class="color-blue" style="margin-bottom: 8px;">Saved Keys:</div>
+                            <table class="term-table">
+                              <tr><th>key</th><th>date added</th></tr>`;
+                keys.forEach(k => {
+                  html += `<tr><td>${k.key}</td><td>${new Date(k.date).toLocaleString()}</td></tr>`;
+                });
+                html += `</table>`;
+                listOutput.innerHTML = html;
+              }
+              tab.element.appendChild(listOutput);
+              tab.element.scrollTop = tab.element.scrollHeight;
+              newPrompt(tab); 
+            })
+            .catch(() => {
+              const errLine = document.createElement("div");
+              errLine.innerHTML = "<span class='color-red'>E: Failed to list keys.</span>";
+              tab.element.appendChild(errLine);
+              newPrompt(tab); 
+            });
+          return;
+
+        case "get":
+          const subCmd = args[1];
+          const targetApp = args[2];
+
+          if (!subCmd) {
+            outputLine.innerHTML = `
+<div class="color-blue" style="white-space: pre; line-height: 1.15; font-family: 'MesloLGS NF', monospace; margin-bottom: 10px;">
+ ██████╗ ███████╗████████╗     ██████╗██╗     ██╗
+██╔════╝ ██╔════╝╚══██╔══╝    ██╔════╝██║     ██║
+██║  ███╗█████╗     ██║       ██║     ██║     ██║
+██║   ██║██╔══╝     ██║       ██║     ██║     ██║
+╚██████╔╝███████╗   ██║       ╚██████╗███████╗██║
+ ╚═════╝ ╚══════╝   ╚═╝        ╚═════╝╚══════╝╚═╝</div>
+<div><span class="color-gray">v262909.1 (preview) </span></div>
+<div>Usage: <span class="color-yellow">get</span> <span class="color-gray">&lt;command&gt;</span> <span style="color:#fff;">[pkgname]</span></div>
+<div style="margin-top:8px;">Use '<span class="color-yellow">get</span> <span class="color-gray">help</span>' to get detailed help for any command.</div>
+
+<div class="color-blue" style="margin-top: 20px; margin-bottom: 8px;">Package Commands:</div>
+<table class="term-table">
+  <tr><th>command</th><th>description</th></tr>
+  <tr><td>list</td><td>List all available packages in the local repository</td></tr>
+  <tr><td>install</td><td>Downloads and installs a package (Requires Password)</td></tr>
+  <tr><td>remove</td><td>Removes an installed package (Requires Password)</td></tr>
+  <tr><td>update</td><td>Update local package repository</td></tr>
+  <tr><td>upgrade</td><td>Upgrades all installed packages</td></tr>
+</table>`;
+            tab.element.appendChild(outputLine); return newPrompt(tab); 
+          }
+
+          if (subCmd === "list") {
+            fetch("/api/store/catalog").then(r=>r.json()).then(cat=>{
+              let html = `<div class="color-blue" style="margin-bottom: 8px;">Available Packages:</div>
+                          <table class="term-table">
+                            <tr><th>package ID</th><th>title / description</th></tr>`;
+              cat.forEach(app => {
+                 html += `<tr><td style="color:#ffffff;">${app.id}</td><td>${app.title}</td></tr>`;
+              });
+              html += `</table>`;
+              
+              const d = document.createElement("div"); 
+              d.innerHTML = html;
+              tab.element.appendChild(d); tab.element.scrollTop = tab.element.scrollHeight; newPrompt(tab);
+            }); return;
+          }
+
+          if (subCmd === "install") {
+            if (!targetApp) { outputLine.innerHTML = "<span class='color-red'>E: You must specify a package to install.</span>"; tab.element.appendChild(outputLine); return newPrompt(tab); }
+            
+            const app = globalCatalog.find(a => a.id === targetApp);
+            if (!app) { 
+                outputLine.innerHTML = `<span class='color-red'>E: Package '${targetApp}' not found.</span>`; 
+                tab.element.appendChild(outputLine); return newPrompt(tab); 
+            }
+
+            requireAuth(tab, () => executeInstall(app, tab));
+            return;
+          }
+          
+          if (subCmd === "remove") {
+             if (!targetApp) { outputLine.innerHTML = "<span class='color-red'>E: You must specify a package to remove.</span>"; tab.element.appendChild(outputLine); return newPrompt(tab); }
+             
+             requireAuth(tab, () => {
+                 const rmDiv = document.createElement("div"); rmDiv.innerText = `Removing ${targetApp}...`;
+                 tab.element.appendChild(rmDiv); tab.element.scrollTop = tab.element.scrollHeight;
+                 
+                 fetch("/api/store/uninstall", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ appId: targetApp }) })
+                 .then(r=>r.json()).then(data => {
+                   const resDiv = document.createElement("div");
+                   if (data.success) { resDiv.innerHTML = `<span class="color-green">${targetApp} removed successfully.</span>`; window.parent.postMessage({ type: 'app-uninstalled-live', appId: targetApp }, '*'); }
+                   else resDiv.innerHTML = `<span class="color-red">E: Could not remove package: ${data.error}</span>`;
+                   tab.element.appendChild(resDiv); tab.element.scrollTop = tab.element.scrollHeight; newPrompt(tab);
+                 });
+             });
+             return;
+          }
+
+          if (subCmd === "update") {
+            outputLine.innerText = `Fetching catalog...`; tab.element.appendChild(outputLine);
+            fetch("/api/store/update").then(r=>r.json()).then(data => {
+              setTimeout(() => { 
+                const updDiv = document.createElement("div"); updDiv.innerText = `Updating catalog...`; tab.element.appendChild(updDiv);
+                setTimeout(() => {
+                  const doneDiv = document.createElement("div");
+                  if (data.success) doneDiv.innerHTML = `\n<span class="color-green">Done. ${data.addedCount} new packages added to local repository.</span>`;
+                  else doneDiv.innerHTML = `\n<span class="color-red">E: ${data.error}</span>`;
+                  tab.element.appendChild(doneDiv); tab.element.scrollTop = tab.element.scrollHeight; newPrompt(tab);
+                }, 600);
+              }, 600);
+            }); return;
+          }
+          
+          outputLine.innerHTML = `<span class="color-red">E: Invalid operation ${subCmd}</span>`;
+          tab.element.appendChild(outputLine); return newPrompt(tab);
+
+        default:
+          const repoMatch = globalCatalog.find(a => a.id === rootCmd);
+          if (repoMatch) {
+              outputLine.innerHTML = `<span class="color-red">${rootCmd}: command not found.</span>\nYou can install this command by running "<span class="color-yellow">get</span> <span class="color-gray">install</span> <span style="color:#fff;">${rootCmd}</span>".`;
+              tab.element.appendChild(outputLine);
+              tab.awaitingAutoInstall = true;
+              tab.pendingAutoInstallApp = repoMatch;
+              newPrompt(tab, `Do you want to install it now? [y/N] `);
+          } else {
+              outputLine.innerHTML = `<span class="color-red">Command not found: ${cmd}</span>`;
+              tab.element.appendChild(outputLine);
+              newPrompt(tab);
+          }
+      }
+      
+      if (!tab.awaitingAutoInstall && !tab.awaitingPassword) {
+         tab.element.scrollTop = tab.element.scrollHeight;
+      }
+    }
+  </script>
+</body>
+</html>

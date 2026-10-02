@@ -1,0 +1,1062 @@
+<!-- 
+mariowOS File Explorer - (C) 2026 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0 
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <style>
+    :root {
+      --m3-bg: rgba(18, 22, 32, 0.4);
+      --m3-sidebar: rgba(255, 255, 255, 0.02);
+      --m3-accent: #5c7cfa;
+      --m3-text: #ffffff;
+      --m3-text-muted: rgba(255, 255, 255, 0.5);
+      --m3-hover: rgba(255, 255, 255, 0.08);
+      --spring: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    html, body {
+      margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Poppins', sans-serif;
+      background: transparent; color: var(--m3-text); overflow: hidden;
+      display: flex; user-select: none;
+    }
+
+    /* Sidebar */
+/* Replace the existing .sidebar and .nav-item rules; keep the existing icon color rules. */
+.sidebar {
+  width: 250px;
+  flex: 0 0 250px;
+  padding: 0;
+  gap: 0;
+  background: rgba(22, 22, 25, 0.65);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border-right: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 0;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px 16px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  user-select: none;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.nav-item:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item:hover .icon-bg {
+  transform: none;
+}
+.nav-item:active {
+  transform: none;
+}
+
+.nav-item.active {
+  background: #0a84ff;
+}
+
+.icon-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 6px;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 180ms ease;
+}
+
+.icon-bg .material-symbols-outlined {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 14px;
+}
+.main-content {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.c-home { background: linear-gradient(180deg, #0a84ff, #007aff); }
+.c-desktop { background: linear-gradient(180deg, #5e5ce6, #5856d6); }
+.c-documents { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
+.c-downloads { background: linear-gradient(180deg, #32d74b, #28cd41); }
+.c-pictures { background: linear-gradient(180deg, #bf5af2, #af52de); }
+.c-videos { background: linear-gradient(180deg, #ff3b30, #ff453a); }
+.c-root { background: linear-gradient(180deg, #98989d, #706f76); }
+.home-drive { align-items: flex-start; }
+.home-drive .icon-bg { margin-top: 1px; }
+.home-drive-info { flex: 1; min-width: 0; }
+.home-drive-label { line-height: 24px; }
+.drive-usage-label { display: block; margin: 4px 0 6px; color: var(--m3-text-muted); font-size: 10px; line-height: 1.3; }
+.drive-usage-track { height: 4px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, 0.16); }
+.drive-usage-fill { width: 0; height: 100%; border-radius: inherit; background: #c2f3eb; transition: width 0.4s var(--spring); }
+    
+    /* Toolbar */
+    .toolbar {
+      height: 56px; display: flex; align-items: center; padding: 0 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05); gap: 12px; background: rgba(0,0,0,0.2); 
+      width: 100%; box-sizing: border-box; flex-shrink: 0;
+    }
+    .toolbar-btn {
+      background: transparent; border: none; color: var(--m3-text);
+      border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, transform 0.2s;
+    }
+    .toolbar-btn:hover:not(:disabled) { background: var(--m3-hover); }
+    .toolbar-btn:active:not(:disabled) { transform: scale(0.9); }
+    .toolbar-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    #addressBar { 
+      flex: 1; background: rgba(255,255,255,0.05); border: 1px solid transparent; color: #fff; 
+      padding: 6px 12px; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; 
+    }
+    #addressBar:focus { border-color: var(--m3-accent); }
+    
+    /* Full-Width File List View Container */
+    .file-list-container { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0; width: 100%; box-sizing: border-box; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; table-layout: fixed; }
+    th { color: var(--m3-text-muted); font-size: 12px; font-weight: 500; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.14); position: sticky; top: 0; background: rgba(128, 128, 128, 0.12); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); z-index: 5; text-align: left; }
+    .sort-button { display: flex; width: 100%; align-items: center; gap: 6px; padding: 4px 8px; color: inherit; background: transparent; border: 0; border-radius: 6px; font: inherit; text-align: left; cursor: pointer; }
+    .sort-button:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .sort-indicator { font-size: 14px; opacity: 0.7; }
+    td { padding: 12px 24px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.02); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    .file-row { cursor: pointer; transition: background 0.15s; }
+    .file-row:hover, .file-row.selected { background: var(--m3-hover); }
+    .file-row:active { transform: scale(0.99); }
+    
+    .name-col { display: flex; align-items: center; gap: 12px; font-weight: 500;}
+    .file-icon { font-size: 24px; flex-shrink: 0; }
+    .icon-folder { color: #5c7cfa; font-variation-settings: 'FILL' 1; }
+    .icon-image { color: #ff8a65; }
+    .icon-doc { color: #4db6ac; }
+    .icon-movie { color: #ce93d8; }
+
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--m3-text-muted); gap: 12px; }
+
+    /* Context Menu */
+    #contextMenu { position: fixed; background: rgba(24, 25, 28, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 6px; z-index: 100; min-width: 170px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(10px) scale(0.95); transform-origin: top left; transition: transform 0.3s var(--spring), opacity 0.2s ease, visibility 0.2s ease; will-change: transform, opacity; }
+    #contextMenu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1) translateZ(0); }
+    .cm-item { padding: 8px 12px; font-size: 13px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .cm-item:hover { background: rgba(255,255,255,0.1); }
+    .cm-item.danger { color: #ff5f56; }
+    .badge-readonly { background: rgba(255,255,255,0.15); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 600; color: #ff8a65; }
+
+    /* Inline Editing Inputs */
+    .inline-edit-input {
+      background: rgba(255, 255, 255, 0.12) !important;
+      border: 1px solid var(--m3-accent) !important;
+      color: #fff !important;
+      font-family: 'Poppins', sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      padding: 3px 8px !important;
+      border-radius: 6px !important;
+      outline: none !important;
+      box-shadow: 0 0 0 2px rgba(92, 124, 250, 0.25) !important;
+      width: 100%;
+      max-width: 280px;
+      box-sizing: border-box;
+    }
+
+    /* Inline Confirmation Bar */
+    .inline-confirm-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 28, 38, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 200;
+      font-size: 13px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      animation: slideUpConfirm 0.25s var(--spring) forwards;
+    }
+    @keyframes slideUpConfirm {
+      from { opacity: 0; transform: translate(-50%, 15px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .confirm-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .confirm-btn:hover { background: rgba(255, 255, 255, 0.2); }
+    .confirm-btn:active { transform: scale(0.95); }
+    .confirm-btn.danger { background: #ff5f56; color: #fff; }
+    .confirm-btn.danger:hover { background: #ff736b; }
+
+    #uploadInput { display: none; }
+    * { scrollbar-width: none; }
+    *::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- Replace the existing <aside class="sidebar">...</aside> with this. -->
+<aside class="sidebar">
+  <div class="sidebar-menu">
+    <div class="nav-item" data-path="/home/Desktop" onclick="navClick('/home/Desktop')">
+      <div class="icon-bg c-desktop"><span class="material-symbols-outlined">desktop_windows</span></div>Desktop
+    </div>
+    <div class="nav-item" data-path="/home/Documents" onclick="navClick('/home/Documents')">
+      <div class="icon-bg c-documents"><span class="material-symbols-outlined">description</span></div>Documents
+    </div>
+    <div class="nav-item" data-path="/home/Downloads" onclick="navClick('/home/Downloads')">
+      <div class="icon-bg c-downloads"><span class="material-symbols-outlined">download</span></div>Downloads
+    </div>
+    <div class="nav-item" data-path="/home/Pictures" onclick="navClick('/home/Pictures')">
+      <div class="icon-bg c-pictures"><span class="material-symbols-outlined">image</span></div>Pictures
+    </div>
+    <div class="nav-item" data-path="/home/Videos" onclick="navClick('/home/Videos')">
+      <div class="icon-bg c-videos"><span class="material-symbols-outlined">movie</span></div>Videos
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="nav-item home-drive" data-path="/home" onclick="navClick('/home')">
+      <div class="icon-bg c-root"><span class="material-symbols-outlined">hard_drive</span></div>
+      <div class="home-drive-info">
+        <div class="home-drive-label">Home</div>
+        <span id="driveUsageLabel" class="drive-usage-label">Checking disk usage…</span>
+        <div class="drive-usage-track" role="progressbar" aria-label="System disk usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="driveUsageFill" class="drive-usage-fill"></div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-item" data-path="/" onclick="navClick('/')">
+      <div class="icon-bg c-root"><span class="material-symbols-outlined">dns</span></div>/
+    </div>
+  </div>
+</aside>
+
+  <main class="main-content" id="mainArea">
+    <div class="toolbar">
+      <button class="toolbar-btn" id="btnUp" onclick="goUp()" title="Go Up"><span class="material-symbols-outlined">arrow_upward</span></button>
+      <input type="text" id="addressBar" onkeydown="if(event.key==='Enter') navigateTo(this.value)">
+      <button class="toolbar-btn" id="btnNewFolder" title="New Folder" onclick="startInlineNewFolder()"><span class="material-symbols-outlined">create_new_folder</span></button>
+      <button class="toolbar-btn" id="btnNewFile" title="New Text File" onclick="startInlineNewFile()"><span class="material-symbols-outlined">note_add</span></button>
+      <button class="toolbar-btn" id="btnUpload" title="Upload File" onclick="document.getElementById('uploadInput').click()"><span class="material-symbols-outlined">upload_file</span></button>
+    </div>
+    
+    <div class="file-list-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 50%;"><button class="sort-button" data-sort="name" aria-sort="ascending">Name <span class="sort-indicator material-symbols-outlined">arrow_upward</span><span id="readonlyBadge" class="badge-readonly" style="display:none">READ-ONLY</span></button></th>
+            <th style="width: 25%;"><button class="sort-button" data-sort="date" aria-sort="none">Date Modified <span class="sort-indicator material-symbols-outlined"></span></button></th>
+            <th style="width: 25%;"><button class="sort-button" data-sort="size" aria-sort="none">Size <span class="sort-indicator material-symbols-outlined"></span></button></th>
+          </tr>
+        </thead>
+        <tbody id="fileList"></tbody>
+      </table>
+    </div>
+
+    <!-- Inline Confirmation Bar (No Browser Popups) -->
+    <div id="inlineConfirmBar" class="inline-confirm-bar" style="display: none;">
+      <span class="material-symbols-outlined" style="color: #ff5f56; font-size: 20px;">delete</span>
+      <span id="confirmMessage">Delete selected item?</span>
+      <div style="display: flex; gap: 8px; margin-left: 8px;">
+        <button class="confirm-btn" onclick="cancelInlineDelete()">Cancel</button>
+        <button class="confirm-btn danger" onclick="executeInlineDelete()">Delete</button>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="contextMenu">
+    <div class="cm-item" id="cmOpen" onclick="openSelected()"><span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span> Open</div>
+    <div class="cm-item" id="cmOpenTerminal" onclick="openInTerminal()"><span class="material-symbols-outlined" style="font-size:16px;">terminal</span> Open in Terminal</div>
+    <div class="cm-item" id="cmRename" onclick="startInlineRename()"><span class="material-symbols-outlined" style="font-size:16px;">drive_file_rename_outline</span> Rename</div>
+    <div class="cm-item danger" id="cmDelete" onclick="startInlineDelete()"><span class="material-symbols-outlined" style="font-size:16px;">delete</span> Delete</div>
+    <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;" id="cmDivider"></div>
+    <div class="cm-item" id="cmNew" onclick="startInlineNewFolder()"><span class="material-symbols-outlined" style="font-size:16px;">create_new_folder</span> New Folder</div>
+    <div class="cm-item" id="cmNewFile" onclick="startInlineNewFile()"><span class="material-symbols-outlined" style="font-size:16px;">note_add</span> New Text File</div>
+    <div class="cm-item" id="cmUpload" onclick="document.getElementById('uploadInput').click()"><span class="material-symbols-outlined" style="font-size:16px;">upload_file</span> Upload File</div>
+  </div>
+
+  <input type="file" id="uploadInput" multiple>
+
+<script>
+  const IS_EMBEDDED = window.parent !== window;
+  let tabs = [];
+  let currentTabId = null;
+  let tabsContainer;
+
+  let currentPath = '/home';
+  let isReadOnly = false;
+  let selectedFile = null;
+  let sortKey = 'name';
+  let sortDirection = 1;
+
+  // --- CROSS-FRAME TAB INJECTION LOGIC ---
+  if (IS_EMBEDDED) {
+    const parentPopup = window.frameElement.closest('.popup');
+    const osHeader = parentPopup.querySelector('.popup-header');
+    
+    if (!window.parent.document.getElementById('explorer-os-styles')) {
+      const style = window.parent.document.createElement('style');
+      style.id = 'explorer-os-styles';
+      style.textContent = `
+        .explorer-tab-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
+          border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px;
+          color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
+          cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
+          transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
+        }
+        .explorer-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .explorer-tab-btn.active { background: rgba(92, 124, 250, 0.16); color: #fff; height: 34px; border-color: rgba(92, 124, 250, 0.25); }
+        .explorer-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #5c7cfa; border-bottom: none; pointer-events: none; }
+        .tab-color-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; transition: background 0.2s; z-index: 2; pointer-events: none; }
+        .explorer-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; margin-left: 4px; z-index: 3; }
+        .explorer-tab-close:hover { opacity: 1; color: #ff5252; }
+      `;
+      window.parent.document.head.appendChild(style);
+    }
+
+    osHeader.style.gap = '8px';
+    osHeader.innerHTML = `
+      <span style="white-space: nowrap; font-size: 13px; flex-shrink: 0; cursor: move;">Files</span>
+      <div id="os-explorer-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move;"></div>
+      <div id="os-explorer-actions" style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-right: 8px;">
+        <button class="browser-nav-btn" id="os-explorer-new" title="New Tab"><span class="material-symbols-outlined" style="font-size: 16px;">add</span></button>
+      </div>
+      <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${parentPopup.id}')">remove</span>
+        <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${parentPopup.id}')">crop_square</span>
+        <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${parentPopup.id}')">close</span>
+      </div>
+    `;
+
+    tabsContainer = window.parent.document.getElementById('os-explorer-tabs');
+    window.parent.document.getElementById('os-explorer-new').addEventListener('click', () => createTab('/home', 'Home'));
+  }
+
+  // --- TAB ENGINE ---
+  function buildTabElement(id, name, color="transparent") {
+    const doc = IS_EMBEDDED ? window.parent.document : document;
+    const btn = doc.createElement('div');
+    btn.className = 'explorer-tab-btn';
+    btn.dataset.id = id;
+
+    const colorLine = doc.createElement('div');
+    colorLine.className = 'tab-color-line';
+    colorLine.style.background = color;
+    
+    const span = doc.createElement('span');
+    span.className = 'tab-title';
+    span.textContent = name;
+    
+    const closeBtn = doc.createElement('button');
+    closeBtn.className = 'explorer-tab-close';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(id); });
+
+    btn.appendChild(colorLine); btn.appendChild(span); btn.appendChild(closeBtn);
+    btn.addEventListener('click', () => switchTab(id));
+    return btn;
+  }
+
+  function createTab(path = '/home', name = 'Home') {
+    const id = Date.now().toString();
+    tabs.push({ id, path, name, color: "transparent" });
+    const btn = buildTabElement(id, name, "transparent");
+    if(tabsContainer) tabsContainer.appendChild(btn);
+    switchTab(id);
+  }
+
+  function switchTab(id) {
+    const targetBtn = tabsContainer ? [...tabsContainer.children].find(b => b.dataset.id === id) : null;
+    if(targetBtn && targetBtn.classList.contains('active')) return;
+
+    if(tabsContainer) {
+      tabsContainer.querySelectorAll('.explorer-tab-btn').forEach(b => b.classList.remove('active'));
+      targetBtn.classList.add('active');
+    }
+    
+    currentTabId = id;
+    const activeTab = tabs.find(t => t.id === id);
+    if(activeTab) navigateTo(activeTab.path, false);
+  }
+
+  function closeTab(id) {
+    const index = tabs.findIndex(t => t.id === id);
+    if(index === -1) return;
+    tabs.splice(index, 1);
+    
+    if(tabsContainer) {
+      const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
+      if(btn) btn.remove();
+    }
+    
+    if(tabs.length > 0) { switchTab(tabs[Math.min(index, tabs.length - 1)].id); } 
+    else { createTab('/home', 'Home'); }
+  }
+
+  function updateTabTitle(name) {
+    const activeTab = tabs.find(t => t.id === currentTabId);
+    if(activeTab) activeTab.name = name;
+    if(tabsContainer) {
+      const btn = tabsContainer.querySelector(`.explorer-tab-btn[data-id="${currentTabId}"]`);
+      if(btn) btn.querySelector('.tab-title').textContent = name;
+    }
+  }
+
+  // --- FILE SYSTEM LOGIC ---
+  let isInlineEditing = false;
+  let selectedItem = null;
+
+  function isFile(item) {
+    return Boolean(item && item.type !== 'folder');
+  }
+
+  function openFileInNotes(item) {
+    if (currentPath === '/' || !isFile(item)) return;
+    window.parent.postMessage({
+      type: 'open-file-in-notes',
+      path: currentPath,
+      name: item.name
+    }, window.location.origin);
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.data.type === 'navigate' && e.data.path) navigateTo(e.data.path);
+    if (e.data.type === 'refresh-view') renderList(currentPath);
+  });
+
+  async function renderList(path) {
+    cancelInlineDelete();
+    isInlineEditing = false;
+    const list = document.getElementById('fileList');
+    list.innerHTML = '<tr><td colspan="3" style="text-align:center; color:rgba(255,255,255,0.5); padding: 40px;">Loading...</td></tr>';
+    
+    try {
+      const res = await fetch(`/api/system/files?path=${encodeURIComponent(path)}`);
+      const data = await res.json();
+      
+      if (!data.success) throw new Error(data.error);
+
+      // Enforce Read-Only UI Rules
+      isReadOnly = data.isReadOnly;
+      document.getElementById('readonlyBadge').style.display = isReadOnly ? 'inline-block' : 'none';
+      document.getElementById('btnNewFolder').disabled = isReadOnly;
+      document.getElementById('btnNewFile').disabled = isReadOnly;
+      document.getElementById('btnUpload').disabled = isReadOnly;
+      
+      if (!data.contents || data.contents.length === 0) {
+        list.innerHTML = `<tr><td colspan="3"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:48px; opacity:0.5;">folder_open</span>This folder is empty.</div></td></tr>`;
+        selectedItem = null;
+        selectedFile = null;
+        return;
+      }
+
+      list.innerHTML = '';
+      data.contents.forEach(item => {
+        if (item.name.startsWith('.')) return;
+
+        const tr = document.createElement('tr');
+        tr.className = 'file-row';
+        tr.dataset.name = item.name;
+        tr.dataset.type = item.type;
+        tr.dataset.date = item.date;
+        tr.dataset.size = item.size === '--' ? '-1' : String(parseFloat(item.size) || 0);
+        
+        tr.onclick = (e) => {
+          if (isInlineEditing) return;
+          if (path === '/' && item.type === 'folder' && item.name.toLowerCase() === 'home') {
+            navigateTo('/home');
+            return;
+          }
+          if (e.detail === 2) {
+            if (item.type === 'folder') {
+              navigateTo(path === '/' ? `/${item.name}` : `${path}/${item.name}`);
+            } else if (path !== '/') openFileInNotes(item);
+            return;
+          }
+          selectRow(tr, item);
+        };
+        
+        tr.oncontextmenu = (e) => {
+          e.preventDefault();
+          selectRow(tr, item);
+          showContextMenu(e.clientX, e.clientY, true);
+        };
+
+        let icon = 'description', iconClass = 'icon-doc';
+        if (item.type === 'folder') { icon = 'folder'; iconClass = 'icon-folder'; }
+        else if (['.jpg', '.png', '.gif', '.jpeg'].includes(item.ext)) { icon = 'image'; iconClass = 'icon-image'; }
+        else if (['.mp4', '.mkv', '.avi'].includes(item.ext)) { icon = 'movie'; iconClass = 'icon-movie'; }
+        else if (['.zip', '.rar', '.7z'].includes(item.ext)) { icon = 'folder_zip'; }
+
+        tr.innerHTML = `
+          <td><div class="name-col"><span class="material-symbols-outlined file-icon ${iconClass}">${icon}</span><span class="file-name-text">${item.name}</span></div></td>
+          <td style="color: rgba(255,255,255,0.7);">${item.date}</td>
+          <td style="color: rgba(255,255,255,0.7);">${item.size}</td>
+        `;
+        list.appendChild(tr);
+      });
+      sortFileRows(sortKey, false);
+    } catch (e) {
+      list.innerHTML = '<tr><td colspan="3"><div class="empty-state" style="color:#ff5f56;"><span class="material-symbols-outlined" style="font-size:48px;">block</span>Access Denied</div></td></tr>';
+    }
+  }
+
+  function sortFileRows(key, toggleDirection = true) {
+    if (toggleDirection) {
+      if (sortKey === key) sortDirection *= -1;
+      else {
+        sortKey = key;
+        sortDirection = 1;
+      }
+    }
+
+    const rows = [...document.querySelectorAll('#fileList .file-row')];
+    rows.sort((left, right) => {
+      const folderOrder = Number(right.dataset.type === 'folder') - Number(left.dataset.type === 'folder');
+      if (folderOrder) return folderOrder;
+
+      let comparison = 0;
+      if (sortKey === 'name') {
+        comparison = left.dataset.name.localeCompare(right.dataset.name, undefined, { numeric: true, sensitivity: 'base' });
+      } else if (sortKey === 'size') {
+        comparison = Number(left.dataset.size) - Number(right.dataset.size);
+      } else {
+        const leftDate = Date.parse(left.dataset.date);
+        const rightDate = Date.parse(right.dataset.date);
+        comparison = Number.isNaN(leftDate) || Number.isNaN(rightDate)
+          ? left.dataset.date.localeCompare(right.dataset.date)
+          : leftDate - rightDate;
+      }
+      return comparison * sortDirection || left.dataset.name.localeCompare(right.dataset.name, undefined, { numeric: true, sensitivity: 'base' });
+    });
+    rows.forEach(row => document.getElementById('fileList').appendChild(row));
+
+    document.querySelectorAll('.sort-button').forEach(button => {
+      const active = button.dataset.sort === sortKey;
+      button.setAttribute('aria-sort', active ? (sortDirection === 1 ? 'ascending' : 'descending') : 'none');
+      button.querySelector('.sort-indicator').textContent = active
+        ? (sortDirection === 1 ? 'arrow_upward' : 'arrow_downward')
+        : '';
+    });
+  }
+
+  function selectRow(row, item) {
+    document.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
+    if (row) row.classList.add('selected');
+    selectedItem = item;
+    selectedFile = item ? item.name : null;
+  }
+
+  function updateSidebar(path) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    let matchPath = path;
+    if (path !== '/' && path.startsWith('/') && !path.startsWith('/home')) {
+      matchPath = '/'; 
+    }
+    const activeMatch = [...document.querySelectorAll('.nav-item')].find(el => el.dataset.path === matchPath);
+    if (activeMatch) activeMatch.classList.add('active');
+  }
+
+  function navClick(path) { navigateTo(path); }
+
+  function navigateTo(path, updateState = true) {
+    if(updateState) {
+      const activeTab = tabs.find(t => t.id === currentTabId);
+      if(activeTab) activeTab.path = path;
+    }
+    
+    currentPath = path;
+    document.getElementById('addressBar').value = path;
+    renderList(path);
+    updateSidebar(path);
+    
+    const folderName = path === '/' ? 'System Root' : (path === '/home' ? 'Home' : path.split('/').pop());
+    updateTabTitle(folderName);
+    document.getElementById('btnUp').disabled = (path === '/' || path === '/home');
+  }
+
+  function goUp() {
+    const activeTab = tabs.find(t => t.id === currentTabId);
+    if(!activeTab || activeTab.path === '/' || activeTab.path === '/home') return;
+    const parts = activeTab.path.split('/');
+    parts.pop();
+    navigateTo(parts.join('/') || '/');
+  }
+
+  /* --- INLINE FILE OPERATIONS (NO BROWSER POPUPS) --- */
+
+  // 1. Inline New Folder
+  function startInlineNewFolder() {
+    if (isReadOnly || isInlineEditing) return;
+    cancelInlineDelete();
+
+    const list = document.getElementById('fileList');
+    const emptyState = list.querySelector('.empty-state');
+    if (emptyState) list.innerHTML = '';
+
+    isInlineEditing = true;
+    const tr = document.createElement('tr');
+    tr.className = 'file-row inline-edit-row';
+    tr.innerHTML = `
+      <td>
+        <div class="name-col">
+          <span class="material-symbols-outlined file-icon icon-folder">folder</span>
+          <input type="text" class="inline-edit-input" value="New Folder" />
+        </div>
+      </td>
+      <td style="color: rgba(255,255,255,0.5);">Just now</td>
+      <td style="color: rgba(255,255,255,0.5);">--</td>
+    `;
+    list.prepend(tr);
+
+    const input = tr.querySelector('input');
+    input.focus();
+    input.select();
+
+    let committed = false;
+    const commit = async () => {
+      if (committed) return;
+      committed = true;
+      const folderName = input.value.trim();
+      if (!folderName) {
+        tr.remove();
+        isInlineEditing = false;
+        if (list.children.length === 0) renderList(currentPath);
+        return;
+      }
+
+      try {
+        await fetch('/api/system/files/create-folder', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ path: currentPath, name: folderName })
+        });
+        isInlineEditing = false;
+        renderList(currentPath);
+        window.parent.postMessage({ type: 'refresh-desktop' }, '*');
+      } catch (err) {
+        tr.remove();
+        isInlineEditing = false;
+      }
+    };
+
+    const cancel = () => {
+      if (committed) return;
+      committed = true;
+      tr.remove();
+      isInlineEditing = false;
+      if (list.children.length === 0) renderList(currentPath);
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  // 2. Inline New Text File
+  function startInlineNewFile() {
+    if (isReadOnly || isInlineEditing) return;
+    cancelInlineDelete();
+
+    const list = document.getElementById('fileList');
+    const emptyState = list.querySelector('.empty-state');
+    if (emptyState) list.innerHTML = '';
+
+    isInlineEditing = true;
+    const tr = document.createElement('tr');
+    tr.className = 'file-row inline-edit-row';
+    tr.innerHTML = `
+      <td>
+        <div class="name-col">
+          <span class="material-symbols-outlined file-icon icon-doc">description</span>
+          <input type="text" class="inline-edit-input" value="New File.txt" />
+        </div>
+      </td>
+      <td style="color: rgba(255,255,255,0.5);">Just now</td>
+      <td style="color: rgba(255,255,255,0.5);">0 KB</td>
+    `;
+    list.prepend(tr);
+
+    const input = tr.querySelector('input');
+    input.focus();
+    // Select name part excluding extension
+    input.setSelectionRange(0, 8);
+
+    let committed = false;
+    const commit = async () => {
+      if (committed) return;
+      committed = true;
+      let fileName = input.value.trim();
+      if (!fileName) {
+        tr.remove();
+        isInlineEditing = false;
+        if (list.children.length === 0) renderList(currentPath);
+        return;
+      }
+
+      try {
+        await fetch('/api/system/files/content', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ path: currentPath, name: fileName, content: '' })
+        });
+        isInlineEditing = false;
+        renderList(currentPath);
+        window.parent.postMessage({ type: 'refresh-desktop' }, '*');
+      } catch (err) {
+        tr.remove();
+        isInlineEditing = false;
+      }
+    };
+
+    const cancel = () => {
+      if (committed) return;
+      committed = true;
+      tr.remove();
+      isInlineEditing = false;
+      if (list.children.length === 0) renderList(currentPath);
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  // 3. Inline Rename
+  function startInlineRename() {
+    if (isReadOnly || !selectedItem || isInlineEditing) return;
+    cancelInlineDelete();
+
+    const selectedRow = document.querySelector(`.file-row.selected`);
+    if (!selectedRow) return;
+
+    const nameCol = selectedRow.querySelector('.name-col');
+    const nameTextSpan = selectedRow.querySelector('.file-name-text');
+    if (!nameCol || !nameTextSpan) return;
+
+    isInlineEditing = true;
+    const oldName = selectedItem.name;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'inline-edit-input';
+    input.value = oldName;
+
+    nameTextSpan.style.display = 'none';
+    nameCol.appendChild(input);
+    input.focus();
+
+    // Select without extension if file
+    const lastDot = oldName.lastIndexOf('.');
+    if (selectedItem.type !== 'folder' && lastDot > 0) {
+      input.setSelectionRange(0, lastDot);
+    } else {
+      input.select();
+    }
+
+    let committed = false;
+    const commit = async () => {
+      if (committed) return;
+      committed = true;
+      const newName = input.value.trim();
+
+      if (!newName || newName === oldName) {
+        input.remove();
+        nameTextSpan.style.display = '';
+        isInlineEditing = false;
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/system/files/rename', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ path: currentPath, oldName, newName })
+        });
+        const resData = await res.json();
+        if (resData.success) {
+          selectedItem.name = newName;
+          selectedFile = newName;
+          nameTextSpan.textContent = newName;
+          selectedRow.dataset.name = newName;
+          input.remove();
+          nameTextSpan.style.display = '';
+          isInlineEditing = false;
+          window.parent.postMessage({ type: 'refresh-desktop' }, '*');
+        } else {
+          input.remove();
+          nameTextSpan.style.display = '';
+          isInlineEditing = false;
+        }
+      } catch (err) {
+        input.remove();
+        nameTextSpan.style.display = '';
+        isInlineEditing = false;
+      }
+    };
+
+    const cancel = () => {
+      if (committed) return;
+      committed = true;
+      input.remove();
+      nameTextSpan.style.display = '';
+      isInlineEditing = false;
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  // 4. Inline Delete Confirmation
+  function startInlineDelete() {
+    if (isReadOnly || !selectedItem) return;
+    const confirmBar = document.getElementById('inlineConfirmBar');
+    document.getElementById('confirmMessage').textContent = `Delete "${selectedItem.name}"?`;
+    confirmBar.style.display = 'flex';
+  }
+
+  function cancelInlineDelete() {
+    const confirmBar = document.getElementById('inlineConfirmBar');
+    if (confirmBar) confirmBar.style.display = 'none';
+  }
+
+  async function executeInlineDelete() {
+    if (isReadOnly || !selectedItem) return;
+    const itemToDelete = selectedItem;
+    cancelInlineDelete();
+
+    try {
+      await fetch('/api/system/files/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ path: currentPath, name: itemToDelete.name })
+      });
+      selectedItem = null;
+      selectedFile = null;
+      renderList(currentPath);
+      window.parent.postMessage({ type: 'refresh-desktop' }, '*');
+    } catch (err) {
+      console.error("Delete failed", err);
+    }
+  }
+
+  // 5. Keep System Root files unopened; open files from user folders in Notes.
+  function openSelected() {
+    if (!selectedItem) return;
+    if (selectedItem.type === 'folder') {
+      navigateTo(currentPath === '/' ? `/${selectedItem.name}` : `${currentPath}/${selectedItem.name}`);
+    } else {
+      openFileInNotes(selectedItem);
+    }
+  }
+
+  function openInTerminal() {
+    const terminalPath = selectedItem?.type === 'folder'
+      ? `${currentPath === '/' ? '' : currentPath}/${selectedItem.name}`
+      : currentPath;
+    window.parent.postMessage({ type: 'open-terminal-in-directory', path: terminalPath || '/' }, window.location.origin);
+    cm.classList.remove('open');
+  }
+
+  // File Upload
+  document.getElementById('uploadInput').addEventListener('change', async (e) => {
+    if(isReadOnly) return;
+    for(let file of e.target.files) {
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        const b64 = evt.target.result.split(',')[1];
+        await fetch('/api/system/files/upload', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({path: currentPath, name: file.name, data: b64})
+        });
+        renderList(currentPath);
+        window.parent.postMessage({type: 'refresh-desktop'}, '*');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  /* Context Menu Handling */
+  const cm = document.getElementById('contextMenu');
+  function showContextMenu(x, y, hasSelection) {
+    document.getElementById('cmOpen').style.display =
+      (hasSelection && (selectedItem?.type === 'folder' || currentPath !== '/')) ? 'flex' : 'none';
+    document.getElementById('cmOpenTerminal').style.display = 'flex';
+    document.getElementById('cmRename').style.display = (hasSelection && !isReadOnly) ? 'flex' : 'none';
+    document.getElementById('cmDelete').style.display = (hasSelection && !isReadOnly) ? 'flex' : 'none';
+
+    document.getElementById('cmDivider').style.display = (hasSelection && !isReadOnly) ? 'block' : 'none';
+    document.getElementById('cmNew').style.display = isReadOnly ? 'none' : 'flex';
+    document.getElementById('cmNewFile').style.display = isReadOnly ? 'none' : 'flex';
+    document.getElementById('cmUpload').style.display = isReadOnly ? 'none' : 'flex';
+
+    cm.style.left = '0px';
+    cm.style.top = '0px';
+    cm.classList.add('open');
+
+    const rect = cm.getBoundingClientRect();
+    cm.style.left = `${Math.max(8, Math.min(x, window.innerWidth - rect.width - 8))}px`;
+    cm.style.top = `${Math.max(8, Math.min(y, window.innerHeight - rect.height - 8))}px`;
+  }
+  
+  document.getElementById('mainArea').oncontextmenu = (e) => {
+    if(e.target.closest('.file-row')) return;
+    e.preventDefault();
+    selectRow(null, null);
+    showContextMenu(e.clientX, e.clientY, false);
+  };
+
+  document.addEventListener('contextmenu', event => event.preventDefault(), true);
+
+  document.querySelectorAll('.sort-button').forEach(button => {
+    button.addEventListener('click', () => sortFileRows(button.dataset.sort));
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#contextMenu')) cm.classList.remove('open');
+  });
+
+  // Global Keyboard Shortcuts for Inline Actions
+  document.addEventListener('keydown', (e) => {
+    const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+    const isConfirmOpen = document.getElementById('inlineConfirmBar').style.display === 'flex';
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+      e.preventDefault();
+      const addressBar = document.getElementById('addressBar');
+      addressBar.focus();
+      addressBar.select();
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      if (isConfirmOpen) { cancelInlineDelete(); return; }
+    }
+
+    if (isInput || isInlineEditing) return;
+
+    if (e.key === 'F2' && selectedItem && !isReadOnly) {
+      e.preventDefault();
+      startInlineRename();
+    } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedItem && !isReadOnly) {
+      e.preventDefault();
+      startInlineDelete();
+    } else if (e.key === 'Enter' && selectedItem) {
+      e.preventDefault();
+      openSelected();
+    }
+  });
+
+  /* In-App Drag and Drop */
+  document.body.addEventListener('dragenter', e => e.preventDefault());
+  document.body.addEventListener('dragover', e => e.preventDefault());
+  document.body.addEventListener('drop', e => {
+    e.preventDefault();
+    if(isReadOnly) return;
+    document.getElementById('uploadInput').files = e.dataTransfer.files;
+    document.getElementById('uploadInput').dispatchEvent(new Event('change'));
+  });
+
+  function formatStorageSize(bytes) {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+    let size = bytes;
+    let unitIndex = 0;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+  }
+
+  async function refreshDriveUsage() {
+    const label = document.getElementById('driveUsageLabel');
+    const fill = document.getElementById('driveUsageFill');
+    const progress = fill.parentElement;
+    try {
+      const response = await fetch('/api/system/storage');
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || 'Unable to read disk usage');
+      const percent = Math.round(data.usagePercent);
+      label.textContent = `${formatStorageSize(data.usedBytes)} of ${formatStorageSize(data.totalBytes)} used`;
+      fill.style.width = `${percent}%`;
+      progress.setAttribute('aria-valuenow', String(percent));
+      progress.setAttribute('aria-valuetext', `${percent}% used`);
+    } catch (error) {
+      console.error('Could not load system disk usage:', error);
+      label.textContent = 'Disk usage unavailable';
+      fill.style.width = '0%';
+      progress.setAttribute('aria-valuenow', '0');
+      progress.removeAttribute('aria-valuetext');
+    }
+  }
+
+  // Boot Up
+  createTab('/home', 'Home');
+  refreshDriveUsage();
+  setInterval(refreshDriveUsage, 60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!-- 
+mariowOS Help Application
+Licensed under the Apache License, Version 2.0
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mariowOS Help & Documentation</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  
+  <style>
+    :root {
+      --mac-accent: #0a84ff;
+      --mac-sidebar: rgba(22, 22, 25, 0.65);
+      --mac-border: rgba(255, 255, 255, 0.08);
+      --mac-text: #ffffff;
+      --mac-text-secondary: rgba(255, 255, 255, 0.55);
+      --mac-hover: rgba(255, 255, 255, 0.1);
+      --mac-bg: #1c1c1e;
+      
+      --doc-text: rgba(255, 255, 255, 0.85);
+      --callout-info-bg: rgba(10, 132, 255, 0.1);
+      --callout-warning-bg: rgba(255, 159, 10, 0.1);
+      --callout-success-bg: rgba(40, 205, 65, 0.1);
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--mac-bg);
+      color: var(--mac-text);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: var(--mac-sidebar);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(0, 0, 0, 0.4);
+      box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05); 
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 8px; 
+      background: linear-gradient(135deg, #0a84ff, #5e5ce6); 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3); 
+      color: white;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title { font-weight: 600; font-size: 15px; }
+    .brand-subtitle { font-size: 12px; color: var(--mac-text-secondary); }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .sidebar-nav::-webkit-scrollbar { width: 0px; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--mac-text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: var(--mac-hover);
+      color: var(--mac-text);
+    }
+
+    .nav-item.active {
+      background: var(--mac-accent);
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    .nav-item .material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      position: relative;
+    }
+
+    .content-area::-webkit-scrollbar { width: 8px; }
+    .content-area::-webkit-scrollbar-track { background: transparent; }
+    .content-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .content-area::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+    .document-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 60px 40px 100px 40px;
+    }
+
+    section {
+      margin-bottom: 60px;
+      scroll-margin-top: 60px; /* Offset for smooth scrolling */
+    }
+
+    /* Typography */
+    h1 { 
+      font-size: 32px; 
+      font-weight: 700; 
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--mac-border);
+      padding-bottom: 16px;
+    }
+    
+    h2 { 
+      font-size: 24px; 
+      font-weight: 600; 
+      margin-top: 40px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3 {
+      font-size: 18px; 
+      font-weight: 600; 
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+
+    p, li { 
+      line-height: 1.7; 
+      color: var(--doc-text); 
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      margin-bottom: 24px;
+      padding-left: 24px;
+    }
+
+    li { margin-bottom: 8px; }
+
+    strong { color: var(--mac-text); font-weight: 600; }
+    
+    code {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      color: #e6e6e6;
+    }
+
+    .callout {
+      display: flex;
+      gap: 16px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 24px 0;
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--mac-border);
+    }
+    
+    .callout .material-symbols-outlined {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    
+    .callout p { margin: 0; }
+    
+    .callout.info {
+      background: var(--callout-info-bg);
+      border-left-color: var(--mac-accent);
+    }
+    .callout.info .material-symbols-outlined { color: var(--mac-accent); }
+    
+    .callout.warning {
+      background: var(--callout-warning-bg);
+      border-left-color: #ff9f0a;
+    }
+    .callout.warning .material-symbols-outlined { color: #ff9f0a; }
+
+    .callout.success {
+      background: var(--callout-success-bg);
+      border-left-color: #32d74b;
+    }
+    .callout.success .material-symbols-outlined { color: #32d74b; }
+
+    /* Media query for smaller screens */
+    @media (max-width: 768px) {
+      .sidebar { width: 220px; min-width: 220px; }
+      .document-container { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">
+        <span class="material-symbols-outlined">menu_book</span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">mariowOS Help</span>
+        <span class="brand-subtitle">Documentation</span>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a href="#intro" class="nav-item active" data-target="intro">
+        <span class="material-symbols-outlined">rocket_launch</span>
+        Welcome
+      </a>
+      <a href="#ui" class="nav-item" data-target="ui">
+        <span class="material-symbols-outlined">web_asset</span>
+        Navigating the UI
+      </a>
+      <a href="#personalization" class="nav-item" data-target="personalization">
+        <span class="material-symbols-outlined">palette</span>
+        Personalization
+      </a>
+      <a href="#security" class="nav-item" data-target="security">
+        <span class="material-symbols-outlined">shield_lock</span>
+        Security & Privacy
+      </a>
+      <a href="#connectivity" class="nav-item" data-target="connectivity">
+        <span class="material-symbols-outlined">wifi</span>
+        Connectivity & Updates
+      </a>
+      <a href="#lab" class="nav-item" data-target="lab">
+        <span class="material-symbols-outlined">science</span>
+        Functions Lab
+      </a>
+    </nav>
+  </aside>
+
+  <main class="content-area" id="main-scroll-area">
+    <div class="document-container">
+      
+      <section id="intro">
+        <h1>Welcome to mariowOS</h1>
+        <p>mariowOS is a revolutionary, modular, and lightweight web-based desktop environment. Designed from the ground up for speed, minimalism, and high contrast, it provides a seamless user experience that feels both familiar and fundamentally modern.</p>
+        
+        <div class="callout success">
+          <span class="material-symbols-outlined">speed</span>
+          <div>
+            <strong>Built for Performance</strong>
+            <p>By leveraging modern web technologies and keeping the core system extraordinarily light, mariowOS ensures instant boot times and snappy application responses, even on lower-end hardware.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="ui">
+        <h2><span class="material-symbols-outlined" style="color: #64d2ff;">web_asset</span> Navigating the UI</h2>
+        <p>The interface is built with highly responsive layouts that seamlessly adapt to your workflow, whether you are on a desktop monitor or a portable touch device.</p>
+        
+        <h3>Background Worker Threads</h3>
+        <p>Unlike traditional operating systems that can hang when a single app misbehaves, mariowOS guarantees complete system stability. Intensive tasks and heavy computations are automatically offloaded to <strong>background worker threads</strong>.</p>
+        
+        <div class="callout info">
+          <span class="material-symbols-outlined">info</span>
+          <p>This asynchronous architecture guarantees that the main user interface never freezes. You can continue interacting with the desktop while complex tasks run silently in the background.</p>
+        </div>
+      </section>
+
+      <section id="personalization">
+        <h2><span class="material-symbols-outlined" style="color: #34c759;">palette</span> Personalization</h2>
+        <p>Making mariowOS your own is incredibly straightforward. Head over to the <strong>Wallpaper & Style</strong> or <strong>Lockscreen</strong> settings to adjust your desktop's visual footprint.</p>
+
+        <h3>Powered by monet-engine</h3>
+        <p>At the heart of the UI customization is the custom-built <code>monet-engine</code>. When you change your wallpaper, this engine dynamically extracts an optimized color palette from the image.</p>
+        <ul>
+          <li><strong>System-wide Accents:</strong> Buttons, toggles, and highlights automatically adjust to complement your background.</li>
+          <li><strong>Smart Contrast:</strong> The engine ensures that text remains highly legible by calculating appropriate contrast ratios on the fly.</li>
+        </ul>
+      </section>
+
+      <section id="security">
+        <h2><span class="material-symbols-outlined" style="color: #bf5af2;">shield_lock</span> Security & Privacy</h2>
+        <p>At the core of mariowOS is a profound commitment to your privacy and security. The system architecture is designed to prevent unauthorized access by default.</p>
+
+        <h3>Strict Process Sandboxing</h3>
+        <p>mariowOS utilizes strict process sandboxing. There is a hard separation between user applications and the system core. Applications run in isolated environments; they cannot read or write to sensitive system files or access data from other apps without your explicit permission.</p>
+
+        <div class="callout warning">
+          <span class="material-symbols-outlined">lock</span>
+          <div>
+            <strong>Mandatory Authentication</strong>
+            <p>Sensitive actions—such as modifying network configurations, resetting the system, or granting elevated app permissions—will always trigger a mandatory secure password prompt. The system will not proceed without verifying your identity.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="connectivity">
+        <h2><span class="material-symbols-outlined" style="color: #0a84ff;">wifi</span> Connectivity & Updates</h2>
+        <p>Managing your digital connections is straightforward via the built-in Settings panel. mariowOS provides native interfaces for managing Wi-Fi, Bluetooth, and Ethernet networks instantly.</p>
+
+        <h3>The Updater</h3>
+        <p>Keeping your system secure and equipped with the latest features is handled entirely by the built-in <strong>Updater</strong> application.</p>
+        <ul>
+          <li><strong>Secure Mirrors:</strong> Updates are securely fetched from verified mariowOS remote mirrors.</li>
+          <li><strong>Modular Upgrades:</strong> Because of the system's modular nature, many updates apply instantly without requiring a full system reboot.</li>
+        </ul>
+      </section>
+
+      <section id="lab">
+        <h2><span class="material-symbols-outlined" style="color: #ff9f0a;">science</span> Functions Lab</h2>
+        <p>For power users, developers, and early adopters, mariowOS includes a dedicated space known as the <strong>Functions Lab</strong>, accessible via the System Settings.</p>
+        
+        <p>The Functions Lab is where you can toggle experimental tools, advanced developer features, and beta API access for your workspace.</p>
+
+        <div class="callout warning">
+          <span class="material-symbols-outlined">warning</span>
+          <div>
+            <strong>Proceed with Caution</strong>
+            <p>Features contained within the Functions Lab are actively in development. While exciting, enabling them may cause unexpected behavior or temporary system instability. Use these features primarily for testing and development purposes.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const sections = document.querySelectorAll("section");
+      const navItems = document.querySelectorAll(".nav-item");
+      const scrollArea = document.getElementById("main-scroll-area");
+
+      // Setup Intersection Observer to highlight active sidebar link
+      const observerOptions = {
+        root: scrollArea,
+        // Trigger slightly before the section hits the exact middle of the screen
+        rootMargin: "-20% 0px -70% 0px", 
+        threshold: 0
+      };
+
+      const observerCallback = (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const currentId = entry.target.id;
+            
+            // Remove active class from all links
+            navItems.forEach(item => {
+              item.classList.remove("active");
+              // Add active class to the currently visible section's link
+              if (item.getAttribute("data-target") === currentId) {
+                item.classList.add("active");
+              }
+            });
+          }
+        });
+      };
+
+      const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+      sections.forEach(section => {
+        observer.observe(section);
+      });
+
+      // Handle sidebar link clicks for smooth scrolling and instant UI update
+      navItems.forEach(link => {
+        link.addEventListener("click", function(e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute("data-target");
+          const targetSection = document.getElementById(targetId);
+          
+          if (targetSection) {
+            // Scroll to the target section
+            targetSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Manually update classes immediately for responsiveness
+            navItems.forEach(item => item.classList.remove("active"));
+            this.classList.add("active");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

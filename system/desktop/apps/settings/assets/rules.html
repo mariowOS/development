@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rules</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  margin: 0;
+  padding: 40px;
+  background: transparent;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.header {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.back-btn:hover {
+  color: #fff;
+}
+
+.banner {
+  background: rgba(30,30,30,0.7);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.banner .title {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.banner .desc {
+  font-size: 13px;
+  color: #bbb;
+  margin-top: 4px;
+}
+
+.item {
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.text-title {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.text-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 3px;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link rel="stylesheet" href="settings-submenu.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="settings-page-header">
+    <button class="settings-page-back" type="button" aria-label="Back to settings" onclick="goBackToSettings()">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <h1>Rules</h1>
+  </div>
+
+  <div class="banner">
+    <div class="title">Create custom automation rules</div>
+    <div class="desc">
+      Set up automated actions based on specific events and conditions on your system. Rules help you automate repetitive tasks.
+    </div>
+  </div>
+
+  <div class="panel settings-list">
+  <div class="item" onclick="navigateToFile('new-rule.html')">
+    <div class="icon-badge bg-gray"><span class="material-symbols-outlined">add</span></div>
+    <div class="text-group">
+    <div class="text-title">New rule</div>
+    <div class="text-desc">Create a new automation rule from scratch</div>
+    </div>
+    <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+  </div>
+
+  <div class="item" onclick="navigateToFile('manage-rules.html')">
+    <div class="icon-badge bg-gray"><span class="material-symbols-outlined">list_alt</span></div>
+    <div class="text-group">
+    <div class="text-title">Manage rules</div>
+    <div class="text-desc">View, edit, and delete existing rules</div>
+    </div>
+    <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+  </div>
+
+  <div class="item" onclick="navigateToFile('rule-templates.html')">
+    <div class="icon-badge bg-gray"><span class="material-symbols-outlined">view_cozy</span></div>
+    <div class="text-group">
+    <div class="text-title">Rule templates</div>
+    <div class="text-desc">Use predefined rule templates for common tasks</div>
+    </div>
+    <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+  </div>
+
+  <div class="item" onclick="navigateToFile('rule-history.html')">
+    <div class="icon-badge bg-gray"><span class="material-symbols-outlined">history</span></div>
+    <div class="text-group">
+    <div class="text-title">Rule history</div>
+    <div class="text-desc">View the history of executed rules</div>
+    </div>
+    <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+  </div>
+
+  <div class="item" onclick="navigateToFile('enable-disable-rules.html')">
+    <div class="icon-badge bg-gray"><span class="material-symbols-outlined">toggle_on</span></div>
+    <div class="text-group">
+    <div class="text-title">Enable/Disable all rules</div>
+    <div class="text-desc">Temporarily disable all automation rules</div>
+    </div>
+    <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+  </div>
+  </div>
+</div>
+
+<script>
+function goBackToSettings() {
+  if (window.parent && typeof window.parent.closeSettingsSubmenu === 'function') {
+    window.parent.closeSettingsSubmenu('rules');
+  } else {
+    window.history.back();
+  }
+}
+
+function navigateToFile(file) {
+  const openPage = () => {
+    window.location.href = `/desktop/apps/settings/assets/${file}`;
+  };
+
+  if (window.parent !== window && typeof window.parent.requirePassword === 'function') {
+    window.parent.requirePassword(openPage);
+  } else {
+    openPage();
+  }
+}
+
+document.querySelectorAll('.item').forEach(item => {
+  item.setAttribute('role', 'link');
+  item.setAttribute('tabindex', '0');
+  item.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') item.click();
+  });
+});
+</script>
+
+</body>
+</html>

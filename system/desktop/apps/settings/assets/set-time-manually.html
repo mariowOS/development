@@ -1,0 +1,151 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Time Manually</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      color: white; 
+      margin: 0; 
+      padding: 30px 20px; 
+      background: transparent; 
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel { 
+      background: rgba(255, 255, 255, 0.06); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 12px; 
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel label { 
+      font-size: 13px; 
+      font-weight: 500; 
+      color: rgba(255, 255, 255, 0.7); 
+      margin-left: 2px;
+    }
+
+    .panel input[type="time"] { 
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px; 
+      border-radius: 8px; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      background: rgba(0, 0, 0, 0.25); 
+      color: white; 
+      font-family: inherit; 
+      font-size: 16px; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    
+    .panel input[type="time"]:focus { border-color: #0a84ff; }
+    
+    ::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    ::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+    .btn { 
+      width: 100%; 
+      padding: 14px; 
+      border-radius: 8px; 
+      border: none; 
+      background: #0a84ff; 
+      color: white; 
+      font-weight: 500; 
+      font-size: 14px;
+      cursor: pointer; 
+      font-family: inherit; 
+      transition: background 0.2s; 
+    }
+    .btn:hover { background: #007aff; }
+
+    html::-webkit-scrollbar { display: none; }
+  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <link rel="stylesheet" href="settings-submenu.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="settings-page-header">
+    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <h1>Set Time Manually</h1>
+  </div>
+  <div class="panel form-panel">
+    <label for="timeInput">Select System Time</label>
+    <input type="time" id="timeInput">
+  </div>
+
+  <button class="btn" onclick="setTime()">Save Changes</button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  const timeInput = document.getElementById('timeInput');
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  timeInput.value = `${hours}:${minutes}`;
+});
+
+function setTime() {
+  const timeInput = document.getElementById('timeInput');
+  
+  if (!timeInput.value) {
+    alert('Please select a time');
+    return;
+  }
+
+  const [hours, minutes] = timeInput.value.split(':');
+  const h = parseInt(hours, 10);
+  const m = parseInt(minutes, 10);
+
+  const now = new Date();
+  const offsetMs = (h - now.getHours()) * 3600000 + (m - now.getMinutes()) * 60000;
+  
+  localStorage.setItem('systemTimeOffset', offsetMs);
+  localStorage.setItem('manualTimeEnabled', 'true');
+  localStorage.removeItem('timezoneOffset');
+
+  alert(`System time set to: ${hours}:${minutes}`);
+  
+  setTimeout(function() {
+    window.history.back();
+  }, 500);
+}
+
+</script>
+
+</body>
+</html>

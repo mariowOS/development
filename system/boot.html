@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#000000">
+  <style>
+    :root { color-scheme: dark; font-family: "Segoe UI", system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { color: #f5f6fa; background: #000; }
+    main { position: fixed; inset: 0; text-align: center; }
+    #bootLogo {
+      position: absolute; top: 50%; left: 50%;
+      width: min(24vw, 144px); height: min(24vw, 144px);
+      max-width: calc(100vw - 48px); max-height: calc(100vh - 48px);
+      object-fit: contain; transform: translate(-50%, -50%);
+      animation: logoAppear .8s cubic-bezier(.2,.8,.2,1) both;
+    }
+    #status {
+      display: none; position: absolute; left: 50%; bottom: 28px;
+      width: min(600px, calc(100vw - 48px)); transform: translateX(-50%);
+      margin: 0; color: #ffb4ab; font-size: 12px; overflow-wrap: anywhere;
+    }
+    #bootLogs {
+      display: none; position: absolute; left: 24px; bottom: 24px;
+      width: min(560px, calc(100vw - 48px)); max-height: 28vh; overflow: hidden;
+      color: rgba(237, 242, 255, .72); font: 11px/1.55 Consolas, "Cascadia Mono", monospace;
+      text-align: left; text-shadow: 0 1px 3px #000; pointer-events: none;
+    }
+    .boot-log { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .boot-log::before { color: #7de0a3; content: "[  OK  ] "; }
+    .boot-log.error { color: #ffb4ab; }
+    .boot-log.error::before { color: #ff6b6b; content: "[ FAIL ] "; }
+    @keyframes logoAppear { from { opacity: 0; translate: 0 8px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      #bootLogo { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main role="status" aria-live="polite">
+    <img id="bootLogo" src="/desktop/assets/icons/stars.png">
+    <p id="status"></p>
+    <div id="bootLogs" aria-hidden="true"></div>
+  </main>
+  <script>
+    const statusLabel = document.getElementById('status');
+    const bootLogo = document.getElementById('bootLogo');
+    const bootLogs = document.getElementById('bootLogs');
+    let verboseBoot = new URLSearchParams(location.search).get('verbose') === '1';
+    if (verboseBoot) bootLogs.style.display = 'block';
+
+    function logBoot(message, isError = false) {
+      if (!verboseBoot) return;
+      const line = document.createElement('div');
+      line.className = isError ? 'boot-log error' : 'boot-log';
+      line.textContent = `${new Date().toLocaleTimeString()} ${message}`;
+      bootLogs.append(line);
+      while (bootLogs.childElementCount > 8) bootLogs.firstElementChild.remove();
+    }
+
+    function preloadImage(source, timeoutMs = 5000) {
+      return new Promise(resolve => {
+        const image = new Image();
+        let finished = false;
+        let decodeFallbackTimer = null;
+        const finish = success => {
+          if (finished) return;
+          finished = true;
+          clearTimeout(timer);
+          clearTimeout(decodeFallbackTimer);
+          resolve(success);
+        };
+        const timer = setTimeout(() => finish(false), timeoutMs);
+        image.onload = () => {
+          if (!image.naturalWidth) {
+            finish(false);
+            return;
+          }
+          if (typeof image.decode === 'function') {
+            decodeFallbackTimer = setTimeout(() => finish(image.complete && image.naturalWidth > 0), 700);
+            image.decode().then(() => finish(true)).catch(() => finish(image.complete && image.naturalWidth > 0));
+          } else {
+            finish(true);
+          }
+        };
+        image.onerror = () => finish(false);
+        image.src = source;
+        if (image.complete && image.naturalWidth > 0) finish(true);
+      });
+    }
+
+    function getActiveWallpaper() {
+      const stored = localStorage.getItem('wallpaper');
+      if (!stored) return null;
+      try {
+        const base = stored.startsWith('../')
+          ? `${location.origin}/desktop/apps/settings/assets/`
+          : location.href;
+        const resolved = new URL(stored, base);
+        return ['http:', 'https:', 'data:', 'blob:'].includes(resolved.protocol) ? resolved.href : null;
+      } catch {
+        return null;
+      }
+    }
+
+    async function start() {
+      while (true) {
+        try {
+          logBoot('Waiting for system services');
+          const response = await fetch('/api/system/boot-assets', { cache: 'no-store' });
+          if (!response.ok) throw new Error(`asset list request failed (${response.status})`);
+          const assets = await response.json();
+          if (typeof assets.requiredWallpaper !== 'string' || !Array.isArray(assets.icons) || !Array.isArray(assets.optionalAssets)) {
+            throw new Error('E: boot_assetlist_incomplete');
+          }
+          if (typeof assets.bootLogo !== 'string') throw new Error('E: boot_logo_settings_not_available');
+          verboseBoot ||= assets.verbose === true;
+          if (verboseBoot) bootLogs.style.display = 'block';
+          logBoot('system services are ready');
+          logBoot('booting assets manifest loaded');
+
+          const selectedBootLogo = assets.bootLogo;
+          if (await preloadImage(selectedBootLogo, 8000)) {
+            bootLogo.src = selectedBootLogo;
+            logBoot(selectedBootLogo.includes('bootlogo.user') ? 'mwos_bootscreen started' : 'mwos_default_bootscreen started');
+          } else if (selectedBootLogo !== '/desktop/assets/icons/stars.png') {
+            bootLogo.src = '/desktop/assets/icons/stars.png';
+            if (!await preloadImage(bootLogo.src, 8000)) throw new Error('Neither the custom nor default boot logo could be decoded');
+            logBoot('E: boot_logo_not_decoded');
+          } else {
+            throw new Error('E: boot_logo_not_decoded');
+          }
+
+          const activeWallpaper = getActiveWallpaper();
+          const sources = [...assets.optionalAssets, ...assets.icons];
+          if (activeWallpaper) sources.unshift(activeWallpaper);
+          const uniqueSources = [...new Set([assets.requiredWallpaper, ...sources])];
+          if (!await preloadImage(assets.requiredWallpaper, 15000)) {
+            throw new Error('E: wallpaper_not_decoded');
+          }
+          logBoot('wallpaper_service started');
+
+          const optional = uniqueSources.slice(1);
+          const wallpaperSources = optional.filter(source => /wallpaper/i.test(source));
+          const otherSources = optional.filter(source => !/wallpaper/i.test(source));
+          for (const source of wallpaperSources) {
+            if (await preloadImage(source, 8000)) logBoot(`wallpaper ready: ${new URL(source, location.href).pathname.split('/').pop()}`);
+          }
+          for (let index = 0; index < otherSources.length; index += 6) {
+            const batch = otherSources.slice(index, index + 6);
+            const results = await Promise.all(batch.map(source => preloadImage(source)));
+            const loadedCount = results.filter(Boolean).length;
+            const batchLabel = `${Math.min(index + batch.length, otherSources.length)}/${otherSources.length}`;
+            logBoot(loadedCount === batch.length
+              ? `Interface images decoded: ${batchLabel}`
+              : `Interface images decoded: ${batchLabel} (${batch.length - loadedCount} unavailable)`);
+          }
+
+          logBoot('startup complete; opening desktop');
+          location.replace('/');
+          return;
+        } catch (error) {
+          logBoot(`E: boot failed: ${error.message}`, true);
+          statusLabel.textContent = `E: could not finish booting: ${error.message}. retrying…`;
+          statusLabel.style.display = 'block';
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>

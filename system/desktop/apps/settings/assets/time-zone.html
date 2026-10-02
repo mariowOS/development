@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Zone Settings</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      color: white; 
+      margin: 0; 
+      padding: 30px 20px; 
+      background: transparent; 
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel { 
+      background: rgba(255, 255, 255, 0.06); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 12px; 
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel label { 
+      font-size: 13px; 
+      font-weight: 500; 
+      color: rgba(255, 255, 255, 0.7); 
+      margin-left: 2px;
+    }
+
+    .panel select { 
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px; 
+      border-radius: 8px; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      background: rgba(0, 0, 0, 0.25); 
+      color: white; 
+      font-family: inherit; 
+      font-size: 14px; 
+      outline: none; 
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+    
+    .panel select:focus { border-color: #0a84ff; }
+    
+    .panel select option {
+      background: #1e1e1e;
+      color: white;
+    }
+
+    .preview-box {
+      font-size: 38px;
+      font-weight: 300;
+      text-align: center;
+      padding: 24px 0 10px 0;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .btn { 
+      width: 100%; 
+      padding: 14px; 
+      border-radius: 8px; 
+      border: none; 
+      background: #0a84ff; 
+      color: white; 
+      font-weight: 500; 
+      font-size: 14px;
+      cursor: pointer; 
+      font-family: inherit; 
+      transition: background 0.2s; 
+    }
+    .btn:hover { background: #007aff; }
+
+    html::-webkit-scrollbar { display: none; }
+  </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <link rel="stylesheet" href="settings-submenu.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="settings-page-header">
+    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <h1>Time Zone</h1>
+  </div>
+  
+  <div class="panel form-panel">
+    <label for="timezoneSelect">Select Time Zone</label>
+    <select id="timezoneSelect" onchange="updatePreviewClock()">
+      <option value="-12">UTC−12 (International Date Line West)</option>
+      <option value="-11">UTC−11 (Samoa Time)</option>      
+      <option value="-10">UTC−10 (Hawaii Time)</option>
+      <option value="-9">UTC−9 (Alaska Time)</option>
+      <option value="-8">UTC−8 (Pacific Time)</option>
+      <option value="-7">UTC−7 (Mountain Time)</option>
+      <option value="-6">UTC−6 (Central Time)</option>
+      <option value="-5">UTC−5 (Eastern Time)</option>
+      <option value="-4">UTC−4 (Atlantic Time)</option>
+      <option value="-3">UTC−3 (Buenos Aires Time)</option>
+      <option value="-2">UTC−2 (Fernando de Noronha Time)</option>
+      <option value="-1">UTC−1 (Azores Time)</option>
+      <option value="0">UTC±0 (Greenwich Mean Time)</option>
+      <option value="1">UTC+1 (CET – Winter Time)</option>
+      <option value="2">UTC+2 (EET / CEST – Summer Time)</option>
+      <option value="3">UTC+3 (Eastern European Time)</option>
+      <option value="4">UTC+4 (Gulf Standard Time)</option>
+      <option value="5">UTC+5 (Pakistan Standard Time)</option>
+      <option value="5.5">UTC+5:30 (India Standard Time)</option>
+      <option value="6">UTC+6 (Bangladesh Standard Time)</option>
+      <option value="7">UTC+7 (Indochina Time)</option>
+      <option value="8">UTC+8 (China Standard Time)</option>
+      <option value="9">UTC+9 (Japan Standard Time)</option>
+      <option value="10">UTC+10 (Australian Eastern Time)</option>
+      <option value="11">UTC+11 (Solomon Islands Time)</option>
+      <option value="12">UTC+12 (New Zealand Standard Time)</option>
+    </select>
+  </div>
+
+  <div class="panel form-panel">
+    <label>Preview Time</label>
+    <div class="preview-box" id="previewClock">--:--</div>
+  </div>
+
+  <button class="btn" onclick="setTimeZone()">Apply Time Zone</button>
+</div>
+
+<script>
+window.addEventListener('load', function() {
+  const saved = localStorage.getItem('timezoneOffset');
+  if (saved !== null) {
+    document.getElementById('timezoneSelect').value = saved;
+  }
+  updatePreviewClock();
+  setInterval(updatePreviewClock, 1000);
+});
+
+function updatePreviewClock() {
+  const select = document.getElementById('timezoneSelect');
+  const offset = parseFloat(select.value);
+  
+  let now = new Date();
+  let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
+  utcMs = utcMs + (offset * 3600000);
+  
+  let displayTime = new Date(utcMs);
+  
+  let h = displayTime.getUTCHours(), m = displayTime.getUTCMinutes(), s = displayTime.getUTCSeconds();
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12; h = h ? h : 12;
+  m = m < 10 ? "0" + m : m;
+  s = s < 10 ? "0" + s : s;
+  
+  const txt = `${h}:${m}:${s} ${ampm}`;
+  document.getElementById("previewClock").textContent = txt;
+}
+
+function setTimeZone() {
+  const select = document.getElementById('timezoneSelect');
+  const offset = parseFloat(select.value);
+  
+  localStorage.setItem('timezoneOffset', offset);
+  localStorage.setItem('systemTimeOffset', 0);
+  localStorage.setItem('manualTimeEnabled', 'false');
+  
+  alert(`Time zone set to UTC${offset >= 0 ? '+' : ''}${offset}`);
+  
+  setTimeout(function() {
+    window.history.back();
+  }, 500);
+}
+
+</script>
+
+</body>
+</html>

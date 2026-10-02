@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lockscreen Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 10px 0 40px 0;
+    background: transparent;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .container {
+    width: 100%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .panel {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .list-item:hover { background: rgba(255, 255, 255, 0.06); }
+  
+  .item-left { display: flex; align-items: center; gap: 12px; }
+  .icon-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 6px; color: white;
+  }
+  .icon-badge .material-symbols-outlined { font-size: 16px; }
+  .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
+  .bg-blue { background: linear-gradient(180deg, #0a84ff, #007aff); }
+  .bg-purple { background: linear-gradient(180deg, #bf5af2, #af52de); }
+
+  .item-title { font-size: 14px; font-weight: 500; }
+  .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
+
+  /* macOS Themed Custom Selectors */
+  .custom-select-wrapper { position: relative; }
+  .select-btn {
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 10px 6px 14px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 160px;
+    cursor: pointer;
+    transition: border 0.2s;
+  }
+  .select-btn:hover { border-color: rgba(255, 255, 255, 0.3); }
+  .select-btn.active { border-color: #0a84ff; box-shadow: 0 0 0 1px #0a84ff; }
+  .select-btn .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.6); }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 200px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: rgba(28, 28, 30, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-menu::-webkit-scrollbar { width: 4px; }
+  .dropdown-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+  .dropdown-item {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+    color: white;
+  }
+  .dropdown-item:hover { background: #0a84ff; color: white; }
+
+  /* macOS Toggle Switch */
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.15); transition: .3s; border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 20px; width: 20px; left: 1px; bottom: 1px;
+    background-color: white; transition: .3s; border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  input:checked + .slider { background-color: #34c759; border-color: #34c759; }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  .section-title {
+    font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 -10px 4px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  html::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  
+  <div class="section-title">Clock Style</div>
+  <div class="panel">
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">text_fields</span></div>
+        <div>
+          <div class="item-title">Clock Font</div>
+          <div class="item-subtitle">Typeface used on the lockscreen</div>
+        </div>
+      </div>
+      <div class="item-right custom-select-wrapper">
+        <div class="select-btn" id="fontBtn" onclick="toggleMenu('fontMenu', this, event)">
+          <span id="fontLabel">Poppins</span>
+          <span class="material-symbols-outlined">unfold_more</span>
+        </div>
+        <div class="dropdown-menu" id="fontMenu">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-blue"><span class="material-symbols-outlined">format_bold</span></div>
+        <div>
+          <div class="item-title">Clock Thickness</div>
+          <div class="item-subtitle">Font weight of the time</div>
+        </div>
+      </div>
+      <div class="item-right custom-select-wrapper">
+        <div class="select-btn" id="weightBtn" onclick="toggleMenu('weightMenu', this, event)">
+          <span id="weightLabel">Semi-Bold</span>
+          <span class="material-symbols-outlined">unfold_more</span>
+        </div>
+        <div class="dropdown-menu" id="weightMenu">
+          <div class="dropdown-item" onclick="selectWeight('300', 'Light')">Light</div>
+          <div class="dropdown-item" onclick="selectWeight('400', 'Regular')">Regular</div>
+          <div class="dropdown-item" onclick="selectWeight('600', 'Semi-Bold')">Semi-Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('700', 'Bold')">Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('900', 'Black')">Black</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Background</div>
+  <div class="panel">
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-purple"><span class="material-symbols-outlined">animation</span></div>
+        <div>
+          <div class="item-title">Live Wallpaper</div>
+          <div class="item-subtitle">Animated dynamic background</div>
+        </div>
+      </div>
+      <div class="item-right">
+        <label class="switch">
+          <input type="checkbox" id="liveWallpaper" onchange="saveToggle()">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // macOS Lockscreen Equivalents mapped to Google Fonts
+  const googleFonts = [
+    { name: "Poppins", label: "Standard" },       // SF Pro equivalent
+    { name: "Nunito", label: "Rounded" },         // SF Rounded equivalent
+    { name: "Lora", label: "Serif" },             // New York (Serif) equivalent
+    { name: "Roboto Slab", label: "Slab" },       // Thick Slab equivalent
+    { name: "Oswald", label: "Condensed" },       // Tall Condensed equivalent
+    { name: "Roboto Mono", label: "Monospace" },  // SF Mono equivalent
+    { name: "system-ui", label: "System Default" }
+  ];
+
+  function injectFont(fontName) {
+    if (fontName === 'system-ui') return;
+    const fontId = 'font-' + fontName.replace(/\s+/g, '-');
+    if (!document.getElementById(fontId)) {
+      const link = document.createElement('link');
+      link.id = fontId;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css?family=${fontName.replace(/ /g, '+')}&display=swap`;
+      document.head.appendChild(link);
+    }
+  }
+
+  function populateFonts() {
+    const fontMenu = document.getElementById('fontMenu');
+    googleFonts.forEach(font => {
+      injectFont(font.name);
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.style.fontFamily = font.name !== 'system-ui' ? `'${font.name}', sans-serif` : 'system-ui';
+      div.textContent = font.label;
+      div.onclick = () => selectFont(font.name, font.label);
+      fontMenu.appendChild(div);
+    });
+  }
+
+  function toggleMenu(menuId, btn, e) {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      if (menu.id !== menuId) menu.classList.remove('show');
+    });
+    document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('active'));
+    
+    const menu = document.getElementById(menuId);
+    if (!menu.classList.contains('show')) {
+      menu.classList.add('show');
+      btn.classList.add('active');
+    } else {
+      menu.classList.remove('show');
+    }
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+    document.querySelectorAll('.select-btn').forEach(btn => btn.classList.remove('active'));
+  });
+
+  function selectFont(val, label) {
+    document.getElementById('fontLabel').textContent = label;
+    document.getElementById('fontLabel').style.fontFamily = val !== 'system-ui' ? `'${val}', sans-serif` : 'system-ui';
+    localStorage.setItem('clockFont', val);
+    notifyUpdate();
+  }
+
+  function selectWeight(val, label) {
+    document.getElementById('weightLabel').textContent = label;
+    localStorage.setItem('clockWeight', val);
+    notifyUpdate();
+  }
+
+  function saveToggle() {
+    const isLive = document.getElementById('liveWallpaper').checked;
+    localStorage.setItem('liveWallpaper', isLive ? 'true' : 'false');
+    notifyUpdate();
+  }
+
+  function notifyUpdate() {
+    window.parent.postMessage({ type: 'update-lockscreen-settings' }, '*');
+  }
+
+  function loadSettings() {
+    populateFonts();
+    const currentFont = localStorage.getItem('clockFont') || 'Poppins';
+    const currentWeight = localStorage.getItem('clockWeight') || '600';
+    
+    const matchedFont = googleFonts.find(f => f.name === currentFont) || googleFonts[0];
+    
+    document.getElementById('fontLabel').textContent = matchedFont.label;
+    document.getElementById('fontLabel').style.fontFamily = currentFont !== 'system-ui' ? `'${currentFont}', sans-serif` : 'system-ui';
+    
+    const weightMap = { '300': 'Light', '400': 'Regular', '600': 'Semi-Bold', '700': 'Bold', '900': 'Black' };
+    document.getElementById('weightLabel').textContent = weightMap[currentWeight] || 'Semi-Bold';
+    
+    document.getElementById('liveWallpaper').checked = localStorage.getItem('liveWallpaper') === 'true';
+  }
+
+  window.onload = loadSettings;
+</script>
+</body>
+</html>

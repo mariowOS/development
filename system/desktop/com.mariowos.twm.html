@@ -1,0 +1,1840 @@
+<!--
+!!!! THIS SECTION MUST NOT BE EDITED OR REMOVED. YOU CAN REMOVE ONLY THE DISCLAMERS/SPECIAL SECTION UNDER THIS ONE. !!!! 
+------------------------------------------------------------------------------------------------------------------------- 
+mariowOS DE - (C) 2025 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project use open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LCC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+------------------------------------------------------------------------------------------------------------------------- 
+"chase your dreams. take that risk, nobody can stop you, but only you can." 
+Dedicated to everyone that contribuited making this possible. Thanks a lot 🤍 
+Questions? https://discord.gg/YDVxw6jfbH
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+<link rel="stylesheet" href="/desktop/assets/material-you.css">
+<script src="/desktop/assets/monet-engine.js"></script>
+
+  
+  <style>
+    :root {
+      --m3-accent-active: var(--md-sys-color-primary, #c2f3eb);
+      --m3-accent-on-active: var(--md-sys-color-on-primary, #05211e);
+      --m3-tile-inactive: var(--md-sys-color-surface-container-high, rgba(30,30,35,0.85));
+      --m3-tile-on-inactive: var(--md-sys-color-on-surface-variant, #cac4d0);
+      /* Frosted Glass Palette */
+      --m3-dropdown-bg: var(--md-sys-color-surface-container, rgba(29,27,32,0.65));
+      --m3-item-hover: var(--md-sys-color-surface-container-high, rgba(255,255,255,0.12));
+      --m3-item-active-bg: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent);
+      --m3-text-color: var(--md-sys-color-on-surface, #e6e0e9);
+      --m3-glass-border: var(--md-sys-color-outline-variant, rgba(255, 255, 255, 0.12));
+      --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    }
+
+/* Battery Saver — removes all transparency and blur for performance */
+body.power-saver {
+  background-color: var(--md-sys-color-surface) !important;
+  background-image: none !important;
+}
+body.power-saver * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* Applies solid surfaces to every frosted-glass element */
+body.power-saver .qs-subpanel,
+body.power-saver .qs-list-item,
+body.power-saver #mediaPlayerBanner,
+body.power-saver #notificationsDropdown,
+body.power-saver .qs-tile.inactive {
+  background-color: var(--md-sys-color-surface-container) !important;
+}
+body.power-saver .qs-subpanel-header {
+  border-bottom: 1px solid var(--md-sys-color-outline-variant) !important;
+}
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: url("assets/wallpaper.factory.png") center/cover no-repeat fixed;
+      background-color: #000;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    @keyframes popupIn {
+      from { opacity: 0; transform: scale3d(0.95, 0.95, 1); }
+      to { opacity: 1; transform: scale3d(1, 1, 1); }
+    }
+
+    @keyframes popupOut {
+      from { opacity: 1; transform: scale3d(1, 1, 1); }
+      to { opacity: 0; transform: scale3d(0.95, 0.95, 1); }
+    }
+
+    @keyframes statusBarEntry {
+      from { opacity: 0; transform: translate3d(0, -15px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    @keyframes statusBarCenterEntry {
+      from { opacity: 0; transform: translate3d(-50%, -100%, 0); }
+      to { opacity: 1; transform: translate3d(-50%, -50%, 0); }
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate3d(20px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    @keyframes toastOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 1048px;
+      height: 600px;
+      background: #1D1D1D;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      opacity: 0;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, .5);
+      z-index: 50;
+      will-change: transform, opacity;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .popup.active {
+      display: block;
+      animation: popupIn .18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .popup.closing {
+      animation: popupOut .15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .popup-header {
+      height: 32px;
+      background: rgba(18, 18, 18, 0.29);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      cursor: move;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 13px;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .popup-header .altf4 {
+      cursor: pointer;
+      transition: color .2s ease
+    }
+
+    .popup-header .altf4:hover {
+      color: #ff453a
+    }
+
+    .popup-frame {
+      width: 100%;
+      height: calc(100% - 32px);
+      border: none;
+    }
+
+    .popup-content {
+      padding: 15px;
+      height: calc(100% - 32px);
+      overflow-y: auto;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      padding: 0 32px;
+      box-sizing: border-box;
+      background: transparent;
+    }
+
+    .status-left,
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .status-left .btn-wrapper:nth-child(1) { animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+    .status-left .btn-wrapper:nth-child(2) { animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both; }
+    .status-left .btn-wrapper:nth-child(3) { animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.26s both; }
+
+    .status-center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: .5px;
+      background: rgba(26, 26, 26, 0.55);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--m3-glass-border);
+      padding: 6px 20px;
+      border-radius: 100px;
+      min-width: 260px;
+      text-align: center;
+      pointer-events: none;
+      animation: statusBarCenterEntry 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.32s both;
+    }
+
+    .status-right .btn-wrapper { animation: statusBarEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+
+    .status-btn {
+      background: rgba(26, 26, 26, 0.55);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--m3-glass-border);
+      color: #fff;
+      border-radius: 100px;
+      padding: 6px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .2s ease;
+      font-family: 'Poppins';
+    }
+
+    .status-btn:hover { background: rgba(36, 36, 36, 0.75); }
+
+    .notification {
+      width: 28px;
+      height: 28px;
+      background: rgba(26, 26, 26, 0.55);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid var(--m3-glass-border);
+      border-radius: 100px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 4px;
+      position: relative;
+    }
+
+    .notification svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
+      opacity: .85
+    }
+
+    .btn-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* ALL DROPDOWNS & NOTIFICATION PANEL FROSTED GLASS */
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      background: var(--m3-dropdown-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-radius: 20px;
+      padding: 6px;
+      padding-right: 8px; /* Spazio extra per staccare la scrollbar dal bordo destrom */
+      min-width: 220px;
+      max-height: 320px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      box-shadow: var(--m3-glass-shadow);
+      opacity: 0;
+      transform: translate3d(0, -10px, 0) scale3d(.95, .95, 1);
+      pointer-events: none;
+      transition: transform .2s cubic-bezier(0.16, 1, 0.3, 1), opacity .2s ease;
+      z-index: 200;
+      transform-origin: top left;
+      will-change: transform, opacity;
+      border: 1px solid var(--m3-glass-border);
+      box-sizing: border-box;
+    }
+
+    .dropdown.open {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+      pointer-events: auto;
+    }
+
+    /* Material You Menu Item */
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--m3-text-color);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+      position: relative;
+      user-select: none;
+      box-sizing: border-box;
+    }
+
+    .dropdown-item:hover {
+      background: var(--m3-item-hover);
+    }
+
+    .dropdown-item[data-popup] { padding-right: 36px; }
+
+    /* Indicator App in Esecuzione */
+    .dropdown-item.running {
+      background: var(--m3-item-active-bg);
+      color: var(--m3-accent-active);
+    }
+
+    .dropdown-item.running::after {
+      content: '';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 7px;
+      height: 7px;
+      background-color: var(--m3-accent-active);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--m3-accent-active);
+    }
+
+    .menu-icon {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .menu-icon-symbol {
+      font-size: 20px;
+      color: var(--m3-accent-active);
+      flex-shrink: 0;
+    }
+
+    /* NOTIFICATION DROPDOWN SPECIFIC OVERRIDES */
+    #notificationsDropdown {
+      right: 0;
+      left: auto;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      max-height: calc(100vh - 80px);
+      padding: 12px;
+      padding-right: 14px;
+      box-sizing: border-box !important;
+      white-space: normal;
+      word-break: break-word;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transform-origin: top right;
+      border-radius: 24px;
+      background: var(--m3-dropdown-bg);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--m3-glass-border);
+    }
+
+    /* CUSTOM SCROLLBAR MATERIAL YOU / FROSTED GLASS - FIX BORDI ARROTONDATI */
+    .dropdown::-webkit-scrollbar,
+    .qs-subpanel-list::-webkit-scrollbar,
+    #notificationsDropdown::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .dropdown::-webkit-scrollbar-track,
+    .qs-subpanel-list::-webkit-scrollbar-track,
+    #notificationsDropdown::-webkit-scrollbar-track {
+      background: transparent;
+      margin-top: 12px;    /* Aumentato per non far toccare l'angolo arrotondato in alto */
+      margin-bottom: 12px; /* Aumentato per non far toccare l'angolo arrotondato in basso */
+    }
+
+    .dropdown::-webkit-scrollbar-thumb,
+    .qs-subpanel-list::-webkit-scrollbar-thumb,
+    #notificationsDropdown::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 20px;
+      transition: background 0.2s ease;
+    }
+
+    .dropdown::-webkit-scrollbar-thumb:hover,
+    .qs-subpanel-list::-webkit-scrollbar-thumb:hover,
+    #notificationsDropdown::-webkit-scrollbar-thumb:hover {
+      background: var(--m3-accent-active);
+    }
+
+    .dropdown,
+    .qs-subpanel-list,
+    #notificationsDropdown {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    }
+
+    /* Quick Settings Grid Allineato */
+    .qs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .qs-tile {
+      height: 56px;
+      border-radius: 28px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 0;
+      transition: transform 0.1s ease, background 0.2s ease;
+    }
+
+    .qs-tile:active { transform: scale(0.96); }
+
+    .qs-tile.active {
+      background-color: var(--m3-accent-active);
+      color: var(--m3-accent-on-active);
+      border: none;
+    }
+
+    .qs-tile.inactive {
+      background-color: var(--m3-tile-inactive);
+      color: var(--m3-tile-on-inactive);
+    }
+
+    .qs-tile .material-symbols-outlined {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .qs-tile .tile-title {
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1;
+      min-width: 0;
+    }
+
+    .qs-tile .tile-arrow {
+      font-size: 18px;
+      opacity: 0.8;
+      flex-shrink: 0;
+      border-radius: 50%;
+      padding: 2px;
+    }
+
+    .qs-tile .tile-arrow:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Sub-panel lista reti/BT con Frosted Glass */
+    .qs-subpanel {
+      display: none;
+      flex-direction: column;
+      background: var(--md-sys-color-surface-container-high);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid var(--m3-glass-border);
+      gap: 8px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .qs-subpanel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--md-sys-color-primary);
+      padding: 0 4px 4px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .qs-subpanel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .qs-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      background: var(--md-sys-color-surface-container-high);
+      cursor: pointer;
+      transition: background 0.15s;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .qs-list-item:hover {
+      background: var(--m3-item-hover);
+    }
+
+    .qs-list-item.connected {
+      background: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent);
+      color: var(--md-sys-color-primary);
+      font-weight: 500;
+    }
+
+    /* Media Player Banner Frosted Glass M3 */
+    #mediaPlayerBanner {
+      padding: 12px 14px;
+      background: rgba(25, 30, 35, 0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--m3-glass-border);
+      margin-bottom: 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .media-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .app-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-icon .material-symbols-outlined { font-size: 16px; color: #ffffff; }
+
+    .device-chip {
+      background: var(--m3-accent-active);
+      color: var(--m3-accent-on-active);
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .device-chip .material-symbols-outlined { font-size: 13px; }
+
+    .media-main-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .media-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .media-title {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #e6e0e9;
+      line-height: 1.2;
+    }
+
+    .media-artist {
+      font-size: 12px;
+      color: #cac4d0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    .media-btn {
+      background: transparent;
+      border: none;
+      color: #e6e0e9;
+      cursor: pointer;
+      display: flex;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .media-btn:hover { background: rgba(255, 255, 255, 0.1); }
+    .media-btn:active { transform: scale(0.92); }
+
+    .media-btn.play-pause-btn {
+      background: var(--m3-accent-active);
+      color: var(--m3-accent-on-active);
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      flex-shrink: 0;
+    }
+
+    .media-btn.play-pause-btn:hover { background: #eaddff; }
+
+    .media-timeline-wrapper {
+      position: relative;
+      width: 100%;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .media-timeline-bg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .media-timeline-fill {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 0;
+      height: 4px;
+      width: 0%;
+      background-color: var(--m3-accent-active);
+      border-radius: 4px;
+    }
+
+    .media-timeline-fill.playing {
+      height: 14px;
+      background-color: transparent;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='14' viewBox='0 0 24 14'><path d='M0,7 C6,1 6,13 12,7 C18,1 18,13 24,7' fill='none' stroke='%23c2f3eb' stroke-width='2.5' stroke-linecap='round'/></svg>");
+      background-size: 24px 14px;
+      background-repeat: repeat-x;
+      animation: wave 1.2s linear infinite;
+    }
+
+    @keyframes wave {
+      0% { background-position-x: 0px; }
+      100% { background-position-x: 24px; }
+    }
+
+    .media-timeline-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 12px;
+      height: 12px;
+      background: #ffffff;
+      border-radius: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .media-controls-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px;
+    }
+
+    a { text-decoration: none; color: #ffffff; }
+
+    #browserUrl {
+      flex: 1;
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid #3a3a3a;
+      border-radius: 7px;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 10px;
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .browser-nav-btn {
+      background: rgba(255, 255, 255, .08);
+      border: none;
+      color: #aaa;
+      border-radius: 5px;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    #toast-container {
+      position: fixed;
+      top: 72px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(26, 26, 26, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--m3-glass-border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: #fff;
+      width: 260px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--m3-glass-shadow);
+      pointer-events: auto;
+      animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      font-size: 13px;
+    }
+
+    .toast.hide { animation: toastOut 0.2s forwards; }
+
+    .toast-icon {
+      font-size: 22px;
+      background: var(--md-sys-color-surface-container-high);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-content { display: flex; flex-direction: column; }
+    .toast-title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+    .toast-msg { font-size: 11px; color: #aaa; line-height: 1.3; }
+  </style>
+</head>
+
+<body>
+  <div class="status-bar">
+    <div class="status-left">
+
+      <div class="btn-wrapper">
+        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button>
+        <div class="dropdown" id="actionsDropdown">
+          <a onclick="openPopup('popup6')">
+            <div class="dropdown-item" data-popup="popup6"><img src="assets/icons/messaging.png" class="menu-icon"> <span>Messaging</span></div>
+          </a>
+          <a onclick="openPopup('popup2')">
+            <div class="dropdown-item" data-popup="popup2"><img src="assets/icons/browser.png" class="menu-icon"> <span>Browser</span></div>
+          </a>
+          <a onclick="openPopup('popup1')">
+            <div class="dropdown-item" data-popup="popup1"><img src="assets/icons/settings.png" class="menu-icon"> <span>Settings</span></div>
+          </a>
+          <a onclick="openPopup('popup4')">
+            <div class="dropdown-item" data-popup="popup4"><img src="assets/icons/music.png" class="menu-icon"> <span>Music</span></div>
+          </a>
+          <a onclick="openPopup('popup7')">
+            <div class="dropdown-item" data-popup="popup7"><img src="assets/icons/store.png" class="menu-icon"> <span>Store</span></div>
+          </a>
+          <a onclick="openPopup('popup3')">
+            <div class="dropdown-item" data-popup="popup3"><img src="assets/icons/feedback.png" class="menu-icon"> <span>Help</span></div>
+          </a>
+          <a onclick="openPopup('popup5')">
+            <div class="dropdown-item" data-popup="popup5"><img src="assets/icons/notes.png" class="menu-icon"> <span>Notes</span></div>
+          </a>
+          <a onclick="openPopup('popup8')">
+            <div class="dropdown-item" data-popup="popup8"><img src="assets/icons/terminal.png" class="menu-icon"> <span>Terminal</span></div>
+          </a>
+          <a onclick="openPopup('popup9')">
+            <div class="dropdown-item" data-popup="popup9"><img src="assets/icons/calculator.png" class="menu-icon"> <span>Calculator</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="btn-wrapper">
+        <button class="status-btn" id="contextBtn">···</button>
+        <div class="dropdown" id="contextDropdown">
+          <a href="com.mariowos.desktop.html">
+            <div class="dropdown-item"><span>Refresh desktop</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="btn-wrapper">
+        <button class="status-btn" id="activitiesBtn" title="System Finder">Finder</button>
+        <div class="dropdown activities" id="activitiesDropdown">
+          <a href="com.mariowos.desktop.html">
+            <div class="dropdown-item"><span>Refresh desktop</span></div>
+          </a>
+          <a href="/loginui/com.mariowos.loginui.html">
+            <div class="dropdown-item"><span>Lock Screen</span></div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-center" id="center-clock">Thursday 1 January, 12:00 AM</div>
+
+    <div class="status-right">
+      <span id="devChip" style="display:none;font-size:10px;background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-radius:6px;padding:1px 6px;font-weight:600;">DEV</span>
+      <div class="btn-wrapper">
+        <button class="notification" id="notificationsBtn" title="Notifications">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7A1 1 0 006 20h12a1 1 0 00.7-1.7L18 16z" />
+          </svg>
+          <span id="notifBadge" style="display:none; position:absolute; top:2px; right:2px; width:6px; height:6px; background:#e01b24; border-radius:50%; box-shadow: 0 0 4px #e01b24;"></span>
+        </button>
+        
+        <div class="dropdown" id="notificationsDropdown">
+          <!-- Quick Settings Tiles Header -->
+          <div class="qs-grid">
+            <div class="qs-tile active" id="tileWifi" onclick="toggleSubPanel('wifi')">
+              <span class="material-symbols-outlined" id="iconWifi">wifi</span>
+              <span class="tile-title" id="titleWifi">Internet</span>
+              <span class="material-symbols-outlined tile-arrow">chevron_right</span>
+            </div>
+            <div class="qs-tile active" id="tileBt" onclick="toggleSubPanel('bt')">
+              <span class="material-symbols-outlined" id="iconBt">bluetooth</span>
+              <span class="tile-title" id="titleBt">Bluetooth</span>
+              <span class="material-symbols-outlined tile-arrow">chevron_right</span>
+            </div>
+            <div class="qs-tile inactive" id="tileDnd" onclick="toggleQS('dnd')">
+              <span class="material-symbols-outlined" id="iconDnd">do_not_disturb_on</span>
+              <span class="tile-title" id="titleDnd">Do Not Disturb</span>
+            </div>
+            <div class="qs-tile active" id="tilePower" onclick="cyclePowerMode()">
+              <span class="material-symbols-outlined" id="iconPower">battery_charging_full</span>
+              <span class="tile-title" id="titlePower">Balanced</span>
+            </div>
+          </div>
+
+          <!-- Sub-panel Espandibile per Reti Wi-Fi -->
+          <div class="qs-subpanel" id="panelWifi">
+            <div class="qs-subpanel-header">
+              <span>Wi-Fi Networks</span>
+              <span class="material-symbols-outlined" onclick="toggleQS('wifi')" style="cursor:pointer; font-size:16px;">power_settings_new</span>
+            </div>
+            <div class="qs-subpanel-list" id="wifiList">
+              <div style="font-size:11px; color:#aaa; text-align:center;">Scanning networks...</div>
+            </div>
+          </div>
+
+          <!-- Sub-panel Espandibile per Dispositivi Bluetooth -->
+          <div class="qs-subpanel" id="panelBt">
+            <div class="qs-subpanel-header">
+              <span>Bluetooth Devices</span>
+              <span class="material-symbols-outlined" onclick="toggleQS('bluetooth')" style="cursor:pointer; font-size:16px;">power_settings_new</span>
+            </div>
+            <div class="qs-subpanel-list" id="btList">
+              <div style="font-size:11px; color:#aaa; text-align:center;">Searching devices...</div>
+            </div>
+          </div>
+
+          <!-- Media Player Banner Schiacciato -->
+          <div id="mediaPlayerBanner">
+            <div class="media-top">
+              <div class="app-icon">
+                <span class="material-symbols-outlined">play_circle</span>
+              </div>
+              <div class="device-chip">
+                <span class="material-symbols-outlined">smartphone</span>
+                <span>This phone</span>
+              </div>
+            </div>
+
+            <div class="media-main-content">
+              <div class="media-info">
+                <div class="media-title" id="mediaBannerTitle">27 Kids</div>
+                <div class="media-artist" id="mediaBannerArtist">Grmln</div>
+              </div>
+              <button class="media-btn play-pause-btn" onclick="sendMediaCommand('toggle')">
+                <span class="material-symbols-outlined" id="mediaBannerPlayIcon" style="font-size:28px;">pause</span>
+              </button>
+            </div>
+
+            <div class="media-timeline-wrapper" onclick="sendMediaCommand('seek', event)">
+              <div class="media-timeline-bg" id="mediaBannerBg"></div>
+              <div class="media-timeline-fill playing" id="mediaBannerTimeline" style="width: 45%;"></div>
+              <div class="media-timeline-thumb" id="mediaBannerThumb" style="left: 45%;"></div>
+            </div>
+
+            <div class="media-controls-bottom">
+              <button class="media-btn" onclick="sendMediaCommand('prev')">
+                <span class="material-symbols-outlined">skip_previous</span>
+              </button>
+              <button class="media-btn" onclick="sendMediaCommand('next')">
+                <span class="material-symbols-outlined">skip_next</span>
+              </button>
+              <button class="media-btn">
+                <span class="material-symbols-outlined">repeat</span>
+              </button>
+              <button class="media-btn">
+                <span class="material-symbols-outlined">shuffle</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #888;">
+            <span>NOTIFICATIONS</span>
+            <span onclick="clearNotifications()" style="color: #3584e4; cursor: pointer;">Clear</span>
+          </div>
+
+          <div id="notificationsList">
+            <div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;">No new notifications</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <div id="popup1" class="popup">
+    <div class="popup-header"><span>Settings</span><span class="altf4" onclick="closePopup('popup1')">✖</span></div>
+    <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup2" class="popup">
+    <div class="popup-header" style="gap: 8px;">
+      <span style="white-space: nowrap; font-size: 12px; flex-shrink: 0;">Browser</span>
+      <div style="display: flex; align-items: center; gap: 5px; flex: 1;">
+        <button class="browser-nav-btn" onclick="browserNav('back')" title="Back">‹</button>
+        <button class="browser-nav-btn" onclick="browserNav('fwd')" title="Forward">›</button>
+        <button class="browser-nav-btn" onclick="browserNav('reload')" title="Reload">↺</button>
+        <input id="browserUrl" type="text" placeholder="Search with Google or enter a URL..." onkeydown="if(event.key==='Enter') openAdvancedSearch(this.value)" />
+        <button class="browser-nav-btn" onclick="openAdvancedSearch(document.getElementById('browserUrl').value)" title="Advanced Search">⚙</button>
+      </div>
+      <span class="altf4" onclick="closePopup('popup2')" style="flex-shrink: 0;">✖</span>
+    </div>
+    <iframe id="browserFrame" src="https://mariowotech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popupAdvancedSearch" class="popup" style="width: 600px; height: auto; max-height: 500px;">
+    <div class="popup-header"><span>Where to next?</span><span class="altf4" onclick="closePopup('popupAdvancedSearch')">✖</span></div>
+    <div class="popup-content" style="padding: 20px;">
+      <form id="advancedSearchForm" onsubmit="performAdvancedSearch(event)">
+        <div style="margin-bottom: 20px;">
+          <label for="advSearchQuery" style="display: block; margin-bottom: 8px; font-weight: 500;">Where to next?</label>
+          <input type="text" id="advSearchQuery" placeholder="Enter search term..." style="width: 100%; padding: 10px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; font-family: 'Poppins'; box-sizing: border-box;" />
+        </div>
+        <div style="margin-bottom: 20px;">
+          <p style="margin: 0 0 12px 0; font-weight: 500;">Search type:</p>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="web" checked /><span>🌐 Web</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="images" /><span>🖼️ Images</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="news" /><span>📰 News</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="videos" /><span>🎥 Videos</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="books" /><span>📚 Books</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="shopping" /><span>🛒 Shopping</span></label>
+          </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+          <p style="margin: 0 0 12px 0; font-weight: 500;">Advanced options:</p>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="checkbox" id="safeSearch" /><span>Safe Search</span></label>
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" onclick="closePopup('popupAdvancedSearch')" style="padding: 8px 16px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins';">Cancel</button>
+          <button type="submit" style="padding: 8px 16px; background: rgba(100,200,255,.6); border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; font-weight: 500;">Search on Google</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="popup3" class="popup">
+    <div class="popup-header"><span>Help</span><span class="altf4" onclick="closePopup('popup3')">✖</span></div>
+    <iframe src="apps/help/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup4" class="popup">
+    <div class="popup-header"><span>Music</span><span class="altf4" onclick="closePopup('popup4')">✖</span></div>
+    <iframe src="apps/music/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup5" class="popup">
+    <div class="popup-header"><span>Notes</span><span class="altf4" onclick="closePopup('popup5')">✖</span></div>
+    <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup6" class="popup">
+    <div class="popup-header"><span>Messaging</span><span class="altf4" onclick="closePopup('popup6')">✖</span></div>
+    <iframe src="https://organizations.minnit.chat/744784529789521/c/Main?embed" class="popup-frame" id="chattable"></iframe>
+  </div>
+
+  <div id="popup7" class="popup">
+    <div class="popup-header"><span>Store</span><span class="altf4" onclick="closePopup('popup7')">✖</span></div>
+    <iframe src="apps/store/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup8" class="popup">
+    <div class="popup-header"><span>Terminal</span><span class="altf4" onclick="closePopup('popup8')">✖</span></div>
+    <iframe src="apps/terminal/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup9" class="popup" style="width: 400px; height: 550px;">
+    <div class="popup-header"><span>Calculator</span><span class="altf4" onclick="closePopup('popup9')">✖</span></div>
+    <iframe src="apps/calculator/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <script>
+    const renderIcon = (iconStr) => {
+      if (!iconStr) return '<span class="menu-icon-symbol">📦</span>';
+      if (iconStr.includes('/') || iconStr.includes('.')) {
+        return `<img src="${iconStr}" class="menu-icon" style="border-radius: 4px; object-fit: cover;">`;
+      }
+      return `<span class="menu-icon-symbol">${iconStr}</span>`;
+    };
+
+    let popupCounter = 0;
+    const statusBar = document.querySelector('.status-bar');
+    const STATUSBAR_H = 56;
+    const RESERVED_TOP = STATUSBAR_H + 12;
+
+    let notificationsHistory = [];
+
+    // --- QUICK SETTINGS LOGIC ---
+    let qsState = {
+      wifi: true,
+      bluetooth: true,
+      dnd: false,
+      powerMode: "Balanced",
+      connectedWifi: null,
+      connectedBt: null
+    };
+
+    async function loadQuickSettings() {
+      try {
+        const res = await fetch("/api/system/quick-settings");
+        if (res.ok) {
+          const loaded = await res.json();
+          qsState = { ...qsState, ...loaded };
+          renderQuickSettings();
+          document.body.classList.toggle('power-saver', qsState.powerMode === 'Battery Saver');
+        }
+      } catch (err) { console.error("Errore recupero Quick Settings:", err); }
+    }
+
+    function renderQuickSettings() {
+      // Wifi
+      const tileWifi = document.getElementById("tileWifi");
+      tileWifi.className = `qs-tile ${qsState.wifi ? 'active' : 'inactive'}`;
+      document.getElementById("iconWifi").textContent = qsState.wifi ? "wifi" : "wifi_off";
+      document.getElementById("titleWifi").textContent = qsState.wifi 
+        ? (qsState.connectedWifi || "Internet") 
+        : "Off";
+
+      // Bluetooth
+      const tileBt = document.getElementById("tileBt");
+      tileBt.className = `qs-tile ${qsState.bluetooth ? 'active' : 'inactive'}`;
+      document.getElementById("iconBt").textContent = qsState.bluetooth ? "bluetooth" : "bluetooth_disabled";
+      document.getElementById("titleBt").textContent = qsState.bluetooth 
+        ? (qsState.connectedBt || "Bluetooth") 
+        : "Off";
+
+      // DND
+      const tileDnd = document.getElementById("tileDnd");
+      tileDnd.className = `qs-tile ${qsState.dnd ? 'active' : 'inactive'}`;
+      document.getElementById("iconDnd").textContent = qsState.dnd ? "do_not_disturb_on" : "notifications";
+
+      // Power Mode
+      const tilePower = document.getElementById("tilePower");
+      const titlePower = document.getElementById("titlePower");
+      const iconPower = document.getElementById("iconPower");
+
+      titlePower.textContent = qsState.powerMode;
+      if (qsState.powerMode === "Performance") {
+        tilePower.className = "qs-tile active";
+        iconPower.textContent = "bolt";
+      } else if (qsState.powerMode === "Battery Saver") {
+        tilePower.className = "qs-tile inactive";
+        iconPower.textContent = "battery_saver";
+      } else {
+        tilePower.className = "qs-tile active";
+        iconPower.textContent = "battery_charging_full";
+      }
+    }
+
+    async function updateQSBackend(setting, value) {
+      try {
+        await fetch("/api/system/quick-settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ setting, value })
+        });
+      } catch (err) { console.error("Errore salvataggio QS:", err); }
+    }
+
+    function toggleQS(setting) {
+      qsState[setting] = !qsState[setting];
+      renderQuickSettings();
+      updateQSBackend(setting, qsState[setting]);
+      if (setting === 'wifi' && !qsState.wifi) document.getElementById('panelWifi').style.display = 'none';
+      if (setting === 'bluetooth' && !qsState.bluetooth) document.getElementById('panelBt').style.display = 'none';
+    }
+
+function applyLabFlagEffects(flags) {
+          flags = flags || {};
+          // darkMode → high-contrast inverted tiles
+          document.body.classList.toggle('lab-dark-mode', !!(flags.darkMode));
+          // animations → enable/disable transitions
+          document.body.classList.toggle('lab-no-animations', !(flags.animations));
+          // developer → show extra status bar info
+          const devChip = document.getElementById('devChip');
+          if (devChip) devChip.style.display = flags.developer ? '' : 'none';
+        }
+function cyclePowerMode() {
+  const modes = ["Balanced", "Performance", "Battery Saver"];
+  const nextIdx = (modes.indexOf(qsState.powerMode) + 1) % modes.length;
+  qsState.powerMode = modes[nextIdx];
+  document.body.classList.toggle('power-saver', modes[nextIdx] === 'Battery Saver');
+  renderQuickSettings();
+  updateQSBackend("powerMode", qsState.powerMode);
+}
+
+    // --- SUBPANELS (WIFI & BT LISTS) ---
+    async function toggleSubPanel(type) {
+      const panelWifi = document.getElementById("panelWifi");
+      const panelBt = document.getElementById("panelBt");
+      const dropdown = document.getElementById("notificationsDropdown");
+
+      if (type === 'wifi') {
+        panelBt.style.display = 'none';
+        const isOpening = panelWifi.style.display !== 'flex';
+        panelWifi.style.display = isOpening ? 'flex' : 'none';
+        if (isOpening) await fetchNetworks();
+      } else if (type === 'bt') {
+        panelWifi.style.display = 'none';
+        const isOpening = panelBt.style.display !== 'flex';
+        panelBt.style.display = isOpening ? 'flex' : 'none';
+        if (isOpening) await fetchBtDevices();
+      }
+
+      setTimeout(() => {
+        dropdown.scrollTo({ top: dropdown.scrollHeight, behavior: 'smooth' });
+      }, 50);
+    }
+
+    async function fetchNetworks() {
+      const listContainer = document.getElementById("wifiList");
+      try {
+        const res = await fetch("/api/system/networks");
+        const data = await res.json();
+        if (data.networks) {
+          const activeNet = data.networks.find(net => net.connected);
+          qsState.connectedWifi = activeNet ? activeNet.ssid : null;
+          renderQuickSettings();
+
+          if (data.networks.length === 0) {
+            listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Wi-Fi networks found</div>`;
+            return;
+          }
+
+          listContainer.innerHTML = data.networks.map(net => `
+            <div class="qs-list-item ${net.connected ? 'connected' : ''}" onclick="connectWifi('${net.ssid}')">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="material-symbols-outlined" style="font-size:18px;">${net.secured ? 'lock' : 'wifi'}</span>
+                <span>${net.ssid}</span>
+              </div>
+              <span style="font-size:11px;">${net.connected ? 'Connected' : net.signal + '%'}</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">Failed to scan Wi-Fi</div>`;
+      }
+    }
+
+    async function connectWifi(ssid) {
+      try {
+        const res = await fetch("/api/system/connect-wifi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ssid })
+        });
+        const data = await res.json();
+        if (data.success) {
+          qsState.connectedWifi = ssid;
+          qsState.wifi = true;
+          renderQuickSettings();
+          fetchNetworks();
+          showNotification("Wi-Fi Connected", `Connected to ${ssid}`, "📶");
+        }
+      } catch (err) { console.error("Error connecting wifi:", err); }
+    }
+
+    async function fetchBtDevices() {
+      const listContainer = document.getElementById("btList");
+      try {
+        const res = await fetch("/api/system/bt-devices");
+        const data = await res.json();
+        if (data.devices) {
+          const activeDev = data.devices.find(dev => dev.connected);
+          qsState.connectedBt = activeDev ? activeDev.name : null;
+          renderQuickSettings();
+
+          if (data.devices.length === 0) {
+            listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Bluetooth devices found</div>`;
+            return;
+          }
+
+          const iconMap = { headset: 'headphones', smartphone: 'smartphone', mouse: 'mouse', keyboard: 'keyboard' };
+          listContainer.innerHTML = data.devices.map(dev => `
+            <div class="qs-list-item ${dev.connected ? 'connected' : ''}" onclick="connectBt('${dev.mac || dev.name}', '${dev.name}')">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="material-symbols-outlined" style="font-size:18px;">${iconMap[dev.type] || 'bluetooth'}</span>
+                <span>${dev.name}</span>
+              </div>
+              <span style="font-size:11px;">${dev.connected ? 'Connected' : 'Saved'}</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">Failed to find Bluetooth devices</div>`;
+      }
+    }
+
+    async function connectBt(mac, name) {
+      try {
+        const res = await fetch("/api/system/connect-bt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mac, name })
+        });
+        const data = await res.json();
+        if (data.success) {
+          qsState.connectedBt = data.connectedBt;
+          qsState.bluetooth = true;
+          renderQuickSettings();
+          fetchBtDevices();
+          showNotification("Bluetooth", data.connectedBt ? `Connected to ${name}` : `Disconnected ${name}`, "🎧");
+        }
+      } catch (err) { console.error("Error connecting BT:", err); }
+    }
+
+    function showNotification(title, msg, icon = "🔔") {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 200);
+      }, 4000);
+
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      notificationsHistory.unshift({ title, msg, icon, time });
+      if (notificationsHistory.length > 10) notificationsHistory.pop();
+
+      updateNotificationCenter();
+    }
+
+    function updateNotificationCenter() {
+      const list = document.getElementById('notificationsList');
+      const badge = document.getElementById('notifBadge');
+      const banner = document.getElementById('mediaPlayerBanner');
+
+      if (notificationsHistory.length === 0) {
+        if (banner && banner.style.display === 'flex') {
+          list.innerHTML = '';
+        } else {
+          list.innerHTML = `<div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;">No new notifications</div>`;
+        }
+        badge.style.display = 'none';
+        return;
+      }
+
+      badge.style.display = 'block';
+      list.innerHTML = '';
+
+      notificationsHistory.forEach(n => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.style.cssText = "flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: normal;";
+        item.innerHTML = `
+          <div style="display:flex; width:100%; justify-content:space-between; font-weight:600; font-size:12px;">
+            <span>${n.icon} ${n.title}</span>
+            <span style="color:#666; font-size:10px;">${n.time}</span>
+          </div>
+          <div style="font-size:11px; color:#aaa; line-height:1.3; margin-top:2px;">${n.msg}</div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function clearNotifications() {
+      notificationsHistory = [];
+      updateNotificationCenter();
+    }
+
+    function sendMediaCommand(cmd, event) {
+      const musicApp = document.querySelector('#popup4 iframe');
+      if (musicApp && musicApp.contentWindow) {
+        if (cmd === 'seek' && event) {
+          const wrapper = event.currentTarget;
+          const rect = wrapper.getBoundingClientRect();
+          const percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+          musicApp.contentWindow.postMessage({ type: 'media-command', command: cmd, percent: percent }, '*');
+        } else {
+          musicApp.contentWindow.postMessage({ type: 'media-command', command: cmd }, '*');
+        }
+      }
+    }
+
+    function getTopmostPopup() {
+      const activePopups = Array.from(document.querySelectorAll('.popup.active:not(.closing)'));
+      if (activePopups.length === 0) return null;
+
+      return activePopups.reduce((top, current) => {
+        const zTop = parseInt(window.getComputedStyle(top).zIndex) || 0;
+        const zCurr = parseInt(window.getComputedStyle(current).zIndex) || 0;
+        return zCurr > zTop ? current : top;
+      });
+    }
+
+    function reloadPopupIframe(id) {
+      const f = document.querySelector(`#${id} iframe`);
+      if (f) {
+        try { f.contentWindow.location.reload(); } catch (e) { f.src = f.src; }
+      }
+    }
+
+    function updateContextBar() {
+      const topPopup = getTopmostPopup();
+      const contextBtn = document.getElementById('contextBtn');
+      const contextDropdown = document.getElementById('contextDropdown');
+
+      if (topPopup) {
+        const appName = topPopup.querySelector('.popup-header span').innerText;
+        contextBtn.innerText = appName;
+
+        let html = `<a onclick="closePopup('${topPopup.id}')"><div class="dropdown-item" style="color:#ff6b6b"><span>Quit ${appName}</span></div></a>`;
+
+        const iframe = topPopup.querySelector('iframe');
+        if (iframe) {
+          html += `<a onclick="reloadPopupIframe('${topPopup.id}')"><div class="dropdown-item"><span>Reload App</span></div></a>`;
+        }
+        contextDropdown.innerHTML = html;
+      } else {
+        contextBtn.innerText = "···";
+        contextDropdown.innerHTML = `<a href="com.mariowos.desktop.html"><div class="dropdown-item"><span>Refresh desktop</span></div></a>`;
+      }
+    }
+
+    function openPopup(popupId) {
+      const popup = document.getElementById(popupId);
+      popup.classList.remove("closing");
+
+      const appIcon = document.querySelector(`.dropdown-item[data-popup="${popupId}"]`);
+      if (appIcon) appIcon.classList.add('running');
+
+      const cs = getComputedStyle(popup);
+      const popupWidth = parseInt(cs.width, 10) || 1048;
+      const popupHeight = parseInt(cs.height, 10) || 600;
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+
+      let perRow = Math.floor((screenWidth - 40) / (popupWidth + 20)) || 1;
+      let row = Math.floor(popupCounter / perRow);
+      let col = popupCounter % perRow;
+
+      let left = col * (popupWidth + 20) + 20;
+      let top = RESERVED_TOP + row * (popupHeight + 20);
+
+      left = Math.max(8, Math.min(left, screenWidth - popupWidth - 8));
+      top = Math.max(RESERVED_TOP, Math.min(top, screenHeight - popupHeight - 8));
+
+      popup.style.left = left + "px";
+      popup.style.top = top + "px";
+
+      focusPopup(popup);
+      popup.style.display = "block";
+      popup.classList.add("active");
+      popupCounter++;
+
+      const header = popup.querySelector(".popup-header");
+      if (header && !header.dataset.dragSetup) {
+        makeDraggable(popup, header, RESERVED_TOP);
+        header.dataset.dragSetup = "true";
+      }
+
+      updateContextBar();
+    }
+
+    function closePopup(popupId) {
+      const popup = document.getElementById(popupId);
+      popup.classList.remove("active");
+      popup.classList.add("closing");
+
+      const appIcon = document.querySelector(`.dropdown-item[data-popup="${popupId}"]`);
+      if (appIcon) appIcon.classList.remove('running');
+
+      updateContextBar();
+
+      const onAnimationEnd = () => {
+        popup.style.display = "none";
+        popup.classList.remove("closing");
+        popup.removeEventListener("animationend", onAnimationEnd);
+      };
+      popup.addEventListener("animationend", onAnimationEnd);
+    }
+
+    function getHighestZIndex(elems) {
+      let hi = 50;
+      for (let i = 0; i < elems.length; i++) {
+        const z = parseInt(elems[i].style.zIndex, 10) || 0;
+        if (z > hi) hi = z;
+      }
+      return hi;
+    }
+
+    function focusPopup(popup) {
+      const activePopups = document.getElementsByClassName("popup");
+      popup.style.zIndex = getHighestZIndex(activePopups) + 1;
+      updateContextBar();
+    }
+
+    function makeDraggable(el, handle, minTop) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      handle.onmousedown = dragMouseDown;
+      handle.ontouchstart = (e) => dragMouseDown(e.touches[0]);
+
+      function dragMouseDown(e) {
+        focusPopup(el);
+        pos3 = e.clientX; pos4 = e.clientY;
+        document.onmouseup = closeDrag;
+        document.onmousemove = drag;
+        document.ontouchend = closeDrag;
+        document.ontouchmove = (ev) => drag(ev.touches[0]);
+      }
+
+      function drag(e) {
+        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+        pos3 = e.clientX; pos4 = e.clientY;
+
+        let newTop = el.offsetTop - pos2;
+        let newLeft = el.offsetLeft - pos1;
+
+        const maxLeft = window.innerWidth - el.offsetWidth - 8;
+        const maxTop = window.innerHeight - el.offsetHeight - 8;
+
+        newLeft = Math.max(8, Math.min(newLeft, maxLeft));
+        newTop = Math.max(minTop, Math.min(newTop, maxTop));
+
+        el.style.top = newTop + "px";
+        el.style.left = newLeft + "px";
+      }
+
+      function closeDrag() {
+        document.onmouseup = null; document.onmousemove = null;
+        document.ontouchend = null; document.ontouchmove = null;
+      }
+    }
+
+    document.addEventListener('mousedown', (e) => {
+      const header = e.target.closest('.popup-header');
+      if (header) focusPopup(header.parentElement);
+    });
+
+    function openAdvancedSearch(query) {
+      query = query.trim();
+      if (!query) return;
+      if (/^https?:\/\//i.test(query) || /^[a-z0-9-]+\.[a-z]{2,}/i.test(query)) {
+        const url = query.startsWith('http') ? query : 'https://' + query;
+        document.getElementById('browserFrame').src = url;
+        document.getElementById('browserUrl').value = url;
+      } else {
+        document.getElementById('advSearchQuery').value = query;
+        openPopup('popupAdvancedSearch');
+      }
+    }
+
+    function performAdvancedSearch(event) {
+      event.preventDefault();
+      const query = document.getElementById('advSearchQuery').value.trim();
+      if (!query) return;
+
+      const searchType = document.querySelector('input[name="searchType"]:checked').value;
+      const safeSearch = document.getElementById('safeSearch').checked;
+      const encodedQuery = encodeURIComponent(query);
+
+      const searchTypeMap = {
+        'web': `https://www.google.com/search?q=${encodedQuery}`,
+        'images': `https://www.google.com/search?q=${encodedQuery}&tbm=isch`,
+        'news': `https://www.google.com/search?q=${encodedQuery}&tbm=nws`,
+        'videos': `https://www.google.com/search?q=${encodedQuery}&tbm=vid`,
+        'books': `https://www.google.com/search?q=${encodedQuery}&tbm=bks`,
+        'shopping': `https://www.google.com/search?q=${encodedQuery}&tbm=shop`
+      };
+
+      let googleUrl = searchTypeMap[searchType] || searchTypeMap['web'];
+      if (safeSearch) googleUrl += '&safe=active';
+
+      document.getElementById('browserFrame').src = googleUrl;
+      document.getElementById('browserUrl').value = googleUrl;
+      closePopup('popupAdvancedSearch');
+    }
+
+    function browserNav(action) {
+      const f = document.getElementById('browserFrame');
+      try {
+        if (action === 'back') f.contentWindow.history.back();
+        if (action === 'fwd') f.contentWindow.history.forward();
+        if (action === 'reload') f.contentWindow.location.reload();
+      } catch (e) {
+        if (action === 'reload') f.src = f.src;
+      }
+    }
+
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    let systemTimeOffset = 0, timezoneOffset = 0, manualTimeEnabled = false;
+
+    function updateClock() {
+      const now = new Date();
+      let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
+      if (timezoneOffset !== null) {
+        utcMs += timezoneOffset * 3600000;
+      } else if (manualTimeEnabled) {
+        utcMs += systemTimeOffset;
+      }
+      const d = new Date(utcMs);
+      let h = d.getUTCHours(), m = d.getUTCMinutes();
+      const ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12 || 12;
+      m = m < 10 ? "0" + m : m;
+      document.getElementById("center-clock").textContent = `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
+    }
+
+    function checkTimeOffset() {
+      timezoneOffset = localStorage.getItem('timezoneOffset') !== null ? parseFloat(localStorage.getItem('timezoneOffset')) : null;
+      systemTimeOffset = localStorage.getItem('systemTimeOffset') !== null ? parseInt(localStorage.getItem('systemTimeOffset'), 10) : 0;
+      manualTimeEnabled = localStorage.getItem('manualTimeEnabled') === 'true';
+    }
+
+    setInterval(() => { checkTimeOffset(); updateClock(); }, 1000);
+    checkTimeOffset(); updateClock();
+
+    function setupDropdown(btnId, ddId) {
+      const btn = document.getElementById(btnId);
+      const dd = document.getElementById(ddId);
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dd.classList.contains('open');
+        document.querySelectorAll('.dropdown.open').forEach(openDd => {
+          openDd.classList.remove('open');
+        });
+        if (!isOpen) {
+          dd.classList.add('open');
+          if (btnId === 'notificationsBtn') {
+            document.getElementById('notifBadge').style.display = 'none';
+          }
+        }
+      });
+    }
+
+    setupDropdown("actionsBtn", "actionsDropdown");
+    setupDropdown("contextBtn", "contextDropdown");
+    setupDropdown("activitiesBtn", "activitiesDropdown");
+    setupDropdown("notificationsBtn", "notificationsDropdown");
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#notificationsDropdown')) {
+        document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
+      }
+    });
+
+    function applyUserWallpaper() {
+      fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
+        .then(res => {
+          document.body.style.backgroundImage = res.ok
+            ? 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")'
+            : 'url("/desktop/assets/wallpaper.png")';
+        }).catch(() => {
+          document.body.style.backgroundImage = 'url("assets/wallpaper.factory.png")';
+        });
+    }
+
+    window.addEventListener("message", async (e) => {
+      if (e.data.type === 'show-notification') {
+        showNotification(e.data.title, e.data.msg, e.data.icon);
+      }
+
+      if (e.data.type === 'apply-wallpaper') {
+        applyUserWallpaper();
+        // Load lab flags from server and apply their visual effects
+        (async () => {
+          try {
+            const r = await fetch("/get-settings");
+            if (r.ok) { const cfg = await r.json(); applyLabFlagEffects({ darkMode: cfg.darkMode, performance: cfg.performance, animations: cfg.animations, developer: cfg.developer }); };
+          } catch (e) {}
+        })();
+      }
+
+      if (e.data.type === 'app-installed-live') {
+        const app = e.data.app;
+        const dropdown = document.getElementById("actionsDropdown");
+
+        if (!document.querySelector(`[data-popup="${app.appId}"]`)) {
+          const btn = document.createElement("a");
+          btn.onclick = () => openPopup(app.appId);
+          btn.innerHTML = `
+            <div class="dropdown-item" data-popup="${app.appId}">
+              ${renderIcon(app.icon)} <span>${app.title}</span>
+            </div>
+          `;
+          dropdown.appendChild(btn);
+
+          const popupDiv = document.createElement("div");
+          popupDiv.id = app.appId;
+          popupDiv.className = "popup";
+          popupDiv.innerHTML = `
+            <div class="popup-header">
+              <span>${app.title}</span>
+              <span class="altf4" onclick="closePopup('${app.appId}')">✖</span>
+            </div>
+            <iframe src="${app.url}" class="popup-frame"></iframe>
+          `;
+          document.body.appendChild(popupDiv);
+
+          showNotification("App Installata", `${app.title} è pronta all'uso!`, app.icon);
+        }
+      }
+
+      if (e.data.type === 'app-uninstalled-live') {
+        const appId = e.data.appId;
+
+        closePopup(appId);
+
+        const menuItem = document.querySelector(`[data-popup="${appId}"]`);
+        if (menuItem && menuItem.parentElement) {
+          menuItem.parentElement.remove();
+        }
+
+        const popupDiv = document.getElementById(appId);
+        if (popupDiv) {
+          setTimeout(() => popupDiv.remove(), 200);
+        }
+
+        showNotification("App Rimossa", "L'applicazione è stata disinstallata.", "🗑️");
+      }
+
+      if (e.data.type === "load-youafter") {
+        document.getElementById("popup1").querySelector("iframe").src = "apps/settings/assets/youafter.html";
+      }
+
+      if (e.data.type === 'clear-settings') {
+        try {
+          const res = await fetch('/config.json');
+          const cfg = await res.json();
+          await fetch('/clear-settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ passwordHash: cfg.passwordHash })
+          });
+          e.source.postMessage({ type: 'settings-cleared' }, '*');
+        } catch (err) {
+          e.source.postMessage({ type: 'settings-cleared', error: err.message }, '*');
+        }
+      }
+
+      if (e.data.type === 'get-settings') {
+        try {
+          const res = await fetch('/get-settings');
+          const cfg = await res.json();
+          e.source.postMessage({ type: 'settings', data: cfg }, '*');
+        } catch (err) { }
+      }
+
+      if (e.data.type === 'open-app-from-store') {
+        openPopup(e.data.appId);
+      }
+
+      if (e.data.type === 'media-update') {
+        const banner = document.getElementById('mediaPlayerBanner');
+        if (!banner) return;
+
+        if (e.data.title === 'Not playing' || !e.data.title) {
+          banner.style.display = 'none';
+        } else {
+          banner.style.display = 'flex';
+        }
+
+        document.getElementById('mediaBannerTitle').textContent = e.data.title;
+        document.getElementById('mediaBannerArtist').textContent = e.data.artist;
+
+        const playIcon = document.getElementById('mediaBannerPlayIcon');
+        const timeline = document.getElementById('mediaBannerTimeline');
+
+        if (e.data.isPlaying) {
+          playIcon.textContent = "pause";
+          timeline.classList.add('playing');
+        } else {
+          playIcon.textContent = "play_arrow";
+          timeline.classList.remove('playing');
+        }
+
+        updateNotificationCenter();
+      }
+
+      if (e.data.type === 'media-progress') {
+        const timeline = document.getElementById('mediaBannerTimeline');
+        timeline.style.width = `${e.data.percent}%`;
+        const thumb = document.getElementById('mediaBannerThumb');
+        if (thumb) thumb.style.left = `${e.data.percent}%`;
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+
+      if (e.metaKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        document.querySelectorAll('.popup.active:not(.closing)').forEach(popup => {
+          closePopup(popup.id);
+        });
+      }
+
+      if (e.shiftKey && !isInput) {
+        if (e.key === 'F4') {
+          e.preventDefault();
+          const topApp = getTopmostPopup();
+          if (topApp) closePopup(topApp.id);
+        }
+        if (e.key === 'r' || e.key === 'R') {
+          e.preventDefault();
+          window.location.reload();
+        }
+        if (e.key === 'h' || e.key === 'H') { e.preventDefault(); openPopup('popup3'); }
+        if (e.key === 'n' || e.key === 'N') { e.preventDefault(); openPopup('popup5'); }
+        if (e.key === 't' || e.key === 'T') { e.preventDefault(); openPopup('popup8'); }
+        if (e.key === 's' || e.key === 'S') { e.preventDefault(); openPopup('popup1'); }
+      }
+    });
+
+    async function avviaAppInstallate() {
+      try {
+        const res = await fetch('/get-settings');
+        const config = await res.json();
+
+        if (config.installedApps && config.installedApps.length > 0) {
+          const dropdown = document.getElementById("actionsDropdown");
+
+          config.installedApps.forEach(app => {
+            const btn = document.createElement("a");
+            btn.onclick = () => openPopup(app.appId);
+            btn.innerHTML = `
+              <div class="dropdown-item" data-popup="${app.appId}">
+                ${renderIcon(app.icon)} <span>${app.title}</span>
+              </div>
+            `;
+            dropdown.appendChild(btn);
+
+            const popupDiv = document.createElement("div");
+            popupDiv.id = app.appId;
+            popupDiv.className = "popup";
+            popupDiv.innerHTML = `
+              <div class="popup-header">
+                <span>${app.title}</span>
+                <span class="altf4" onclick="closePopup('${app.appId}')">✖</span>
+              </div>
+              <iframe src="${app.url}" class="popup-frame"></iframe>
+            `;
+            document.body.appendChild(popupDiv);
+          });
+        }
+      } catch (error) {
+        console.error("Errore durante il caricamento delle app:", error);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      applyUserWallpaper();
+      loadQuickSettings();
+      avviaAppInstallate();
+      fetchNetworks();
+      fetchBtDevices();
+    });
+  </script>
+</body>
+
+</html>
+
+<!-- no more code here. just you and me, i love you lili <3 -->

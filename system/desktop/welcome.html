@@ -1,0 +1,177 @@
+
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>mariowOS Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .text-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+
+        h1 { font-size: 5.5rem; font-weight: 800; letter-spacing: -2px; line-height: 0.9; }
+        .gray-text { font-size: 3.8rem; font-weight: 700; color: #333; letter-spacing: -1.5px; line-height: 0.9; }
+
+        .letter {
+            display: inline-block;
+            opacity: 0;
+            filter: blur(15px);
+            transform: translateX(-30px);
+            animation: letterIn 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        @keyframes letterIn {
+            to { opacity: 1; filter: blur(0px); transform: translateX(0); }
+        }
+
+        .btn-link {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            text-decoration: none;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 1.8s;
+        }
+
+        .arrow-button {
+            background: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+
+        .arrow-button:hover { transform: scale(1.1); }
+        .arrow-button svg { width: 35px; height: 35px; fill: black; }
+
+        /* Restore Backup Button */
+        .btn-restore {
+            position: fixed;
+            bottom: 40px;
+            left: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 1.8s;
+        }
+
+        .btn-restore:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+        .btn-restore svg { width: 20px; height: 20px; fill: white; }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        @media (max-width: 900px) {
+            .container { flex-direction: column; align-items: flex-start; gap: 40px; }
+            h1 { font-size: 3.5rem; }
+            .gray-text { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="text-group">
+            <h1 class="split-text" data-delay="0">Hello!</h1>
+            <div class="gray-text split-text" data-delay="0.2">Ciao!</div>
+            <div class="gray-text split-text" data-delay="0.4">Buna!</div>
+            <div class="gray-text split-text" data-delay="0.6">你好!</div>
+        </div>
+    </div>
+
+    <!-- Restore Backup -->
+    <button class="btn-restore" onclick="document.getElementById('backup-upload').click()">
+        <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        Restore Backup
+    </button>
+    <input type="file" id="backup-upload" accept=".json" style="display: none;" onchange="importBackup(event)">
+
+    <!-- Next Button -->
+    <a href="/desktop/license.html" class="btn-link">
+        <div class="arrow-button">
+            <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </div>
+    </a>
+
+    <script>
+        document.querySelectorAll('.split-text').forEach(element => {
+            const text = element.innerText;
+            const baseDelay = parseFloat(element.getAttribute('data-delay'));
+            element.innerHTML = ''; 
+            [...text].forEach((char, index) => {
+                const span = document.createElement('span');
+                span.innerText = char === " " ? "\u00A0" : char; 
+                span.classList.add('letter');
+                span.style.animationDelay = `${baseDelay + (index * 0.04)}s`;
+                element.appendChild(span);
+            });
+        });
+
+        // Backup restore logic
+        function importBackup(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append('backupFile', file);
+            
+            fetch('/api/system/restore', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(res => {
+                    if(res.success) {
+                        window.location.href = '/'; // Skips OOBE instantly and reloads system
+                    } else {
+                        alert("Restore failed: " + res.error);
+                    }
+                })
+                .catch(err => alert("Error restoring backup."));
+        }
+    </script>
+</body>
+</html>

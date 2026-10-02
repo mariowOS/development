@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mariowOS Account</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+  <style>
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      color: white; 
+      margin: 0; 
+      padding: 20px 0 60px 0; 
+      background: transparent;
+      overflow-x: hidden; 
+      overflow-y: auto; 
+    }
+
+    .container {
+      width: 100%;
+      padding: 0 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Top Header Section */
+    .header-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+      transition: filter 0.2s;
+    }
+
+    .avatar-wrapper:hover .avatar-img {
+      filter: brightness(0.7);
+    }
+
+    .avatar-edit-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 11px;
+      font-weight: 500;
+      color: white;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .avatar-wrapper:hover .avatar-edit-overlay {
+      opacity: 1;
+    }
+
+    .user-name {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .user-email {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
+    }
+
+    /* macOS Panel Groups - Full Width Edge-to-Edge */
+    .list-group { 
+      background: rgba(255, 255, 255, 0.06); 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      border-radius: 10px; 
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .list-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .list-item:last-child { border-bottom: none; }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icon-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .icon-badge .material-symbols-outlined { font-size: 18px; }
+
+    /* macOS Icon Colors */
+    .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
+    .bg-blue { background: linear-gradient(180deg, #64d2ff, #2bc0ff); }
+    .bg-family { background: linear-gradient(180deg, #0a84ff, #007aff); }
+    .bg-appstore { background: linear-gradient(180deg, #0a84ff, #007aff); }
+    .bg-black { background: linear-gradient(180deg, #48484a, #2c2c2e); }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .item-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 2px;
+    }
+
+    .item-right {
+      color: rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 12px 0 4px 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Expandable Edit Area */
+    .edit-panel {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .edit-panel input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 14px; 
+      border-radius: 8px; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
+      background: rgba(0, 0, 0, 0.25); 
+      color: white; 
+      font-family: inherit; 
+      font-size: 13px; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    
+    .edit-panel input:focus { border-color: #0a84ff; }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .btn { 
+      padding: 8px 16px; 
+      border-radius: 6px; 
+      border: none; 
+      background: #0a84ff; 
+      color: white; 
+      font-weight: 500; 
+      font-size: 13px;
+      cursor: pointer; 
+      font-family: inherit; 
+      transition: background 0.2s; 
+    }
+    .btn:hover { background: #007aff; }
+
+    .btn-danger-text {
+      background: transparent;
+      border: none;
+      color: #ff453a;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .btn-danger-text:hover { text-decoration: underline; }
+
+    html::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- Header: Avatar, Name, Email -->
+  <div class="header-panel">
+    <div class="avatar-wrapper" onclick="document.getElementById('pfpUpload').click()">
+      <img src="/desktop/assets/avatar.user.png" id="pfpPreview" class="avatar-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
+      <div class="avatar-edit-overlay">Edit</div>
+      <input type="file" id="pfpUpload" accept="image/png, image/jpeg" style="display: none;" onchange="previewAvatar(this)">
+    </div>
+    <div class="user-name" id="displayName">mariowOS User</div>
+    <div class="user-email" id="displayEmail">mariowOS Account</div>
+  </div>
+
+  <!-- Group 1: Personal & Security -->
+  <div class="list-group">
+    
+    <!-- Personal Info Trigger -->
+    <div class="list-item" onclick="toggleEditPanel()">
+      <div class="item-left">
+        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">badge</span></div>
+        <div class="item-title">Personal Information</div>
+      </div>
+      <div class="item-right"><span class="material-symbols-outlined" id="personalIcon">chevron_right</span></div>
+    </div>
+
+    <!-- Hidden Edit Panel -->
+    <div class="edit-panel" id="editPanel">
+      <input type="text" id="username" placeholder="Username">
+      <input type="email" id="email" placeholder="Email Address">
+      
+      <div class="btn-row">
+        <button class="btn-danger-text" onclick="resetAvatar()">Remove Profile Picture</button>
+        <button class="btn" onclick="saveSettings()">Save</button>
+      </div>
+    </div>
+
+    <div class="list-item" onclick="jumpToSecurity()">
+      <div class="item-left">
+        <div class="icon-badge bg-gray"><span class="material-symbols-outlined">gpp_good</span></div>
+        <div class="item-title">Sign-In & Security</div>
+      </div>
+      <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
+  </div>
+
+  <!-- Group 2: Cloud & Services -->
+  <div class="list-group">
+    <div class="list-item" onclick="exportSettings()">
+      <div class="item-left">
+        <div class="icon-badge bg-blue"><span class="material-symbols-outlined">cloud</span></div>
+        <div class="item-title">mariowOS Sync (Export Settings)</div>
+      </div>
+      <div class="item-right"><span class="material-symbols-outlined" style="opacity: 0.8;">download</span></div>
+    </div>
+
+
+    <div class="list-item" onclick="jumpToApps()">
+      <div class="item-left">
+        <div class="icon-badge bg-appstore"><span class="material-symbols-outlined">storefront</span></div>
+        <div class="item-title">Media & Purchases</div>
+      </div>
+      <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
+  </div>
+
+  <!-- Devices Section -->
+  <div class="section-title">Devices</div>
+  <div class="list-group">
+    <div class="list-item">
+      <div class="item-left">
+        <div class="icon-badge bg-gray" style="background: transparent; color: rgba(255,255,255,0.7);"><span class="material-symbols-outlined" style="font-size: 32px;">laptop_mac</span></div>
+        <div>
+          <div class="item-title" id="deviceName">mariowOS PC</div>
+          <div class="item-subtitle">This Device</div>
+        </div>
+      </div>
+      <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let avatarChanged = false;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const resp = await fetch('/get-settings');
+    if (!resp.ok) return;
+
+    const cfg = await resp.json();
+
+    if (cfg.username) {
+      document.getElementById('username').value = cfg.username;
+      document.getElementById('displayName').innerText = cfg.username;
+      document.getElementById('deviceName').innerText = cfg.username + "'s PC";
+    }
+    if (cfg.email) {
+      document.getElementById('email').value = cfg.email;
+      document.getElementById('displayEmail').innerText = cfg.email;
+    }
+
+    // Cache-bust the avatar preview
+    document.getElementById('pfpPreview').src = `/desktop/assets/avatar.user.png?t=${new Date().getTime()}`;
+
+  } catch (err) {
+    console.warn('Settings check failed:', err);
+  }
+});
+
+function toggleEditPanel() {
+  const panel = document.getElementById('editPanel');
+  const icon = document.getElementById('personalIcon');
+  if (panel.style.display === 'flex') {
+    panel.style.display = 'none';
+    icon.innerText = 'chevron_right';
+  } else {
+    panel.style.display = 'flex';
+    icon.innerText = 'expand_more';
+  }
+}
+
+function jumpToSecurity() {
+  if (window.parent && typeof window.parent.loadPage === 'function') {
+    const securityBtn = window.parent.document.querySelector('.menu-item[onclick*="security"]');
+    if (securityBtn) securityBtn.click();
+  }
+}
+
+function jumpToApps() {
+  if (window.parent && typeof window.parent.loadPage === 'function') {
+    const appsBtn = window.parent.document.querySelector('.menu-item[onclick*="apps"]');
+    if (appsBtn) appsBtn.click();
+  }
+}
+
+async function exportSettings() {
+  try {
+    const resp = await fetch('/get-settings');
+    if (!resp.ok) throw new Error('Failed to fetch settings');
+    const cfg = await resp.json();
+    
+    // Create and trigger download of the JSON file
+    const dataStr = JSON.stringify(cfg, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "mariowOS-sync.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Could not export settings: ' + e.message);
+  }
+}
+
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('pfpPreview').src = e.target.result;
+      avatarChanged = true;
+      saveAvatarOnly();
+    }
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function saveAvatarOnly() {
+  const fileInput = document.getElementById('pfpUpload');
+  if (fileInput.files.length > 0) {
+    const formData = new FormData();
+    formData.append('avatar', fileInput.files[0]);
+    try {
+      const response = await fetch('/upload-avatar', { method: 'POST', body: formData });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'Avatar upload failed');
+      avatarChanged = false;
+      document.getElementById('pfpPreview').src = `/desktop/assets/avatar.user.png?t=${Date.now()}`;
+      if (window.parent && typeof window.parent.fetchServerInfo === 'function') {
+        window.parent.fetchServerInfo(); 
+      }
+    } catch (err) {
+      alert(`Could not update profile picture: ${err.message}`);
+    }
+  }
+}
+
+async function resetAvatar() {
+  if (confirm("Are you sure you want to remove your profile picture?")) {
+    try {
+      const response = await fetch('/reset-avatar', { method: 'POST' });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'Avatar reset failed');
+      document.getElementById('pfpUpload').value = "";
+      avatarChanged = false;
+      document.getElementById('pfpPreview').src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+";
+      
+      if (window.parent && typeof window.parent.fetchServerInfo === 'function') {
+        window.parent.fetchServerInfo();
+      }
+    } catch (error) {
+      alert(`Failed to reset avatar: ${error.message}`);
+    }
+  }
+}
+
+async function saveSettings() {
+  const username = document.getElementById('username').value.trim();
+  const email = document.getElementById('email').value.trim();
+
+  if (!username || !email) {
+    alert('Username and Email cannot be empty.');
+    return;
+  }
+
+  if (username.length > 30 || email.length > 50) {
+    alert('Username is too long. Maximum 30 characters allowed.');
+    return;
+  }
+
+  const settings = { username, email };
+
+  try {
+    const response = await fetch('/save-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      document.getElementById('displayName').innerText = username;
+      document.getElementById('deviceName').innerText = username + "'s PC";
+      document.getElementById('displayEmail').innerText = email;
+      
+      toggleEditPanel();
+
+      if (window.parent && typeof window.parent.fetchServerInfo === 'function') {
+        window.parent.fetchServerInfo();
+      }
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Error saving settings: ' + err.message);
+  }
+}
+</script>
+
+</body>
+</html>

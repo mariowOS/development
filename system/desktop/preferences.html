@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>mariowOS Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 60px;
+        }
+
+        /* --- Animazione Testi (One UI Style) --- */
+        .text-group {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+
+        h1 { font-size: 5.5rem; font-weight: 800; letter-spacing: -2px; line-height: 0.9; }
+        .gray-text { font-size: 3.8rem; font-weight: 700; color: #333; letter-spacing: -1.5px; line-height: 0.9; }
+
+        .letter {
+            display: inline-block;
+            opacity: 0;
+            filter: blur(15px);
+            transform: translateX(-30px);
+            animation: letterIn 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        @keyframes letterIn {
+            to { opacity: 1; filter: blur(0px); transform: translateX(0); }
+        }
+
+        /* --- Box Destra --- */
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            opacity: 0;
+            animation: fadeInRight 1.4s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            animation-delay: 0.8s;
+        }
+
+        @keyframes fadeInRight {
+            0% { opacity: 0; transform: scale(0.95) translateX(30px); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1) translateX(0); filter: blur(0px); }
+        }
+
+        .info-box {
+            background-color: #ffffff;
+            color: #000;
+            padding: 30px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .info-box h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+
+        /* --- Toggle Switch Personalizzato --- */
+        .toggle-container {
+            background-color: #ffffff;
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .toggle-label { font-weight: 600; font-size: 1rem; }
+
+        .switch {
+            width: 50px;
+            height: 28px;
+            background-color: #ccc;
+            border-radius: 20px;
+            position: relative;
+            transition: background-color 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .circle {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Stato Attivo del Toggle */
+        .toggle-container.active .switch { background-color: #0033ff; } /* Blu One UI */
+        .toggle-container.active .circle { transform: translateX(22px); }
+
+        /* --- Bottone Avanti --- */
+        .btn-link {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            text-decoration: none;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 1.8s;
+        }
+
+        .arrow-button {
+            background: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+
+        .arrow-button:hover { transform: scale(1.1); }
+        .arrow-button svg { width: 35px; height: 35px; fill: black; }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; align-items: flex-start; gap: 40px; }
+            h1 { font-size: 3.5rem; }
+            .gray-text { font-size: 2.2rem; }
+            .right-section { width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="/desktop/assets/material-you.css">
+    <script src="/desktop/assets/monet-engine.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="text-group">
+            <h1 class="split-text" data-delay="0">Privacy</h1>
+            <div class="gray-text split-text" data-delay="0.2">Riservatezza</div>
+            <div class="gray-text split-text" data-delay="0.4">Confidențialitate</div>
+            <div class="gray-text split-text" data-delay="0.6">保密性</div>
+        </div>
+
+        <div class="right-section">
+            <div class="info-box">
+                <h2>Help improve mariowOS daily?</h2>
+                <p>Receive daily emails with links to Discord flags and issue updates. Stay updated on the latest problems and features.</p>
+            </div>
+
+            <div class="toggle-container" id="mainToggle">
+                <span class="toggle-label">Send daily Discord flags emails</span>
+                <div class="switch">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="updates.html" class="btn-link">
+        <div class="arrow-button">
+            <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </div>
+    </a>
+
+    <script>
+        // Animazione lettere
+        document.querySelectorAll('.split-text').forEach(element => {
+            const text = element.innerText;
+            const baseDelay = parseFloat(element.getAttribute('data-delay'));
+            element.innerHTML = ''; 
+            [...text].forEach((char, index) => {
+                const span = document.createElement('span');
+                span.innerText = char === " " ? "\u00A0" : char; 
+                span.classList.add('letter');
+                span.style.animationDelay = `${baseDelay + (index * 0.04)}s`;
+                element.appendChild(span);
+            });
+        });
+
+        // Logica Toggle Interattivo
+        const toggle = document.getElementById('mainToggle');
+
+        // Load initial state
+        fetch('/api/preferences')
+            .then(response => response.json())
+            .then(data => {
+                if (data.sendReports) {
+                    toggle.classList.add('active');
+                }
+            })
+            .catch(err => console.error('Error loading preferences:', err));
+
+        toggle.addEventListener('click', () => {
+            const isActive = toggle.classList.toggle('active');
+            // Save preference
+            fetch('/api/preferences', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sendReports: isActive })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error saving preference:', data.error);
+                    // Revert toggle if the server explicitly rejects it
+                    toggle.classList.toggle('active');
+                }
+            })
+            .catch(err => {
+                console.error('Error saving preference:', err);
+                // Keep UI state even if saving fails; user can try again later
+            });
+        });
+    </script>
+</body>
+</html>

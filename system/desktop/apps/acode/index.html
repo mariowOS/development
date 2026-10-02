@@ -1,0 +1,1033 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: rgba(18, 22, 32, 0.85);
+            --sidebar-bg: rgba(10, 14, 22, 0.5);
+            --text-color: #ffffff;
+            --accent-color: #5c7cfa;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --menu-hover: rgba(255, 255, 255, 0.15);
+            --panel-bg: rgba(15, 18, 25, 0.95);
+        }
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background-color: transparent; color: var(--text-color);
+            display: flex; flex-direction: column; overflow: hidden;
+            user-select: none; 
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .menubar {
+            height: 36px; background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 16px; gap: 16px; flex-shrink: 0;
+        }
+        .app-title { font-weight: 600; font-size: 13px; color: var(--accent-color); margin-right: 10px; display: flex; align-items: center; gap: 6px; }
+
+        .app-body { display: flex; flex: 1; min-height: 0; }
+        
+        .sidebar {
+            width: 250px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        .sidebar-header {
+            padding: 12px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+            display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color);
+        }
+        .sidebar-actions span { cursor: pointer; transition: color 0.15s; }
+        .sidebar-actions span:hover { color: #fff; }
+        
+        .file-tree { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+        
+        .tree-node { display: flex; flex-direction: column; }
+        .tree-item {
+            padding: 6px 8px; cursor: pointer; border-radius: 6px; font-size: 12.5px;
+            display: flex; align-items: center; gap: 8px; color: #ddd; transition: background 0.1s;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .tree-item:hover { background: rgba(255, 255, 255, 0.08); }
+        .tree-item.active { background: color-mix(in srgb, var(--accent-color) 35%, transparent); color: #fff; font-weight: 500; }
+        .tree-children { padding-left: 14px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid rgba(255,255,255,0.05); margin-left: 14px; }
+        
+        .workspace-area { flex: 1; display: flex; flex-direction: column; min-width: 0; background: transparent; }
+        
+        #fallback-tabs { display: flex; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-color); overflow-x: auto; flex-shrink: 0; }
+        .fallback-tab { padding: 8px 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #aaa; border-right: 1px solid var(--border-color); }
+        .fallback-tab.active { background: rgba(255,255,255,0.05); color: #fff; border-bottom: 2px solid var(--accent-color); }
+        .fallback-tab-close { margin-left: 6px; cursor: pointer; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+        .fallback-tab-close:hover { background: rgba(255,255,255,0.1); color: #ff5252; }
+        .unsaved-dot { width: 8px; height: 8px; background-color: #fb8c00; border-radius: 50%; flex-shrink: 0; }
+
+        .editor-wrapper { flex: 1; position: relative; min-height: 0; }
+        #monaco-container { width: 100%; height: 100%; }
+        
+        .empty-state {
+            position: absolute; inset: 0; display: flex;
+            align-items: center; justify-content: center; flex-direction: column; color: rgba(255,255,255,0.3); pointer-events: none;
+        }
+
+        /* --- Pannelli --- */
+        .bottom-panel {
+            height: 200px; background: var(--panel-bg); border-top: 1px solid var(--border-color);
+            display: none; flex-direction: column; flex-shrink: 0; overflow: hidden;
+        }
+        .panel-header {
+            padding: 8px 14px; font-size: 11px; font-weight: 600; color: #fff; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);
+        }
+        .panel-actions span { cursor: pointer; opacity: 0.7; transition: 0.2s; }
+        .panel-actions span:hover { opacity: 1; }
+        
+        /* Problems */
+        .problems-list { flex: 1; overflow-y: auto; padding: 6px 0; display: flex; flex-direction: column; gap: 2px; }
+        .problem-item {
+            padding: 6px 14px; font-size: 12px; display: flex; gap: 10px; align-items: flex-start;
+            cursor: pointer; border-left: 2px solid transparent; transition: background 0.15s;
+        }
+        .problem-item:hover { background: rgba(255,255,255,0.05); }
+        .problem-item.error { border-left-color: #ff5252; }
+        .problem-item.warning { border-left-color: #fb8c00; }
+        .problem-source { opacity: 0.5; white-space: nowrap; font-family: monospace; font-size: 11px; margin-top: 1px; }
+        .problem-msg { flex: 1; word-break: break-word; color: #ddd; }
+        .problem-line { opacity: 0.5; white-space: nowrap; font-family: monospace; font-size: 11px; margin-top: 1px; }
+
+        /* Terminal Pipeline */
+        .terminal-content {
+            flex: 1; padding: 12px; font-family: 'Consolas', monospace; font-size: 12px;
+            color: #ddd; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; cursor: text;
+        }
+        .term-line { display: flex; gap: 8px; line-height: 1.4; white-space: pre-wrap; }
+        .term-line.error { color: #ff5252; }
+        .term-line.success { color: #c2f3eb; }
+        .term-line.info { color: #aaa; }
+        .term-prompt { color: #5c7cfa; font-weight: bold; flex-shrink: 0; }
+        .term-input-row { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
+        .term-input { 
+            flex: 1; background: transparent; border: none; color: #fff; 
+            font-family: 'Consolas', monospace; font-size: 12px; outline: none; padding: 0; 
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: 26px; background: rgba(10, 14, 22, 0.95); border-top: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 12px; font-size: 11px; gap: 16px; flex-shrink: 0; color: #aaa; z-index: 100;
+        }
+        .status-item { display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+        .status-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .status-item.has-errors { color: #ff5252; }
+        .status-item.has-warnings { color: #fb8c00; }
+
+        #context-menu {
+            display: none; position: fixed; z-index: 10000;
+            background: rgba(24, 25, 28, 0.65); backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 6px; 
+            min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-direction: column; gap: 2px;
+        }
+        .ctx-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 12px; font-weight: 500; color: #fff; border-radius: 8px; cursor: pointer; }
+        .ctx-item:hover { background: rgba(255, 255, 255, 0.15); }
+        .ctx-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
+
+        * { scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="menubar" id="fallback-menubar">
+        <div class="app-title"><span class="material-symbols-outlined" style="font-size: 18px;">code</span> ACode</div>
+    </div>
+
+    <div class="app-body" id="main-container">
+        <!-- Explorer Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                EXPLORER
+                <div class="sidebar-actions">
+                    <span class="material-symbols-outlined" style="font-size: 16px;" onclick="promptCreateProject()" title="New Project">create_new_folder</span>
+                </div>
+            </div>
+            <div class="file-tree" id="fileTree"></div>
+        </div>
+        
+        <!-- Editor & Panels Area -->
+        <div class="workspace-area">
+            <div id="fallback-tabs"></div>
+            
+            <div class="editor-wrapper">
+                <div class="empty-state" id="emptyState">
+                    <h2>what's cooking, good looking?</h2>
+                    <p style="font-size: 12px; opacity: 0.6;">Select a file to start coding</p>
+                </div>
+                <div id="monaco-container" style="display: none;"></div>
+            </div>
+            
+            <!-- Pannello Problemi (Error Checking) -->
+            <div class="bottom-panel" id="problemsPanel">
+                <div class="panel-header">
+                    <span>PROBLEMS</span>
+                    <div class="panel-actions">
+                        <span class="material-symbols-outlined" style="font-size: 16px;" onclick="closePanels()">close</span>
+                    </div>
+                </div>
+                <div class="problems-list" id="problemsList">
+                    <div style="padding: 12px 14px; opacity: 0.5; font-size: 11px;">No problems have been detected in the workspace.</div>
+                </div>
+            </div>
+
+            <!-- Pannello Terminal -->
+            <div class="bottom-panel" id="terminalPanel">
+                <div class="panel-header">
+                    <span>TERMINAL</span>
+                    <div class="panel-actions">
+                        <span class="material-symbols-outlined" style="font-size: 16px;" onclick="closePanels()">close</span>
+                    </div>
+                </div>
+                <!-- Cliccando ovunque qui dentro, focus all'input -->
+                <div class="terminal-content" id="terminalContent" onclick="document.getElementById('termInput').focus()">
+                    <div id="termOutput">
+                        <div class="term-line" style="color: #888;">mariowOS ACode Terminal</div>
+                    </div>
+                    <div class="term-input-row">
+                        <span class="term-prompt">acode@nbuild:~$</span>
+                        <input type="text" class="term-input" id="termInput" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar Globale -->
+    <div class="status-bar" id="statusBar">
+        <div class="status-item" onclick="togglePanel('problemsPanel')" id="statusProblems" title="View Problems">
+            <span class="material-symbols-outlined" style="font-size: 14px;">error</span> <span id="errorCount">0</span>
+            <span class="material-symbols-outlined" style="font-size: 14px; margin-left: 6px;">warning</span> <span id="warningCount">0</span>
+        </div>
+        <div class="status-item" onclick="togglePanel('terminalPanel')" title="Open Terminal">
+            <span class="material-symbols-outlined" style="font-size: 14px;">terminal</span> Terminal
+        </div>
+        <div style="flex: 1;"></div>
+        <div class="status-item" id="statusLang" title="Language Mode" style="display:none;">HTML</div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu">
+        <div class="ctx-item" id="ctx-new-file"><span class="material-symbols-outlined" style="font-size:16px;">note_add</span> New File</div>
+        <div class="ctx-item" id="ctx-new-folder"><span class="material-symbols-outlined" style="font-size:16px;">create_new_folder</span> New Folder</div>
+        <div class="ctx-divider" id="ctx-div-1"></div>
+        <div class="ctx-item" id="ctx-rename"><span class="material-symbols-outlined" style="font-size:16px;">edit</span> Rename</div>
+        <div class="ctx-item" id="ctx-delete" style="color: #ff5252;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span> Delete</div>
+        <div class="ctx-divider"></div>
+        <div class="ctx-item" id="ctx-export"><span class="material-symbols-outlined" style="font-size:16px;">folder_zip</span> Export (.zip)</div>
+    </div>
+
+    <script>
+        const DEFAULT_TEMPLATE = `<!--
+Welcome to the mariowOS ACode Application!
+
+1. UI & WINDOW MANAGEMENT:
+- The window frame, dragging, minimize, maximize, and close buttons
+ are automatically managed by Tiles.
+- Set body background to 'transparent' to inherit the system's
+ acrylic/blur effects.
+
+2. SYSTEM APIs & HARDWARE (Node.js backend):
+- Wi-Fi: fetch('/api/system/networks')
+- Bluetooth: fetch('/api/system/bt-devices')
+
+Have fun from mariow :D
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 24px; font-family: 'Poppins', sans-serif;
+            color: #ffffff; background-color: transparent; 
+        }
+        h1 { font-weight: 500; margin-top: 0; color: #5c7cfa; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to your app</h1>
+    <p>This is a simple example of an app.</p>
+</body>
+</html>`;
+
+        let fileSystem = JSON.parse(localStorage.getItem('mariowOS_fs')) || {};
+        for (let proj in fileSystem) {
+            if (typeof fileSystem[proj] === 'string') { fileSystem = {}; break; }
+        }
+
+        let openTabs = [];
+        let activeTabId = null;
+        let activePanel = null;
+        
+        let editor;
+        let saveTimeout; 
+        const IS_EMBEDDED = window.parent !== window;
+        let ctxTarget = null; 
+
+        // Cross-Origin Worker Proxy
+        window.MonacoEnvironment = {
+            getWorkerUrl: function(workerId, label) {
+                return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+                    self.MonacoEnvironment = { baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/' };
+                    importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/base/worker/workerMain.js');
+                `)}`;
+            }
+        };
+
+        // Init Monaco Editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            
+            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+                noSemanticValidation: false,
+                noSyntaxValidation: false
+            });
+            monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+                target: monaco.languages.typescript.ScriptTarget.ES6,
+                allowNonTsExtensions: true
+            });
+
+            editor = monaco.editor.create(document.getElementById('monaco-container'), {
+                value: "", language: "html", theme: "vs-dark", automaticLayout: true,
+                minimap: { enabled: false }, fontSize: 13, fontFamily: "'Consolas', 'Courier New', monospace",
+                scrollBeyondLastLine: false, padding: { top: 16 }
+            });
+            
+            editor.onDidChangeModelContent(() => {
+                // Set unsaved dot if not already marked
+                if(activeTabId) {
+                    const tab = openTabs.find(t => t.id === activeTabId);
+                    if(tab && !tab.isUnsaved) {
+                        tab.isUnsaved = true;
+                        renderTabs();
+                    }
+                }
+
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    if(activeTabId) {
+                        const tab = openTabs.find(t => t.id === activeTabId);
+                        if(tab) {
+                            setNodeContent(tab.pathArr, editor.getValue());
+                            saveFS();
+                            if(tab.isUnsaved) {
+                                tab.isUnsaved = false;
+                                renderTabs(); // Removes the dot visually once saved
+                            }
+                        }
+                    }
+                }, 800);
+            });
+
+            monaco.editor.onDidChangeMarkers(() => {
+                const markers = monaco.editor.getModelMarkers({ resource: editor.getModel().uri });
+                updateProblemsUI(markers);
+            });
+        });
+
+        // --- Terminal Engine ---
+        const termInput = document.getElementById('termInput');
+        const termOutput = document.getElementById('termOutput');
+        const termContent = document.getElementById('terminalContent');
+
+        termInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmdLine = termInput.value.trim();
+                if (cmdLine) {
+                    printTerm(`mariow@acode:~$ ${cmdLine}`, '');
+                    executeCommand(cmdLine);
+                }
+                termInput.value = '';
+            }
+        });
+
+        function printTerm(text, typeClass = 'info') {
+            const line = document.createElement('div');
+            line.className = 'term-line ' + typeClass;
+            
+            if (text.startsWith('mariow@acode:~$')) {
+                line.innerHTML = `<span class="term-prompt">mariow@acode:~$</span> <span>${text.substring(15)}</span>`;
+            } else {
+                line.innerText = text;
+            }
+            
+            termOutput.appendChild(line);
+            termContent.scrollTop = termContent.scrollHeight;
+        }
+
+        function executeCommand(cmdLine) {
+            const args = cmdLine.split(' ');
+            const cmd = args[0].toLowerCase();
+
+            switch(cmd) {
+                case 'run':
+                    if (!activeTabId) { printTerm('Error: Open a project file first to run.', 'error'); return; }
+                    printTerm('pipelined', 'info');
+                    printTerm('interpreting UI using Lilium Engine (1 GPU thread)', 'info');
+                    testApp();
+                    printTerm('launched in preview window.', 'success');
+                    break;
+                case 'build':
+                    if (!activeTabId) { printTerm('Error: Open a project file first to build.', 'error'); return; }
+                    const activeTab = openTabs.find(t => t.id === activeTabId);
+                    const projName = activeTab.pathArr[0];
+                    printTerm(`...starting build process: ${projName} (CPU: 1 thread)`, 'info');
+                    exportZipPath([projName]);
+                    printTerm('built! exporting as ZIP...', 'success');
+                    break;
+                case 'checkerrors':
+                    if (!editor) return;
+                    const markers = monaco.editor.getModelMarkers({ resource: editor.getModel().uri });
+                    const errs = markers.filter(m => m.severity === monaco.MarkerSeverity.Error).length;
+                    const warns = markers.filter(m => m.severity === monaco.MarkerSeverity.Warning).length;
+                    printTerm(`Errors: ${errs}, Warnings:${warns}`, errs > 0 ? 'error' : (warns > 0 ? 'warning' : 'success'));
+                    if (errs > 0 || warns > 0) {
+                        printTerm('Opening Problems Panel...', 'info');
+                        setTimeout(() => togglePanel('problemsPanel'), 600);
+                    }
+                    break;
+                case 'clear':
+                    termOutput.innerHTML = '';
+                    break;
+                case 'help':
+                    printTerm('Commands:\n  run         - Bundle and preview the active project\n  build       - Builds and exports the active project as a .zip file\n  checkerrors - Run syntax and semantic validation on active file\n  clear       - Clear terminal output\n  help        - Show this message', 'info');
+                    break;
+                default:
+                    printTerm(`acode: command not found: ${cmd}. Type 'help' for available commands.`, 'error');
+            }
+        }
+
+        // --- Gestione Pannelli ---
+        function togglePanel(panelId) {
+            if(activePanel === panelId) {
+                closePanels();
+            } else {
+                closePanels();
+                activePanel = panelId;
+                document.getElementById(panelId).style.display = 'flex';
+                if (panelId === 'terminalPanel') {
+                    setTimeout(() => document.getElementById('termInput').focus(), 50);
+                }
+                if(editor) editor.layout();
+            }
+        }
+        function closePanels() {
+            activePanel = null;
+            document.getElementById('problemsPanel').style.display = 'none';
+            document.getElementById('terminalPanel').style.display = 'none';
+            if(editor) editor.layout();
+        }
+
+        function updateProblemsUI(markers) {
+            let errors = 0, warnings = 0;
+            const list = document.getElementById('problemsList');
+            list.innerHTML = '';
+            
+            if(markers.length === 0) {
+                list.innerHTML = '<div style="padding: 12px 14px; opacity: 0.5; font-size: 11px;">No problems have been detected in the workspace.</div>';
+            }
+
+            markers.forEach(m => {
+                if(m.severity === monaco.MarkerSeverity.Error) errors++;
+                else if(m.severity === monaco.MarkerSeverity.Warning) warnings++;
+                
+                const el = document.createElement('div');
+                const isErr = m.severity === monaco.MarkerSeverity.Error;
+                el.className = `problem-item ${isErr ? 'error' : 'warning'}`;
+                const icon = isErr ? 'error' : 'warning';
+                const color = isErr ? '#ff5252' : '#fb8c00';
+                
+                el.innerHTML = `
+                    <span class="material-symbols-outlined" style="font-size:16px; color:${color};">${icon}</span>
+                    <span class="problem-msg">${m.message}</span>
+                    <span class="problem-source">[${m.source || 'monaco'}]</span>
+                    <span class="problem-line">Ln ${m.startLineNumber}, Col${m.startColumn}</span>
+                `;
+                
+                el.onclick = () => {
+                    editor.setPosition({ lineNumber: m.startLineNumber, column: m.startColumn });
+                    editor.focus();
+                    if(activePanel !== 'problemsPanel') togglePanel('problemsPanel');
+                };
+                
+                list.appendChild(el);
+            });
+
+            document.getElementById('errorCount').innerText = errors;
+            document.getElementById('warningCount').innerText = warnings;
+            
+            const sItem = document.getElementById('statusProblems');
+            sItem.className = 'status-item';
+            if(errors > 0) sItem.classList.add('has-errors');
+            else if(warnings > 0) sItem.classList.add('has-warnings');
+        }
+
+        window.addEventListener('resize', () => { if(editor) editor.layout(); });
+
+        // --- File System Utilities ---
+        function saveFS() { localStorage.setItem('mariowOS_fs', JSON.stringify(fileSystem)); }
+        
+        function getNode(pathArr) {
+            let curr = fileSystem;
+            for(let p of pathArr) {
+                if(curr[p] === undefined) return null;
+                curr = curr[p];
+            }
+            return curr;
+        }
+
+        function setNodeContent(pathArr, content) {
+            if(pathArr.length === 0) return;
+            let parent = fileSystem;
+            for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
+            parent[pathArr[pathArr.length-1]] = content;
+        }
+
+        function deleteNode(pathArr) {
+            if(pathArr.length === 0) return;
+            let parent = fileSystem;
+            for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
+            delete parent[pathArr[pathArr.length-1]];
+            saveFS();
+        }
+
+        function renameNode(pathArr, newName) {
+            if(pathArr.length === 0) return;
+            let parent = fileSystem;
+            for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
+            
+            const oldName = pathArr[pathArr.length-1];
+            if(oldName !== newName && parent[newName] === undefined) {
+                parent[newName] = parent[oldName];
+                delete parent[oldName];
+                saveFS();
+                return true;
+            }
+            return false;
+        }
+
+        // --- Tabs Logic ---
+        function switchTab(id) {
+            if(activeTabId && editor) {
+                const prevTab = openTabs.find(t => t.id === activeTabId);
+                if(prevTab) setNodeContent(prevTab.pathArr, editor.getValue());
+            }
+
+            activeTabId = id;
+            const tab = openTabs.find(t => t.id === id);
+            if(!tab) return;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('monaco-container').style.display = 'block';
+            document.getElementById('statusLang').style.display = 'flex';
+
+            let lang = 'html', label = 'HTML';
+            if(tab.name.endsWith('.css')) { lang = 'css'; label = 'CSS'; }
+            if(tab.name.endsWith('.js')) { lang = 'javascript'; label = 'JavaScript'; }
+            if(tab.name.endsWith('.json')) { lang = 'json'; label = 'JSON'; }
+
+            document.getElementById('statusLang').innerText = label;
+
+            monaco.editor.setModelLanguage(editor.getModel(), lang);
+            editor.setValue(getNode(tab.pathArr) || "");
+            
+            const markers = monaco.editor.getModelMarkers({ resource: editor.getModel().uri });
+            updateProblemsUI(markers);
+
+            renderTree();
+            renderTabs();
+        }
+
+        function closeTab(e, id) {
+            e.stopPropagation();
+            const idx = openTabs.findIndex(t => t.id === id);
+            if(idx === -1) return;
+
+            if(activeTabId === id && editor) {
+                setNodeContent(openTabs[idx].pathArr, editor.getValue());
+            }
+
+            openTabs.splice(idx, 1);
+
+            if(openTabs.length === 0) {
+                activeTabId = null;
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('monaco-container').style.display = 'none';
+                document.getElementById('statusLang').style.display = 'none';
+                updateProblemsUI([]); 
+            } else {
+                const nextIdx = Math.min(idx, openTabs.length - 1);
+                switchTab(openTabs[nextIdx].id);
+            }
+            renderTabs();
+            renderTree();
+        }
+
+        function closeTabsByPath(pathArr) {
+            const pathStr = pathArr.join('/');
+            const tabsToClose = openTabs.filter(t => t.pathArr.join('/').startsWith(pathStr));
+            tabsToClose.forEach(t => {
+                const idx = openTabs.findIndex(ot => ot.id === t.id);
+                if(idx > -1) openTabs.splice(idx, 1);
+            });
+            
+            if(openTabs.length === 0) {
+                activeTabId = null;
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('monaco-container').style.display = 'none';
+                document.getElementById('statusLang').style.display = 'none';
+                updateProblemsUI([]);
+            } else if (!openTabs.find(t => t.id === activeTabId)) {
+                switchTab(openTabs[0].id);
+            }
+            renderTabs();
+            renderTree();
+        }
+
+        function updateTabPaths(oldPathArr, newName) {
+            const oldPathStr = oldPathArr.join('/');
+            openTabs.forEach(t => {
+                const tabPathStr = t.pathArr.join('/');
+                if (tabPathStr.startsWith(oldPathStr)) {
+                    t.pathArr[oldPathArr.length - 1] = newName;
+                    if(t.pathArr.length === oldPathArr.length) t.name = newName; 
+                }
+            });
+            renderTabs();
+        }
+
+        function renderTabs() {
+            if (!IS_EMBEDDED) {
+                const fTabs = document.getElementById('fallback-tabs');
+                fTabs.innerHTML = '';
+                openTabs.forEach(tab => {
+                    const isActive = tab.id === activeTabId;
+                    const el = document.createElement('div');
+                    el.className = 'fallback-tab' + (isActive ? ' active' : '');
+                    el.innerHTML = `<span>${tab.name}</span>${tab.isUnsaved ? '<span class="unsaved-dot"></span>' : ''} <span class="fallback-tab-close">×</span>`;
+                    el.onclick = () => switchTab(tab.id);
+                    el.querySelector('.fallback-tab-close').onclick = (e) => closeTab(e, tab.id);
+                    fTabs.appendChild(el);
+                });
+                return;
+            }
+
+            const osTabs = window.parent.document.getElementById('os-acode-tabs');
+            if(!osTabs) return;
+
+            osTabs.innerHTML = '';
+            openTabs.forEach(tab => {
+                const isActive = tab.id === activeTabId;
+                const btn = window.parent.document.createElement('div');
+                btn.className = 'notes-tab-btn' + (isActive ? ' active' : '');
+                
+                let icon = 'description';
+                if(tab.name.endsWith('.html')) icon = 'html';
+                if(tab.name.endsWith('.css')) icon = 'css';
+                if(tab.name.endsWith('.js')) icon = 'javascript';
+
+                btn.innerHTML = `
+                    <span class="material-symbols-outlined" style="font-size:14px; opacity:0.8;">${icon}</span>
+                    <span style="white-space: nowrap; font-size:12px; margin-right:4px;">${tab.name}</span>${tab.isUnsaved ? '<span style="width:6px;height:6px;border-radius:50%;background:#fb8c00;margin-right:6px;"></span>' : ''}
+                    <button class="notes-tab-close" style="background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:0 2px; margin-left: auto;">×</button>
+                `;
+                btn.onclick = () => switchTab(tab.id);
+                btn.querySelector('.notes-tab-close').onclick = (e) => closeTab(e, tab.id);
+                osTabs.appendChild(btn);
+            });
+        }
+
+        // --- UI & Rendering Albero ---
+        function renderTree() {
+            const tree = document.getElementById('fileTree');
+            tree.innerHTML = '';
+            for (const projectName in fileSystem) {
+                tree.appendChild(createTreeNode([projectName]));
+            }
+        }
+
+        function createTreeNode(pathArr) {
+            const nodeName = pathArr[pathArr.length-1];
+            const nodeData = getNode(pathArr);
+            const isFolder = typeof nodeData === 'object';
+            
+            const container = document.createElement('div');
+            container.className = 'tree-node';
+            
+            const item = document.createElement('div');
+            
+            let isActive = false;
+            if(activeTabId) {
+                const actTab = openTabs.find(t => t.id === activeTabId);
+                if(actTab && actTab.pathArr.join('/') === pathArr.join('/')) isActive = true;
+            }
+            item.className = 'tree-item' + (isActive ? ' active' : '');
+            
+            let icon = isFolder ? (pathArr.length === 1 ? 'folder_open' : 'folder') : 'description';
+            if(!isFolder) {
+                if(nodeName.endsWith('.html')) icon = 'html';
+                if(nodeName.endsWith('.css')) icon = 'css';
+                if(nodeName.endsWith('.js')) icon = 'javascript';
+                if(nodeName.endsWith('.json')) icon = 'data_object';
+            }
+            
+            item.innerHTML = `<span class="material-symbols-outlined" style="font-size:${isFolder?'16px':'14px'};">${icon}</span> <span>${nodeName}</span>`;
+            
+            item.onclick = (e) => {
+                e.stopPropagation();
+                if(isFolder) {
+                    const childrenDiv = container.querySelector('.tree-children');
+                    if(childrenDiv) childrenDiv.style.display = childrenDiv.style.display === 'none' ? 'flex' : 'none';
+                } else {
+                    openFileAndCreateTab(pathArr);
+                }
+            };
+            
+            item.oncontextmenu = (e) => {
+                e.preventDefault(); e.stopPropagation();
+                showContextMenu(e, pathArr, isFolder);
+            };
+
+            container.appendChild(item);
+
+            if (isFolder) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                for (const childName in nodeData) {
+                    childrenDiv.appendChild(createTreeNode([...pathArr, childName]));
+                }
+                container.appendChild(childrenDiv);
+            }
+            return container;
+        }
+
+        function openFileAndCreateTab(pathArr) {
+            const pathStr = pathArr.join('/');
+            const existingTab = openTabs.find(t => t.pathArr.join('/') === pathStr);
+            
+            if (existingTab) {
+                switchTab(existingTab.id);
+            } else {
+                const id = 'tab_' + Date.now();
+                // Ensure isUnsaved is initially false when creating a new tab
+                openTabs.push({ id, pathArr: [...pathArr], name: pathArr[pathArr.length-1], isUnsaved: false });
+                switchTab(id);
+            }
+        }
+
+        // --- Menu Contestuale ---
+        const ctxMenu = document.getElementById('context-menu');
+        function showContextMenu(e, pathArr, isFolder) {
+            ctxTarget = { pathArr, isFolder };
+            ctxMenu.style.display = 'flex';
+            
+            let x = e.clientX; let y = e.clientY;
+            if (x + 160 > window.innerWidth) x = window.innerWidth - 160;
+            if (y + 180 > window.innerHeight) y = window.innerHeight - 180;
+            ctxMenu.style.left = `${x}px`; ctxMenu.style.top = `${y}px`;
+
+            document.getElementById('ctx-new-file').style.display = isFolder ? 'flex' : 'none';
+            document.getElementById('ctx-new-folder').style.display = isFolder ? 'flex' : 'none';
+            document.getElementById('ctx-div-1').style.display = isFolder ? 'block' : 'none';
+        }
+        document.addEventListener('click', () => { ctxMenu.style.display = 'none'; });
+
+        document.getElementById('ctx-new-file').onclick = () => promptCreateNode(false);
+        document.getElementById('ctx-new-folder').onclick = () => promptCreateNode(true);
+        document.getElementById('ctx-rename').onclick = () => promptRename();
+        document.getElementById('ctx-delete').onclick = () => {
+            if(confirm(`Are you sure you want to delete '${ctxTarget.pathArr[ctxTarget.pathArr.length-1]}'?`)) {
+                deleteNode(ctxTarget.pathArr);
+                closeTabsByPath(ctxTarget.pathArr); 
+                renderTree();
+            }
+        };
+        document.getElementById('ctx-export').onclick = () => exportZipPath(ctxTarget.pathArr);
+
+        function promptCreateProject() {
+            const name = prompt("Enter Project Name:");
+            if (name && !fileSystem[name]) {
+                fileSystem[name] = { 'index.html': DEFAULT_TEMPLATE, 'assets': {} };
+                saveFS(); renderTree(); openFileAndCreateTab([name, 'index.html']);
+            }
+        }
+
+        function promptCreateNode(isFolder) {
+            const name = prompt(`Enter ${isFolder ? 'folder' : 'file'} name:`);
+            if (name) {
+                const targetNode = getNode(ctxTarget.pathArr);
+                if(targetNode[name] === undefined) {
+                    targetNode[name] = isFolder ? {} : "";
+                    saveFS(); renderTree();
+                    if(!isFolder) openFileAndCreateTab([...ctxTarget.pathArr, name]);
+                }
+            }
+        }
+
+        function promptRename() {
+            const oldName = ctxTarget.pathArr[ctxTarget.pathArr.length-1];
+            const newName = prompt("Rename to:", oldName);
+            if(newName && newName !== oldName) {
+                if(renameNode(ctxTarget.pathArr, newName)) {
+                    updateTabPaths(ctxTarget.pathArr, newName);
+                    renderTree();
+                } else {
+                    if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Name already exists.", "⚠️");
+                }
+            }
+        }
+
+        // --- Export & Run ---
+        async function exportZipPath(pathArr) {
+            const zip = new JSZip();
+            const rootNode = getNode(pathArr);
+            const exportName = pathArr[pathArr.length-1];
+            
+            function addToZip(folderObj, nodeData) {
+                if(typeof nodeData === 'string') return; 
+                for (const key in nodeData) {
+                    if (typeof nodeData[key] === 'string') { folderObj.file(key, nodeData[key]); } 
+                    else { addToZip(folderObj.folder(key), nodeData[key]); }
+                }
+            }
+
+            if(typeof rootNode === 'string') { zip.file(exportName, rootNode); } 
+            else { addToZip(zip, rootNode); }
+            
+            zip.generateAsync({type:"blob"}).then(function(content) {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(content);
+                a.download = exportName + ".zip"; a.click();
+                
+                // Show Popup from OS instead of notification
+                if (window.parent && window.parent.showDialog) {
+                    window.parent.showDialog('info', 'Export Complete', `Your project "${exportName}" has been successfully exported as a .zip file.`);
+                }
+            });
+        }
+
+        function testApp() {
+            if (!activeTabId) { 
+                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Open a project file first.", "⚠️️");
+                return; 
+            }
+            
+            const activeTab = openTabs.find(t => t.id === activeTabId);
+            const projectRootName = activeTab.pathArr[0];
+            const projectRoot = fileSystem[projectRootName];
+            
+            if (!projectRoot['index.html']) {
+                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Missing index.html to run.", "⚠️️");
+                return;
+            }
+            
+            if (editor && activeTab) {
+                setNodeContent(activeTab.pathArr, editor.getValue());
+                saveFS();
+                if(activeTab.isUnsaved) {
+                    activeTab.isUnsaved = false;
+                    renderTabs();
+                }
+            }
+            
+            let htmlCode = projectRoot['index.html'];
+            
+            function resolveDependencies(folder, pathPrefix = "") {
+                for(const filename in folder) {
+                    if(typeof folder[filename] === 'object') {
+                        resolveDependencies(folder[filename], pathPrefix + filename + "/");
+                    } else {
+                        const fullPath = pathPrefix + filename;
+                        if (filename.endsWith('.css')) {
+                            const linkTag = new RegExp(`<link[^>]*href=["']${fullPath}["'][^>]*>`, 'gi');
+                            htmlCode = htmlCode.replace(linkTag, `<style>${folder[filename]}</style>`);
+                        }
+                        if (filename.endsWith('.js')) {
+                            const scriptTag = new RegExp(`<script[^>]*src=["']${fullPath}["'][^>]*><\\/script>`, 'gi');
+                            htmlCode = htmlCode.replace(scriptTag, `<script>${folder[filename]}<\/script>`);
+                        }
+                    }
+                }
+            }
+            resolveDependencies(projectRoot);
+
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const popupId = 'mariowos_ide_preview_window';
+            const parentDoc = window.parent.document;
+            let popupDiv = parentDoc.getElementById(popupId);
+            
+            if (!popupDiv) {
+                popupDiv = parentDoc.createElement("div");
+                popupDiv.id = popupId; popupDiv.className = "popup"; 
+                popupDiv.innerHTML = `
+                    <div class="popup-header">
+                        <span>Preview: ${projectRootName}</span>
+                        <div class="window-actions" id="acode-preview-actions">
+                            <span class="material-symbols-outlined action-btn min-btn">remove</span>
+                            <span class="material-symbols-outlined action-btn max-btn">crop_square</span>
+                            <span class="material-symbols-outlined action-btn close-btn">close</span>
+                        </div>
+                    </div>
+                    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
+                    <iframe data-default-src="${url}" src="${url}" class="popup-frame" style="background: transparent;" allow="autoplay; camera; microphone"></iframe>
+                `;
+                parentDoc.body.appendChild(popupDiv);
+                
+                const pActions = popupDiv.querySelector('#acode-preview-actions');
+                pActions.addEventListener('mousedown', e => e.stopPropagation());
+                pActions.querySelector('.min-btn').addEventListener('click', () => window.parent.minimizePopup(popupId));
+                pActions.querySelector('.max-btn').addEventListener('click', () => window.parent.toggleMaximize(popupId));
+                pActions.querySelector('.close-btn').addEventListener('click', () => window.parent.closePopup(popupId));
+
+                void popupDiv.offsetWidth; 
+            } else {
+                const headerSpan = popupDiv.querySelector('.popup-header span');
+                if (headerSpan) headerSpan.innerText = 'Preview: ' + projectRootName;
+                const iframe = popupDiv.querySelector('iframe');
+                if (iframe) { iframe.dataset.defaultSrc = url; iframe.src = url; }
+            }
+            
+            window.parent.openPopup(popupId);
+            window.parent.focusPopup(popupDiv);
+        }
+
+        // --- OS Injection ---
+        if (IS_EMBEDDED) {
+            document.getElementById('fallback-menubar').style.display = 'none';
+            document.getElementById('fallback-tabs').style.display = 'none';
+
+            const iframes = window.parent.document.querySelectorAll('iframe');
+            let myPopupId = null, myPopupEl = null;
+
+            iframes.forEach(iframe => {
+                if (iframe.contentWindow === window) {
+                    myPopupEl = iframe.closest('.popup');
+                    if(myPopupEl) myPopupId = myPopupEl.id;
+                }
+            });
+
+            if (myPopupEl && myPopupId) {
+                const osHeader = myPopupEl.querySelector('.popup-header');
+
+                if (!window.parent.document.getElementById('codestudio-os-styles')) {
+                    const style = window.parent.document.createElement('style');
+                    style.id = 'codestudio-os-styles';
+                    style.textContent = `
+                        .cs-os-btn {
+                            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+                            color: #ddd; border-radius: 6px; padding: 4px 10px; display: flex; align-items: center; gap: 6px;
+                            cursor: pointer; transition: all 0.2s; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500;
+                        }
+                        .cs-os-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; transform: translateY(-1px); }
+                        .cs-os-btn.primary { background: rgba(92, 124, 250, 0.2); color: #c2f3eb; border-color: rgba(92, 124, 250, 0.3); }
+                        
+                        .notes-tab-btn {
+                            display: flex; align-items: center; gap: 8px;
+                            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
+                            border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px;
+                            color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
+                            cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
+                            transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
+                        }
+                        .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+                        .notes-tab-btn.active { background: rgba(92, 124, 250, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(92, 124, 250, 0.25); }
+                        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #5c7cfa; border-bottom: none; pointer-events: none; }
+                        .notes-tab-close:hover { color: #ff5252; }
+                    `;
+                    window.parent.document.head.appendChild(style);
+                }
+
+                osHeader.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; color: #5c7cfa; cursor: move; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">code</span>
+                    </div>
+                    
+                    <div id="os-acode-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 8px; cursor: move;"></div>
+                    
+                    <div id="os-acode-actions" style="display: flex; gap: 6px; margin-left: 12px; align-items: center; flex-shrink: 0;">
+                        <button class="cs-os-btn" id="os-cs-run-pipeline" title="Terminal"><span class="material-symbols-outlined" style="font-size: 14px;">terminal</span></button>
+                        <button class="cs-os-btn" id="os-cs-new-proj" title="New Project"><span class="material-symbols-outlined" style="font-size: 14px;">create_new_folder</span></button>
+                        <button class="cs-os-btn" id="os-cs-save" title="Save File (Ctrl+S)"><span class="material-symbols-outlined" style="font-size: 14px;">save</span> Save</button>
+                        <button class="cs-os-btn primary" id="os-cs-run" title="Run App (Ctrl+Enter)"><span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span> Run</button>
+                    </div>
+
+                    <div class="window-actions" id="os-acode-win-actions" style="flex-shrink: 0; margin-left: 12px;">
+                        <span class="material-symbols-outlined action-btn min-btn">remove</span>
+                        <span class="material-symbols-outlined action-btn max-btn">crop_square</span>
+                        <span class="material-symbols-outlined action-btn close-btn">close</span>
+                    </div>
+                `;
+
+                const pDoc = window.parent.document;
+                
+                pDoc.getElementById('os-acode-tabs').addEventListener('mousedown', e => { if(e.target.closest('.notes-tab-btn')) e.stopPropagation(); });
+                pDoc.getElementById('os-acode-actions').addEventListener('mousedown', e => { if(e.target.closest('button')) e.stopPropagation(); });
+                
+                const wActions = pDoc.getElementById('os-acode-win-actions');
+                wActions.addEventListener('mousedown', e => e.stopPropagation()); 
+                wActions.querySelector('.min-btn').addEventListener('click', () => window.parent.minimizePopup(myPopupId));
+                wActions.querySelector('.max-btn').addEventListener('click', () => window.parent.toggleMaximize(myPopupId));
+                wActions.querySelector('.close-btn').addEventListener('click', () => window.parent.closePopup(myPopupId));
+
+                pDoc.getElementById('os-cs-new-proj').addEventListener('click', () => promptCreateProject());
+                pDoc.getElementById('os-cs-run-pipeline').addEventListener('click', () => { togglePanel('terminalPanel'); });
+                pDoc.getElementById('os-cs-save').addEventListener('click', () => {
+                    if (editor && activeTabId) {
+                        const tab = openTabs.find(t => t.id === activeTabId);
+                        setNodeContent(tab.pathArr, editor.getValue());
+                        saveFS();
+                        if (tab.isUnsaved) {
+                            tab.isUnsaved = false;
+                            renderTabs();
+                        }
+                    }
+                });
+                pDoc.getElementById('os-cs-run').addEventListener('click', () => testApp());
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') { 
+                e.preventDefault(); 
+                if(editor && activeTabId) { 
+                    const tab = openTabs.find(t => t.id === activeTabId);
+                    setNodeContent(tab.pathArr, editor.getValue()); 
+                    saveFS();
+                    if (tab.isUnsaved) {
+                        tab.isUnsaved = false;
+                        renderTabs();
+                    }
+                } 
+            }
+            if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); testApp(); }
+            if (e.ctrlKey && e.key === '`') { e.preventDefault(); togglePanel('terminalPanel'); }
+        });
+
+        renderTree();
+    </script>
+</body>
+</html>

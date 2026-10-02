@@ -1,0 +1,973 @@
+
+
+<!-- 
+mariowOS Notes - (C) 2026 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link rel="stylesheet" href="/desktop/assets/material-you.css">
+  <script src="/desktop/assets/monet-engine.js"></script>
+<style>
+  :root {
+    --m3-dropdown-bg: rgba(24, 25, 28, 0.85);
+    --m3-text-color: #e6e0e9;
+    --m3-glass-border: rgba(255, 255, 255, 0.12);
+    --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    --m3-accent-active: #5c7cfa;
+  }
+
+  /* Applied transparency to html and body, removed hardcoded colors/gradients */
+  html, body {
+    margin: 0; padding: 0; height: 100%; font-family: 'Poppins', sans-serif;
+    background: transparent;
+    color: var(--m3-text-color); -webkit-font-smoothing: antialiased; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  @keyframes textareaFade { from { opacity: 0; transform: translate3d(0, 4px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+  @keyframes toastAppIn { from { opacity: 0; transform: translate3d(-50%, 20px, 0); } to { opacity: 1; transform: translate3d(-50%, 0, 0); } }
+  @keyframes toastAppOut { from { opacity: 1; transform: translate3d(-50%, 0, 0); } to { opacity: 0; transform: translate3d(-50%, 20px, 0); } }
+
+  /* Toolbar Styles */
+  .toolbar {
+    position: relative;
+    display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-wrap: wrap; z-index: 10;
+  }
+  
+  .toolbar::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    z-index: -1;
+  }
+  
+  .toolbar-btn {
+    background: transparent; border: 1px solid transparent; color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s, color 0.15s; font-family: 'Poppins', sans-serif; font-weight: 500;
+  }
+  .toolbar-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  .toolbar-btn.active { background: rgba(92, 124, 250, 0.2); color: #c2f3eb; border-color: rgba(92, 124, 250, 0.3); }
+  
+  .toolbar-divider { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.1); margin: 0 4px; }
+  
+  .toolbar-color {
+    width: 26px; height: 26px; padding: 0; border: none; border-radius: 50%; overflow: hidden;
+    cursor: pointer; background: transparent; outline: none;
+  }
+  .toolbar-color::-webkit-color-swatch-wrapper { padding: 0; }
+  .toolbar-color::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; }
+
+  /* OS Styled Custom Dropdowns - Enhanced Blur */
+  .custom-dropdown-wrapper { position: relative; display: inline-block; }
+  
+  .os-dropdown {
+    position: absolute; top: calc(100% + 8px);
+    background: rgba(24, 25, 28, 0.35) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+    z-index: 100; opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translateY(10px) scale(0.97); 
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .os-dropdown.show { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1); }
+
+  .custom-dropdown {
+    padding: 8px; left: 0; min-width: 150px;
+    display: flex; flex-direction: column; transform-origin: top left;
+  }
+  
+  .emoji-dropdown {
+    padding: 12px; right: 0; left: auto; transform-origin: top right;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
+  }
+  
+  .dropdown-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border-radius: 12px; font-size: 13px; font-weight: 500; color: #ffffff;
+    cursor: pointer; transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap; user-select: none;
+  }
+  .dropdown-item:hover { background: rgba(255, 255, 255, 0.15) !important; }
+
+  .emoji-item {
+    font-size: 20px; cursor: pointer; text-align: center; padding: 4px;
+    border-radius: 6px; transition: background 0.15s; user-select: none;
+  }
+  .emoji-item:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.1); }
+
+  /* Editor Styles */
+  .editor-container { flex: 1; position: relative; background: transparent; overflow-y: auto; overflow-x: hidden; }
+
+  #note-area {
+    min-height: calc(100% - 48px); padding: 24px; font-size: 15px; color: var(--m3-text-color);
+    outline: none; box-sizing: border-box; font-family: 'Poppins', sans-serif; line-height: 1.6;
+  }
+  #note-area[placeholder]:empty:before { content: attr(placeholder); color: rgba(255, 255, 255, 0.3); pointer-events: none; }
+  .textarea-pulse { animation: textareaFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  #app-toast-container { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .app-toast {
+    background: rgba(24, 25, 28, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--m3-glass-border); color: var(--m3-text-color); padding: 10px 20px;
+    border-radius: 100px; font-size: 13px; font-weight: 500; box-shadow: var(--m3-glass-shadow);
+    animation: toastAppIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .app-toast.hide { animation: toastAppOut 0.2s forwards; }
+
+  #noteContextMenu {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    min-width: 176px;
+    padding: 6px;
+    background: rgba(24, 25, 28, 0.9);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px) scale(0.95);
+    transform-origin: top left;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, visibility 0.2s ease;
+    will-change: transform, opacity;
+  }
+  #noteContextMenu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1) translateZ(0); }
+  #noteContextMenu button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 7px 10px;
+    color: var(--m3-text-color);
+    background: transparent;
+    border: 0;
+    border-radius: 7px;
+    font: 12px 'Poppins', sans-serif;
+    text-align: left;
+    cursor: pointer;
+  }
+  #noteContextMenu button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+  #noteContextMenu button:disabled { opacity: 0.4; cursor: default; }
+  .note-context-label { display: flex; align-items: center; gap: 9px; }
+  .note-context-label .material-symbols-outlined { font-size: 16px; }
+  #noteContextMenu kbd { color: rgba(255, 255, 255, 0.45); font: 10px 'Poppins', sans-serif; }
+  .note-context-divider { height: 1px; margin: 4px 2px; background: rgba(255, 255, 255, 0.1); }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <!-- Custom Font Dropdown -->
+  <div class="custom-dropdown-wrapper">
+    <button class="toolbar-btn" style="width: auto; padding: 0 10px; font-size: 12px;" onclick="toggleMenu(event, 'fontMenu')">
+      <span id="fontLabel">Poppins</span>
+      <span class="material-symbols-outlined" style="font-size:16px; margin-left: 4px;">expand_more</span>
+    </button>
+    <div class="os-dropdown custom-dropdown" id="fontMenu">
+      <div class="dropdown-item" onclick="selectFont('Poppins', 'Poppins')"><span style="font-family: 'Poppins', sans-serif;">Poppins</span></div>
+      <div class="dropdown-item" onclick="selectFont('Inter', 'Inter')"><span style="font-family: 'Inter', sans-serif;">Inter</span></div>
+      <div class="dropdown-item" onclick="selectFont('Roboto Mono', 'Monospace')"><span style="font-family: 'Roboto Mono', monospace;">Monospace</span></div>
+      <div class="dropdown-item" onclick="selectFont('Lora', 'Serif')"><span style="font-family: 'Lora', serif;">Serif</span></div>
+    </div>
+  </div>
+
+  <!-- Custom Size Dropdown -->
+  <div class="custom-dropdown-wrapper">
+    <button class="toolbar-btn" style="width: auto; padding: 0 10px; font-size: 12px;" onclick="toggleMenu(event, 'sizeMenu')">
+      <span id="sizeLabel">Normal</span>
+      <span class="material-symbols-outlined" style="font-size:16px; margin-left: 4px;">expand_more</span>
+    </button>
+    <div class="os-dropdown custom-dropdown" id="sizeMenu">
+      <div class="dropdown-item" onclick="selectSize('1', 'Small')">Small</div>
+      <div class="dropdown-item" onclick="selectSize('3', 'Normal')">Normal</div>
+      <div class="dropdown-item" onclick="selectSize('5', 'Large')">Large</div>
+      <div class="dropdown-item" onclick="selectSize('7', 'Huge')">Huge</div>
+    </div>
+  </div>
+  
+  <div class="toolbar-divider"></div>
+  
+  <button class="toolbar-btn" onclick="formatDoc('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+  <button class="toolbar-btn" onclick="formatDoc('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+  <button class="toolbar-btn" onclick="formatDoc('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+  <button class="toolbar-btn" onclick="formatDoc('strikeThrough')" title="Strikethrough"><del>S</del></button>
+  
+  <div class="toolbar-divider"></div>
+  
+  <button class="toolbar-btn" onclick="formatDoc('justifyLeft')" title="Align Left"><span class="material-symbols-outlined" style="font-size:18px;">format_align_left</span></button>
+  <button class="toolbar-btn" onclick="formatDoc('justifyCenter')" title="Align Center"><span class="material-symbols-outlined" style="font-size:18px;">format_align_center</span></button>
+  <button class="toolbar-btn" onclick="formatDoc('justifyRight')" title="Align Right"><span class="material-symbols-outlined" style="font-size:18px;">format_align_right</span></button>
+  
+  <div class="toolbar-divider"></div>
+  
+  <button class="toolbar-btn" onclick="formatDoc('insertUnorderedList')" title="Bullet List"><span class="material-symbols-outlined" style="font-size:18px;">format_list_bulleted</span></button>
+  <button class="toolbar-btn" onclick="formatDoc('insertOrderedList')" title="Numbered List"><span class="material-symbols-outlined" style="font-size:18px;">format_list_numbered</span></button>
+  
+  <div class="toolbar-divider"></div>
+  
+  <input type="color" class="toolbar-color" onchange="formatDoc('foreColor', this.value)" title="Text Color" value="#ffffff">
+  
+  <div class="custom-dropdown-wrapper" style="margin-left: auto;">
+    <button class="toolbar-btn" id="emojiBtn" onclick="toggleMenu(event, 'emojiDropdown')" title="Insert Emoji">😀</button>
+    <div class="os-dropdown emoji-dropdown" id="emojiDropdown">
+      <span class="emoji-item">😀</span><span class="emoji-item">😂</span><span class="emoji-item">🥰</span>
+      <span class="emoji-item">😎</span><span class="emoji-item">🤔</span><span class="emoji-item">😭</span>
+      <span class="emoji-item">👍</span><span class="emoji-item">👎</span><span class="emoji-item">👏</span>
+      <span class="emoji-item">🙌</span><span class="emoji-item">🔥</span><span class="emoji-item">✨</span>
+      <span class="emoji-item">💻</span><span class="emoji-item">📱</span><span class="emoji-item">🚀</span>
+      <span class="emoji-item">❤️</span><span class="emoji-item">💔</span><span class="emoji-item">💯</span>
+    </div>
+  </div>
+</div>
+
+<div class="editor-container" id="editorWrap">
+  <div id="note-area" contenteditable="true" placeholder="your cool ideas go here..."></div>
+</div>
+
+<div id="app-toast-container"></div>
+<div id="noteContextMenu" role="menu" aria-label="Note editing options">
+  <button type="button" data-note-command="cut"><span class="note-context-label"><span class="material-symbols-outlined">content_cut</span>Cut</span><kbd>Ctrl+X</kbd></button>
+  <button type="button" data-note-command="copy"><span class="note-context-label"><span class="material-symbols-outlined">content_copy</span>Copy</span><kbd>Ctrl+C</kbd></button>
+  <button type="button" data-note-command="paste"><span class="note-context-label"><span class="material-symbols-outlined">content_paste</span>Paste</span><kbd>Ctrl+V</kbd></button>
+  <div class="note-context-divider"></div>
+  <button type="button" data-note-command="bold"><span class="note-context-label"><span class="material-symbols-outlined">format_bold</span>Bold</span><kbd>Ctrl+B</kbd></button>
+  <button type="button" data-note-command="italic"><span class="note-context-label"><span class="material-symbols-outlined">format_italic</span>Italic</span><kbd>Ctrl+I</kbd></button>
+  <button type="button" data-note-command="underline"><span class="note-context-label"><span class="material-symbols-outlined">format_underlined</span>Underline</span><kbd>Ctrl+U</kbd></button>
+  <button type="button" data-note-command="strikeThrough"><span class="note-context-label"><span class="material-symbols-outlined">format_strikethrough</span>Strikethrough</span></button>
+  <div class="note-context-divider"></div>
+  <button type="button" data-note-command="insertUnorderedList"><span class="note-context-label"><span class="material-symbols-outlined">format_list_bulleted</span>Bulleted list</span></button>
+  <button type="button" data-note-command="insertOrderedList"><span class="note-context-label"><span class="material-symbols-outlined">format_list_numbered</span>Numbered list</span></button>
+  <button type="button" data-note-command="removeFormat"><span class="note-context-label"><span class="material-symbols-outlined">format_clear</span>Clear formatting</span></button>
+</div>
+
+<!-- Hidden File Input for Importing Notes -->
+<input type="file" id="import-file" accept=".html,.htm,.txt" style="display: none;">
+
+<script>
+  const noteArea = document.getElementById('note-area');
+  const noteContextMenu = document.getElementById('noteContextMenu');
+  const importInput = document.getElementById('import-file');
+  let notes = [];
+  let currentIndex = 0;
+  let tabsContainer;
+  let notesReady = false;
+  const pendingFileRequests = [];
+  const BINARY_EXTENSIONS = new Set([
+    '.7z', '.a', '.avi', '.bin', '.bmp', '.class', '.dat', '.dll', '.dmg', '.doc',
+    '.docx', '.exe', '.flac', '.gif', '.ico', '.iso', '.jar', '.jpeg', '.jpg', '.mkv',
+    '.mov', '.mp3', '.mp4', '.o', '.otf', '.pdf', '.pkg', '.png', '.psd', '.rar', '.so',
+    '.tar', '.ttf', '.wav', '.wasm', '.webm', '.webp', '.woff', '.woff2', '.xls',
+    '.xlsx', '.zip'
+  ]);
+  const IS_EMBEDDED = window.parent !== window;
+  let savedNoteSelection = null;
+
+  // OS Style Custom Dropdown Logic
+  function toggleMenu(event, menuId) {
+    event.stopPropagation();
+    const menu = document.getElementById(menuId);
+    const isShowing = menu.classList.contains('show');
+    
+    document.querySelectorAll('.os-dropdown').forEach(d => d.classList.remove('show'));
+    if (!isShowing) menu.classList.add('show');
+  }
+
+  function selectFont(fontName, displayName) {
+    formatDoc('fontName', fontName);
+    document.getElementById('fontLabel').innerText = displayName;
+    document.getElementById('fontMenu').classList.remove('show');
+  }
+
+  function selectSize(sizeValue, displayName) {
+    formatDoc('fontSize', sizeValue);
+    document.getElementById('sizeLabel').innerText = displayName;
+    document.getElementById('sizeMenu').classList.remove('show');
+  }
+
+  // Close menus on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.custom-dropdown-wrapper')) {
+      document.querySelectorAll('.os-dropdown').forEach(d => d.classList.remove('show'));
+    }
+  });
+
+  document.querySelectorAll('.toolbar-btn, .toolbar-color').forEach(el => {
+    el.addEventListener('mousedown', (e) => {
+      if (!el.closest('.custom-dropdown-wrapper') && !el.classList.contains('toolbar-color')) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  function formatDoc(cmd, value=null) {
+    document.execCommand(cmd, false, value);
+    noteArea.focus();
+    saveToLocalStorage();
+  }
+
+  function showNoteContextMenu(event) {
+    const selection = window.getSelection();
+    savedNoteSelection = selection && selection.rangeCount > 0 && noteArea.contains(selection.anchorNode)
+      ? selection.getRangeAt(0).cloneRange()
+      : null;
+    noteContextMenu.querySelectorAll('[data-note-command="cut"], [data-note-command="copy"]').forEach(button => {
+      button.disabled = !savedNoteSelection || savedNoteSelection.collapsed;
+    });
+    noteContextMenu.style.left = '0px';
+    noteContextMenu.style.top = '0px';
+    noteContextMenu.classList.add('open');
+    const rect = noteContextMenu.getBoundingClientRect();
+    noteContextMenu.style.left = `${Math.max(8, Math.min(event.clientX, window.innerWidth - rect.width - 8))}px`;
+    noteContextMenu.style.top = `${Math.max(8, Math.min(event.clientY, window.innerHeight - rect.height - 8))}px`;
+  }
+
+  function restoreNoteSelection() {
+    noteArea.focus();
+    const selection = window.getSelection();
+    if (!selection) return;
+    selection.removeAllRanges();
+    if (savedNoteSelection && noteArea.contains(savedNoteSelection.commonAncestorContainer)) {
+      selection.addRange(savedNoteSelection);
+    } else {
+      const range = document.createRange();
+      range.selectNodeContents(noteArea);
+      range.collapse(false);
+      selection.addRange(range);
+    }
+  }
+
+  async function runNoteContextCommand(command) {
+    noteContextMenu.classList.remove('open');
+    restoreNoteSelection();
+
+    if (command === 'paste') {
+      try {
+        const text = await navigator.clipboard.readText();
+        restoreNoteSelection();
+        document.execCommand('insertText', false, text);
+      } catch (error) {
+        console.error('Could not paste from clipboard:', error);
+        showAppToast('⚠️ Clipboard paste is unavailable');
+      }
+    } else if (command === 'cut' || command === 'copy') {
+      const succeeded = document.execCommand(command);
+      if (!succeeded) showAppToast(`⚠️ Clipboard ${command} is unavailable`);
+    } else {
+      document.execCommand(command, false, null);
+    }
+
+    noteArea.focus();
+    if (notes[currentIndex]) {
+      notes[currentIndex].content = noteArea.innerHTML;
+      saveToLocalStorage();
+    }
+  }
+
+  noteContextMenu.querySelectorAll('[data-note-command]').forEach(button => {
+    button.addEventListener('mousedown', event => event.preventDefault());
+    button.addEventListener('click', () => runNoteContextCommand(button.dataset.noteCommand));
+  });
+
+  document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+    if (event.target.closest('#note-area') && noteArea.contentEditable === 'true') showNoteContextMenu(event);
+  }, true);
+
+  document.addEventListener('click', event => {
+    if (!event.target.closest('#noteContextMenu')) noteContextMenu.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') noteContextMenu.classList.remove('open');
+  });
+
+  document.querySelectorAll('.emoji-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      formatDoc('insertText', item.textContent);
+      document.getElementById('emojiDropdown').classList.remove('show');
+    });
+  });
+
+  function showAppToast(msg) {
+    const container = document.getElementById('app-toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'app-toast'; toast.innerHTML = msg;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 200); }, 2500);
+  }
+
+  function sanitizeNoteHtml(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    template.content.querySelectorAll('script, iframe, object, embed, form, svg, math, link, meta, base').forEach(el => el.remove());
+    template.content.querySelectorAll('*').forEach(el => {
+      [...el.attributes].forEach(attribute => {
+        const name = attribute.name.toLowerCase();
+        const value = attribute.value.trim();
+        if (name.startsWith('on') || name === 'srcdoc') {
+          el.removeAttribute(attribute.name);
+        } else if (['href', 'src', 'action', 'formaction', 'xlink:href'].includes(name) &&
+                   (/^(javascript|vbscript):/i.test(value) ||
+                    (/^data:/i.test(value) && !(name === 'src' && el.tagName === 'IMG' && /^data:image\//i.test(value))))) {
+          el.removeAttribute(attribute.name);
+        }
+      });
+    });
+    return template.innerHTML;
+  }
+
+  function textToNoteHtml(text) {
+    const escaped = document.createElement('div');
+    escaped.textContent = text;
+    return escaped.innerHTML.replace(/\r\n?|\n/g, '<br>');
+  }
+
+  function handleSave() {
+    const text = noteArea.innerHTML.trim();
+    if(!text || text === '<br>') { showAppToast("⚠️ Can't save an empty file"); return; }
+    const now = new Date();
+    const timestamp = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + "_" + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
+
+    // Tag the file so the import parser knows it's a native note
+    const htmlContent = `<!DOCTYPE html>\n<html data-mariowos-note="true">\n<head>\n<meta charset="utf-8">\n<title>${notes[currentIndex].name || 'Note'}</title>\n</head>\n<body style="font-family: sans-serif; background: #121212; color: #fff; padding: 20px;">\n${text}\n</body>\n</html>`;
+    const blob = new Blob([htmlContent], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `${notes[currentIndex].name || 'note'}_${timestamp}.html`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showAppToast("💾 Rich Note saved to PC");
+  }
+
+  function handleClear() {
+    noteArea.innerHTML = '';
+    if(notes[currentIndex]) { notes[currentIndex].content = ''; saveToLocalStorage(); }
+    showAppToast("🧹 Note cleared");
+  }
+
+  // --- IMPORT LOGIC ---
+  importInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      let content = evt.target.result;
+      let title = file.name.replace(/\.[^/.]+$/, ""); 
+      
+      if (file.name.endsWith('.html') || file.name.endsWith('.htm')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        // If it has a body, extract the inner HTML to strip away the head/styles
+        if (doc.body) content = sanitizeNoteHtml(doc.body.innerHTML);
+      } else if (file.name.endsWith('.txt')) {
+        content = content.replace(/\n/g, '<br>'); // preserve line breaks
+      }
+      
+      createTab(title, content);
+      showAppToast("📥 Note imported successfully");
+    };
+    reader.readAsText(file);
+    this.value = ''; // Reset input so you can upload the same file again if needed
+  });
+
+  function updateFileSaveButton() {
+    if (!IS_EMBEDDED) return;
+    const button = window.parent.document.getElementById('os-note-save-file');
+    const note = notes[currentIndex];
+    if (button) button.style.display = note?.sourcePath && note.sourceFormat !== 'binary' ? 'inline-flex' : 'none';
+  }
+
+  async function openFileInNotes(request) {
+    if (!request || typeof request.path !== 'string' || !request.path.startsWith('/') ||
+        typeof request.name !== 'string' || !request.name || /[\\/]/.test(request.name)) {
+      showAppToast('⚠️ Cannot open this file');
+      return;
+    }
+
+    const existingIndex = notes.findIndex(note => note.sourcePath === request.path && note.sourceName === request.name);
+    if (existingIndex !== -1) {
+      switchTab(notes[existingIndex].id);
+      return;
+    }
+
+    const extension = `.${request.name.split('.').pop().toLowerCase()}`;
+    if (BINARY_EXTENSIONS.has(extension)) {
+      createTab(request.name, '<p>This binary file cannot be edited in Notes.</p>', {
+        sourcePath: request.path,
+        sourceName: request.name,
+        sourceFormat: 'binary'
+      });
+      return;
+    }
+
+    try {
+      const query = new URLSearchParams({ path: request.path, name: request.name });
+      const response = await fetch(`/api/system/files/content?${query}`);
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || 'Unable to load file');
+
+      let content;
+      let sourceFormat = 'text';
+      let sourceTemplate = '';
+      if (extension === '.html' || extension === '.htm') {
+        sourceFormat = 'html';
+        sourceTemplate = data.content || '';
+        const parsed = new DOMParser().parseFromString(sourceTemplate, 'text/html');
+        content = sanitizeNoteHtml(parsed.body ? parsed.body.innerHTML : sourceTemplate);
+      } else {
+        content = textToNoteHtml(data.content || '');
+      }
+
+      createTab(request.name, content, {
+        sourcePath: request.path,
+        sourceName: request.name,
+        sourceFormat,
+        sourceTemplate
+      });
+      updateFileSaveButton();
+    } catch (error) {
+      console.error('Could not open file in Notes:', error);
+      showAppToast('⚠️ Could not open file');
+    }
+  }
+
+  async function saveCurrentFile() {
+    const note = notes[currentIndex];
+    if (!note?.sourcePath || !note.sourceName) return;
+    if (note.sourceFormat === 'binary') {
+      showAppToast('⚠️ Binary files cannot be edited in Notes');
+      return;
+    }
+
+    let content;
+    if (note.sourceFormat === 'html') {
+      const parsed = new DOMParser().parseFromString(note.sourceTemplate || '', 'text/html');
+      parsed.body.innerHTML = sanitizeNoteHtml(noteArea.innerHTML);
+      content = `${parsed.doctype ? '<!DOCTYPE html>\n' : ''}${parsed.documentElement.outerHTML}`;
+      note.sourceTemplate = content;
+    } else {
+      content = noteArea.innerText.replace(/\r\n?/g, '\n');
+    }
+
+    try {
+      const response = await fetch('/api/system/files/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: note.sourcePath, name: note.sourceName, content })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.error || 'Unable to save file');
+      await saveToLocalStorage();
+      if (IS_EMBEDDED) window.parent.postMessage({ type: 'refresh-desktop' }, window.location.origin);
+      showAppToast('💾 File saved');
+    } catch (error) {
+      console.error('Could not save file from Notes:', error);
+      showAppToast('⚠️ Could not save file');
+    }
+  }
+
+  window.addEventListener('message', event => {
+    if (!IS_EMBEDDED || event.origin !== window.location.origin || event.source !== window.parent ||
+        event.data?.type !== 'open-file-in-notes') return;
+    if (notesReady) openFileInNotes(event.data);
+    else pendingFileRequests.push(event.data);
+  });
+
+  // --- CROSS-FRAME INJECTION LOGIC ---
+  if (IS_EMBEDDED) {
+    const osHeader = window.parent.document.querySelector('#popup5 .popup-header');
+    
+    // Inject Tab CSS and Context Menu CSS into OS Shell
+    if (!window.parent.document.getElementById('notes-os-styles')) {
+      const style = window.parent.document.createElement('style');
+      style.id = 'notes-os-styles';
+      style.textContent = `
+        .notes-tab-btn {
+          display: flex; align-items: center; gap: 8px;
+          background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
+          border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px;
+          color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
+          cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
+          transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
+          overflow: hidden;
+        }
+        .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+        .notes-tab-btn.active { background: rgba(194, 243, 235, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(194, 243, 235, 0.25); }
+        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #c2f3eb; border-bottom: none; pointer-events: none; }
+        
+        .tab-color-line {
+          position: absolute; top: 0; left: 0; right: 0; height: 3px;
+          transition: background 0.2s; z-index: 2; pointer-events: none;
+        }
+
+        .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; z-index: 3; position: relative;}
+        .notes-tab-close:hover { opacity: 1; color: #ff5252; }
+        .notes-tab-btn.dragging { opacity: 0.4; }
+        .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
+
+        #notes-tab-context-menu {
+          position: fixed; z-index: 10000; 
+          background: rgba(24, 25, 28, 0.35) !important;
+          backdrop-filter: blur(30px) saturate(200%) !important;
+          -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 12px; padding: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          display: none; flex-direction: column;
+        }
+        .color-dot {
+          width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+          transition: transform 0.15s; box-sizing: border-box;
+        }
+        .color-dot:hover { transform: scale(1.2); }
+      `;
+      window.parent.document.head.appendChild(style);
+    }
+
+    // Inject Context Menu into the Parent OS Body (so it floats freely over everything)
+    if (!window.parent.document.getElementById('notes-tab-context-menu')) {
+      const cm = window.parent.document.createElement('div');
+      cm.id = 'notes-tab-context-menu';
+      cm.innerHTML = `
+        <div style="font-size: 10px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.5px;">GROUP COLOR</div>
+        <div style="display: flex; gap: 8px;">
+          <div class="color-dot" data-color="transparent" style="border: 1px solid rgba(255,255,255,0.3);" title="None"></div>
+          <div class="color-dot" data-color="#ff5f56" style="background: #ff5f56;" title="Red"></div>
+          <div class="color-dot" data-color="#ffbd2e" style="background: #ffbd2e;" title="Yellow"></div>
+          <div class="color-dot" data-color="#27c93f" style="background: #27c93f;" title="Green"></div>
+          <div class="color-dot" data-color="#5c7cfa" style="background: #5c7cfa;" title="Blue"></div>
+          <div class="color-dot" data-color="#c864fa" style="background: #c864fa;" title="Purple"></div>
+        </div>
+      `;
+      window.parent.document.body.appendChild(cm);
+      
+      // Close context menu on outside click in parent
+      window.parent.document.addEventListener('click', (e) => {
+        if (cm.style.display === 'flex' && !cm.contains(e.target)) {
+          cm.style.display = 'none';
+        }
+      });
+    }
+
+    osHeader.style.gap = '8px';
+    osHeader.innerHTML = `
+      <span style="white-space: nowrap; font-size: 13px; flex-shrink: 0; cursor: move;">Notes</span>
+      <div id="os-notes-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move;"></div>
+      <div id="os-notes-actions" style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-right: 8px;">
+        <button class="browser-nav-btn" id="os-note-import" title="Import Note (HTML/TXT)"><span class="material-symbols-outlined" style="font-size: 16px;">upload_file</span></button>
+        <button class="browser-nav-btn" id="os-note-save" title="Export as HTML"><span class="material-symbols-outlined" style="font-size: 16px;">download</span></button>
+        <button class="browser-nav-btn" id="os-note-save-file" title="Save changes to file" style="display: none;"><span class="material-symbols-outlined" style="font-size: 16px;">save</span></button>
+        <button class="browser-nav-btn" id="os-note-new" title="New Note"><span class="material-symbols-outlined" style="font-size: 16px;">add_box</span></button>
+        <button class="browser-nav-btn" id="os-note-clear" title="Clear Note"><span class="material-symbols-outlined" style="font-size: 16px;">ink_eraser</span></button>
+      </div>
+      <div class="window-actions">
+        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup5')">remove</span>
+        <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup5')">crop_square</span>
+        <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup5')">close</span>
+      </div>
+    `;
+
+    tabsContainer = window.parent.document.getElementById('os-notes-tabs');
+    const actionsContainer = window.parent.document.getElementById('os-notes-actions');
+    
+    tabsContainer.addEventListener('mousedown', e => {
+      if (e.target.closest('.notes-tab-btn')) e.stopPropagation();
+    });
+
+    actionsContainer.addEventListener('mousedown', e => {
+      if (e.target.closest('button')) e.stopPropagation();
+    });
+
+    // Wire up injected buttons
+    window.parent.document.getElementById('os-note-import').addEventListener('click', () => { document.getElementById('import-file').click(); });
+    window.parent.document.getElementById('os-note-save').addEventListener('click', handleSave);
+    window.parent.document.getElementById('os-note-save-file').addEventListener('click', saveCurrentFile);
+    window.parent.document.getElementById('os-note-new').addEventListener('click', () => createTab());
+    window.parent.document.getElementById('os-note-clear').addEventListener('click', handleClear);
+
+    // Setup Context Menu logic from iframe to parent
+    let activeContextTabId = null;
+    const parentCm = window.parent.document.getElementById('notes-tab-context-menu');
+    
+    parentCm.querySelectorAll('.color-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        if (activeContextTabId) {
+          const color = dot.dataset.color;
+          const note = notes.find(n => n.id === activeContextTabId);
+          if (note) {
+            note.color = color;
+            const tab = tabsContainer.querySelector(`[data-id="${activeContextTabId}"]`);
+            if (tab) {
+              const line = tab.querySelector('.tab-color-line');
+              if (line) line.style.background = color;
+            }
+            saveToLocalStorage();
+          }
+        }
+        parentCm.style.display = 'none';
+      });
+    });
+
+    // Make a global function available to the parent tabs to open the menu
+    window.openTabContextMenu = function(e, id) {
+      e.preventDefault();
+      activeContextTabId = id;
+      parentCm.style.display = 'flex';
+      // Adjust positioning slightly to avoid going off-screen
+      parentCm.style.left = Math.min(e.clientX, window.innerWidth - 150) + 'px';
+      parentCm.style.top = (e.clientY + 10) + 'px';
+    };
+  }
+
+// --- Core Tab Logic ---
+  function buildTabElement(id, name, color="transparent") {
+    const doc = IS_EMBEDDED ? window.parent.document : document;
+    const win = IS_EMBEDDED ? window.parent : window;
+    const btn = doc.createElement('div');
+    btn.className = 'notes-tab-btn';
+    btn.dataset.id = id;
+
+    const colorLine = doc.createElement('div');
+    colorLine.className = 'tab-color-line';
+    colorLine.style.background = color;
+    btn.appendChild(colorLine);
+
+    const span = doc.createElement('span');
+    span.textContent = name;
+    span.style.zIndex = "3";
+    span.style.position = "relative";
+    span.style.outline = "none"; 
+    span.style.minWidth = "20px";
+    span.style.display = "inline-block";
+    span.style.whiteSpace = "nowrap";
+
+    // Inline renaming logic
+    span.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      span.contentEditable = "true";
+      btn.setAttribute('draggable', false); // Disable window/tab dragging while typing
+      span.style.cursor = "text";
+      span.focus();
+
+      // Automatically highlight existing text for quick replacement
+      const selection = win.getSelection();
+      const range = doc.createRange();
+      range.selectNodeContents(span);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+
+    const finishEditing = () => {
+      if (span.contentEditable !== "true") return;
+      span.contentEditable = "false";
+      btn.setAttribute('draggable', true);
+      span.style.cursor = "inherit";
+      
+      const newName = span.textContent.trim() || "Note";
+      span.textContent = newName;
+      
+      const note = notes.find(n => n.id === id);
+      if (note) {
+        note.name = newName;
+        saveToLocalStorage();
+      }
+    };
+
+    span.addEventListener('blur', finishEditing); // Save when clicking away
+    span.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        span.blur(); 
+      }
+    });
+
+    const closeBtn = doc.createElement('button');
+    closeBtn.className = 'notes-tab-close';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(id); });
+
+    btn.appendChild(span); btn.appendChild(closeBtn);
+    btn.addEventListener('click', () => switchTab(id));
+    
+    // Right click menu for colors
+    if (IS_EMBEDDED) {
+      btn.addEventListener('contextmenu', (e) => window.openTabContextMenu(e, id));
+    }
+    
+    btn.setAttribute('draggable', true);
+    btn.addEventListener('dragstart', dragStart); btn.addEventListener('dragover', dragOver);
+    btn.addEventListener('dragleave', dragLeave); btn.addEventListener('drop', dropTab);
+    btn.addEventListener('dragend', dragEnd);
+
+    return btn;
+  }
+
+  function createTab(name="Note", initialContent="", source=null) {
+    const id = Date.now().toString();
+    notes.push({id, content: initialContent, name, color: "transparent", ...(source || {})});
+    const btn = buildTabElement(id, name, "transparent");
+    tabsContainer.appendChild(btn);
+    switchTab(id);
+    saveToLocalStorage();
+    if(initialContent === "") showAppToast("📝 New note created");
+  }
+
+  function switchTab(id) {
+    if (notes[currentIndex]) notes[currentIndex].content = noteArea.innerHTML;
+    const targetBtn = [...tabsContainer.children].find(b => b.dataset.id === id);
+    if(!targetBtn || targetBtn.classList.contains('active')) return;
+
+    tabsContainer.querySelectorAll('.notes-tab-btn').forEach(b => b.classList.remove('active'));
+    targetBtn.classList.add('active');
+    currentIndex = notes.findIndex(n => n.id === id);
+    
+    noteArea.classList.remove('textarea-pulse');
+    void noteArea.offsetWidth; 
+    noteArea.classList.add('textarea-pulse');
+    
+    noteArea.innerHTML = notes[currentIndex].content || "";
+    noteArea.contentEditable = notes[currentIndex].sourceFormat === 'binary' ? 'false' : 'true';
+    noteArea.focus();
+    updateFileSaveButton();
+  }
+
+  function closeTab(id) {
+    const index = notes.findIndex(n => n.id === id);
+    if(index === -1) return;
+    const wasActive = notes[currentIndex]?.id === id;
+    if (notes[currentIndex]) notes[currentIndex].content = noteArea.innerHTML;
+    notes.splice(index,1);
+    
+    const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
+    if(btn) btn.remove();
+    
+    if(notes.length > 0) {
+      if (wasActive) currentIndex = -1;
+      else if (index < currentIndex) currentIndex--;
+      switchTab(notes[Math.min(index, notes.length - 1)].id);
+    } else {
+      currentIndex = -1;
+      createTab();
+    }
+    saveToLocalStorage();
+  }
+
+  async function saveToLocalStorage() {
+    localStorage.setItem('multiNotes', JSON.stringify(notes));
+    try {
+      await fetch('/api/system/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(notes)
+      });
+    } catch(err) { /* Silent fail */ }
+  }
+  
+  async function loadFromLocalStorage() {
+    let saved = null;
+    try {
+      const res = await fetch('/api/system/notes');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) saved = data;
+      }
+    } catch(err) { /* Fallback */ }
+
+    if(!saved && localStorage.getItem('multiNotes')) {
+      saved = JSON.parse(localStorage.getItem('multiNotes'));
+    }
+
+    if(saved && saved.length > 0) {
+      notes = saved;
+      notes.forEach(n => { tabsContainer.appendChild(buildTabElement(n.id, n.name, n.color || "transparent")); });
+      const firstTab = tabsContainer.querySelector('.notes-tab-btn');
+      if(firstTab) firstTab.classList.add('active');
+      currentIndex = 0;
+      noteArea.innerHTML = notes[0].content || "";
+      noteArea.contentEditable = notes[0].sourceFormat === 'binary' ? 'false' : 'true';
+    } else {
+      createTab();
+    }
+  }
+
+  noteArea.addEventListener('input', () => { 
+    if(notes[currentIndex]) { 
+      notes[currentIndex].content = noteArea.innerHTML; 
+      saveToLocalStorage(); 
+    } 
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      if (notes[currentIndex]?.sourcePath && notes[currentIndex].sourceFormat !== 'binary') saveCurrentFile();
+      else if (notes[currentIndex]?.sourceFormat === 'binary') showAppToast('⚠️ Binary files cannot be edited in Notes');
+      else handleSave();
+    }
+    if(e.ctrlKey && e.key === 'n') { e.preventDefault(); createTab(); }
+    if(e.ctrlKey && e.key === 'w') { 
+      e.preventDefault(); 
+      if(notes[currentIndex]) closeTab(notes[currentIndex].id);
+    }
+  });
+
+  /* --- DRAG & DROP ENGINE --- */
+  let dragged = null;
+  function dragStart(e){ dragged = e.currentTarget; dragged.classList.add('dragging'); }
+  function dragOver(e){ e.preventDefault(); if(e.currentTarget !== dragged) { e.currentTarget.classList.add('drag-over'); } }
+  function dragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+  function dragEnd(e){ if(dragged) dragged.classList.remove('dragging'); tabsContainer.querySelectorAll('.notes-tab-btn').forEach(b => b.classList.remove('drag-over')); }
+  function dropTab(e){
+    e.preventDefault(); const target = e.currentTarget; target.classList.remove('drag-over');
+    if(dragged && target !== dragged){
+      const draggedIndex = [...tabsContainer.children].indexOf(dragged);
+      const targetIndex = [...tabsContainer.children].indexOf(target);
+      
+      if(draggedIndex < targetIndex){
+        tabsContainer.insertBefore(dragged, target.nextSibling);
+        const note = notes.splice(draggedIndex,1)[0];
+        notes.splice(targetIndex,0,note);
+      } else {
+        tabsContainer.insertBefore(dragged, target);
+        const note = notes.splice(draggedIndex,1)[0];
+        notes.splice(targetIndex,0,note);
+      }
+      
+      const activeBtn = tabsContainer.querySelector('.notes-tab-btn.active');
+      if(activeBtn) currentIndex = notes.findIndex(n => n.id === activeBtn.dataset.id);
+      saveToLocalStorage();
+    }
+  }
+
+  loadFromLocalStorage().then(() => {
+    notesReady = true;
+    updateFileSaveButton();
+    if (IS_EMBEDDED) {
+      window.parent.postMessage({ type: 'notes-ready' }, window.location.origin);
+      pendingFileRequests.splice(0).forEach(openFileInNotes);
+    }
+  });
+</script>
+</body>
+</html>

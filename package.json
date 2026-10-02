@@ -1,0 +1,24 @@
+{
+  "name": "development",
+  "version": "1.0.0",
+  "description": "<img width=\"1167\" height=\"360\" alt=\"Frame 340\" src=\"https://github.com/user-attachments/assets/75bb4aad-f059-44b1-9c6e-77df29639fc2\" />",
+  "main": "index.js",
+  "scripts": {
+    "start-os": "electron system/launcher.js",
+    "boot:verbose": "node system/boot-mode.js verbose",
+    "boot:quiet": "node system/boot-mode.js quiet",
+    "boot:status": "node system/boot-mode.js status"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.12"
+  },
+  "devDependencies": {
+    "electron": "^44.4.3"
+  },
+  "_comment": "This configuration file belongs to the mariowOS project and is used by contributors building and running the OS."
+}
