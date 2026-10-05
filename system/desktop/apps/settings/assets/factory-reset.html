@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Factory Reset</title>
@@ -10,21 +11,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
 <style>
 :root {
-  --md-sys-color-background: #141218;
-  --md-sys-color-surface-container: #2b2930;
-  --md-sys-color-surface-container-high: #36343b;
-  --md-sys-color-secondary-container: #4a4458;
-  --md-sys-color-on-secondary-container: #e8def8;
-  --md-sys-color-on-surface: #e6e0e9;
-  --md-sys-color-on-surface-variant: #cac4d0;
-  --md-sys-color-error: #ffb4ab;
-  --md-sys-color-error-container: #93000a;
-  --md-sys-color-on-error-container: #ffdad6;
-  --md-sys-color-outline: #938f99;
+  --md-sys-color-background: transparent;
+  --md-sys-color-surface-container: rgba(255,255,255,0.06);
+  --md-sys-color-surface-container-high: rgba(255,255,255,0.1);
+  --md-sys-color-secondary-container: rgba(10,132,255,0.18);
+  --md-sys-color-on-secondary-container: #ffffff;
+  --md-sys-color-on-surface: #ffffff;
+  --md-sys-color-on-surface-variant: rgba(255,255,255,0.5);
+  --md-sys-color-error: #ff453a;
+  --md-sys-color-error-container: rgba(255,69,58,0.18);
+  --md-sys-color-on-error-container: #ff453a;
+  --md-sys-color-outline: rgba(255,255,255,0.4);
 }
 
 body {
@@ -49,7 +50,8 @@ body {
 .warning-banner {
   background: var(--md-sys-color-error-container);
   color: var(--md-sys-color-on-error-container);
-  border-radius: 24px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,69,58,0.4);
   padding: 20px 24px;
 }
 
@@ -66,7 +68,7 @@ body {
   margin: 0;
   font-size: 13px;
   line-height: 1.6;
-  opacity: 0.9;
+  color: rgba(255,255,255,0.7);
 }
 
 .stage-1, .stage-2 {
@@ -81,7 +83,7 @@ body {
 
 .setting-card {
   background: var(--md-sys-color-surface-container);
-  border-radius: 24px;
+  border-radius: 10px;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -107,7 +109,7 @@ body {
   gap: 12px;
   padding: 12px 16px;
   background: var(--md-sys-color-surface-container-high);
-  border-radius: 16px;
+  border-radius: 10px;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -127,13 +129,13 @@ body {
 
 .setting-card input[type="text"] {
   width: 100%;
-  padding: 14px 16px;
-  background: var(--md-sys-color-surface-container-high);
-  border: 1px solid transparent;
-  border-radius: 16px;
+  padding: 9px 12px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
   color: var(--md-sys-color-on-surface);
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   box-sizing: border-box;
   outline: none;
   transition: all 0.2s ease;
@@ -155,9 +157,9 @@ body {
 
 button {
   flex: 1;
-  padding: 14px 20px;
+  padding: 9px 16px;
   border: none;
-  border-radius: 28px;
+  border-radius: 8px;
   font-family: 'Poppins', sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -174,26 +176,26 @@ button:active {
 }
 
 button.btn-secondary {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
 }
 
 button.btn-danger {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
+  background: #ff453a;
+  color: #fff;
 }
 
 button:disabled {
-  opacity: 0.38 !important;
-  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+  cursor: default !important;
   transform: none !important;
 }
 
 .confirmation-card {
-  background: rgba(147, 0, 10, 0.25);
+  background: rgba(255,69,58,0.1);
   border-left: 4px solid var(--md-sys-color-error);
   padding: 16px;
-  border-radius: 16px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
   color: var(--md-sys-color-on-surface);
@@ -204,8 +206,6 @@ html::-webkit-scrollbar {
   display: none;
 }
 </style>
-<link rel="stylesheet" href="/desktop/assets/material-you.css">
-<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 
@@ -216,7 +216,7 @@ html::-webkit-scrollbar {
     <div class="warning-banner">
       <h3>
         <span class="material-symbols-outlined">warning</span>
-        WARNING!
+        Warning
       </h3>
       <p>Factory reset is an <strong>irreversible action</strong> that will erase <strong>ALL settings, preferences, and customizations</strong>.</p>
     </div>
@@ -225,24 +225,24 @@ html::-webkit-scrollbar {
       <label>What will be removed:</label>
       <div class="checkbox-list">
         <div class="checkbox-group">
-          <input type="checkbox" id="check1" disabled checked>
-          <label for="check1">Time zone settings</label>
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
+          <label>Time zone settings</label>
         </div>
         <div class="checkbox-group">
-          <input type="checkbox" id="check2" disabled checked>
-          <label for="check2">Manual time offsets</label>
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
+          <label>Manual time offsets</label>
         </div>
         <div class="checkbox-group">
-          <input type="checkbox" id="check3" disabled checked>
-          <label for="check3">User preferences</label>
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
+          <label>User preferences</label>
         </div>
         <div class="checkbox-group">
-          <input type="checkbox" id="check4" disabled checked>
-          <label for="check4">Wallpaper and themes</label>
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
+          <label>Wallpaper, profile picture, boot logo and themes</label>
         </div>
         <div class="checkbox-group">
-          <input type="checkbox" id="check5" disabled checked>
-          <label for="check5">All IndexedDB data</label>
+          <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
+          <label>All IndexedDB data</label>
         </div>
       </div>
     </div>
@@ -258,7 +258,7 @@ html::-webkit-scrollbar {
     <div class="warning-banner">
       <h3>
         <span class="material-symbols-outlined">report</span>
-        FINAL CONFIRMATION
+        Final Confirmation
       </h3>
       <p>Type "FACTORY RESET" below to continue.</p>
     </div>
@@ -269,7 +269,7 @@ html::-webkit-scrollbar {
     </div>
 
     <div class="confirmation-card">
-      ⚠️ Remember that everything will be erased and all settings will be restored to factory defaults. This action cannot be undone.
+      Remember that everything will be erased and all settings will be restored to factory defaults. This action cannot be undone.
     </div>
 
     <div class="button-row">
@@ -279,6 +279,7 @@ html::-webkit-scrollbar {
   </div>
 </div>
 
+<script src="factory-reset.js"></script>
 <script>
 function goBack() {
   window.history.back();
@@ -303,64 +304,15 @@ function checkConfirmation() {
   btn.disabled = (input !== 'FACTORY RESET');
 }
 
-function executeFactoryReset() {
-  localStorage.clear();
-  sessionStorage.clear();
-  
-  if (window.indexedDB) {
-    indexedDB.databases().then(dbs => {
-      dbs.forEach(db => {
-        indexedDB.deleteDatabase(db.name);
-      });
-    }).catch(err => console.log('No IndexedDB to clear'));
+async function executeFactoryReset() {
+  const btn = document.getElementById('resetBtn');
+  if (btn) btn.disabled = true;
+  try {
+    await runFactoryReset();
+  } catch (err) {
+    await mDialog.alert('Factory reset failed: ' + err.message);
+    if (btn) btn.disabled = false;
   }
-  
-  document.cookie.split(";").forEach(function(c) { 
-    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-  });
-  
-  fetch('/api/system/factory-reset', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      timestamp: new Date().toISOString(),
-      action: 'factory-reset'
-    })
-  }).then(response => {
-    if (response.ok) {
-      return response.json().then(data => {
-        alert('Factory reset complete!\n\nClick ok to continue...');
-        setTimeout(function() {
-          if (window.self !== window.top) {
-            window.top.location.href = '/';
-          } else {
-            window.location.href = '/';
-          }
-        }, 1000);
-      });
-    } else {
-      alert('Factory reset encountered an error. Please try again.');
-      setTimeout(function() {
-        if (window.self !== window.top) {
-          window.top.location.href = '/';
-        } else {
-          window.location.href = '/';
-        }
-      }, 1500);
-    }
-  }).catch(err => {
-    console.error('Factory reset error:', err);
-    alert('Factory reset encountered a network error. Retrying anyway...');
-    setTimeout(function() {
-      if (window.self !== window.top) {
-        window.top.location.href = '/';
-      } else {
-        window.location.href = '/';
-      }
-    }, 1500);
-  });
 }
 
 document.addEventListener('DOMContentLoaded', function() {

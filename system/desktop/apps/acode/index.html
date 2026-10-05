@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+    <script src="/desktop/assets/mariowos-dialogs.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
 
@@ -15,7 +14,7 @@
             --bg-color: rgba(18, 22, 32, 0.85);
             --sidebar-bg: rgba(10, 14, 22, 0.5);
             --text-color: #ffffff;
-            --accent-color: #5c7cfa;
+            --accent-color: #0a84ff;
             --border-color: rgba(255, 255, 255, 0.08);
             --menu-hover: rgba(255, 255, 255, 0.15);
             --panel-bg: rgba(15, 18, 25, 0.95);
@@ -30,7 +29,7 @@
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
         .menubar {
@@ -70,8 +69,7 @@
         .fallback-tab { padding: 8px 14px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #aaa; border-right: 1px solid var(--border-color); }
         .fallback-tab.active { background: rgba(255,255,255,0.05); color: #fff; border-bottom: 2px solid var(--accent-color); }
         .fallback-tab-close { margin-left: 6px; cursor: pointer; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
-        .fallback-tab-close:hover { background: rgba(255,255,255,0.1); color: #ff5252; }
-        .unsaved-dot { width: 8px; height: 8px; background-color: #fb8c00; border-radius: 50%; flex-shrink: 0; }
+        .fallback-tab-close:hover { background: rgba(255,255,255,0.1); color: #ff453a; }
 
         .editor-wrapper { flex: 1; position: relative; min-height: 0; }
         #monaco-container { width: 100%; height: 100%; }
@@ -100,7 +98,7 @@
             cursor: pointer; border-left: 2px solid transparent; transition: background 0.15s;
         }
         .problem-item:hover { background: rgba(255,255,255,0.05); }
-        .problem-item.error { border-left-color: #ff5252; }
+        .problem-item.error { border-left-color: #ff453a; }
         .problem-item.warning { border-left-color: #fb8c00; }
         .problem-source { opacity: 0.5; white-space: nowrap; font-family: monospace; font-size: 11px; margin-top: 1px; }
         .problem-msg { flex: 1; word-break: break-word; color: #ddd; }
@@ -112,10 +110,10 @@
             color: #ddd; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; cursor: text;
         }
         .term-line { display: flex; gap: 8px; line-height: 1.4; white-space: pre-wrap; }
-        .term-line.error { color: #ff5252; }
-        .term-line.success { color: #c2f3eb; }
+        .term-line.error { color: #ff453a; }
+        .term-line.success { color: #30d158; }
         .term-line.info { color: #aaa; }
-        .term-prompt { color: #5c7cfa; font-weight: bold; flex-shrink: 0; }
+        .term-prompt { color: #0a84ff; font-weight: bold; flex-shrink: 0; }
         .term-input-row { display: flex; gap: 8px; align-items: center; margin-top: 2px; }
         .term-input { 
             flex: 1; background: transparent; border: none; color: #fff; 
@@ -129,7 +127,7 @@
         }
         .status-item { display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
         .status-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .status-item.has-errors { color: #ff5252; }
+        .status-item.has-errors { color: #ff453a; }
         .status-item.has-warnings { color: #fb8c00; }
 
         #context-menu {
@@ -141,9 +139,6 @@
         .ctx-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 12px; font-weight: 500; color: #fff; border-radius: 8px; cursor: pointer; }
         .ctx-item:hover { background: rgba(255, 255, 255, 0.15); }
         .ctx-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
-
-        * { scrollbar-width: none; }
-        *::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
@@ -189,10 +184,10 @@
                 </div>
             </div>
 
-            <!-- Pannello Terminal -->
+            <!-- Pannello Terminal / Pipeline -->
             <div class="bottom-panel" id="terminalPanel">
                 <div class="panel-header">
-                    <span>TERMINAL</span>
+                    <span>TERMINAL / PIPELINE</span>
                     <div class="panel-actions">
                         <span class="material-symbols-outlined" style="font-size: 16px;" onclick="closePanels()">close</span>
                     </div>
@@ -200,10 +195,11 @@
                 <!-- Cliccando ovunque qui dentro, focus all'input -->
                 <div class="terminal-content" id="terminalContent" onclick="document.getElementById('termInput').focus()">
                     <div id="termOutput">
-                        <div class="term-line" style="color: #888;">mariowOS ACode Terminal</div>
+                        <div class="term-line" style="color: #888;">mariowOS Pipeline Environment v1.0.0</div>
+                        <div class="term-line info">Type 'help' to see available commands.</div>
                     </div>
                     <div class="term-input-row">
-                        <span class="term-prompt">acode@nbuild:~$</span>
+                        <span class="term-prompt">mariow@acode:~$</span>
                         <input type="text" class="term-input" id="termInput" autocomplete="off" spellcheck="false">
                     </div>
                 </div>
@@ -230,7 +226,7 @@
         <div class="ctx-item" id="ctx-new-folder"><span class="material-symbols-outlined" style="font-size:16px;">create_new_folder</span> New Folder</div>
         <div class="ctx-divider" id="ctx-div-1"></div>
         <div class="ctx-item" id="ctx-rename"><span class="material-symbols-outlined" style="font-size:16px;">edit</span> Rename</div>
-        <div class="ctx-item" id="ctx-delete" style="color: #ff5252;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span> Delete</div>
+        <div class="ctx-item" id="ctx-delete" style="color: #ff453a;"><span class="material-symbols-outlined" style="font-size:16px;">delete</span> Delete</div>
         <div class="ctx-divider"></div>
         <div class="ctx-item" id="ctx-export"><span class="material-symbols-outlined" style="font-size:16px;">folder_zip</span> Export (.zip)</div>
     </div>
@@ -263,7 +259,7 @@ Have fun from mariow :D
             margin: 0; padding: 24px; font-family: 'Poppins', sans-serif;
             color: #ffffff; background-color: transparent; 
         }
-        h1 { font-weight: 500; margin-top: 0; color: #5c7cfa; }
+        h1 { font-weight: 500; margin-top: 0; color: #0a84ff; }
     </style>
 </head>
 <body>
@@ -316,15 +312,6 @@ Have fun from mariow :D
             });
             
             editor.onDidChangeModelContent(() => {
-                // Set unsaved dot if not already marked
-                if(activeTabId) {
-                    const tab = openTabs.find(t => t.id === activeTabId);
-                    if(tab && !tab.isUnsaved) {
-                        tab.isUnsaved = true;
-                        renderTabs();
-                    }
-                }
-
                 clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(() => {
                     if(activeTabId) {
@@ -332,10 +319,6 @@ Have fun from mariow :D
                         if(tab) {
                             setNodeContent(tab.pathArr, editor.getValue());
                             saveFS();
-                            if(tab.isUnsaved) {
-                                tab.isUnsaved = false;
-                                renderTabs(); // Removes the dot visually once saved
-                            }
                         }
                     }
                 }, 800);
@@ -384,25 +367,25 @@ Have fun from mariow :D
             switch(cmd) {
                 case 'run':
                     if (!activeTabId) { printTerm('Error: Open a project file first to run.', 'error'); return; }
-                    printTerm('pipelined', 'info');
-                    printTerm('interpreting UI using Lilium Engine (1 GPU thread)', 'info');
+                    printTerm('Starting pipeline engine...', 'info');
+                    printTerm('Bundling dependencies and rendering view...', 'info');
                     testApp();
-                    printTerm('launched in preview window.', 'success');
+                    printTerm('App launched in preview window.', 'success');
                     break;
                 case 'build':
                     if (!activeTabId) { printTerm('Error: Open a project file first to build.', 'error'); return; }
                     const activeTab = openTabs.find(t => t.id === activeTabId);
                     const projName = activeTab.pathArr[0];
-                    printTerm(`...starting build process: ${projName} (CPU: 1 thread)`, 'info');
+                    printTerm(`Building project: ${projName}...`, 'info');
                     exportZipPath([projName]);
-                    printTerm('built! exporting as ZIP...', 'success');
+                    printTerm('Build complete. Triggering ZIP download.', 'success');
                     break;
                 case 'checkerrors':
                     if (!editor) return;
                     const markers = monaco.editor.getModelMarkers({ resource: editor.getModel().uri });
                     const errs = markers.filter(m => m.severity === monaco.MarkerSeverity.Error).length;
                     const warns = markers.filter(m => m.severity === monaco.MarkerSeverity.Warning).length;
-                    printTerm(`Errors: ${errs}, Warnings:${warns}`, errs > 0 ? 'error' : (warns > 0 ? 'warning' : 'success'));
+                    printTerm(`Linting active file... Errors: ${errs}, Warnings:${warns}`, errs > 0 ? 'error' : (warns > 0 ? 'warning' : 'success'));
                     if (errs > 0 || warns > 0) {
                         printTerm('Opening Problems Panel...', 'info');
                         setTimeout(() => togglePanel('problemsPanel'), 600);
@@ -412,7 +395,7 @@ Have fun from mariow :D
                     termOutput.innerHTML = '';
                     break;
                 case 'help':
-                    printTerm('Commands:\n  run         - Bundle and preview the active project\n  build       - Builds and exports the active project as a .zip file\n  checkerrors - Run syntax and semantic validation on active file\n  clear       - Clear terminal output\n  help        - Show this message', 'info');
+                    printTerm('Available pipeline commands:\n  run         - Bundle and preview the active project\n  build       - Export the active project as a .zip file\n  checkerrors - Run syntax and semantic validation on active file\n  clear       - Clear terminal output\n  help        - Show this message', 'info');
                     break;
                 default:
                     printTerm(`acode: command not found: ${cmd}. Type 'help' for available commands.`, 'error');
@@ -457,7 +440,7 @@ Have fun from mariow :D
                 const isErr = m.severity === monaco.MarkerSeverity.Error;
                 el.className = `problem-item ${isErr ? 'error' : 'warning'}`;
                 const icon = isErr ? 'error' : 'warning';
-                const color = isErr ? '#ff5252' : '#fb8c00';
+                const color = isErr ? '#ff453a' : '#ff9f0a';
                 
                 el.innerHTML = `
                     <span class="material-symbols-outlined" style="font-size:16px; color:${color};">${icon}</span>
@@ -626,7 +609,7 @@ Have fun from mariow :D
                     const isActive = tab.id === activeTabId;
                     const el = document.createElement('div');
                     el.className = 'fallback-tab' + (isActive ? ' active' : '');
-                    el.innerHTML = `<span>${tab.name}</span>${tab.isUnsaved ? '<span class="unsaved-dot"></span>' : ''} <span class="fallback-tab-close">×</span>`;
+                    el.innerHTML = `<span>${tab.name}</span> <span class="fallback-tab-close">×</span>`;
                     el.onclick = () => switchTab(tab.id);
                     el.querySelector('.fallback-tab-close').onclick = (e) => closeTab(e, tab.id);
                     fTabs.appendChild(el);
@@ -650,7 +633,7 @@ Have fun from mariow :D
 
                 btn.innerHTML = `
                     <span class="material-symbols-outlined" style="font-size:14px; opacity:0.8;">${icon}</span>
-                    <span style="white-space: nowrap; font-size:12px; margin-right:4px;">${tab.name}</span>${tab.isUnsaved ? '<span style="width:6px;height:6px;border-radius:50%;background:#fb8c00;margin-right:6px;"></span>' : ''}
+                    <span style="white-space: nowrap; font-size:12px; margin-right:4px;">${tab.name}</span>
                     <button class="notes-tab-close" style="background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:0 2px; margin-left: auto;">×</button>
                 `;
                 btn.onclick = () => switchTab(tab.id);
@@ -731,8 +714,7 @@ Have fun from mariow :D
                 switchTab(existingTab.id);
             } else {
                 const id = 'tab_' + Date.now();
-                // Ensure isUnsaved is initially false when creating a new tab
-                openTabs.push({ id, pathArr: [...pathArr], name: pathArr[pathArr.length-1], isUnsaved: false });
+                openTabs.push({ id, pathArr: [...pathArr], name: pathArr[pathArr.length-1] });
                 switchTab(id);
             }
         }
@@ -757,8 +739,8 @@ Have fun from mariow :D
         document.getElementById('ctx-new-file').onclick = () => promptCreateNode(false);
         document.getElementById('ctx-new-folder').onclick = () => promptCreateNode(true);
         document.getElementById('ctx-rename').onclick = () => promptRename();
-        document.getElementById('ctx-delete').onclick = () => {
-            if(confirm(`Are you sure you want to delete '${ctxTarget.pathArr[ctxTarget.pathArr.length-1]}'?`)) {
+        document.getElementById('ctx-delete').onclick = async () => {
+            if(await mDialog.confirm(`Are you sure you want to delete '${ctxTarget.pathArr[ctxTarget.pathArr.length-1]}'?`)) {
                 deleteNode(ctxTarget.pathArr);
                 closeTabsByPath(ctxTarget.pathArr); 
                 renderTree();
@@ -766,16 +748,16 @@ Have fun from mariow :D
         };
         document.getElementById('ctx-export').onclick = () => exportZipPath(ctxTarget.pathArr);
 
-        function promptCreateProject() {
-            const name = prompt("Enter Project Name:");
+        async function promptCreateProject() {
+            const name = await mDialog.prompt("Enter project name:");
             if (name && !fileSystem[name]) {
                 fileSystem[name] = { 'index.html': DEFAULT_TEMPLATE, 'assets': {} };
                 saveFS(); renderTree(); openFileAndCreateTab([name, 'index.html']);
             }
         }
 
-        function promptCreateNode(isFolder) {
-            const name = prompt(`Enter ${isFolder ? 'folder' : 'file'} name:`);
+        async function promptCreateNode(isFolder) {
+            const name = await mDialog.prompt(`Enter ${isFolder ? 'folder' : 'file'} name:`);
             if (name) {
                 const targetNode = getNode(ctxTarget.pathArr);
                 if(targetNode[name] === undefined) {
@@ -786,9 +768,9 @@ Have fun from mariow :D
             }
         }
 
-        function promptRename() {
+        async function promptRename() {
             const oldName = ctxTarget.pathArr[ctxTarget.pathArr.length-1];
-            const newName = prompt("Rename to:", oldName);
+            const newName = await mDialog.prompt("Rename to:", { defaultValue: oldName });
             if(newName && newName !== oldName) {
                 if(renameNode(ctxTarget.pathArr, newName)) {
                     updateTabPaths(ctxTarget.pathArr, newName);
@@ -820,17 +802,12 @@ Have fun from mariow :D
                 const a = document.createElement("a");
                 a.href = URL.createObjectURL(content);
                 a.download = exportName + ".zip"; a.click();
-                
-                // Show Popup from OS instead of notification
-                if (window.parent && window.parent.showDialog) {
-                    window.parent.showDialog('info', 'Export Complete', `Your project "${exportName}" has been successfully exported as a .zip file.`);
-                }
             });
         }
 
         function testApp() {
             if (!activeTabId) { 
-                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Open a project file first.", "⚠️️");
+                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Open a project file first.", "⚠️");
                 return; 
             }
             
@@ -839,17 +816,13 @@ Have fun from mariow :D
             const projectRoot = fileSystem[projectRootName];
             
             if (!projectRoot['index.html']) {
-                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Missing index.html to run.", "⚠️️");
+                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Missing index.html to run.", "⚠️");
                 return;
             }
             
             if (editor && activeTab) {
                 setNodeContent(activeTab.pathArr, editor.getValue());
                 saveFS();
-                if(activeTab.isUnsaved) {
-                    activeTab.isUnsaved = false;
-                    renderTabs();
-                }
             }
             
             let htmlCode = projectRoot['index.html'];
@@ -885,7 +858,7 @@ Have fun from mariow :D
                 popupDiv.id = popupId; popupDiv.className = "popup"; 
                 popupDiv.innerHTML = `
                     <div class="popup-header">
-                        <span>Preview: ${projectRootName}</span>
+                        <span>🧪 Preview: ${projectRootName}</span>
                         <div class="window-actions" id="acode-preview-actions">
                             <span class="material-symbols-outlined action-btn min-btn">remove</span>
                             <span class="material-symbols-outlined action-btn max-btn">crop_square</span>
@@ -906,7 +879,7 @@ Have fun from mariow :D
                 void popupDiv.offsetWidth; 
             } else {
                 const headerSpan = popupDiv.querySelector('.popup-header span');
-                if (headerSpan) headerSpan.innerText = 'Preview: ' + projectRootName;
+                if (headerSpan) headerSpan.innerText = '🧪 Preview: ' + projectRootName;
                 const iframe = popupDiv.querySelector('iframe');
                 if (iframe) { iframe.dataset.defaultSrc = url; iframe.src = url; }
             }
@@ -943,7 +916,7 @@ Have fun from mariow :D
                             cursor: pointer; transition: all 0.2s; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500;
                         }
                         .cs-os-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; transform: translateY(-1px); }
-                        .cs-os-btn.primary { background: rgba(92, 124, 250, 0.2); color: #c2f3eb; border-color: rgba(92, 124, 250, 0.3); }
+                        .cs-os-btn.primary { background: rgba(10, 132, 255, 0.18); color: #fff; border-color: rgba(10, 132, 255, 0.3); }
                         
                         .notes-tab-btn {
                             display: flex; align-items: center; gap: 8px;
@@ -954,22 +927,22 @@ Have fun from mariow :D
                             transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
                         }
                         .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-                        .notes-tab-btn.active { background: rgba(92, 124, 250, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(92, 124, 250, 0.25); }
-                        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #5c7cfa; border-bottom: none; pointer-events: none; }
-                        .notes-tab-close:hover { color: #ff5252; }
+                        .notes-tab-btn.active { background: rgba(10, 132, 255, 0.18); color: #fff; height: 34px; border-color: rgba(10, 132, 255, 0.3); }
+                        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #0a84ff; border-bottom: none; pointer-events: none; }
+                        .notes-tab-close:hover { color: #ff453a; }
                     `;
                     window.parent.document.head.appendChild(style);
                 }
 
                 osHeader.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 8px; color: #5c7cfa; cursor: move; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; gap: 8px; color: #0a84ff; cursor: move; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
                         <span class="material-symbols-outlined" style="font-size: 18px;">code</span>
                     </div>
                     
                     <div id="os-acode-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 8px; cursor: move;"></div>
                     
                     <div id="os-acode-actions" style="display: flex; gap: 6px; margin-left: 12px; align-items: center; flex-shrink: 0;">
-                        <button class="cs-os-btn" id="os-cs-run-pipeline" title="Terminal"><span class="material-symbols-outlined" style="font-size: 14px;">terminal</span></button>
+                        <button class="cs-os-btn" id="os-cs-run-pipeline" title="Run Pipeline"><span class="material-symbols-outlined" style="font-size: 14px;">terminal</span></button>
                         <button class="cs-os-btn" id="os-cs-new-proj" title="New Project"><span class="material-symbols-outlined" style="font-size: 14px;">create_new_folder</span></button>
                         <button class="cs-os-btn" id="os-cs-save" title="Save File (Ctrl+S)"><span class="material-symbols-outlined" style="font-size: 14px;">save</span> Save</button>
                         <button class="cs-os-btn primary" id="os-cs-run" title="Run App (Ctrl+Enter)"><span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span> Run</button>
@@ -1000,10 +973,7 @@ Have fun from mariow :D
                         const tab = openTabs.find(t => t.id === activeTabId);
                         setNodeContent(tab.pathArr, editor.getValue());
                         saveFS();
-                        if (tab.isUnsaved) {
-                            tab.isUnsaved = false;
-                            renderTabs();
-                        }
+                        window.parent.showNotification("ACode", "File saved successfully.", "💾");
                     }
                 });
                 pDoc.getElementById('os-cs-run').addEventListener('click', () => testApp());
@@ -1017,10 +987,7 @@ Have fun from mariow :D
                     const tab = openTabs.find(t => t.id === activeTabId);
                     setNodeContent(tab.pathArr, editor.getValue()); 
                     saveFS();
-                    if (tab.isUnsaved) {
-                        tab.isUnsaved = false;
-                        renderTabs();
-                    }
+                    if(IS_EMBEDDED && window.parent.showNotification) window.parent.showNotification("ACode", "Saved", "💾");
                 } 
             }
             if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); testApp(); }

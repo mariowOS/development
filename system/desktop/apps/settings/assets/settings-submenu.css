@@ -235,7 +235,8 @@ body {
 }
 
 .btn.delete {
-  color: #ff6961;
+  color: #ff453a;
+  border-color: rgba(255, 69, 58, 0.4);
 }
 
 form,
@@ -305,7 +306,7 @@ input[type='time']::-webkit-calendar-picker-indicator {
 }
 
 .toggle-switch.active {
-  background: var(--settings-accent);
+  background: #34c759;
 }
 
 .toggle-slider {

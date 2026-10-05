@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
@@ -69,7 +70,7 @@
     }
 
     async function uninstallApp(appId) {
-      if (!confirm(`Are you sure you want to uninstall ${appId}?`)) return;
+      if (!await mDialog.confirm(`Are you sure you want to uninstall ${appId}?`, { danger: true, okText: 'Uninstall' })) return;
       
       await fetch('/api/store/uninstall', {
         method: 'POST',

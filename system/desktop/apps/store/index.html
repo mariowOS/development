@@ -10,7 +10,7 @@
   
   <style>
     :root {
-      --mac-accent: #1c85ff;
+      --mac-accent: #0a84ff;
       --mac-sidebar: rgba(28, 28, 30, 0.85);
       --mac-border: rgba(255, 255, 255, 0.06);
       --mac-text: #ffffff;
@@ -80,7 +80,7 @@
     }
     .icon-bg .material-symbols-outlined { font-size: 18px; font-weight: 400; color: #ffffff; }
 
-    .c-discover { background: linear-gradient(180deg, #1c85ff, #0066d6); }
+    .c-discover { background: linear-gradient(180deg, #0a84ff, #007aff); }
     .c-publish { background: linear-gradient(180deg, #ff9f0a, #d98608); }
 
     .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -113,7 +113,7 @@
 
     .main { flex: 1; overflow-y: auto; position: relative; background: transparent; }
     .main::-webkit-scrollbar { width: 6px; }
-    .main::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+    .main::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
 
     .view { display: none; padding: 12px 24px 40px 24px; }
     .view.active { display: block; animation: viewIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
@@ -180,7 +180,7 @@
     }
     .btn-action:active { transform: scale(0.96); }
     .btn-action.primary { background: var(--mac-accent); color: #FFF; }
-    .btn-action.primary:hover { background: #0066d6; }
+    .btn-action.primary:hover { background: #007aff; }
     .btn-action.primary:disabled { background: var(--btn-gray); color: var(--mac-text-secondary); cursor: not-allowed; }
 
     .btn-uninstall {

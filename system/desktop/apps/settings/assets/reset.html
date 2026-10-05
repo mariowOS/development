@@ -10,21 +10,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
 <style>
 :root {
-  --md-sys-color-background: #141218;
-  --md-sys-color-surface-container: #2b2930;
-  --md-sys-color-surface-container-high: #36343b;
-  --md-sys-color-surface-container-highest: #4a4458;
-  --md-sys-color-primary-container: #4f378b;
-  --md-sys-color-on-primary-container: #eaddff;
-  --md-sys-color-on-surface: #e6e0e9;
-  --md-sys-color-on-surface-variant: #cac4d0;
-  --md-sys-color-error: #ffb4ab;
-  --md-sys-color-error-container: #93000a;
-  --md-sys-color-on-error-container: #ffdad6;
+  --md-sys-color-background: transparent;
+  --md-sys-color-surface-container: rgba(255,255,255,0.06);
+  --md-sys-color-surface-container-high: rgba(255,255,255,0.1);
+  --md-sys-color-surface-container-highest: rgba(255,255,255,0.08);
+  --md-sys-color-primary-container: rgba(10,132,255,0.18);
+  --md-sys-color-on-primary-container: #ffffff;
+  --md-sys-color-on-surface: #ffffff;
+  --md-sys-color-on-surface-variant: rgba(255,255,255,0.5);
+  --md-sys-color-error: #ff453a;
+  --md-sys-color-error-container: rgba(255,69,58,0.18);
+  --md-sys-color-on-error-container: #ff453a;
 }
 
 body {
@@ -76,8 +76,8 @@ body {
 }
 
 .sub-title {
-  font-size: 22px;
-  font-weight: 400;
+  font-size: 20px;
+  font-weight: 500;
   margin: 0;
 }
 
@@ -89,7 +89,7 @@ body {
 
 .item {
   background: var(--md-sys-color-surface-container);
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 16px 20px;
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
@@ -114,7 +114,7 @@ body {
 }
 
 .text-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--md-sys-color-on-surface);
 }
@@ -144,7 +144,7 @@ body {
 
 /* Material You Danger Variant */
 .item.dangerous {
-  background: rgba(147, 0, 10, 0.25);
+  background: rgba(255,69,58,0.1);
 }
 
 .item.dangerous .text-title {
@@ -157,15 +157,13 @@ body {
 }
 
 .item.dangerous:hover {
-  background: rgba(147, 0, 10, 0.4);
+  background: rgba(255,69,58,0.18);
 }
 
 html::-webkit-scrollbar {
   display: none;
 }
 </style>
-<link rel="stylesheet" href="/desktop/assets/material-you.css">
-<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 
@@ -178,7 +176,7 @@ html::-webkit-scrollbar {
   </div>
 
   <div class="card-list">
-    <div class="item">
+    <div class="item" style="cursor:pointer" onclick="location.href='reset-settings.html'">
       <div class="text-group">
         <div class="text-title">Reset settings</div>
         <div class="text-desc">Only resets settings to default options</div>
@@ -186,7 +184,7 @@ html::-webkit-scrollbar {
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
 
-    <div class="item">
+    <div class="item" style="cursor:pointer" onclick="location.href='reset-desktop.html'">
       <div class="text-group">
         <div class="text-title">Reset desktop (refresh)</div>
         <div class="text-desc">Clears every customization option, doesn't clear data</div>
@@ -194,7 +192,7 @@ html::-webkit-scrollbar {
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
 
-    <div class="item dangerous">
+    <div class="item dangerous" style="cursor:pointer" onclick="location.href='factory-reset.html'">
       <div class="text-group">
         <div class="text-title">Factory reset</div>
         <div class="text-desc">Clears all data and everything, starts fresh - cannot be undone</div>
@@ -202,7 +200,7 @@ html::-webkit-scrollbar {
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
 
-    <div class="item dangerous">
+    <div class="item dangerous" style="cursor:pointer" onclick="location.href='factory-reset.html'">
       <div class="text-group">
         <div class="text-title">Full system wipe</div>
         <div class="text-desc">Complete data destruction and system reset - requires confirmation</div>

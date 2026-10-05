@@ -14,7 +14,7 @@ Licensed under the Apache License, Version 2.0
     :root {
       --m3-bg: rgba(18, 22, 32, 0.4);
       --m3-sidebar: rgba(255, 255, 255, 0.02);
-      --m3-accent: #5c7cfa;
+      --m3-accent: #0a84ff;
       --m3-text: #ffffff;
       --m3-text-muted: rgba(255, 255, 255, 0.5);
       --m3-hover: rgba(255, 255, 255, 0.08);
@@ -129,7 +129,7 @@ Licensed under the Apache License, Version 2.0
 .home-drive-label { line-height: 24px; }
 .drive-usage-label { display: block; margin: 4px 0 6px; color: var(--m3-text-muted); font-size: 10px; line-height: 1.3; }
 .drive-usage-track { height: 4px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, 0.16); }
-.drive-usage-fill { width: 0; height: 100%; border-radius: inherit; background: #c2f3eb; transition: width 0.4s var(--spring); }
+.drive-usage-fill { width: 0; height: 100%; border-radius: inherit; background: #0a84ff; transition: width 0.4s var(--spring); }
     
     /* Toolbar */
     .toolbar {
@@ -167,7 +167,7 @@ Licensed under the Apache License, Version 2.0
     
     .name-col { display: flex; align-items: center; gap: 12px; font-weight: 500;}
     .file-icon { font-size: 24px; flex-shrink: 0; }
-    .icon-folder { color: #5c7cfa; font-variation-settings: 'FILL' 1; }
+    .icon-folder { color: #0a84ff; font-variation-settings: 'FILL' 1; }
     .icon-image { color: #ff8a65; }
     .icon-doc { color: #4db6ac; }
     .icon-movie { color: #ce93d8; }
@@ -179,7 +179,7 @@ Licensed under the Apache License, Version 2.0
     #contextMenu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1) translateZ(0); }
     .cm-item { padding: 8px 12px; font-size: 13px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
     .cm-item:hover { background: rgba(255,255,255,0.1); }
-    .cm-item.danger { color: #ff5f56; }
+    .cm-item.danger { color: #ff453a; }
     .badge-readonly { background: rgba(255,255,255,0.15); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 600; color: #ff8a65; }
 
     /* Inline Editing Inputs */
@@ -193,7 +193,7 @@ Licensed under the Apache License, Version 2.0
       padding: 3px 8px !important;
       border-radius: 6px !important;
       outline: none !important;
-      box-shadow: 0 0 0 2px rgba(92, 124, 250, 0.25) !important;
+      box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4) !important;
       width: 100%;
       max-width: 280px;
       box-sizing: border-box;
@@ -237,7 +237,7 @@ Licensed under the Apache License, Version 2.0
     }
     .confirm-btn:hover { background: rgba(255, 255, 255, 0.2); }
     .confirm-btn:active { transform: scale(0.95); }
-    .confirm-btn.danger { background: #ff5f56; color: #fff; }
+    .confirm-btn.danger { background: #ff453a; color: #fff; }
     .confirm-btn.danger:hover { background: #ff736b; }
 
     #uploadInput { display: none; }
@@ -308,7 +308,7 @@ Licensed under the Apache License, Version 2.0
 
     <!-- Inline Confirmation Bar (No Browser Popups) -->
     <div id="inlineConfirmBar" class="inline-confirm-bar" style="display: none;">
-      <span class="material-symbols-outlined" style="color: #ff5f56; font-size: 20px;">delete</span>
+      <span class="material-symbols-outlined" style="color: #ff453a; font-size: 20px;">delete</span>
       <span id="confirmMessage">Delete selected item?</span>
       <div style="display: flex; gap: 8px; margin-left: 8px;">
         <button class="confirm-btn" onclick="cancelInlineDelete()">Cancel</button>
@@ -361,11 +361,11 @@ Licensed under the Apache License, Version 2.0
           transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
         }
         .explorer-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-        .explorer-tab-btn.active { background: rgba(92, 124, 250, 0.16); color: #fff; height: 34px; border-color: rgba(92, 124, 250, 0.25); }
-        .explorer-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #5c7cfa; border-bottom: none; pointer-events: none; }
+        .explorer-tab-btn.active { background: rgba(10, 132, 255, 0.18); color: #fff; height: 34px; border-color: rgba(10, 132, 255, 0.3); }
+        .explorer-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #0a84ff; border-bottom: none; pointer-events: none; }
         .tab-color-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; transition: background 0.2s; z-index: 2; pointer-events: none; }
         .explorer-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; margin-left: 4px; z-index: 3; }
-        .explorer-tab-close:hover { opacity: 1; color: #ff5252; }
+        .explorer-tab-close:hover { opacity: 1; color: #ff453a; }
       `;
       window.parent.document.head.appendChild(style);
     }
@@ -553,7 +553,7 @@ Licensed under the Apache License, Version 2.0
       });
       sortFileRows(sortKey, false);
     } catch (e) {
-      list.innerHTML = '<tr><td colspan="3"><div class="empty-state" style="color:#ff5f56;"><span class="material-symbols-outlined" style="font-size:48px;">block</span>Access Denied</div></td></tr>';
+      list.innerHTML = '<tr><td colspan="3"><div class="empty-state" style="color:#ff453a;"><span class="material-symbols-outlined" style="font-size:48px;">block</span>Access Denied</div></td></tr>';
     }
   }
 

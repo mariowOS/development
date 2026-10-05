@@ -1,23 +1,21 @@
 
 
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolatrice</title>
+    <title>Calculator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/desktop/assets/material-you.css">
-    <script src="/desktop/assets/monet-engine.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --m3-accent-active: #c2f3eb;
-            --m3-accent-on-active: #05211e;
-            --m3-item-hover: rgba(255, 255, 255, 0.12);
-            --m3-text-color: #e6e0e9;
+            --m3-accent-active: #0a84ff;
+            --m3-accent-on-active: #ffffff;
+            --m3-item-hover: rgba(255, 255, 255, 0.15);
+            --m3-text-color: #ffffff;
             --m3-glass-border: rgba(255, 255, 255, 0.12);
         }
 
@@ -30,7 +28,7 @@
         }
 
         body {
-            background: #141416;
+            background: transparent;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -65,7 +63,7 @@
 
         .sub-display {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.45);
+            color: rgba(255, 255, 255, 0.5);
             font-weight: 400;
             min-height: 20px;
         }
@@ -115,6 +113,10 @@
             transform: scale(0.92);
         }
 
+        .btn:focus-visible {
+            box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4);
+        }
+
         /* Pulsanti Operatore M3 */
         .btn-operator {
             background-color: rgba(255, 255, 255, 0.12);
@@ -125,13 +127,13 @@
 
         /* Pulsante Clear */
         .btn-clear {
-            background-color: rgba(255, 82, 82, 0.15);
-            color: #ff5252;
+            background-color: rgba(255, 69, 58, 0.18);
+            color: #ff453a;
             font-weight: 600;
         }
 
         .btn-clear:hover {
-            background-color: rgba(255, 82, 82, 0.25);
+            background-color: rgba(255, 69, 58, 0.28);
         }
 
         /* Pulsante Uguale M3 Accent */
@@ -143,7 +145,7 @@
         }
 
         .btn-equals:hover {
-            background-color: #eaddff;
+            background-color: #007aff;
         }
 
         /* Tasto Zero largo */

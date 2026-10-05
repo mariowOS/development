@@ -1,5 +1,51 @@
 # mariowOS Development Changelog
 
+### Development Branch — October 2026
+
+Version **1.1.0**, built on 2 October 2026.
+
+A pass over everything that only *looked* finished. A lot of Settings promised things it never did, the interface had drifted apart between apps, and a few pieces were missing entirely.
+
+# Email verification
+
+The account email is now verified for real. The system sends a six-digit code over SMTP, which expires after ten minutes and allows five attempts, with a minute of cooldown between sends. Credentials are read from `system/.env` instead of being written into the kernel.
+
+Password recovery works as a result: `/forgot-password` and `/reset-password` existed as screens but had no routes behind them. The daily report preference is stored too, and only runs once the email is verified.
+
+# Calendar
+
+A new app, plus the tray calendar it shares its events with. Events support all-day and multi-day spans, repetition, reminders, locations, notes and seven colours, and can be dragged from day to day. Import and export use `.ics`, so the calendar exchanges events with Windows Calendar, Outlook, Google and Apple. Reminders arrive as system notifications.
+
+# Settings that actually do something
+
+Nearly every control in Settings now performs the action it advertises:
+
+- Reset Settings was an empty page; the four rows in Reset Options led nowhere; Reset Desktop never contacted the kernel.
+
+- Factory reset now removes installed apps, wallpaper, profile picture, boot logo, rules and browser data, and restarts the whole shell instead of reloading the Settings window.
+
+- Changing or clearing the password requires the current one. Clearing it used to be an unauthenticated GET.
+
+- Functions Lab toggles are applied to the live desktop and only switch once the kernel confirms the save.
+
+- New Rule saved to the browser only, so the rule engine never saw its rules. It now offers the triggers and actions the engine really supports, and Edit works.
+
+# Interface
+
+Every app was audited for visual and consistency defects. One accent colour, one set of status colours, one typographic scale. Twenty-five pages were loading two stylesheet and script files that do not exist. Native browser dialogs are gone — they stole keyboard focus and left inputs unusable — replaced by in-page ones. The interface is English throughout.
+
+# Elsewhere
+
+- A new boot sequence, with a starfield, a logo intro and a progress bar tied to the real startup phases.
+
+- Right-click menus on the taskbar: window and pinning actions on app icons, and show desktop, close all and shortcuts on the empty area.
+
+- The mouse back and forward buttons no longer navigate the shell's history.
+
+- `start-hidden.vbs` launches mariowOS with no terminal window; helper commands no longer flash console windows.
+
+- The About page reads its version and build date from the kernel, so they stay correct on their own.
+
 ### Development Branch — September 2026
 
 And we are back! This is all of what we did in this amazing month. mariowOS really has changed, a lot. You had a taste of the old Tiles desktop, but we completely reimagined how mariowOS should have looked, and here's the result. 

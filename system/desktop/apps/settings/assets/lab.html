@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Functions Lab</title>
@@ -21,6 +22,7 @@
       background: transparent; 
       overflow-x: hidden; 
       overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
@@ -86,13 +88,15 @@
     }
     .boot-logo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .boot-logo-actions button {
-      border: 1px solid rgba(255,255,255,.14); border-radius: 8px; padding: 7px 10px;
-      color: white; background: rgba(255,255,255,.08); font: inherit; font-size: 11px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 8px; padding: 7px 14px; min-height: 32px;
+      color: white; background: rgba(255,255,255,.08); font: 500 13px 'Poppins', sans-serif; cursor: pointer;
+      outline: none; transition: background 0.2s;
     }
     .boot-logo-actions button:hover { background: rgba(255,255,255,.15); }
-    .boot-logo-actions button:disabled { opacity: .55; cursor: wait; }
+    .boot-logo-actions button:focus-visible { box-shadow: 0 0 0 2px rgba(10,132,255,.4); }
+    .boot-logo-actions button:disabled { opacity: .5; cursor: default; background: rgba(255,255,255,.08); }
     #bootLogoInput { display: none; }
-    .boot-logo-status { min-height: 18px; margin-top: 7px; color: rgba(255,255,255,.58); font-size: 11px; }
+    .boot-logo-status { min-height: 18px; margin-top: 7px; color: rgba(255,255,255,.5); font-size: 11px; }
 
     .warning-panel {
       background: rgba(255, 159, 10, 0.1);
@@ -110,6 +114,7 @@
     input:checked + .slider { background-color: #34c759; }
     input:checked + .slider:before { transform: translateX(20px); }
 
+    html { scrollbar-width: none; }
     html::-webkit-scrollbar { display: none; }
   </style>
 </head>
@@ -137,8 +142,8 @@
           <div class="item-title">Boot Logo</div>
           <div class="item-subtitle">Choose the image shown in the center of the black startup screen. PNG or JPEG, up to 5 MB. Changes apply on the next startup.</div>
           <div class="boot-logo-actions">
-            <button type="button" id="uploadBootLogoButton">Upload boot logo</button>
-            <button type="button" id="resetBootLogoButton">Restore default</button>
+            <button type="button" id="uploadBootLogoButton">Upload boot logo…</button>
+            <button type="button" id="resetBootLogoButton">Restore default…</button>
             <input type="file" id="bootLogoInput" accept="image/png,image/jpeg">
           </div>
           <div class="boot-logo-status" id="bootLogoStatus" role="status" aria-live="polite"></div>
@@ -266,15 +271,22 @@ function toggleLab(key, inputEl) {
   const desiredState = inputEl.checked;
   inputEl.checked = !desiredState; 
 
-  requirePassword(() => {
+  requirePassword(async () => {
+    try {
+      const res = await fetch('/save-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: desiredState })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Save failed');
+    } catch (e) {
+      await mDialog.alert('Could not save this option: ' + e.message);
+      return;
+    }
     inputEl.checked = desiredState;
     localStorage.setItem('lab-' + key, desiredState);
-
-    fetch('/save-settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [key]: desiredState })
-    }).catch(() => {});
+    try { window.top.postMessage({ type: 'apply-lab-flags' }, '*'); } catch (e) {}
 
     const name = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
     window.parent.postMessage({
@@ -347,7 +359,7 @@ bootLogoInput.addEventListener('change', async () => {
 });
 
 resetBootLogoButton.addEventListener('click', async () => {
-  if (!confirm('Restore the default mariowOS boot logo?')) return;
+  if (!await mDialog.confirm('Restore the default mariowOS boot logo?')) return;
 
   uploadBootLogoButton.disabled = true;
   resetBootLogoButton.disabled = true;

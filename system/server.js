@@ -14,7 +14,27 @@ const crypto = require("crypto");
 const multer = require("multer");
 const cron = require('node-cron');
 const nodemailer = require("nodemailer");
-const { exec, spawn } = require('child_process');
+const childProcess = require('child_process');
+// Never flash a console window on Windows for helper commands (netsh, git, powershell...).
+const exec = (command, options, callback) => {
+  if (typeof options === 'function') { callback = options; options = {}; }
+  return childProcess.exec(command, { windowsHide: true, ...(options || {}) }, callback);
+};
+const spawn = (command, args, options) => {
+  if (!Array.isArray(args)) { options = args; args = []; }
+  return childProcess.spawn(command, args, { windowsHide: true, ...(options || {}) });
+};
+
+// Load secrets (e.g. SMTP credentials) from system/.env without overriding real env vars.
+(function loadEnvFile() {
+  const envPath = path.join(__dirname, ".env");
+  if (!fs.existsSync(envPath)) return;
+  fs.readFileSync(envPath, "utf8").split(/\r?\n/).forEach(line => {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!match || process.env[match[1]] !== undefined) return;
+    process.env[match[1]] = match[2].replace(/^(["'])(.*)\1$/, "$2");
+  });
+})();
 
 // This is the brain of mariowOS when it is running in development mode.
 // The backend owns the config file, login flow, desktop routes, and the app store.
@@ -128,9 +148,128 @@ const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
-  auth: { user: "confirmation.mariowos@gmail.com", pass: "eapv psur ruuk yrrf" },
-  tls: { rejectUnauthorized: false }
+  auth: {
+    user: process.env.MARIOWOS_SMTP_USER,
+    pass: process.env.MARIOWOS_SMTP_PASSWORD
+  },
+  // Trust the OS certificate store too, so antivirus/proxy HTTPS inspection
+  // (which re-signs TLS with a locally trusted root) doesn't break SMTP.
+  tls: { ca: getTrustedCAs() }
 });
+
+function getTrustedCAs() {
+  const tls = require("tls");
+  if (typeof tls.getCACertificates !== "function") return undefined;
+  try {
+    return [...new Set([...tls.getCACertificates("default"), ...tls.getCACertificates("system")])];
+  } catch (e) {
+    return undefined;
+  }
+}
+const SMTP_CONFIGURED = Boolean(process.env.MARIOWOS_SMTP_USER && process.env.MARIOWOS_SMTP_PASSWORD);
+if (!SMTP_CONFIGURED) console.warn("[mail] MARIOWOS_SMTP_USER / MARIOWOS_SMTP_PASSWORD not set: emails cannot be sent.");
+
+function saveConfig() {
+  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function isValidEmail(email) {
+  return typeof email === "string" && email.length <= 254 && EMAIL_RE.test(email.trim());
+}
+
+// One-time codes kept in memory, keyed by purpose + email. Codes are stored hashed.
+const CODE_TTL_MS = 10 * 60 * 1000;
+const CODE_COOLDOWN_MS = 60 * 1000;
+const CODE_MAX_ATTEMPTS = 5;
+const pendingCodes = new Map();
+const hashCode = code => crypto.createHash("sha256").update(String(code)).digest("hex");
+
+// Email-client-safe template: tables + inline styles only (Gmail/Outlook strip <style> and flexbox).
+function renderCodeEmail(purpose, code) {
+  const isReset = purpose === "reset";
+  const heading = isReset ? "Reset your password" : "Verify your email";
+  const intro = isReset
+    ? "Someone asked to reset the password of your mariowOS account. Use this code to choose a new one:"
+    : "Welcome! Enter this code in <b>Settings &rsaquo; You</b> to confirm this email belongs to you:";
+  const digits = code.split("").map(d =>
+    `<td style="padding:0 4px;"><div style="width:44px;height:56px;line-height:56px;background:#ffffff;border:1px solid #e3e6ef;border-radius:12px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:28px;font-weight:700;color:#14161c;text-align:center;">${d}</div></td>`
+  ).join("");
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${heading}</title></head>
+<body style="margin:0;padding:0;background:#eef1f7;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your mariowOS code is ${code}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f7;padding:40px 16px;font-family:'Poppins','Segoe UI',Helvetica,Arial,sans-serif;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 12px 40px rgba(20,22,28,0.08);">
+        <tr><td style="background:linear-gradient(135deg,#0a84ff 0%,#5e5ce6 100%);background-color:#0a84ff;padding:36px 32px 32px;text-align:center;">
+          <div style="font-size:26px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">mariowOS</div>
+          <div style="margin-top:6px;font-size:13px;color:rgba(255,255,255,0.8);">${isReset ? "Account security" : "Account verification"}</div>
+        </td></tr>
+        <tr><td style="padding:36px 32px 8px;text-align:center;">
+          <div style="font-size:22px;font-weight:600;color:#14161c;">${heading}</div>
+          <div style="margin-top:12px;font-size:15px;line-height:1.6;color:#5b6070;">${intro}</div>
+        </td></tr>
+        <tr><td align="center" style="padding:24px 24px 8px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="background:#f5f7fb;border-radius:18px;padding:18px 14px;"><tr>${digits}</tr></table>
+        </td></tr>
+        <tr><td style="padding:12px 32px 32px;text-align:center;">
+          <div style="display:inline-block;padding:6px 14px;background:#fff4e5;border-radius:999px;font-size:12px;font-weight:600;color:#b25e00;">&#9201; Expires in 10 minutes</div>
+        </td></tr>
+        <tr><td style="padding:0 32px;"><div style="height:1px;background:#eceef3;"></div></td></tr>
+        <tr><td style="padding:20px 32px 32px;text-align:center;font-size:12px;line-height:1.6;color:#8a8f9e;">
+          Didn't request this? You can safely ignore this email &mdash; nothing will change.<br>
+          Never share this code with anyone, not even the mariowOS team.
+        </td></tr>
+      </table>
+      <div style="margin-top:20px;font-size:11px;color:#a0a5b3;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">&copy; ${new Date().getFullYear()} mariowOS &middot; Sent automatically, please don't reply.</div>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+async function sendCodeEmail(purpose, email) {
+  if (!SMTP_CONFIGURED) return { ok: false, status: 503, error: "Email service not configured on this system." };
+  const key = purpose + ":" + email.toLowerCase();
+  const existing = pendingCodes.get(key);
+  if (existing && Date.now() - existing.sentAt < CODE_COOLDOWN_MS) {
+    const wait = Math.ceil((CODE_COOLDOWN_MS - (Date.now() - existing.sentAt)) / 1000);
+    return { ok: false, status: 429, error: `Please wait ${wait}s before requesting a new code.`, retryAfter: wait };
+  }
+  const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+  const title = purpose === "reset" ? "Password reset code" : "Email verification code";
+  try {
+    await transporter.sendMail({
+      from: { name: "mariowOS", address: process.env.MARIOWOS_SMTP_USER },
+      to: email,
+      subject: `mariowOS - ${title}`,
+      text: `Your mariowOS code is ${code}. It expires in 10 minutes.\nIf you did not request it, you can safely ignore this email.`,
+      html: renderCodeEmail(purpose, code)
+    });
+  } catch (err) {
+    const detail = [err.code, err.responseCode, err.message].filter(Boolean).join(" ");
+    console.error("[mail] Failed to send code:", detail);
+    try { fs.appendFileSync(path.join(__dirname, "mail-error.log"), `${new Date().toISOString()} ${detail}\n${err.stack || ""}\n`); } catch (e) {}
+    return { ok: false, status: 502, error: "Could not send the email: " + detail };
+  }
+  pendingCodes.set(key, { hash: hashCode(code), expiresAt: Date.now() + CODE_TTL_MS, sentAt: Date.now(), attempts: 0 });
+  return { ok: true };
+}
+
+function checkCode(purpose, email, code) {
+  const key = purpose + ":" + String(email || "").trim().toLowerCase();
+  const entry = pendingCodes.get(key);
+  if (!entry) return { ok: false, error: "No code requested for this email. Request a new one." };
+  if (Date.now() > entry.expiresAt) { pendingCodes.delete(key); return { ok: false, error: "Code expired. Request a new one." }; }
+  if (entry.attempts >= CODE_MAX_ATTEMPTS) { pendingCodes.delete(key); return { ok: false, error: "Too many attempts. Request a new code." }; }
+  entry.attempts++;
+  const given = Buffer.from(hashCode(String(code || "").trim()));
+  if (!crypto.timingSafeEqual(given, Buffer.from(entry.hash))) {
+    return { ok: false, error: `Wrong code. ${CODE_MAX_ATTEMPTS - entry.attempts} attempts left.` };
+  }
+  pendingCodes.delete(key);
+  return { ok: true };
+}
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -237,7 +376,6 @@ app.use("/desktop", express.static(path.join(__dirname, "desktop")));
 app.use("/loginui", express.static(path.join(__dirname, "loginui")));
 
 app.get('/desktop/apps/settings/assets/you.html', (req, res, next) => {
-  if (config && config.username && config.email && !req.query.edit) return res.redirect('/desktop/apps/settings/assets/youafter.html');
   next();
 });
 
@@ -276,7 +414,7 @@ const bootLogoUpload = multer({
 
 app.post("/api/system/set-volume", (req, res) => {
   const { volume } = req.body;
-  if (volume === undefined) return res.status(400).json({ success: false, error: "Volume mancante" });
+  if (volume === undefined) return res.status(400).json({ success: false, error: "Missing volume" });
 
   const volNum = Math.max(0, Math.min(100, parseInt(volume, 10)));
   let cmd = "";
@@ -321,10 +459,10 @@ app.get("/api/system/desktops", (req, res) => {
 
 let dailyEmailTask = null;
 async function sendDiscordFlagsEmail() {
-  if (!config.email) return;
+  if (!config.email || !config.verified || !SMTP_CONFIGURED) return;
   try {
     await transporter.sendMail({
-      from: { name: "mariowOS", address: "confirmation.mariowos@gmail.com" },
+      from: { name: "mariowOS", address: process.env.MARIOWOS_SMTP_USER },
       to: config.email,
       subject: "mariowOS Daily Issue Flags - Discord",
       html: `<h2>mariowOS Daily Report</h2><p>Hello ${config.username}, check the latest issue flags on our Discord server.</p>`
@@ -577,7 +715,7 @@ app.get("/api/system/networks", (req, res) => {
 // 2. WI-FI CONNECTION
 app.post("/api/system/connect-wifi", (req, res) => {
   const { ssid, password } = req.body;
-  if (!ssid) return res.status(400).json({ success: false, error: "SSID mancante" });
+  if (!ssid) return res.status(400).json({ success: false, error: "Missing SSID" });
 
   let cmd = "";
   if (currentOS === "linux") {
@@ -589,7 +727,7 @@ app.post("/api/system/connect-wifi", (req, res) => {
   }
 
   exec(cmd, (err) => {
-    if (err) return res.status(500).json({ success: false, error: "Impossibile connettersi alla rete." });
+    if (err) return res.status(500).json({ success: false, error: "Unable to connect to the network." });
     config.quickSettings.connectedWifi = ssid;
     config.quickSettings.wifi = true;
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
@@ -671,7 +809,7 @@ app.get("/api/system/bt-devices", (req, res) => {
 app.post("/api/system/connect-bt", (req, res) => {
   const { mac, name } = req.body;
   const target = mac || name;
-  if (!target) return res.status(400).json({ success: false, error: "Target mancante" });
+  if (!target) return res.status(400).json({ success: false, error: "Missing target" });
 
   const isConnected = config.quickSettings.connectedBt === name;
   let cmd = "";
@@ -741,7 +879,7 @@ app.post("/api/recovery/wipe", (req, res) => {
   const allowFlashing = config.allowFlashing || false;
   
   // Wipe config but enable FRP and preserve the hash needed to unlock it
-  config = { 
+  config = {
     passwordHash: preservedHash,
     frpLock: true,
     allowFlashing: allowFlashing,
@@ -801,13 +939,64 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, !config.passwordHash ? "desktop/welcome.html" : "loginui/com.mariowos.loginui.html"));
 });
 
-app.post("/verify-code", (req, res) => {
-  const { code } = req.body;
-  if (code === "123456") {
-    res.json({ success: true, message: "Code verified!" });
-  } else {
-    res.status(400).json({ success: false, error: "Invalid verification code" });
+// --- EMAIL VERIFICATION ---
+app.post("/api/email/send-code", async (req, res) => {
+  const email = String(req.body.email || config.email || "").trim();
+  if (!isValidEmail(email)) return res.status(400).json({ success: false, error: "Invalid email address." });
+  const result = await sendCodeEmail("verify", email);
+  if (!result.ok) return res.status(result.status).json({ success: false, error: result.error, retryAfter: result.retryAfter });
+  res.json({ success: true, message: "Code sent to " + email });
+});
+
+app.post("/api/email/verify-code", (req, res) => {
+  const email = String(req.body.email || "").trim();
+  if (!isValidEmail(email)) return res.status(400).json({ success: false, error: "Invalid email address." });
+  const result = checkCode("verify", email, req.body.code);
+  if (!result.ok) return res.status(400).json({ success: false, error: result.error });
+  config.email = email;
+  config.verified = true;
+  saveConfig();
+  res.json({ success: true, message: "Email verified!" });
+});
+
+// --- PASSWORD RECOVERY (uses the verified email) ---
+app.post("/forgot-password", async (req, res) => {
+  const email = String(req.body.email || "").trim();
+  if (!isValidEmail(email)) return res.status(400).json({ success: false, error: "Invalid email address." });
+  if (!config.verified || !config.email || config.email.toLowerCase() !== email.toLowerCase()) {
+    return res.status(400).json({ success: false, error: "This email is not the verified email of this system." });
   }
+  const result = await sendCodeEmail("reset", email);
+  if (!result.ok) return res.status(result.status).json({ success: false, error: result.error });
+  res.json({ success: true });
+});
+
+app.post("/reset-password", async (req, res) => {
+  const { email, code, newPassword } = req.body;
+  if (typeof newPassword !== "string" || newPassword.length < 4) {
+    return res.status(400).json({ success: false, error: "Password must be at least 4 characters." });
+  }
+  const result = checkCode("reset", email, code);
+  if (!result.ok) return res.status(400).json({ success: false, error: result.error });
+  config.passwordHash = await bcrypt.hash(newPassword, 10);
+  saveConfig();
+  res.json({ success: true });
+});
+
+// --- PREFERENCES (daily report email) ---
+app.get("/api/preferences", (req, res) => {
+  res.json({ sendReports: Boolean(config.sendReports), verified: Boolean(config.verified), email: config.email || "" });
+});
+
+app.post("/api/preferences", (req, res) => {
+  const sendReports = Boolean(req.body.sendReports);
+  if (sendReports && !config.verified) {
+    return res.status(400).json({ success: false, error: "Verify your email in Settings first." });
+  }
+  config.sendReports = sendReports;
+  saveConfig();
+  scheduleDailyEmail();
+  res.json({ success: true });
 });
 
 app.post("/login", async (req, res) => {
@@ -831,12 +1020,22 @@ app.get("/get-settings", (req, res) => {
 
 app.post("/save-settings", (req, res) => {
   const { username, email, ...extra } = req.body;
-  if (username && email) {
-    config.username = username;
-    config.email = email;
+  const PROTECTED = ["passwordHash", "verified", "quickSettings"];
+  if (username !== undefined || email !== undefined) {
+    const cleanName = String(username || "").trim();
+    const cleanEmail = String(email || "").trim();
+    if (!cleanName || cleanName.length > 50) return res.status(400).json({ success: false, error: "Username must be 1-50 characters." });
+    if (!isValidEmail(cleanEmail)) return res.status(400).json({ success: false, error: "Invalid email address." });
+    if ((config.email || "").toLowerCase() !== cleanEmail.toLowerCase()) {
+      config.verified = false;
+      config.sendReports = false;
+      scheduleDailyEmail();
+    }
+    config.username = cleanName;
+    config.email = cleanEmail;
   }
   Object.keys(extra).forEach(key => {
-    config[key] = extra[key];
+    if (!PROTECTED.includes(key)) config[key] = extra[key];
   });
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
   res.json({ success: true, message: "Settings saved!" });
@@ -850,15 +1049,24 @@ app.post("/clear-settings", (req, res) => {
 });
 
 app.post("/set-password", async (req, res) => {
-  const { username, newPassword } = req.body;
+  const { username, newPassword, currentPassword } = req.body;
   if (!newPassword || !username) return res.status(400).send("❌ Dati mancanti");
+  if (config.passwordHash) {
+    const ok = typeof currentPassword === "string" && await bcrypt.compare(currentPassword, config.passwordHash);
+    if (!ok) return res.status(401).send("Current password is incorrect.");
+  }
   config.username = username;
   config.passwordHash = await bcrypt.hash(newPassword, 10);
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
   res.send("Configurazione completata!");
 });
 
-app.get("/clear-password", (req, res) => {
+app.post("/clear-password", async (req, res) => {
+  if (config.passwordHash) {
+    const { currentPassword } = req.body;
+    const ok = typeof currentPassword === "string" && await bcrypt.compare(currentPassword, config.passwordHash);
+    if (!ok) return res.status(401).send("Current password is incorrect.");
+  }
   config.passwordHash = null;
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
   res.send("Password cleared! You can now log in without a password.");
@@ -866,13 +1074,41 @@ app.get("/clear-password", (req, res) => {
 
 
 app.post("/api/system/factory-reset", (req, res) => {
-  config = { 
+  const errors = [];
+  const removePath = target => {
+    try { if (fs.existsSync(target)) fs.rmSync(target, { recursive: true, force: true }); }
+    catch (e) { errors.push(path.basename(target) + ": " + e.message); }
+  };
+
+  // Apps installed from the store (folders, downloaded icons, tiles desktop)
+  (config.installedApps || []).forEach(app => {
+    if (isValidAppId(app.appId)) removePath(path.join(__dirname, "desktop", "apps", app.appId));
+  });
+  removePath(path.join(__dirname, "desktop", "com.mariowos.twm.html"));
+  const assetsDir = path.join(__dirname, "desktop", "assets");
+  try {
+    fs.readdirSync(assetsDir)
+      .filter(file => /^icon_.+\.png$/.test(file) || /\.user\.png$/.test(file))
+      .forEach(file => removePath(path.join(assetsDir, file)));
+  } catch (e) { errors.push("assets: " + e.message); }
+
+  config = {
     passwordHash: null,
+    rules: [],
+    rulesEnabled: true,
     quickSettings: { wifi: true, bluetooth: true, dnd: false, powerMode: "Balanced", isEthernet: false }
   };
-  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+  saveConfig();
   fs.writeFileSync(path.join(__dirname, "keys.json"), JSON.stringify([]));
-  res.json({ success: true, message: "Factory Reset Completato" });
+  Object.keys(ruleLastRun).forEach(id => delete ruleLastRun[id]);
+  Object.keys(batteryRuleState).forEach(id => delete batteryRuleState[id]);
+  startupRulesRun.clear();
+  pendingRuleNotifications.length = 0;
+  pendingCodes.clear();
+  scheduleDailyEmail();
+
+  if (errors.length) console.error("Factory reset warnings:", errors);
+  res.json({ success: true, message: "Factory Reset Completato", warnings: errors });
 });
 
 app.post("/upload-wallpaper", wallpaperUpload.single("wallpaper"), (req, res) => {
@@ -917,7 +1153,9 @@ app.post("/api/system/reset-settings", (req, res) => {
   config.sendReports = false;
   config.email = "";
   config.verified = false;
-  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+  ["darkMode", "performance", "animations", "developer", "allowFlashing"].forEach(key => delete config[key]);
+  saveConfig();
+  scheduleDailyEmail();
   res.json({ success: true, message: "Impostazioni ripristinate" });
 });
 
@@ -1195,6 +1433,171 @@ const ruleLastRun = {};
 const batteryRuleState = {};
 const startupRulesRun = new Set();
 const pendingRuleNotifications = [];
+
+// --- CALENDAR ---
+// Events use "floating" local time (date YYYY-MM-DD, time HH:MM) like the system clock does.
+// .ics import/export makes them interoperable with Windows Calendar, Outlook, Google, Apple.
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+const CAL_COLORS = ["blue", "green", "red", "orange", "purple", "pink", "teal"];
+if (!Array.isArray(config.calendarEvents)) config.calendarEvents = [];
+
+function cleanEvent(input, existing = {}) {
+  const ev = { ...existing };
+  if (input.title !== undefined) ev.title = String(input.title).trim().slice(0, 120);
+  if (input.notes !== undefined) ev.notes = String(input.notes).slice(0, 2000);
+  if (input.location !== undefined) ev.location = String(input.location).trim().slice(0, 200);
+  if (input.date !== undefined) ev.date = String(input.date);
+  if (input.endDate !== undefined) ev.endDate = input.endDate ? String(input.endDate) : "";
+  if (input.allDay !== undefined) ev.allDay = Boolean(input.allDay);
+  if (input.start !== undefined) ev.start = input.start ? String(input.start) : "";
+  if (input.end !== undefined) ev.end = input.end ? String(input.end) : "";
+  if (input.color !== undefined) ev.color = CAL_COLORS.includes(input.color) ? input.color : "blue";
+  if (input.reminder !== undefined) {
+    const r = Number(input.reminder);
+    ev.reminder = Number.isFinite(r) && r >= 0 && r <= 10080 ? Math.round(r) : -1; // minutes before, -1 = none
+  }
+  if (input.repeat !== undefined) ev.repeat = ["none", "daily", "weekly", "monthly", "yearly"].includes(input.repeat) ? input.repeat : "none";
+
+  if (!ev.title) return { error: "Title is required." };
+  if (!DATE_RE.test(ev.date || "")) return { error: "Invalid date." };
+  if (ev.endDate && (!DATE_RE.test(ev.endDate) || ev.endDate < ev.date)) return { error: "End date must be after the start date." };
+  if (!ev.allDay) {
+    if (!TIME_RE.test(ev.start || "")) return { error: "Invalid start time." };
+    if (ev.end && !TIME_RE.test(ev.end)) return { error: "Invalid end time." };
+    if (ev.end && (!ev.endDate || ev.endDate === ev.date) && ev.end < ev.start) return { error: "End time must be after the start time." };
+  } else {
+    ev.start = ""; ev.end = "";
+  }
+  ev.color = ev.color || "blue";
+  ev.repeat = ev.repeat || "none";
+  if (ev.reminder === undefined) ev.reminder = ev.allDay ? -1 : 10;
+  return { event: ev };
+}
+
+app.get("/api/calendar/events", (req, res) => res.json(config.calendarEvents));
+
+app.post("/api/calendar/events", (req, res) => {
+  const { event, error } = cleanEvent(req.body || {});
+  if (error) return res.status(400).json({ success: false, error });
+  event.id = crypto.randomUUID();
+  event.created = new Date().toISOString();
+  config.calendarEvents.push(event);
+  saveConfig();
+  res.json({ success: true, event });
+});
+
+app.put("/api/calendar/events/:id", (req, res) => {
+  const index = config.calendarEvents.findIndex(e => e.id === req.params.id);
+  if (index < 0) return res.status(404).json({ success: false, error: "Event not found." });
+  const { event, error } = cleanEvent(req.body || {}, config.calendarEvents[index]);
+  if (error) return res.status(400).json({ success: false, error });
+  config.calendarEvents[index] = event;
+  saveConfig();
+  res.json({ success: true, event });
+});
+
+app.delete("/api/calendar/events/:id", (req, res) => {
+  const before = config.calendarEvents.length;
+  config.calendarEvents = config.calendarEvents.filter(e => e.id !== req.params.id);
+  if (config.calendarEvents.length === before) return res.status(404).json({ success: false, error: "Event not found." });
+  saveConfig();
+  res.json({ success: true });
+});
+
+// iCalendar (RFC 5545) helpers
+const icsEscape = s => String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+const icsUnescape = s => String(s || "").replace(/\\n/gi, "\n").replace(/\\([,;\\])/g, "$1");
+const compactDate = d => d.replace(/-/g, "");
+const addDays = (date, n) => { const d = new Date(date + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+app.get("/api/calendar/export.ics", (req, res) => {
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//mariowOS//Calendar//EN", "CALSCALE:GREGORIAN"];
+  for (const ev of config.calendarEvents) {
+    lines.push("BEGIN:VEVENT", `UID:${ev.uid || ev.id + "@mariowos"}`, `DTSTAMP:${stamp}`, `SUMMARY:${icsEscape(ev.title)}`);
+    if (ev.allDay) {
+      lines.push(`DTSTART;VALUE=DATE:${compactDate(ev.date)}`, `DTEND;VALUE=DATE:${compactDate(addDays(ev.endDate || ev.date, 1))}`);
+    } else {
+      lines.push(`DTSTART:${compactDate(ev.date)}T${ev.start.replace(":", "")}00`);
+      if (ev.end) lines.push(`DTEND:${compactDate(ev.endDate || ev.date)}T${ev.end.replace(":", "")}00`);
+    }
+    if (ev.location) lines.push(`LOCATION:${icsEscape(ev.location)}`);
+    if (ev.notes) lines.push(`DESCRIPTION:${icsEscape(ev.notes)}`);
+    if (ev.repeat && ev.repeat !== "none") lines.push(`RRULE:FREQ=${ev.repeat.toUpperCase()}`);
+    if (ev.reminder >= 0) lines.push("BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsEscape(ev.title)}`, `TRIGGER:-PT${ev.reminder}M`, "END:VALARM");
+    lines.push("END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  res.set("Content-Type", "text/calendar; charset=utf-8");
+  res.set("Content-Disposition", 'attachment; filename="mariowOS-calendar.ics"');
+  res.send(lines.join("\r\n"));
+});
+
+app.post("/api/calendar/import", express.text({ type: "*/*", limit: "5mb" }), (req, res) => {
+  const text = typeof req.body === "string" ? req.body : "";
+  if (!text.includes("BEGIN:VCALENDAR")) return res.status(400).json({ success: false, error: "This is not a valid .ics calendar file." });
+  const unfolded = text.replace(/\r?\n[ \t]/g, "").split(/\r?\n/);
+  const parseDT = (value, params) => {
+    const m = value.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);
+    if (!m) return null;
+    if (!m[4] || /VALUE=DATE/i.test(params)) return { date: `${m[1]}-${m[2]}-${m[3]}`, allDay: true };
+    if (m[7]) { // UTC -> local system time
+      const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
+      const pad = n => String(n).padStart(2, "0");
+      return { date: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`, time: `${pad(d.getHours())}:${pad(d.getMinutes())}`, allDay: false };
+    }
+    return { date: `${m[1]}-${m[2]}-${m[3]}`, time: `${m[4]}:${m[5]}`, allDay: false };
+  };
+  let current = null, inAlarm = false, imported = 0, skipped = 0;
+  const existingUids = new Set(config.calendarEvents.map(e => e.uid).filter(Boolean));
+  for (const line of unfolded) {
+    const idx = line.indexOf(":");
+    if (idx < 0) continue;
+    const [name, ...paramParts] = line.slice(0, idx).split(";");
+    const params = paramParts.join(";");
+    const value = line.slice(idx + 1);
+    const key = name.toUpperCase();
+    if (key === "BEGIN" && value === "VEVENT") { current = {}; continue; }
+    if (key === "BEGIN" && value === "VALARM") { inAlarm = true; continue; }
+    if (key === "END" && value === "VALARM") { inAlarm = false; continue; }
+    if (!current) continue;
+    if (inAlarm) {
+      const t = key === "TRIGGER" && value.match(/^-P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?/);
+      if (t) current.reminder = (+(t[1] || 0)) * 1440 + (+(t[2] || 0)) * 60 + (+(t[3] || 0));
+      continue;
+    }
+    if (key === "SUMMARY") current.title = icsUnescape(value);
+    else if (key === "DESCRIPTION") current.notes = icsUnescape(value);
+    else if (key === "LOCATION") current.location = icsUnescape(value);
+    else if (key === "UID") current.uid = value;
+    else if (key === "DTSTART") current.dtstart = parseDT(value, params);
+    else if (key === "DTEND") current.dtend = parseDT(value, params);
+    else if (key === "RRULE") { const f = value.match(/FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/i); if (f) current.repeat = f[1].toLowerCase(); }
+    else if (key === "END" && value === "VEVENT") {
+      const c = current; current = null;
+      if (!c.dtstart || (c.uid && existingUids.has(c.uid))) { skipped++; continue; }
+      const input = { title: c.title || "(No title)", notes: c.notes || "", location: c.location || "", date: c.dtstart.date, allDay: c.dtstart.allDay, repeat: c.repeat || "none" };
+      if (!c.dtstart.allDay) {
+        input.start = c.dtstart.time;
+        if (c.dtend && !c.dtend.allDay) { input.end = c.dtend.time; if (c.dtend.date !== c.dtstart.date) input.endDate = c.dtend.date; }
+      } else if (c.dtend && c.dtend.allDay) {
+        const last = addDays(c.dtend.date, -1);
+        if (last > c.dtstart.date) input.endDate = last;
+      }
+      if (c.reminder !== undefined) input.reminder = c.reminder;
+      const { event } = cleanEvent(input);
+      if (!event) { skipped++; continue; }
+      event.id = crypto.randomUUID();
+      event.created = new Date().toISOString();
+      if (c.uid) { event.uid = c.uid; existingUids.add(c.uid); }
+      config.calendarEvents.push(event);
+      imported++;
+    }
+  }
+  saveConfig();
+  res.json({ success: true, imported, skipped });
+});
 
 app.get("/api/rules", (req, res) => { res.json(Array.isArray(config.rules) ? config.rules : []); });
 app.get("/api/rules/enabled", (req, res) => { res.json({ enabled: config.rulesEnabled !== false }); });
@@ -1844,6 +2247,51 @@ function launchServerReplacement(stagePath, serverMode) {
     helperProcess.once("error", reject);
   });
 }
+
+// --- ABOUT / BUILD INFO ---
+// The build date is the newest modification time of the OS's own files, so the
+// About page reports when the system was really last changed instead of a date
+// somebody has to remember to edit by hand.
+const BUILD_ROOTS = ["server.js", "launcher.js", "preload.js", "boot.html", "desktop", "loginui", "recovery"];
+const BUILD_SKIP_NAMES = new Set(["node_modules", "config.json", "keys.json", "sota-installed.json", "mail-error.log", ".env"]);
+const BUILD_CACHE_MS = 60 * 1000;
+let buildDateCache = { value: 0, computedAt: 0 };
+
+function newestModifiedTime(target, skipDirs, depth = 0) {
+  let stats;
+  try { stats = fs.statSync(target); } catch (e) { return 0; }
+  if (stats.isFile()) return stats.mtimeMs;
+  if (!stats.isDirectory() || depth > 6) return 0;
+  let entries;
+  try { entries = fs.readdirSync(target, { withFileTypes: true }); } catch (e) { return 0; }
+  let newest = 0;
+  for (const entry of entries) {
+    if (BUILD_SKIP_NAMES.has(entry.name) || /\.user\.(png|jpe?g)$/i.test(entry.name)) continue;
+    const full = path.join(target, entry.name);
+    if (entry.isDirectory() && skipDirs.has(full)) continue;
+    newest = Math.max(newest, newestModifiedTime(full, skipDirs, depth + 1));
+  }
+  return newest;
+}
+
+function getBuildDate() {
+  if (Date.now() - buildDateCache.computedAt < BUILD_CACHE_MS && buildDateCache.value) return buildDateCache.value;
+  // Apps the user installed from the Store aren't part of the system build.
+  const skipDirs = new Set((config.installedApps || [])
+    .filter(app => isValidAppId(app.appId))
+    .map(app => path.join(__dirname, "desktop", "apps", app.appId)));
+  let newest = 0;
+  for (const entry of BUILD_ROOTS) newest = Math.max(newest, newestModifiedTime(path.join(__dirname, entry), skipDirs));
+  buildDateCache = { value: newest || Date.now(), computedAt: Date.now() };
+  return buildDateCache.value;
+}
+
+app.get("/api/system/about", (req, res) => {
+  let version = "1.0.0";
+  try { version = JSON.parse(fs.readFileSync(path.join(__dirname, "version.json"), "utf8")).version || version; } catch (e) {}
+  res.set("Cache-Control", "no-store");
+  res.json({ version, buildDate: new Date(getBuildDate()).toISOString() });
+});
 
 app.get('/api/system/check-update', async (req, res) => {
   try {

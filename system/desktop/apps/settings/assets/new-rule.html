@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>New Rule</title>
@@ -42,7 +43,7 @@ body {
 
 .back-btn {
   font-size: 18px;
-  color: #bbb;
+  color: rgba(255,255,255,0.5);
   cursor: pointer;
   transition: color 0.15s ease;
 }
@@ -52,7 +53,8 @@ body {
 }
 
 .banner {
-  background: rgba(30,30,30,0.7);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   padding: 18px;
   margin-bottom: 15px;
@@ -65,7 +67,7 @@ body {
 
 .banner .desc {
   font-size: 13px;
-  color: #bbb;
+  color: rgba(255,255,255,0.5);
   margin-top: 4px;
 }
 
@@ -75,31 +77,38 @@ body {
 
 label {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
   font-weight: 500;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 input, select, textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 5px;
-  background: rgba(255,255,255,0.05);
+  padding: 9px 12px;
+  min-height: 36px;
+  box-sizing: border-box;
+  font-size: 13px;
+  transition: border-color 0.2s;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.2);
+  color-scheme: dark;
   color: #fff;
   font-family: 'Poppins', sans-serif;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #fff;
+  border-color: #0a84ff;
+  box-shadow: 0 0 0 2px rgba(10,132,255,0.4);
 }
 
 .btn {
   background: rgba(255,255,255,0.1);
   border: none;
   padding: 12px 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   color: #fff;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
@@ -109,6 +118,10 @@ input:focus, select:focus, textarea:focus {
 .btn:hover {
   background: rgba(255,255,255,0.2);
 }
+
+select option { background: #1e1e1e; color: #fff; }
+input::placeholder { color: rgba(255,255,255,0.4); }
+input::-webkit-calendar-picker-indicator { filter: invert(1); }
 
 html::-webkit-scrollbar {
   display: none;
@@ -137,72 +150,195 @@ html::-webkit-scrollbar {
   <form>
     <div class="form-group">
       <label for="ruleName">Rule Name</label>
-      <input type="text" id="ruleName" placeholder="Enter rule name">
+      <input type="text" id="ruleName" placeholder="Enter rule name" maxlength="60">
     </div>
 
     <div class="form-group">
       <label for="trigger">Trigger</label>
       <select id="trigger">
         <option value="">Select a trigger</option>
-        <option value="time">Time-based</option>
-        <option value="event">Event-based</option>
-        <option value="condition">Condition-based</option>
+        <option value="time">Every day at a time</option>
+        <option value="battery">Battery at or below a level</option>
+        <option value="startup">At desktop startup</option>
       </select>
+    </div>
+
+    <div class="form-group" id="timeGroup" style="display:none;">
+      <label for="triggerTime">Time</label>
+      <input type="time" id="triggerTime" value="09:00">
+    </div>
+
+    <div class="form-group" id="batteryGroup" style="display:none;">
+      <label for="triggerBattery">Battery level (%)</label>
+      <input type="number" id="triggerBattery" min="1" max="100" value="20">
     </div>
 
     <div class="form-group">
       <label for="action">Action</label>
-      <select id="action">
-        <option value="">Select an action</option>
-        <option value="notify">Send notification</option>
-        <option value="run">Run command</option> 
-      </select>
+      <select id="action"></select>
     </div>
 
-    <button type="submit" class="btn">Create Rule</button>
+    <div class="form-group" id="notifyGroup" style="display:none;">
+      <label for="notifyTitle">Notification title</label>
+      <input type="text" id="notifyTitle" placeholder="Title" maxlength="60">
+      <label for="notifyMessage" style="margin-top:8px;">Notification message</label>
+      <input type="text" id="notifyMessage" placeholder="Message" maxlength="200">
+    </div>
+
+    <div class="form-group" id="runGroup" style="display:none;">
+      <label for="runCommand">Command</label>
+      <input type="text" id="runCommand" placeholder="Shell command to run">
+    </div>
+
+    <div class="form-group" id="appGroup" style="display:none;">
+      <label for="appId">App</label>
+      <select id="appId"><option value="">Loading apps...</option></select>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn">Create Rule</button>
   </form>
 </div>
 
 <script>
-const form = document.querySelector('form');
+const ACTIONS = {
+  time: [['notify', 'Send notification'], ['run', 'Run command']],
+  battery: [['notify', 'Send notification']],
+  startup: [['launch-app', 'Open an app']]
+};
+const $ = id => document.getElementById(id);
+const editId = Number(new URLSearchParams(location.search).get('edit')) || null;
+let editingRule = null;
 
-form.addEventListener('submit', (e) => {
+function refreshFields() {
+  const trigger = $('trigger').value;
+  const current = $('action').value;
+  $('action').replaceChildren(new Option(trigger ? 'Select an action' : 'Select a trigger first', ''));
+  (ACTIONS[trigger] || []).forEach(([value, label]) => $('action').add(new Option(label, value)));
+  if ((ACTIONS[trigger] || []).some(([v]) => v === current)) $('action').value = current;
+  else if ((ACTIONS[trigger] || []).length === 1) $('action').value = ACTIONS[trigger][0][0];
+  $('timeGroup').style.display = trigger === 'time' ? 'block' : 'none';
+  $('batteryGroup').style.display = trigger === 'battery' ? 'block' : 'none';
+  refreshActionFields();
+}
+
+function refreshActionFields() {
+  const action = $('action').value;
+  $('notifyGroup').style.display = action === 'notify' ? 'block' : 'none';
+  $('runGroup').style.display = action === 'run' ? 'block' : 'none';
+  $('appGroup').style.display = action === 'launch-app' ? 'block' : 'none';
+}
+
+$('trigger').addEventListener('change', refreshFields);
+$('action').addEventListener('change', refreshActionFields);
+
+async function loadApps() {
+  try {
+    const res = await fetch('/get-settings');
+    const settings = await res.json();
+    const apps = Array.isArray(settings.installedApps) ? settings.installedApps : [];
+    $('appId').replaceChildren(new Option(apps.length ? 'Select an app' : 'No installed apps', ''));
+    apps.forEach(app => $('appId').add(new Option(app.title, app.appId)));
+  } catch (e) {
+    $('appId').replaceChildren(new Option('Could not load installed apps', ''));
+  }
+}
+
+async function loadRules() {
+  const res = await fetch('/api/rules');
+  if (!res.ok) throw new Error('Could not load saved rules');
+  return res.json();
+}
+
+async function init() {
+  refreshFields();
+  await loadApps();
+  if (!editId) return;
+  try {
+    const rules = await loadRules();
+    editingRule = rules.find(r => Number(r.id) === editId)
+      || (JSON.parse(localStorage.getItem('rules')) || []).find(r => Number(r.id) === editId);
+  } catch (e) {}
+  if (!editingRule) return;
+  document.querySelector('.banner .title').textContent = 'Edit Rule';
+  $('submitBtn').textContent = 'Save Rule';
+  $('ruleName').value = editingRule.name || '';
+  $('trigger').value = ACTIONS[editingRule.trigger] ? editingRule.trigger : '';
+  refreshFields();
+  $('action').value = editingRule.action || '';
+  refreshActionFields();
+  const p = editingRule.actionParams || {};
+  if (editingRule.trigger === 'time' && editingRule.triggerValue) $('triggerTime').value = editingRule.triggerValue;
+  if (editingRule.trigger === 'battery' && editingRule.triggerValue) $('triggerBattery').value = editingRule.triggerValue;
+  $('notifyTitle').value = p.title || '';
+  $('notifyMessage').value = p.message || '';
+  $('runCommand').value = p.command || '';
+  if (p.appId) $('appId').value = p.appId;
+}
+
+document.querySelector('form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const ruleName = document.getElementById('ruleName').value;
-  const trigger = document.getElementById('trigger').value;
-  const action = document.getElementById('action').value;
+  const name = $('ruleName').value.trim();
+  const trigger = $('trigger').value;
+  const action = $('action').value;
+  if (!name || !trigger || !action) { await mDialog.alert('Please fill in all fields.'); return; }
 
-  if (!ruleName || !trigger || !action) {
-    alert('Please fill in all fields.'); // bitch
-    return;
+  let triggerValue;
+  const actionParams = {};
+  if (trigger === 'time') {
+    triggerValue = $('triggerTime').value;
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(triggerValue)) { await mDialog.alert('Please choose a valid time.'); return; }
+  }
+  if (trigger === 'battery') {
+    triggerValue = Number($('triggerBattery').value);
+    if (!(triggerValue >= 1 && triggerValue <= 100)) { await mDialog.alert('Battery level must be between 1 and 100.'); return; }
+  }
+  if (action === 'notify') {
+    actionParams.title = $('notifyTitle').value.trim() || name;
+    actionParams.message = $('notifyMessage').value.trim() || 'A rule just fired.';
+  }
+  if (action === 'run') {
+    actionParams.command = $('runCommand').value.trim();
+    if (!actionParams.command) { await mDialog.alert('Please enter a command.'); return; }
+  }
+  if (action === 'launch-app') {
+    actionParams.appId = $('appId').value;
+    if (!actionParams.appId) { await mDialog.alert('Please select an app.'); return; }
   }
 
   const rule = {
-    id: Date.now(),
-    name: ruleName,
-    trigger: trigger,
-    action: action,
-    enabled: true,
-    created: new Date().toISOString()
+    id: editingRule ? Number(editingRule.id) : Date.now(),
+    name, trigger, triggerValue, action, actionParams,
+    enabled: editingRule ? editingRule.enabled !== false : true,
+    created: editingRule ? editingRule.created : new Date().toISOString()
   };
 
-  let rules = JSON.parse(localStorage.getItem('rules')) || [];
-  rules.push(rule);
-  localStorage.setItem('rules', JSON.stringify(rules));
+  try {
+    const rules = (await loadRules()).filter(r => Number(r.id) !== rule.id);
+    rules.push(rule);
+    const res = await fetch('/api/rules/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rules })
+    });
+    if (!res.ok) throw new Error('Could not save this rule');
+  } catch (err) {
+    await mDialog.alert(err.message);
+    return;
+  }
 
-  // add to history and then redirect
-  let history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
-  history.push({
-    id: Date.now(),
-    ruleName: ruleName,
-    action: 'Created',
-    timestamp: new Date().toISOString()
-  });
+  const localRules = (JSON.parse(localStorage.getItem('rules')) || []).filter(r => Number(r.id) !== rule.id);
+  localRules.push(rule);
+  localStorage.setItem('rules', JSON.stringify(localRules));
+
+  const history = JSON.parse(localStorage.getItem('ruleHistory')) || [];
+  history.push({ id: Date.now(), ruleName: name, action: editingRule ? 'Edited' : 'Created', timestamp: new Date().toISOString() });
   localStorage.setItem('ruleHistory', JSON.stringify(history));
 
-  alert('Rule created successfully!');
-  window.location.replace('rules.html');
+  await mDialog.alert(editingRule ? 'Rule saved!' : 'Rule created successfully!');
+  window.location.replace(editingRule ? 'manage-rules.html' : 'rules.html');
 });
+
+init();
 </script>
 
 </body>

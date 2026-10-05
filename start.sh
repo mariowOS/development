@@ -14,7 +14,8 @@ if ! command -v npm >/dev/null 2>&1; then
 fi
 
 if [ ! -d node_modules/electron ]; then
-  echo "Dependencies are not installed. Run npm install first." >&2
+  echo "Dependencies are not installed. Running npm install..." >&2
+  exec npm install
   exit 1
 fi
 

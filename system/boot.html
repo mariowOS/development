@@ -5,18 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#000000">
   <style>
-    :root { color-scheme: dark; font-family: "Segoe UI", system-ui, sans-serif; }
+    :root { color-scheme: dark; font-family: "Segoe UI", system-ui, sans-serif; --accent: #0a84ff; --accent2: #b45cfa; --accent3: #40c8e0; }
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
     body { color: #f5f6fa; background: #000; }
     main { position: fixed; inset: 0; text-align: center; }
-    #bootLogo {
-      position: absolute; top: 50%; left: 50%;
-      width: min(24vw, 144px); height: min(24vw, 144px);
-      max-width: calc(100vw - 48px); max-height: calc(100vh - 48px);
-      object-fit: contain; transform: translate(-50%, -50%);
-      animation: logoAppear .8s cubic-bezier(.2,.8,.2,1) both;
-    }
+
+    /* ---- moving aurora ---- */
+    .aurora { position: absolute; inset: -20%; filter: blur(70px); opacity: 0; animation: fadeIn 1.6s ease .2s forwards; }
+    .aurora span { position: absolute; width: 55vmax; height: 55vmax; border-radius: 50%; mix-blend-mode: screen; opacity: .35; }
+    .aurora span:nth-child(1) { background: radial-gradient(circle, var(--accent) 0%, transparent 65%); top: 10%; left: 5%; animation: drift1 14s ease-in-out infinite alternate; }
+    .aurora span:nth-child(2) { background: radial-gradient(circle, var(--accent2) 0%, transparent 65%); top: 35%; left: 45%; animation: drift2 17s ease-in-out infinite alternate; }
+    .aurora span:nth-child(3) { background: radial-gradient(circle, var(--accent3) 0%, transparent 65%); top: -5%; left: 50%; opacity: .22; animation: drift3 20s ease-in-out infinite alternate; }
+    @keyframes drift1 { to { transform: translate(18vw, 12vh) scale(1.2); } }
+    @keyframes drift2 { to { transform: translate(-22vw, -10vh) scale(.85); } }
+    @keyframes drift3 { to { transform: translate(-10vw, 22vh) scale(1.1); } }
+
+    #stars { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.85) 100%); pointer-events: none; }
+
+    /* ---- logo stage ---- */
+    .stage { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%); display: flex; flex-direction: column; align-items: center; }
+    .logo-wrap { position: relative; width: min(26vw, 168px); height: min(26vw, 168px); display: flex; align-items: center; justify-content: center; }
+    .glow { position: absolute; inset: -40%; border-radius: 50%; background: radial-gradient(circle, rgba(10,132,255,.55) 0%, rgba(180,92,250,.25) 35%, transparent 70%);
+      opacity: 0; animation: glowIn 1.4s ease .5s forwards, breathe 3.2s ease-in-out 1.9s infinite; }
+    .ring { position: absolute; inset: -14%; border-radius: 50%; padding: 2px; opacity: 0;
+      background: conic-gradient(from 0deg, transparent 0 55%, var(--accent3) 70%, var(--accent) 85%, var(--accent2) 100%);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+              mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+      animation: fadeIn .8s ease 1s forwards, spin 2.4s linear infinite; }
+    .ring.r2 { inset: -26%; opacity: 0; animation: fadeInHalf 1s ease 1.3s forwards, spin 5s linear infinite reverse;
+      background: conic-gradient(from 90deg, transparent 0 70%, rgba(255,255,255,.7) 100%); }
+    #bootLogo { position: relative; width: 100%; height: 100%; object-fit: contain;
+      filter: drop-shadow(0 0 24px rgba(10,132,255,.6));
+      animation: logoIn 1.3s cubic-bezier(.16, 1.3, .3, 1) .35s both; }
+
+    .wordmark { margin-top: 44px; font-size: clamp(22px, 3.2vw, 34px); font-weight: 600; letter-spacing: .32em; text-indent: .32em; white-space: nowrap; }
+    .wordmark span { display: inline-block; opacity: 0; transform: translateY(14px); filter: blur(6px); animation: letterIn .7s cubic-bezier(.2,.9,.3,1) forwards; }
+    .wordmark .os { background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .tagline { margin-top: 10px; font-size: 12px; letter-spacing: .25em; text-transform: uppercase; color: rgba(255,255,255,.45); opacity: 0; animation: fadeIn 1s ease 2s forwards; }
+
+    /* ---- real progress ---- */
+    .progress { position: absolute; left: 50%; bottom: 13vh; width: min(260px, 60vw); transform: translateX(-50%); opacity: 0; animation: fadeIn .8s ease 1.6s forwards; }
+    .bar { height: 3px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+    #barFill { height: 100%; width: 0%; border-radius: 3px; background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2)); box-shadow: 0 0 12px var(--accent); transition: width .5s cubic-bezier(.3,.8,.3,1); position: relative; }
+    #barFill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: shimmer 1.2s linear infinite; }
+    #stageLabel { margin-top: 12px; font-size: 11.5px; letter-spacing: .08em; color: rgba(255,255,255,.55); min-height: 16px; transition: opacity .25s; }
+
     #status {
       display: none; position: absolute; left: 50%; bottom: 28px;
       width: min(600px, calc(100vw - 48px)); transform: translateX(-50%);
@@ -26,21 +61,72 @@
       display: none; position: absolute; left: 24px; bottom: 24px;
       width: min(560px, calc(100vw - 48px)); max-height: 28vh; overflow: hidden;
       color: rgba(237, 242, 255, .72); font: 11px/1.55 Consolas, "Cascadia Mono", monospace;
-      text-align: left; text-shadow: 0 1px 3px #000; pointer-events: none;
+      text-align: left; text-shadow: 0 1px 3px #000; pointer-events: none; z-index: 5;
     }
     .boot-log { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .boot-log::before { color: #7de0a3; content: "[  OK  ] "; }
     .boot-log.error { color: #ffb4ab; }
-    .boot-log.error::before { color: #ff6b6b; content: "[ FAIL ] "; }
-    @keyframes logoAppear { from { opacity: 0; translate: 0 8px; scale: .96; } to { opacity: 1; translate: 0 0; scale: 1; } }
+    .boot-log.error::before { color: #ff453a; content: "[ FAIL ] "; }
+
+    /* ---- exit: warp into the desktop ---- */
+    .flash { position: absolute; inset: 0; background: radial-gradient(circle, #fff 0%, rgba(160,180,255,.9) 30%, transparent 70%); opacity: 0; transform: scale(.2); pointer-events: none; }
+    body.exit .stage { animation: stageOut .75s cubic-bezier(.6,0,.4,1) forwards; }
+    body.exit .progress, body.exit .tagline { animation: fadeOut .3s ease forwards; }
+    body.exit .flash { animation: flash .8s cubic-bezier(.5,0,.3,1) .25s forwards; }
+
+    /* Intro waits for the logo: everything stays paused until body.ready */
+    body:not(.ready) .stage, body:not(.ready) .stage *, body:not(.ready) .progress, body:not(.ready) .aurora { animation-play-state: paused !important; }
+    body:not(.ready) #bootLogo { visibility: hidden; }
+
+    /* Continuing from the local boot page: show the intro's final state, keep only the loops */
+    body.continue .aurora, body.continue .tagline, body.continue .progress { animation: none; opacity: 1; }
+    body.continue #bootLogo { animation: none; }
+    body.continue .glow { opacity: 1; animation: breathe 3.2s ease-in-out infinite; }
+    body.continue .ring { opacity: 1; animation: spin 2.4s linear infinite; }
+    body.continue .ring.r2 { opacity: .45; animation: spin 5s linear infinite reverse; }
+    body.continue .wordmark span { animation: none; opacity: 1; transform: none; filter: none; }
+    body.continue.exit .progress, body.continue.exit .tagline { animation: fadeOut .3s ease forwards; }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes fadeInHalf { to { opacity: .45; } }
+    @keyframes fadeOut { to { opacity: 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes glowIn { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+    @keyframes breathe { 50% { opacity: .65; transform: scale(1.08); } }
+    @keyframes logoIn { 0% { opacity: 0; transform: scale(.3) rotate(-25deg); filter: blur(12px) drop-shadow(0 0 0 transparent); } 100% { opacity: 1; transform: none; } }
+    @keyframes letterIn { to { opacity: 1; transform: none; filter: blur(0); } }
+    @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+    @keyframes stageOut { to { transform: translate(-50%, -58%) scale(2.6); opacity: 0; filter: blur(10px); } }
+    @keyframes flash { 0% { opacity: 0; transform: scale(.2); } 45% { opacity: 1; } 100% { opacity: 1; transform: scale(3.5); background: #000; } }
+
     @media (prefers-reduced-motion: reduce) {
-      #bootLogo { animation: none; }
+      *, *::before, *::after { animation-duration: .01s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
   <main role="status" aria-live="polite">
-    <img id="bootLogo" src="/desktop/assets/icons/stars.png">
+    <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
+    <canvas id="stars" aria-hidden="true"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div class="stage">
+      <div class="logo-wrap">
+        <div class="glow"></div>
+        <div class="ring r2"></div>
+        <div class="ring"></div>
+        <img id="bootLogo" alt="">
+      </div>
+      <div class="wordmark" id="wordmark" aria-label="mariowOS"></div>
+      <div class="tagline">Welcome back</div>
+    </div>
+
+    <div class="progress">
+      <div class="bar"><div id="barFill"></div></div>
+      <div id="stageLabel">Starting</div>
+    </div>
+
+    <div class="flash" aria-hidden="true"></div>
     <p id="status"></p>
     <div id="bootLogs" aria-hidden="true"></div>
   </main>
@@ -48,8 +134,97 @@
     const statusLabel = document.getElementById('status');
     const bootLogo = document.getElementById('bootLogo');
     const bootLogs = document.getElementById('bootLogs');
+    const stageLabel = document.getElementById('stageLabel');
+    const barFill = document.getElementById('barFill');
+    let bootStartedAt = performance.now();
+    const DEFAULT_LOGO = new URL('desktop/assets/icons/stars.png', location.href).href;
+    let introStarted = false;
+
+    // Show the logo and start the intro animation (once).
+    function startIntro(logoSrc) {
+      if (introStarted) return;
+      introStarted = true;
+      if (logoSrc) bootLogo.src = logoSrc;
+      bootStartedAt = performance.now();
+      requestAnimationFrame(() => document.body.classList.add('ready'));
+    }
+    // Never stay on a blank screen if the logo can't be decoded at all.
+    setTimeout(() => startIntro(bootLogo.src || DEFAULT_LOGO), 4000);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let verboseBoot = new URLSearchParams(location.search).get('verbose') === '1';
+    const continuing = new URLSearchParams(location.search).get('continue') === '1';
+    if (continuing) document.body.classList.add('continue');
     if (verboseBoot) bootLogs.style.display = 'block';
+
+    // Wordmark, letter by letter ("OS" gets the gradient).
+    (function buildWordmark() {
+      const el = document.getElementById('wordmark');
+      [...'mariowOS'].forEach((ch, i) => {
+        const span = document.createElement('span');
+        span.textContent = ch;
+        if (i >= 6) span.className = 'os';
+        span.style.animationDelay = `${1.1 + i * 0.07}s`;
+        el.appendChild(span);
+      });
+    })();
+
+    // Starfield: stars stream out of the centre (warp), faster while loading, full warp on exit.
+    const starState = { speed: continuing ? 1.4 : 0.6, target: 1.2 };
+    (function starfield() {
+      const canvas = document.getElementById('stars');
+      const ctx = canvas.getContext('2d');
+      let w, h, cx, cy, dpr;
+      const STAR_COUNT = 420;
+      const stars = [];
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.width = innerWidth * dpr; h = canvas.height = innerHeight * dpr;
+        cx = w / 2; cy = h / 2;
+      }
+      function spawn(star, initial) {
+        star.x = (Math.random() - 0.5) * w;
+        star.y = (Math.random() - 0.5) * h;
+        star.z = initial ? Math.random() * w : w;
+        star.pz = star.z;
+        star.hue = [215, 265, 190][Math.floor(Math.random() * 3)];
+      }
+      resize();
+      addEventListener('resize', resize);
+      for (let i = 0; i < STAR_COUNT; i++) { const s = {}; spawn(s, true); stars.push(s); }
+      if (reduceMotion) return;
+      function frame() {
+        starState.speed += (starState.target - starState.speed) * 0.04;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.fillRect(0, 0, w, h);
+        const v = starState.speed * 6 * dpr;
+        for (const s of stars) {
+          s.pz = s.z;
+          s.z -= v;
+          if (s.z < 1) { spawn(s, false); continue; }
+          const sx = cx + (s.x / s.z) * w * 0.5, sy = cy + (s.y / s.z) * w * 0.5;
+          const px = cx + (s.x / s.pz) * w * 0.5, py = cy + (s.y / s.pz) * w * 0.5;
+          if (sx < 0 || sx > w || sy < 0 || sy > h) { spawn(s, false); continue; }
+          const t = 1 - s.z / w;
+          ctx.strokeStyle = `hsla(${s.hue}, 90%, ${70 + t * 30}%, ${Math.min(1, t * 1.4)})`;
+          ctx.lineWidth = Math.max(0.6, t * 2.6) * dpr;
+          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+
+    // Real progress: every boot phase moves the bar and the label.
+    let shownProgress = 0;
+    function setProgress(percent, label) {
+      shownProgress = Math.max(shownProgress, Math.min(100, percent));
+      barFill.style.width = shownProgress + '%';
+      starState.target = 1.2 + shownProgress / 40;
+      if (label && stageLabel.textContent !== label) {
+        stageLabel.style.opacity = 0;
+        setTimeout(() => { stageLabel.textContent = label; stageLabel.style.opacity = 1; }, 150);
+      }
+    }
 
     function logBoot(message, isError = false) {
       if (!verboseBoot) return;
@@ -105,7 +280,22 @@
       }
     }
 
+    // Let the intro play at least once, then warp into the desktop.
+    async function exitToDesktop() {
+      setProgress(100, 'Ready');
+      const MIN_INTRO_MS = reduceMotion ? 0 : continuing ? 700 : 2600;
+      const wait = MIN_INTRO_MS - (performance.now() - bootStartedAt);
+      if (wait > 0) await new Promise(r => setTimeout(r, wait));
+      if (!reduceMotion) {
+        starState.target = 14;
+        document.body.classList.add('exit');
+        await new Promise(r => setTimeout(r, 950));
+      }
+      location.replace('/');
+    }
+
     async function start() {
+      setProgress(4, 'Waking up the kernel');
       while (true) {
         try {
           logBoot('Waiting for system services');
@@ -118,20 +308,24 @@
           if (typeof assets.bootLogo !== 'string') throw new Error('E: boot_logo_settings_not_available');
           verboseBoot ||= assets.verbose === true;
           if (verboseBoot) bootLogs.style.display = 'block';
+          statusLabel.style.display = 'none';
           logBoot('system services are ready');
           logBoot('booting assets manifest loaded');
+          setProgress(15, 'System services ready');
 
           const selectedBootLogo = assets.bootLogo;
           if (await preloadImage(selectedBootLogo, 8000)) {
-            bootLogo.src = selectedBootLogo;
+            if (!introStarted) startIntro(selectedBootLogo);
+            else if (bootLogo.src !== new URL(selectedBootLogo, location.href).href) bootLogo.src = selectedBootLogo;
             logBoot(selectedBootLogo.includes('bootlogo.user') ? 'mwos_bootscreen started' : 'mwos_default_bootscreen started');
           } else if (selectedBootLogo !== '/desktop/assets/icons/stars.png') {
-            bootLogo.src = '/desktop/assets/icons/stars.png';
-            if (!await preloadImage(bootLogo.src, 8000)) throw new Error('Neither the custom nor default boot logo could be decoded');
+            if (!await preloadImage(DEFAULT_LOGO, 8000)) throw new Error('Neither the custom nor default boot logo could be decoded');
+            startIntro(DEFAULT_LOGO);
             logBoot('E: boot_logo_not_decoded');
           } else {
             throw new Error('E: boot_logo_not_decoded');
           }
+          setProgress(25, 'Preparing your desktop');
 
           const activeWallpaper = getActiveWallpaper();
           const sources = [...assets.optionalAssets, ...assets.icons];
@@ -141,6 +335,7 @@
             throw new Error('E: wallpaper_not_decoded');
           }
           logBoot('wallpaper_service started');
+          setProgress(45, 'Painting the wallpaper');
 
           const optional = uniqueSources.slice(1);
           const wallpaperSources = optional.filter(source => /wallpaper/i.test(source));
@@ -148,23 +343,31 @@
           for (const source of wallpaperSources) {
             if (await preloadImage(source, 8000)) logBoot(`wallpaper ready: ${new URL(source, location.href).pathname.split('/').pop()}`);
           }
+          setProgress(55, 'Loading apps');
           for (let index = 0; index < otherSources.length; index += 6) {
             const batch = otherSources.slice(index, index + 6);
             const results = await Promise.all(batch.map(source => preloadImage(source)));
             const loadedCount = results.filter(Boolean).length;
-            const batchLabel = `${Math.min(index + batch.length, otherSources.length)}/${otherSources.length}`;
+            const done = Math.min(index + batch.length, otherSources.length);
+            const batchLabel = `${done}/${otherSources.length}`;
+            setProgress(55 + (done / otherSources.length) * 40, 'Loading apps');
             logBoot(loadedCount === batch.length
               ? `Interface images decoded: ${batchLabel}`
               : `Interface images decoded: ${batchLabel} (${batch.length - loadedCount} unavailable)`);
           }
 
           logBoot('startup complete; opening desktop');
-          location.replace('/');
+          await exitToDesktop();
           return;
         } catch (error) {
           logBoot(`E: boot failed: ${error.message}`, true);
-          statusLabel.textContent = `E: could not finish booting: ${error.message}. retrying…`;
-          statusLabel.style.display = 'block';
+          // Before the kernel is up (file:// preview) keep the intro running quietly.
+          if (location.protocol === 'file:' && !introStarted && await preloadImage(DEFAULT_LOGO, 3000)) startIntro(DEFAULT_LOGO);
+          if (location.protocol !== 'file:') {
+            statusLabel.textContent = `E: could not finish booting: ${error.message}. retrying…`;
+            statusLabel.style.display = 'block';
+          }
+          setProgress(Math.min(shownProgress + 2, 12), 'Waking up the kernel');
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }

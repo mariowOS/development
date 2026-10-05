@@ -12,8 +12,6 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/desktop/assets/material-you.css">
-  <script src="/desktop/assets/monet-engine.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -151,7 +149,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     #dmgr-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #92d9ff; z-index: 1000; align-items: center; justify-content: center; flex-direction: column; }
     .dmgr-window { background: #111; border: 1px solid rgba(255,255,255,0.2); box-shadow: 8px 8px 0px #000; padding: 30px; width: 500px; text-align: center; }
     .dmgr-title { color: #fff; margin-bottom: 40px; font-weight: bold; }
-    .dmgr-title.red { color: #ff5f56; }
+    .dmgr-title.red { color: #ff453a; }
     .dmgr-subtitle { color: #92d9ff; margin-bottom: 10px; }
     .dmgr-text, .dmgr-item { color: #fff; padding: 5px; margin-bottom: 5px; }
     .dmgr-list { text-align: left; display: inline-block; margin-bottom: 40px; }
@@ -277,11 +275,11 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
             .notes-tab-btn { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px; color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500; cursor: pointer; position: relative; height: 28px; box-sizing: border-box; transition: all 0.2s; font-family: 'Poppins', sans-serif !important; user-select: none; overflow: hidden; margin-top: 8px; }
             .notes-tab-btn span { font-family: 'Poppins', sans-serif !important; }
             .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-            .notes-tab-btn.active { background: rgba(194, 243, 235, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(194, 243, 235, 0.25); margin-top: 2px; }
-            .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #c2f3eb; border-bottom: none; pointer-events: none; }
+            .notes-tab-btn.active { background: rgba(10, 132, 255, 0.18); color: #fff; height: 34px; border-color: rgba(10, 132, 255, 0.3); margin-top: 2px; }
+            .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #0a84ff; border-bottom: none; pointer-events: none; }
             .tab-color-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; transition: background 0.2s; z-index: 2; pointer-events: none; }
             .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; z-index: 3; position: relative;}
-            .notes-tab-close:hover { opacity: 1; color: #ff5252; }
+            .notes-tab-close:hover { opacity: 1; color: #ff453a; }
             .notes-tab-btn.dragging { opacity: 0.4; }
             .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
             #term-tab-context-menu {

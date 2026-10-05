@@ -24,7 +24,7 @@ Questions? https://discord.gg/YDVxw6jfbH
 
   <style>
     :root {
-      --m3-accent-active: #5c7cfa;
+      --m3-accent-active: #0a84ff;
       --m3-accent-on-active: #ffffff;
       --m3-tile-inactive: rgba(255, 255, 255, 0.12);
       --m3-tile-on-inactive: rgba(255, 255, 255, 0.85);
@@ -89,8 +89,8 @@ Questions? https://discord.gg/YDVxw6jfbH
       background: rgba(255, 255, 255, 0.1) !important;
     }
     .desktop-item.selected {
-      background: rgba(92, 124, 250, 0.25) !important;
-      border: 1px solid rgba(92, 124, 250, 0.5) !important;
+      background: rgba(10,132,255, 0.25) !important;
+      border: 1px solid rgba(10,132,255, 0.5) !important;
     }
     .desktop-item .desktop-item-icon {
       font-size: 44px;
@@ -115,7 +115,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       max-width: 100%;
     }
     .desktop-item.selected .desktop-item-name {
-      background: rgba(92, 124, 250, 0.4);
+      background: rgba(10,132,255, 0.4);
     }
     .desktop-inline-input {
       background: rgba(18, 22, 32, 0.95) !important;
@@ -130,7 +130,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       width: 100% !important;
       padding: 3px 2px !important;
       margin-top: 4px !important;
-      box-shadow: 0 0 0 2px rgba(92, 124, 250, 0.4) !important;
+      box-shadow: 0 0 0 2px rgba(10,132,255, 0.4) !important;
       box-sizing: border-box !important;
     }
 
@@ -175,6 +175,25 @@ Questions? https://discord.gg/YDVxw6jfbH
     @keyframes toastIn { from { opacity: 0; transform: translate3d(40px, 0, 0) scale(0.8); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); } }
     @keyframes toastOut { from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); } to { opacity: 0; transform: translate3d(20px, 0, 0) scale(0.8); } }
 
+    /* --- Functions Lab effects --- */
+    /* Dark Mode Experiments: deeper, near-opaque surfaces with high contrast text */
+    body.lab-dark-mode .popup, body.lab-dark-mode .dropdown, body.lab-dark-mode .status-bar-bg,
+    body.lab-dark-mode .toast, body.lab-dark-mode .spotlight-box-wrapper { background-color: rgba(4, 5, 8, 0.92) !important; border: 1px solid rgba(255,255,255,0.08); }
+    body.lab-dark-mode .popup-header { background: rgba(0, 0, 0, 0.6) !important; }
+    body.lab-dark-mode #desktop-wallpaper, body.lab-dark-mode .wallpaper { filter: brightness(0.6) saturate(0.85); }
+    /* Performance Tuning: drop blur, heavy shadows and long transitions */
+    body.lab-performance * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    body.lab-performance .popup, body.lab-performance .dropdown, body.lab-performance .toast { box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important; }
+    body.lab-performance .popup, body.lab-performance .dropdown, body.lab-performance .status-bar-bg, body.lab-performance .toast { background-color: rgba(20, 24, 32, 0.97) !important; }
+    body.lab-performance *, body.lab-performance *::before, body.lab-performance *::after { transition-duration: 0.08s !important; }
+    /* New Animations: springy 3D window open */
+    @keyframes labPopupIn { 0% { opacity: 0; transform: perspective(1200px) rotateX(14deg) translateY(40px) scale(0.86); filter: blur(8px); } 60% { opacity: 1; filter: blur(0); } 100% { opacity: 1; transform: perspective(1200px) rotateX(0) translateY(0) scale(1); } }
+    body.lab-animations .popup.active { animation: labPopupIn 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
+    body.lab-animations .toast { animation-duration: 0.6s !important; }
+    /* Developer Options: live diagnostics chip */
+    #labDevChip { display: none; position: fixed; top: 10px; right: 10px; z-index: 10001; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,0.75); color: #30d158; font: 11px/1.4 Consolas, monospace; pointer-events: none; white-space: pre; }
+    body.lab-developer #labDevChip { display: block; }
+
     .popup {
       display: none; position: fixed; top: 20px; left: 20px;
       width: 1048px; height: 600px; 
@@ -206,7 +225,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     .action-btn.min-btn { font-size: 16px !important; }
     .action-btn.max-btn { font-size: 13px !important; }
     .action-btn.close-btn { font-size: 18px !important; }
-    .action-btn.close-btn:hover { color: #ff5f56; }
+    .action-btn.close-btn:hover { color: #ff453a; }
 
     .popup-glass { position: absolute; top: 36px; left: 0; width: 100%; height: calc(100% - 36px); z-index: 10; background: transparent; display: none; }
     .popup:not(.focused) .popup-glass { display: block; }
@@ -217,7 +236,7 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     .dialog-content { padding: 20px; font-size: 13px; line-height: 1.5; display: flex; gap: 12px; align-items: flex-start; color: #fff; }
     .dialog-icon { font-size: 24px; }
-    .dialog-icon.error { color: #ff5f56; }
+    .dialog-icon.error { color: #ff453a; }
     .dialog-icon.warning { color: #ffbd2e; }
     .dialog-icon.info { color: #64c8ff; }
     .dialog-buttons { padding: 12px 20px; display: flex; justify-content: flex-end; background: rgba(0,0,0,0.2); margin-top: auto; }
@@ -279,7 +298,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     .search-btn .material-symbols-outlined { font-size: 20px !important; }
 
     .system-tray-btn {
-      color: #e6e0e9; display: flex; align-items: center; justify-content: center;
+      color: #ffffff; display: flex; align-items: center; justify-content: center;
       padding: 5px 6px; border-radius: 8px; cursor: pointer; transition: background 0.2s ease, transform 0.35s var(--spring-bounce); background: transparent !important;
     }
     .system-tray-btn:hover { background: rgba(255, 255, 255, 0.12) !important; transform: scale(1.1); }
@@ -289,7 +308,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     #volumeBtn.muted #volumeIcon { color: rgba(255,255,255,0.48); filter: none; }
     #volumeDropdownIcon { color: #fff !important; }
 
-    .status-clock { font-size: 13.5px; font-weight: 500; color: #e6e0e9; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: background 0.2s ease, transform 0.35s var(--spring-bounce); }
+    .status-clock { font-size: 13.5px; font-weight: 500; color: #ffffff; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: background 0.2s ease, transform 0.35s var(--spring-bounce); }
     .status-clock:hover { background: rgba(255, 255, 255, 0.12); transform: scale(1.05); }
     .status-clock:active { transform: scale(0.95); }
     .btn-wrapper { position: relative; display: inline-block; }
@@ -320,7 +339,14 @@ Questions? https://discord.gg/YDVxw6jfbH
     .menu-icon-symbol { font-size: 18px; color: var(--m3-accent-active); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 
     #notificationsDropdown { right: 0; left: auto; width: 360px; max-width: calc(100vw - 32px); max-height: calc(100vh - 80px); padding: 16px; transform-origin: bottom right; border-radius: 24px; }
-    #dockContextMenu { width: 220px; position: fixed; z-index: 9999; left: 50%; transform-origin: bottom center; }
+    #dockContextMenu, #taskbarContextMenu { width: 230px; position: fixed; z-index: 9999; left: 50%; transform-origin: bottom center; }
+    .ctx-menu-header { display: flex; align-items: center; gap: 10px; padding: 6px 14px 10px; margin-bottom: 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .ctx-menu-header .ctx-menu-name { font-size: 13px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ctx-menu-header .ctx-menu-state { font-size: 11px; color: rgba(255, 255, 255, 0.5); }
+    .ctx-separator { height: 1px; background: rgba(255, 255, 255, 0.1); margin: 4px 0; }
+    .dropdown-item.disabled { opacity: 0.4; pointer-events: none; }
+    .dropdown-item.danger, .dropdown-item.danger .material-symbols-outlined { color: #ff453a; }
+    .dropdown-item.danger:hover { background: rgba(255, 69, 58, 0.18) !important; }
     #desktopItemContextMenu { position: fixed; z-index: 9999; bottom: auto; transform-origin: top left; }
     #desktopContextMenu { position: fixed; z-index: 9999; bottom: auto; right: auto; transform-origin: top left; }
     .cal-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; padding: 0 4px; }
@@ -329,10 +355,30 @@ Questions? https://discord.gg/YDVxw6jfbH
     .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
     .cal-day-name { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; padding-bottom: 6px; }
     .cal-day { font-size: 13px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; cursor: default; transition: background 0.2s, transform 0.25s var(--spring-bounce); margin: 0 auto; }
-    .cal-day.today { background: var(--m3-accent-active); font-weight: 600; color: #fff; box-shadow: 0 4px 10px rgba(92, 124, 250, 0.4); }
+    .cal-day.today { background: var(--m3-accent-active); font-weight: 600; color: #fff; box-shadow: 0 4px 10px rgba(10,132,255, 0.4); }
     .cal-day.empty { background: transparent; }
     .cal-day:hover:not(.empty):not(.today) { background: rgba(255, 255, 255, 0.15); transform: scale(1.15); }
     .cal-day:active:not(.empty) { transform: scale(0.9); }
+    .cal-day:not(.empty) { cursor: pointer; position: relative; }
+    .cal-day.other-month { color: rgba(255,255,255,0.35); }
+    .cal-day.picked:not(.today) { box-shadow: inset 0 0 0 1.5px var(--m3-accent-active); }
+    .cal-day.has-ev::after { content: ""; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--m3-accent-active); }
+    .cal-day.today.has-ev::after { background: #fff; }
+    .cal-nav { display: flex; align-items: center; gap: 4px; margin: -4px 0 10px; padding: 0 4px; }
+    .cal-month-label { flex: 1; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .cal-nav-btn { font-size: 20px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
+    .cal-nav-btn:hover { background: rgba(255,255,255,0.15); }
+    .cal-events { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; }
+    .cal-events-title { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 4px; }
+    .cal-ev { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 10px; cursor: pointer; transition: background 0.2s; font-size: 12.5px; }
+    .cal-ev:hover { background: rgba(255,255,255,0.1); }
+    .cal-ev-bar { width: 3px; align-self: stretch; border-radius: 2px; flex: 0 0 3px; }
+    .cal-ev-title { font-weight: 500; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 210px; }
+    .cal-ev-time { font-size: 11px; color: rgba(255,255,255,0.55); }
+    .cal-empty { font-size: 12px; color: rgba(255,255,255,0.5); padding: 2px 4px; }
+    .cal-open-app { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.08); cursor: pointer; font-size: 12.5px; font-weight: 500; transition: background 0.2s; }
+    .cal-open-app:hover { background: rgba(255,255,255,0.16); }
+    .cal-open-app .material-symbols-outlined { font-size: 18px; }
 
     .hmos-qs-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     .hmos-top-row { display: flex; gap: 12px; height: 140px; }
@@ -415,12 +461,12 @@ Questions? https://discord.gg/YDVxw6jfbH
       font: 11px 'Poppins', sans-serif; cursor: pointer; text-align: left; user-select: none;
     }
     .browser-tab-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
-    .browser-tab-btn.active { height: 34px; color: #fff; background: rgba(92,124,250,.16); border-color: rgba(92,124,250,.28); }
-    .browser-tab-btn.active::before { position: absolute; inset: 0; border: 2px solid #5c7cfa; border-bottom: 0; border-radius: 10px 10px 0 0; content: ""; pointer-events: none; }
+    .browser-tab-btn.active { height: 34px; color: #fff; background: rgba(10,132,255,.16); border-color: rgba(10,132,255,.28); }
+    .browser-tab-btn.active::before { position: absolute; inset: 0; border: 2px solid #0a84ff; border-bottom: 0; border-radius: 10px 10px 0 0; content: ""; pointer-events: none; }
     .browser-tab-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .browser-tab-close { position: relative; z-index: 1; display: inline-flex; width: 18px; height: 18px; flex: 0 0 18px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 4px; color: inherit; background: transparent; cursor: pointer; font-size: 14px;
     }
-    .browser-tab-close:hover { color: #ff6b6b; background: rgba(255,255,255,.1); }
+    .browser-tab-close:hover { color: #ff453a; background: rgba(255,255,255,.1); }
     #browserNewTab { flex: 0 0 28px; margin: 0 8px 3px 0; }
     #popup2 .browser-tab-btn, #popup2 .browser-tab-close { transition: none; }
     .browser-toolbar { display: flex; min-width: 0; height: 42px; align-items: center; gap: 6px; padding: 5px 10px; background: #202226; border-bottom: 1px solid rgba(255,255,255,.08); }
@@ -459,6 +505,7 @@ Questions? https://discord.gg/YDVxw6jfbH
   <div id="desktop-wallpaper"></div>
   <div id="desktop-icons"></div>
   
+  <div id="labDevChip"></div>
   <div class="status-bar">
     <div class="status-bar-bg"></div>
     <div class="status-left">
@@ -477,6 +524,7 @@ Questions? https://discord.gg/YDVxw6jfbH
           <a onclick="launchAppFromMenu('popup5')"><div class="dropdown-item" data-popup="popup5"><img src="/desktop/assets/icons/notes.png" class="menu-icon"> <span>Notes</span></div></a>
           <a onclick="launchAppFromMenu('popup8')"><div class="dropdown-item" data-popup="popup8"><img src="/desktop/assets/icons/terminal.png" class="menu-icon"> <span>Terminal</span></div></a>
           <a onclick="launchAppFromMenu('popup9')"><div class="dropdown-item" data-popup="popup9"><img src="/desktop/assets/icons/calculator.png" class="menu-icon"> <span>Calculator</span></div></a>
+          <a onclick="launchAppFromMenu('popup11')"><div class="dropdown-item" data-popup="popup11"><img src="/desktop/assets/icons/calendar.png" class="menu-icon"> <span>Calendar</span></div></a>
         </div>
       </div>
       
@@ -517,8 +565,15 @@ Questions? https://discord.gg/YDVxw6jfbH
             <div class="cal-day-text" id="calDayText">Thursday</div>
             <div class="cal-date-text" id="calDateText">August 27, 2026</div>
           </div>
-          <div class="cal-grid" id="calGrid"></div>
-        </div>
+            <div class="cal-nav">
+              <span class="cal-month-label" id="calMonthLabel"></span>
+              <span class="material-symbols-outlined cal-nav-btn" id="calPrev" title="Previous month">chevron_left</span>
+              <span class="material-symbols-outlined cal-nav-btn" id="calNext" title="Next month">chevron_right</span>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+            <div class="cal-events" id="calEvents"></div>
+            <div class="cal-open-app" id="calOpenApp"><span class="material-symbols-outlined">calendar_month</span> Open Calendar</div>
+          </div>
       </div>
 
       <div class="btn-wrapper">
@@ -649,6 +704,7 @@ Questions? https://discord.gg/YDVxw6jfbH
 
   <div id="toast-container"></div>
   <div class="dropdown" id="dockContextMenu"></div>
+  <div class="dropdown" id="taskbarContextMenu"></div>
   
   <div class="dropdown" id="desktopContextMenu">
     <a onclick="createDesktopItem('folder')"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">create_new_folder</span> <span>New Folder</span></div></a>
@@ -668,7 +724,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     <a onclick="desktopItemAction('open')"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;" id="itemMenuOpenIcon">open_in_new</span> <span id="itemMenuOpenText">Open</span></div></a>
     <a onclick="desktopItemAction('rename')"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">drive_file_rename_outline</span> <span>Rename</span></div></a>
     <div style="height:1px; background:rgba(255,255,255,0.1); margin: 4px 0;"></div>
-    <a onclick="desktopItemAction('delete')"><div class="dropdown-item" style="color: #ff5f56;"><span class="material-symbols-outlined" style="font-size:18px;">delete</span> <span>Delete</span></div></a>
+    <a onclick="desktopItemAction('delete')"><div class="dropdown-item" style="color: #ff453a;"><span class="material-symbols-outlined" style="font-size:18px;">delete</span> <span>Delete</span></div></a>
   </div>
 
   <div id="popup1" class="popup">
@@ -736,6 +792,11 @@ Questions? https://discord.gg/YDVxw6jfbH
   <div id="popup10" class="popup">
     <div class="popup-header"><span>Files</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup10')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup10')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup10')">close</span></div></div>
     <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div><iframe data-default-src="/desktop/apps/explorer/index.html" src="about:blank" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup11" class="popup">
+    <div class="popup-header"><span>Calendar</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup11')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup11')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup11')">close</span></div></div>
+    <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div><iframe data-default-src="/desktop/apps/calendar/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
   <script>
@@ -828,7 +889,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         </div>
         <div class="dialog-buttons" style="gap: 8px;">
           <div class="dialog-btn" onclick="closeDialog('${dialogId}')">Cancel</div>
-          <div class="dialog-btn" id="${dialogId}_confirmBtn" style="${isDanger ? 'background: #ff5f56; color: #fff;' : 'background: var(--m3-accent-active); color: #fff;'}">${confirmText}</div>
+          <div class="dialog-btn" id="${dialogId}_confirmBtn" style="${isDanger ? 'background: #ff453a; color: #fff;' : 'background: var(--m3-accent-active); color: #fff;'}">${confirmText}</div>
         </div>
       `;
 
@@ -937,7 +998,8 @@ Questions? https://discord.gg/YDVxw6jfbH
       { id: 'popup6', title: 'Messaging', icon: '/desktop/assets/icons/messaging.png' },
       { id: 'popup7', title: 'Store', icon: '/desktop/assets/icons/store.png' },
       { id: 'popup8', title: 'Terminal', icon: '/desktop/assets/icons/terminal.png' },
-      { id: 'popup9', title: 'Calculator', icon: '/desktop/assets/icons/calculator.png' }
+      { id: 'popup9', title: 'Calculator', icon: '/desktop/assets/icons/calculator.png' },
+      { id: 'popup11', title: 'Calendar', icon: '/desktop/assets/icons/calendar.png' }
     ];
     
     function getAllApps() { return [...builtInApps, ...dynamicInstalledApps]; }
@@ -1039,32 +1101,185 @@ Questions? https://discord.gg/YDVxw6jfbH
       });
     }
 
+    // --- Taskbar context menus: right-click a dock icon, or the empty taskbar ---
+    // Items are built as DOM nodes (not innerHTML) so app titles can't break the markup.
+    let minimizedByShowDesktop = [];
+
+    function buildContextMenu(menu, items) {
+      menu.innerHTML = '';
+      items.filter(Boolean).forEach(item => {
+        if (item.separator) {
+          const sep = document.createElement('div');
+          sep.className = 'ctx-separator';
+          menu.appendChild(sep);
+          return;
+        }
+        if (item.header) {
+          const head = document.createElement('div');
+          head.className = 'ctx-menu-header';
+          if (item.appIcon) head.innerHTML = renderOsIcon(item.appIcon, 'dropdown');
+          const text = document.createElement('div');
+          text.style.cssText = 'display:flex; flex-direction:column; gap:1px; min-width:0;';
+          const name = document.createElement('span');
+          name.className = 'ctx-menu-name';
+          name.textContent = item.label;
+          text.appendChild(name);
+          if (item.state) {
+            const state = document.createElement('span');
+            state.className = 'ctx-menu-state';
+            state.textContent = item.state;
+            text.appendChild(state);
+          }
+          head.appendChild(text);
+          menu.appendChild(head);
+          return;
+        }
+        const row = document.createElement('div');
+        row.className = 'dropdown-item' + (item.danger ? ' danger' : '') + (item.disabled ? ' disabled' : '');
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined';
+        icon.style.fontSize = '18px';
+        icon.textContent = item.icon;
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        row.append(icon, label);
+        if (!item.disabled) row.addEventListener('click', () => { menu.classList.remove('open'); item.action(); });
+        menu.appendChild(row);
+      });
+    }
+
+    function openTaskbarMenu(menu, items, clientX) {
+      buildContextMenu(menu, items);
+      document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
+      menu.style.bottom = '56px';
+      menu.style.left = '0px';
+      const rect = menu.getBoundingClientRect();
+      menu.style.left = Math.max(8, Math.min(clientX - rect.width / 2, window.innerWidth - rect.width - 8)) + 'px';
+      requestAnimationFrame(() => menu.classList.add('open'));
+    }
+
+    function getWindowState(appId) {
+      const popup = document.getElementById(appId);
+      const running = runningApps.has(appId);
+      const visible = !!popup && popup.classList.contains('active') && !popup.classList.contains('closing') && !popup.classList.contains('minimizing');
+      return { popup, running, visible, maximized: !!popup && popup.classList.contains('maximized') };
+    }
+
+    function reloadApp(appId) {
+      const popup = document.getElementById(appId);
+      const view = popup && popup.querySelector('iframe, webview');
+      if (!view) return;
+      if (view.tagName === 'WEBVIEW') { view.reload(); return; }
+      try { view.contentWindow.location.reload(); }
+      catch (err) { view.src = view.src; }
+    }
+
+    function showDesktopToggle() {
+      const visible = Array.from(document.querySelectorAll('.popup.active:not(.closing):not(.minimizing)'))
+        .filter(p => !p.id.startsWith('dialog_'));
+      if (visible.length) {
+        minimizedByShowDesktop = visible.map(p => p.id);
+        visible.forEach(p => minimizePopup(p.id));
+      } else {
+        const toRestore = minimizedByShowDesktop.filter(id => runningApps.has(id));
+        minimizedByShowDesktop = [];
+        toRestore.forEach(id => openPopup(id));
+      }
+    }
+
+    function closeAllWindows() {
+      const open = Array.from(runningApps).filter(id => !id.startsWith('dialog_'));
+      if (!open.length) return;
+      showConfirmDialog(
+        'Close all windows',
+        `Close ${open.length} open window${open.length === 1 ? '' : 's'}? Any unsaved work will be lost.`,
+        () => { open.forEach(id => closePopup(id)); minimizedByShowDesktop = []; },
+        'Close all',
+        true
+      );
+    }
+
+    function uninstallAppFromDock(appId) {
+      const app = getAllApps().find(a => a.id === appId || a.appId === appId);
+      if (!app) return;
+      showConfirmDialog(
+        'Uninstall app',
+        `Remove "${app.title}" from mariowOS? Its files will be deleted.`,
+        async () => {
+          try {
+            const res = await fetch('/api/store/uninstall', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ appId })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || !data || !data.success) throw new Error((data && data.error) || `Server error (${res.status})`);
+            window.postMessage({ type: 'app-uninstalled-live', appId }, '*');
+          } catch (err) {
+            showNotification('Uninstall failed', err.message, '⚠️');
+          }
+        },
+        'Uninstall',
+        true
+      );
+    }
+
     function showDockContextMenu(e, appId) {
       e.preventDefault();
-      const menu = document.getElementById('dockContextMenu');
-      const isRunning = runningApps.has(appId);
+      e.stopPropagation();
+      const app = getAllApps().find(a => a.id === appId || a.appId === appId);
+      const { popup, running, visible, maximized } = getWindowState(appId);
       const isPinned = pinnedApps.includes(appId);
+      const isInstalled = dynamicInstalledApps.some(a => a.id === appId);
 
-      menu.innerHTML = `
-        ${isRunning 
-            ? `<a onclick="closePopup('${appId}'); document.getElementById('dockContextMenu').classList.remove('open');"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">close</span> <span>Close window</span></div></a>`
-            : `<a onclick="openPopup('${appId}'); document.getElementById('dockContextMenu').classList.remove('open');"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">open_in_new</span> <span>Open app</span></div></a>`
-        }
-        <div style="height:1px; background:rgba(255,255,255,0.1); margin: 4px 0;"></div>
-        <a onclick="togglePin('${appId}'); document.getElementById('dockContextMenu').classList.remove('open');"><div class="dropdown-item"><span class="material-symbols-outlined" style="font-size:18px;">${isPinned ? 'keep_off' : 'keep'}</span> <span>${isPinned ? 'Unpin from dock' : 'Pin to dock'}</span></div></a>
-      `;
-
-      const menuWidth = 220;
-      let leftPos = e.clientX - (menuWidth / 2); leftPos = Math.max(10, Math.min(leftPos, window.innerWidth - menuWidth - 10));
-      menu.style.left = `${leftPos}px`; menu.style.bottom = '56px'; 
-      document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
-      setTimeout(() => menu.classList.add('open'), 10);
+      const items = [
+        { header: true, label: app ? app.title : 'App', state: running ? (visible ? (maximized ? 'Maximized' : 'Open') : 'Minimized') : 'Not running', appIcon: app && app.icon },
+        running
+          ? (visible
+            ? { icon: 'minimize', label: 'Minimize', action: () => minimizePopup(appId) }
+            : { icon: 'open_in_full', label: 'Show window', action: () => openPopup(appId) })
+          : { icon: 'open_in_new', label: 'Open', action: () => openPopup(appId) },
+        running && { icon: maximized ? 'close_fullscreen' : 'crop_square', label: maximized ? 'Restore size' : 'Maximize', action: () => { if (!visible) openPopup(appId); toggleMaximize(appId); } },
+        running && popup && popup.querySelector('iframe, webview') && { icon: 'refresh', label: 'Reload app', action: () => reloadApp(appId) },
+        { separator: true },
+        { icon: isPinned ? 'keep_off' : 'keep', label: isPinned ? 'Unpin from taskbar' : 'Pin to taskbar', action: () => togglePin(appId) },
+        isInstalled && { icon: 'delete', label: 'Uninstall app', danger: true, action: () => uninstallAppFromDock(appId) },
+        running && { separator: true },
+        running && { icon: 'close', label: 'Close window', danger: true, action: () => closePopup(appId) }
+      ];
+      openTaskbarMenu(document.getElementById('dockContextMenu'), items, e.clientX);
     }
+
+    function showTaskbarContextMenu(e) {
+      e.preventDefault();
+      const anyVisible = document.querySelectorAll('.popup.active:not(.closing):not(.minimizing)').length > 0;
+      const openCount = Array.from(runningApps).filter(id => !id.startsWith('dialog_')).length;
+      const canRestore = minimizedByShowDesktop.some(id => runningApps.has(id));
+
+      const items = [
+        { icon: anyVisible ? 'desktop_windows' : 'web_asset', label: anyVisible ? 'Show desktop' : 'Restore windows', disabled: !anyVisible && !canRestore, action: showDesktopToggle },
+        { icon: 'close', label: 'Close all windows', danger: true, disabled: openCount === 0, action: closeAllWindows },
+        { separator: true },
+        { icon: 'apps', label: 'App launcher', action: () => document.getElementById('actionsBtn').click() },
+        { icon: 'search', label: 'Search', action: () => openSpotlight() },
+        { icon: 'notifications', label: 'Notifications', action: () => document.getElementById('notificationsBtn').click() },
+        { separator: true },
+        { icon: 'wallpaper', label: 'Change wallpaper', action: () => { const frame = document.querySelector('#popup1 iframe'); if (frame) frame.src = '/desktop/apps/settings/index.html#wallpaper'; openPopup('popup1'); } },
+        { icon: 'settings', label: 'System settings', action: () => openPopup('popup1') }
+      ];
+      openTaskbarMenu(document.getElementById('taskbarContextMenu'), items, e.clientX);
+    }
+
+    document.querySelector('.status-bar').addEventListener('contextmenu', e => {
+      // Dock icons open their own menu; an open tray dropdown keeps its own contents.
+      if (e.target.closest('.dock-icon') || e.target.closest('.dropdown')) return;
+      showTaskbarContextMenu(e);
+    });
 
     function togglePin(appId) {
       const app = getAllApps().find(a => a.id === appId || a.appId === appId);
-      if (pinnedApps.includes(appId)) { pinnedApps = pinnedApps.filter(id => id !== appId); showNotification("Dock", `${app.title} unpinned from dock`, "📌"); } 
-      else { pinnedApps.push(appId); showNotification("Dock", `${app.title} pinned to dock`, "📌"); }
+      if (pinnedApps.includes(appId)) { pinnedApps = pinnedApps.filter(id => id !== appId); showNotification("Dock", `${app.title} unpinned from taskbar`, "📌"); }
+      else { pinnedApps.push(appId); showNotification("Dock", `${app.title} pinned to taskbar`, "📌"); }
       localStorage.setItem('hmos_pinned_apps', JSON.stringify(pinnedApps)); updateDock();
     }
 
@@ -1160,7 +1375,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         if (data.interfaces && data.interfaces.length > 0) {
           listContainer.innerHTML = data.interfaces.map(iface => `<div class="qs-list-item connected" style="cursor: default;"><div style="display:flex; flex-direction:column; gap:2px;"><div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">settings_ethernet</span><span style="font-weight:600;">${iface.name}</span></div><span style="font-size:10px; color:#ddd; margin-left:26px;">IP: ${iface.ip}</span></div><span style="font-size:11px; font-weight:500; text-align:right;">Connected</span></div>`).join('');
         } else { listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Ethernet ports active</div>`; }
-      } catch (err) { listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">Failed to get stats</div>`; }
+      } catch (err) { listContainer.innerHTML = `<div style="font-size:11px; color:#ff453a; text-align:center;">Failed to get stats</div>`; }
     }
 
     async function fetchNetworks() {
@@ -1171,7 +1386,7 @@ Questions? https://discord.gg/YDVxw6jfbH
           if (data.networks.length === 0) { listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Wi-Fi networks found</div>`; return; }
           listContainer.innerHTML = data.networks.map(net => `<div class="qs-list-item ${net.connected ? 'connected' : ''}" onclick="connectWifi('${net.ssid}')"><div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">${net.secured ? 'lock' : 'wifi'}</span><span>${net.ssid}</span></div><span style="font-size:11px;">${net.connected ? 'Connected' : net.signal + '%'}</span></div>`).join('');
         }
-      } catch (err) { listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">Failed to scan Wi-Fi</div>`; }
+      } catch (err) { listContainer.innerHTML = `<div style="font-size:11px; color:#ff453a; text-align:center;">Failed to scan Wi-Fi</div>`; }
     }
 
     async function connectWifi(ssid) {
@@ -1189,7 +1404,7 @@ Questions? https://discord.gg/YDVxw6jfbH
           const iconMap = { headset: 'headphones', smartphone: 'smartphone', mouse: 'mouse', keyboard: 'keyboard' };
           listContainer.innerHTML = data.devices.map(dev => `<div class="qs-list-item ${dev.connected ? 'connected' : ''}" onclick="connectBt('${dev.mac || dev.name}', '${dev.name}')"><div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">${iconMap[dev.type] || 'bluetooth'}</span><span>${dev.name}</span></div><span style="font-size:11px;">${dev.connected ? 'Connected' : 'Saved'}</span></div>`).join('');
         }
-      } catch (err) { listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">Failed to find Bluetooth devices</div>`; }
+      } catch (err) { listContainer.innerHTML = `<div style="font-size:11px; color:#ff453a; text-align:center;">Failed to find Bluetooth devices</div>`; }
     }
 
     async function connectBt(mac, name) {
@@ -1275,7 +1490,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       const topPopup = getTopmostPopup(); const contextDropdown = document.getElementById('contextDropdown');
       if (topPopup && !topPopup.id.startsWith('dialog_')) { // Don't show quit for dialogs
         const span = topPopup.querySelector('.popup-header span'); const appName = span ? span.innerText : "App";
-        let html = `<a onclick="closePopup('${topPopup.id}')"><div class="dropdown-item" style="color:#ff6b6b"><span>Quit ${appName}</span></div></a>`;
+        let html = `<a onclick="closePopup('${topPopup.id}')"><div class="dropdown-item" style="color:#ff453a"><span>Quit ${appName}</span></div></a>`;
         if (topPopup.querySelector('iframe')) html += `<a onclick="document.querySelector('#${topPopup.id} iframe').contentWindow.location.reload()"><div class="dropdown-item"><span>Reload App</span></div></a>`;
         if (topPopup.querySelector('webview')) html += `<a onclick="browserNav('reload')"><div class="dropdown-item"><span>Reload Page</span></div></a>`;
         contextDropdown.innerHTML = html;
@@ -1540,7 +1755,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     let browserTabs = [];
     let activeBrowserTabId = null;
     let nextBrowserTabId = 1;
-    const BROWSER_HOME = 'https://mariowotech.github.io/mariowOS-landpages/browser-homepage/';
+    const BROWSER_HOME = 'https://mariowstech.github.io/mariowOS-landpages/browser-homepage/index.html';
 
     function getActiveBrowserTab() {
       return browserTabs.find(tab => tab.id === activeBrowserTabId) || null;
@@ -1750,16 +1965,138 @@ Questions? https://discord.gg/YDVxw6jfbH
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let systemTimeOffset = 0, timezoneOffset = 0, manualTimeEnabled = false;
 
+    // --- System calendar (tray) — shares its events with the Calendar app ---
+    const CAL_COLORS = { blue: '#0a84ff', green: '#30d158', red: '#ff453a', orange: '#ff9f0a', purple: '#bf5af2', pink: '#ff375f', teal: '#40c8e0' };
+    let calendarEvents = [];
+    let calViewOffset = 0;      // months shown relative to the current month
+    let calPicked = null;       // YYYY-MM-DD picked in the tray
+    let calLastKey = '';
+    const calPad = n => String(n).padStart(2, '0');
+    const calYmd = (y, m, d) => `${y}-${calPad(m + 1)}-${calPad(d)}`;
+    const calParse = s => { const [y, m, d] = s.split('-').map(Number); return { y, m: m - 1, d }; };
+    const calAddDays = (s, n) => { const p = calParse(s); const t = new Date(Date.UTC(p.y, p.m, p.d + n)); return calYmd(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate()); };
+    const calDiff = (a, b) => { const A = calParse(a), B = calParse(b); return Math.round((Date.UTC(B.y, B.m, B.d) - Date.UTC(A.y, A.m, A.d)) / 86400000); };
+    const calEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    function calOccursOn(ev, date) {
+      if (date < ev.date) return false;
+      const span = ev.endDate ? Math.max(0, calDiff(ev.date, ev.endDate)) : 0;
+      for (let back = 0; back <= span; back++) {
+        const start = calAddDays(date, -back);
+        if (start < ev.date) break;
+        if (start === ev.date) return true;
+        const a = calParse(ev.date), b = calParse(start);
+        if (ev.repeat === 'daily') return true;
+        if (ev.repeat === 'weekly' && calDiff(ev.date, start) % 7 === 0) return true;
+        if (ev.repeat === 'monthly' && a.d === b.d) return true;
+        if (ev.repeat === 'yearly' && a.d === b.d && a.m === b.m) return true;
+      }
+      return false;
+    }
+    function calEventsOn(date) {
+      return calendarEvents.filter(ev => calOccursOn(ev, date))
+        .sort((a, b) => (a.allDay === b.allDay ? (a.start || '').localeCompare(b.start || '') : a.allDay ? -1 : 1));
+    }
+
+    async function loadCalendarEvents() {
+      try {
+        const r = await fetch('/api/calendar/events', { cache: 'no-store' });
+        if (r.ok) { calendarEvents = await r.json(); calLastKey = ''; updateClock(); }
+      } catch (e) {}
+    }
+
+    function openCalendarApp(date, newEvent) {
+      const popup = document.getElementById('popup11');
+      const iframe = popup && popup.querySelector('iframe');
+      document.getElementById('calendarDropdown').classList.remove('open');
+      if (!iframe) return;
+      const alreadyLoaded = iframe.src && !iframe.src.includes('about:blank');
+      if (!alreadyLoaded && date) iframe.dataset.defaultSrc = '/desktop/apps/calendar/index.html?date=' + date;
+      openPopup('popup11');
+      if (alreadyLoaded && date) iframe.contentWindow.postMessage({ type: 'calendar-goto', date, newEvent: !!newEvent }, '*');
+    }
+
     function renderCalendarGrid(d) {
       const dayName = days[d.getUTCDay()], monthName = months[d.getUTCMonth()], date = d.getUTCDate(), year = d.getUTCFullYear();
+      const todayStr = calYmd(year, d.getUTCMonth(), date);
+      const viewStart = new Date(Date.UTC(year, d.getUTCMonth() + calViewOffset, 1));
+      const vy = viewStart.getUTCFullYear(), vm = viewStart.getUTCMonth();
+      const picked = calPicked || todayStr;
+      // Avoid rebuilding the DOM every second when nothing changed.
+      const key = [todayStr, vy, vm, picked, calendarEvents.length].join('|');
+      if (key === calLastKey) return;
+      calLastKey = key;
+
       const dayEl = document.getElementById('calDayText'), dateEl = document.getElementById('calDateText');
       if(dayEl) dayEl.textContent = dayName; if(dateEl) dateEl.textContent = `${monthName} ${date}, ${year}`;
+      const label = document.getElementById('calMonthLabel'); if (label) label.textContent = `${months[vm]} ${vy}`;
       const grid = document.getElementById('calGrid'); if(!grid) return;
-      grid.innerHTML = '<span class="cal-day-name">S</span><span class="cal-day-name">M</span><span class="cal-day-name">T</span><span class="cal-day-name">W</span><span class="cal-day-name">T</span><span class="cal-day-name">F</span><span class="cal-day-name">S</span>';
-      const firstDay = new Date(Date.UTC(year, d.getUTCMonth(), 1)).getUTCDay(); const daysInMonth = new Date(Date.UTC(year, d.getUTCMonth() + 1, 0)).getUTCDate();
-      for (let i = 0; i < firstDay; i++) { grid.innerHTML += '<div class="cal-day empty"></div>'; }
-      for (let i = 1; i <= daysInMonth; i++) { grid.innerHTML += `<div class="cal-day ${i === date ? 'today' : ''}">${i}</div>`; }
+      let html = '<span class="cal-day-name">S</span><span class="cal-day-name">M</span><span class="cal-day-name">T</span><span class="cal-day-name">W</span><span class="cal-day-name">T</span><span class="cal-day-name">F</span><span class="cal-day-name">S</span>';
+      const firstDay = new Date(Date.UTC(vy, vm, 1)).getUTCDay(); const daysInMonth = new Date(Date.UTC(vy, vm + 1, 0)).getUTCDate();
+      for (let i = 0; i < firstDay; i++) { html += '<div class="cal-day empty"></div>'; }
+      for (let i = 1; i <= daysInMonth; i++) {
+        const ds = calYmd(vy, vm, i);
+        const cls = ['cal-day'];
+        if (ds === todayStr) cls.push('today');
+        if (ds === picked) cls.push('picked');
+        if (calEventsOn(ds).length) cls.push('has-ev');
+        html += `<div class="${cls.join(' ')}" data-date="${ds}">${i}</div>`;
+      }
+      grid.innerHTML = html;
+
+      const list = document.getElementById('calEvents');
+      if (list) {
+        const evs = calEventsOn(picked);
+        const p = calParse(picked);
+        const title = picked === todayStr ? 'Today' : `${days[new Date(Date.UTC(p.y, p.m, p.d)).getUTCDay()]}, ${months[p.m]} ${p.d}`;
+        list.innerHTML = `<div class="cal-events-title">${title}</div>` + (evs.length
+          ? evs.map(ev => `<div class="cal-ev" data-date="${picked}"><div class="cal-ev-bar" style="background:${CAL_COLORS[ev.color] || CAL_COLORS.blue}"></div><div><div class="cal-ev-title">${calEsc(ev.title)}</div><div class="cal-ev-time">${ev.allDay ? 'All day' : calEsc(ev.start + (ev.end ? ' – ' + ev.end : ''))}${ev.location ? ' · ' + calEsc(ev.location) : ''}</div></div></div>`).join('')
+          : '<div class="cal-empty">No events · double-click a day to add one</div>');
+      }
     }
+
+    (function setupTrayCalendar() {
+      const dd = document.getElementById('calendarDropdown');
+      if (!dd) return;
+      dd.addEventListener('click', e => e.stopPropagation());
+      document.getElementById('calPrev').addEventListener('click', () => { calViewOffset--; updateClock(); });
+      document.getElementById('calNext').addEventListener('click', () => { calViewOffset++; updateClock(); });
+      document.getElementById('calOpenApp').addEventListener('click', () => openCalendarApp(calPicked));
+      const grid = document.getElementById('calGrid');
+      grid.addEventListener('click', e => { const day = e.target.closest('.cal-day[data-date]'); if (day) { calPicked = day.dataset.date; updateClock(); } });
+      grid.addEventListener('dblclick', e => { const day = e.target.closest('.cal-day[data-date]'); if (day) openCalendarApp(day.dataset.date, true); });
+      document.getElementById('calEvents').addEventListener('click', e => { const ev = e.target.closest('.cal-ev'); if (ev) openCalendarApp(ev.dataset.date); });
+      // Reset to the current month each time the tray calendar is opened.
+      document.getElementById('clockBtn').addEventListener('click', () => { calViewOffset = 0; calPicked = null; calLastKey = ''; updateClock(); }, true);
+    })();
+
+    // Event reminders → system notifications (uses the same clock as the tray).
+    const calFired = new Set();
+    function checkCalendarReminders() {
+      const now = new Date(); let ms = now.getTime() - now.getTimezoneOffset() * 60000;
+      if (timezoneOffset !== null) ms += timezoneOffset * 3600000; else if (manualTimeEnabled) ms += systemTimeOffset;
+      const nowMin = Math.floor(ms / 60000);
+      const t = new Date(ms);
+      const todayStr = calYmd(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
+      for (const offsetDay of [0, 1]) {
+        const date = calAddDays(todayStr, offsetDay);
+        for (const ev of calEventsOn(date)) {
+          if (ev.allDay || !(ev.reminder >= 0) || !ev.start || (ev.endDate && date !== ev.date && !ev.repeat)) continue;
+          const p = calParse(date); const [h, m] = ev.start.split(':').map(Number);
+          const startMin = Math.floor(Date.UTC(p.y, p.m, p.d, h, m) / 60000);
+          const fireAt = startMin - ev.reminder;
+          const key = ev.id + '@' + date;
+          if (nowMin >= fireAt && nowMin <= startMin && !calFired.has(key)) {
+            calFired.add(key);
+            const mins = startMin - nowMin;
+            showNotification(ev.title, mins <= 0 ? `Starting now${ev.location ? ' · ' + ev.location : ''}` : `Starts in ${mins} min (${ev.start})${ev.location ? ' · ' + ev.location : ''}`, '📅');
+          }
+        }
+      }
+    }
+    setInterval(checkCalendarReminders, 20000);
+    window.addEventListener('message', e => { if (e.data && e.data.type === 'calendar-updated') loadCalendarEvents(); });
+    loadCalendarEvents().then(checkCalendarReminders);
 
     function updateClock() {
       const now = new Date(); let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
@@ -1986,7 +2323,46 @@ Questions? https://discord.gg/YDVxw6jfbH
         });
     }
 
+    // --- Functions Lab: apply the toggles from Settings > Lab to the live desktop ---
+    let labDevTimer = null;
+    function applyLabFlagEffects(flags) {
+      flags = flags || {};
+      document.body.classList.toggle('lab-dark-mode', !!flags.darkMode);
+      document.body.classList.toggle('lab-performance', !!flags.performance);
+      document.body.classList.toggle('lab-animations', !!flags.animations);
+      document.body.classList.toggle('lab-developer', !!flags.developer);
+      clearInterval(labDevTimer);
+      labDevTimer = null;
+      if (flags.developer) startLabDevChip();
+    }
+
+    function startLabDevChip() {
+      const chip = document.getElementById('labDevChip');
+      let frames = 0, last = performance.now(), fps = 0, kernel = '...';
+      const countFrame = () => { frames++; if (labDevTimer) requestAnimationFrame(countFrame); };
+      labDevTimer = setInterval(async () => {
+        const now = performance.now();
+        fps = Math.round(frames * 1000 / (now - last)); frames = 0; last = now;
+        try { const r = await fetch('/api/system/health', { cache: 'no-store' }); kernel = r.ok ? 'online' : 'error ' + r.status; } catch (e) { kernel = 'offline'; }
+        const mem = performance.memory ? (performance.memory.usedJSHeapSize / 1048576).toFixed(1) + ' MB' : 'n/a';
+        chip.textContent = `DEV  fps ${fps}  heap ${mem}\napps ${runningApps.size}  kernel ${kernel}`;
+      }, 1000);
+      requestAnimationFrame(countFrame);
+    }
+
+    async function loadLabFlags() {
+      try {
+        const r = await fetch('/get-settings', { cache: 'no-store' });
+        if (r.ok) applyLabFlagEffects(await r.json());
+      } catch (e) {}
+    }
+
+    window.addEventListener('message', e => {
+      if (e.data && e.data.type === 'apply-lab-flags') loadLabFlags();
+    });
+
     window.addEventListener("DOMContentLoaded", () => {
+      loadLabFlags();
       applyUserWallpaper(); 
       loadQuickSettings(); 
       fetchNetworks(); 
@@ -2053,7 +2429,7 @@ Questions? https://discord.gg/YDVxw6jfbH
           let iconColor = '#ffffff';
           if (item.type === 'folder') {
             icon = 'folder';
-            iconColor = '#5c7cfa';
+            iconColor = '#0a84ff';
           } else if (['.jpg', '.png', '.gif', '.jpeg'].includes(item.ext)) {
             icon = 'image';
             iconColor = '#ff8a65';

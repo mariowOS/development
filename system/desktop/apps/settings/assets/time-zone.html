@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Time Zone Settings</title>
@@ -97,8 +98,29 @@
 
     html::-webkit-scrollbar { display: none; }
   </style>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
   <link rel="stylesheet" href="settings-submenu.css">
+  <style>
+    body { padding: 10px 10px 40px; -webkit-font-smoothing: antialiased; }
+    html { scrollbar-width: none; }
+    .container { gap: 0; }
+    .panel.form-panel { gap: 0; }
+    .container > .btn {
+      width: 100%;
+      min-height: 34px;
+      padding: 7px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #0a84ff;
+      color: #fff;
+      font: 500 13px 'Poppins', sans-serif;
+    }
+    .container > .btn:hover { background: #007aff; border-color: transparent; }
+    .container > .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+    .container > .btn:active { transform: scale(0.99); }
+    input:not([type='checkbox']):not([type='radio']), select { border-radius: 8px; cursor: pointer; color-scheme: dark; }
+    input:focus, select:focus { box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+    .preview-box { font-size: 24px; font-weight: 600; letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
+  </style>
 </head>
 <body>
 
@@ -143,11 +165,11 @@
   </div>
 
   <div class="panel form-panel">
-    <label>Preview Time</label>
+    <label>Preview</label>
     <div class="preview-box" id="previewClock">--:--</div>
   </div>
 
-  <button class="btn" onclick="setTimeZone()">Apply Time Zone</button>
+  <button class="btn" onclick="setTimeZone()">Apply time zone</button>
 </div>
 
 <script>
@@ -180,7 +202,7 @@ function updatePreviewClock() {
   document.getElementById("previewClock").textContent = txt;
 }
 
-function setTimeZone() {
+async function setTimeZone() {
   const select = document.getElementById('timezoneSelect');
   const offset = parseFloat(select.value);
   
@@ -188,7 +210,7 @@ function setTimeZone() {
   localStorage.setItem('systemTimeOffset', 0);
   localStorage.setItem('manualTimeEnabled', 'false');
   
-  alert(`Time zone set to UTC${offset >= 0 ? '+' : ''}${offset}`);
+  await mDialog.alert(`Time zone set to UTC${offset >= 0 ? '+' : ''}${offset}`);
   
   setTimeout(function() {
     window.history.back();

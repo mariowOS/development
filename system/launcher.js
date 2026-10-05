@@ -124,6 +124,14 @@ ipcMain.handle('mariowos:shutdown', async (event) => {
     return { accepted: true };
 });
 
+ipcMain.handle('mariowos:clear-browser-data', async (event) => {
+    if (!isTrustedRendererEvent(event)) throw new Error('clear request rejected for an untrusted renderer');
+    const { session } = require('electron');
+    await session.defaultSession.clearStorageData();
+    await session.defaultSession.clearCache();
+    return { cleared: true };
+});
+
 ipcMain.handle('mariowos:reboot', async (event) => {
     if (!isTrustedRendererEvent(event)) throw new Error('reboot request rejected for an untrusted renderer');
     if (!backendProcess || !backendReady) throw new Error('kernel is not ready to reboot: BUSY');
@@ -263,6 +271,8 @@ function startBackend() {
         console.log('[sniffer]: kernel loaded; booting GUI.');
         const bootUrl = new URL('boot', SHELL_URL);
         if (isVerboseBootEnabled()) bootUrl.searchParams.set('verbose', '1');
+        // The local boot page already played the intro: the served one continues from it.
+        if (mainWindow?.webContents.getURL().startsWith('file:')) bootUrl.searchParams.set('continue', '1');
         mainWindow?.loadURL(bootUrl.href).catch(error => {
             if (error.errno !== -3 && error.code !== 'ERR_ABORTED') {
                 console.error('[sniffer]: could not load the boot preloader:', error);
@@ -272,6 +282,36 @@ function startBackend() {
         if (!isLiveChild(child) || shuttingDown) return;
         console.error('[sniffer]: kernel readiness failed:', error);
         child.kill();
+    });
+}
+
+// The mouse back/forward buttons would walk the shell's history (desktop -> login -> boot...).
+// Swallow them in every frame of the shell; <webview> browser tabs keep their own navigation.
+const MOUSE_NAV_BLOCKER = `(() => {
+    if (window.__mariowosMouseNavBlocked) return;
+    window.__mariowosMouseNavBlocked = true;
+    const block = event => {
+        if (event.button === 3 || event.button === 4) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+    };
+    ['mousedown', 'mouseup', 'auxclick', 'pointerdown', 'pointerup'].forEach(type =>
+        window.addEventListener(type, block, true));
+})();`;
+
+function blockMouseHistoryNavigation(win) {
+    const inject = frame => {
+        if (!frame || frame.isDestroyed?.()) return;
+        frame.executeJavaScript(MOUSE_NAV_BLOCKER).catch(() => {});
+    };
+    win.webContents.on('dom-ready', () => inject(win.webContents.mainFrame));
+    win.webContents.on('frame-created', (event, { frame }) => {
+        if (frame) frame.on('dom-ready', () => inject(frame));
+    });
+    // Windows also reports these buttons as app commands.
+    win.on('app-command', (event, command) => {
+        if (command === 'browser-backward' || command === 'browser-forward') event.preventDefault();
     });
 }
 
@@ -294,6 +334,7 @@ function bootMariowOS() {
         }
     });
     mainWindow.webContents.on('context-menu', event => event.preventDefault());
+    blockMouseHistoryNavigation(mainWindow);
     mainWindow.on('closed', () => {
         mainWindow = null;
     });

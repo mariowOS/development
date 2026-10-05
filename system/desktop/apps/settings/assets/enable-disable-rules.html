@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Enable/Disable Rules</title>
@@ -42,7 +43,7 @@ body {
 
 .back-btn {
   font-size: 18px;
-  color: #bbb;
+  color: rgba(255,255,255,0.5);
   cursor: pointer;
   transition: color 0.15s ease;
 }
@@ -52,7 +53,8 @@ body {
 }
 
 .banner {
-  background: rgba(30,30,30,0.7);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   padding: 18px;
   margin-bottom: 15px;
@@ -65,7 +67,7 @@ body {
 
 .banner .desc {
   font-size: 13px;
-  color: #bbb;
+  color: rgba(255,255,255,0.5);
   margin-top: 4px;
 }
 
@@ -85,16 +87,16 @@ body {
 
 .toggle-switch {
   position: relative;
-  width: 50px;
+  width: 44px;
   height: 24px;
-  background: #ccc;
+  background: rgba(255,255,255,0.2);
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.3s;
 }
 
 .toggle-switch.active {
-  background: #4CAF50;
+  background: #34c759;
 }
 
 .toggle-slider {
@@ -109,14 +111,14 @@ body {
 }
 
 .toggle-switch.active .toggle-slider {
-  transform: translateX(26px);
+  transform: translateX(20px);
 }
 
 .btn {
   background: rgba(255,255,255,0.1);
   border: none;
   padding: 12px 20px;
-  border-radius: 5px;
+  border-radius: 8px;
   color: #fff;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
@@ -202,7 +204,7 @@ saveBtn.addEventListener('click', async () => {
     });
     if (!response.ok) throw new Error('Could not update rule execution.');
   } catch (error) {
-    alert(error.message || 'Could not update rule execution.');
+    await mDialog.alert(error.message || 'Could not update rule execution.');
     return;
   }
 
@@ -218,7 +220,7 @@ saveBtn.addEventListener('click', async () => {
   });
   localStorage.setItem('ruleHistory', JSON.stringify(history));
 
-  alert('Changes saved!');
+  await mDialog.alert('Changes saved!');
 });
 
 // Load state on page load

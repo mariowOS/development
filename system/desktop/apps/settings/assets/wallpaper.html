@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wallpaper Settings</title>
@@ -17,6 +18,7 @@ body {
   background: transparent;
   overflow-x: hidden;
   overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
 }
 .container {
   width: 100%;
@@ -60,14 +62,14 @@ body {
   border: none;
   border-radius: 8px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
 }
 .btn:hover { background: #007aff; }
 .btn:active { transform: scale(0.99); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+.btn:disabled { opacity: 0.5; cursor: default; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
 
 .preview-area { display: none; }
 .preview-area img {
@@ -77,7 +79,7 @@ body {
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.status { font-size: 13px; text-align: center; min-height: 18px; color: rgba(255, 255, 255, 0.6); }
+.status { font-size: 13px; text-align: center; min-height: 18px; color: rgba(255, 255, 255, 0.5); }
 
 .section-title {
   font-size: 12px;
@@ -90,8 +92,6 @@ body {
 
 html::-webkit-scrollbar { display: none; }
 </style>
-<link rel="stylesheet" href="/desktop/assets/material-you.css">
-<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 <div class="container">
@@ -109,20 +109,20 @@ html::-webkit-scrollbar { display: none; }
       <img id="previewImg" src="" alt="Preview">
     </div>
 
-    <button class="btn" id="applyBtn" onclick="applyWallpaper()" disabled>Apply Wallpaper</button>
+    <button class="btn" id="applyBtn" onclick="applyWallpaper()" disabled>Apply wallpaper</button>
     <div id="status" class="status"></div>
   </div>
 
   <div class="section-title">Defaults</div>
   <div class="panel" style="padding: 12px;">
-    <div class="list-item" onclick="resetToFactory()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">
+    <div class="list-item" onclick="resetToFactory()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
       <div style="display: flex; align-items: center; gap: 12px;">
         <div style="width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(180deg, #8e8e93, #636366); display: flex; align-items: center; justify-content: center;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">wallpaper</span>
+          <span class="material-symbols-outlined" style="font-size: 18px; color: #fff;">wallpaper</span>
         </div>
         <div>
           <div style="font-size: 14px; font-weight: 500;">Restore Default Wallpaper</div>
-          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Revert back to factory desktop background</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Revert to the factory desktop background</div>
         </div>
       </div>
       <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.3);">chevron_right</span>
@@ -153,8 +153,8 @@ async function applyWallpaper() {
   const status = document.getElementById('status');
   const btn = document.getElementById('applyBtn');
   btn.disabled = true;
-  status.textContent = 'Uploading...';
-  status.style.color = 'rgba(255,255,255,0.6)';
+  status.textContent = 'Uploading…';
+  status.style.color = 'rgba(255,255,255,0.5)';
 
   const formData = new FormData();
   formData.append('wallpaper', selectedFile);
@@ -171,13 +171,13 @@ async function applyWallpaper() {
     }
   } catch (err) {
     status.textContent = 'Error: ' + err.message;
-    status.style.color = '#ff3b30';
+    status.style.color = '#ff453a';
   }
   btn.disabled = false;
 }
 
-function resetToFactory() {
-  if (confirm("Restore default factory wallpaper?")) {
+async function resetToFactory() {
+  if (await mDialog.confirm("Restore the default factory wallpaper?")) {
     fetch('/api/system/reset-desktop', { method: 'POST' })
       .then(() => {
         document.getElementById('status').textContent = 'Factory wallpaper restored';

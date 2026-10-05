@@ -212,3 +212,7 @@ system/config.json
 system/config.json
 node_modules/
 node_modules/
+
+system/.env
+system/mail-error.log
+system/mariowos.log

@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,7 +41,7 @@ body {
 
 .back-btn {
   font-size: 18px;
-  color: #bbb;
+  color: rgba(255,255,255,0.5);
   cursor: pointer;
   transition: color 0.15s ease;
 }
@@ -50,7 +51,8 @@ body {
 }
 
 .banner {
-  background: rgba(30,30,30,0.7);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   padding: 18px;
   margin-bottom: 15px;
@@ -63,7 +65,7 @@ body {
 
 .banner .desc {
   font-size: 13px;
-  color: #bbb;
+  color: rgba(255,255,255,0.5);
   margin-top: 4px;
 }
 
@@ -87,7 +89,7 @@ body {
 
 .template-desc {
   font-size: 13px;
-  color: #aaa;
+  color: rgba(255,255,255,0.5);
   margin-top: 3px;
 }
 
@@ -95,7 +97,7 @@ body {
   background: rgba(255,255,255,0.1);
   border: none;
   padding: 8px 12px;
-  border-radius: 5px;
+  border-radius: 8px;
   color: #fff;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
@@ -233,23 +235,23 @@ async function useTemplate(templateKey, button) {
   const appId = card.querySelector('[data-field="appId"]')?.value;
 
   if ((templateKey === 'backup' || templateKey === 'shutdown') && !time) {
-    alert('Choose a time for this rule.');
+    await mDialog.alert('Choose a time for this rule.');
     return;
   }
   if (templateKey === 'battery' && (!Number.isInteger(threshold) || threshold < 5 || threshold > 80)) {
-    alert('Choose a battery threshold from 5% to 80%.');
+    await mDialog.alert('Choose a battery threshold from 5% to 80%.');
     return;
   }
   if (templateKey === 'battery' && typeof navigator.getBattery !== 'function') {
-    alert('Battery monitoring is not supported on this device.');
+    await mDialog.alert('Battery monitoring is not supported on this device.');
     return;
   }
   if (templateKey === 'shutdown' && !card.querySelector('[data-field="confirmShutdown"]').checked) {
-    alert('Confirm that you want this rule to shut down the computer.');
+    await mDialog.alert('Confirm that you want this rule to shut down the computer.');
     return;
   }
   if (templateKey === 'startup' && !appId) {
-    alert('Select an installed app to launch.');
+    await mDialog.alert('Select an installed app to launch.');
     return;
   }
 
@@ -276,10 +278,10 @@ async function useTemplate(templateKey, button) {
     history.push({ id: rule.id, ruleName: template.name, action: 'Created from template', timestamp: rule.created });
     localStorage.setItem('ruleHistory', JSON.stringify(history));
 
-    alert(`"${template.name}" was saved and enabled.`);
+    await mDialog.alert(`"${template.name}" was saved and enabled.`);
     window.location.replace('/desktop/apps/settings/assets/rules.html');
   } catch (error) {
-    alert(error.message || 'Could not save this rule.');
+    await mDialog.alert(error.message || 'Could not save this rule.');
     button.disabled = false;
   }
 }

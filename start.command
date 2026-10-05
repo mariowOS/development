@@ -15,6 +15,7 @@ fi
 
 if [ ! -d node_modules/electron ]; then
   echo "Dependencies are not installed. Run npm install first." >&2
+  exec npm install
   exit 1
 fi
 

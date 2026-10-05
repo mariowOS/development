@@ -1,12 +1,12 @@
 {
-  "calculator": "1.0.0",
-  "desktop": "1.0.0",
-  "explorer": "1.0.0",
-  "feedback": "1.0.0",
-  "help": "1.0.0",
-  "music": "1.0.0",
-  "notes": "1.0.0",
-  "settings": "1.0.0",
-  "store": "1.0.0",
-  "terminal": "1.0.1"
+  "calculator": "1.1.0",
+  "desktop": "1.1.0",
+  "explorer": "1.1.0",
+  "feedback": "1.1.0",
+  "help": "1.1.0",
+  "music": "1.1.0",
+  "notes": "1.1.0",
+  "settings": "1.1.0",
+  "store": "1.1.0",
+  "terminal": "1.1.0"
 }

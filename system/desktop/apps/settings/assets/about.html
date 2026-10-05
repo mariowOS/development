@@ -116,8 +116,6 @@
       height: 0 !important;
     }
   </style>
-<link rel="stylesheet" href="/desktop/assets/material-you.css">
-<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 
@@ -130,7 +128,7 @@
   <div class="info-box">
     <div class="info-row">
       <span class="label">System version:</span>
-      <span class="value">1.0.0</span>
+      <span class="value" id="systemVersion">1.1.0</span>
     </div>
     <div class="info-row">
       <span class="label">Kernel:</span>
@@ -142,7 +140,7 @@
     </div>
     <div class="info-row">
       <span class="label">Build Date:</span>
-      <span class="value">29 September 2026 22:21</span>
+      <span class="value" id="buildDate">2 October 2026 22:06</span>
     </div>
   </div>
 
@@ -156,6 +154,33 @@
   </div>
 
 </div>
+
+<script>
+  // Version and build date come from the kernel, so they stay correct on their
+  // own. The values written in the markup are only the fallback.
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                  'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function formatBuildDate(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return null;
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  (async () => {
+    try {
+      const res = await fetch('/api/system/about', { cache: 'no-store' });
+      if (!res.ok) return;
+      const info = await res.json();
+      if (info.version) document.getElementById('systemVersion').textContent = info.version;
+      const built = formatBuildDate(info.buildDate);
+      if (built) document.getElementById('buildDate').textContent = built;
+    } catch (err) {
+      // Older kernel or no connection: keep the values from the markup.
+    }
+  })();
+</script>
 
 </body>
 </html>

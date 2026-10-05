@@ -4,17 +4,25 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-ul{list-style:none;padding:0;margin:0}
-a.btn{display:inline-block;padding:.4rem .6rem;border:1px solid #222;border-radius:4px;text-decoration:none;color:inherit}
+html,body{margin:0;background:transparent;color:#fff;font-family:'Poppins',sans-serif;-webkit-font-smoothing:antialiased;color-scheme:dark}
+ul{list-style:none;padding:0;margin:0 auto;max-width:520px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;overflow:hidden}
+li{border-bottom:1px solid rgba(255,255,255,0.05)}
+li:last-child{border-bottom:none}
+a.btn{display:flex;align-items:center;min-height:50px;padding:14px 16px;box-sizing:border-box;font:500 14px 'Poppins',sans-serif;text-decoration:none;color:#fff;transition:background 0.2s}
+a.btn:hover{background:rgba(255,255,255,0.1)}
+a.btn:focus-visible{outline:none;box-shadow:inset 0 0 0 2px rgba(10,132,255,0.4)}
+*{scrollbar-width:none}*::-webkit-scrollbar{display:none}
 </style>
-<link rel="stylesheet" href="/desktop/assets/material-you.css">
-<script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
 <ul>
-    <li><a class="btn" href="http://localhost:3000/clear-password">Reset config.json file</a></li>
-    <li><a class="btn" href="https://mariowstech.github.io/">Download latest build</a></li>
+    <li><a class="btn" href="http://localhost:3000/clear-password">Reset config.json File</a></li>
+    <li><a class="btn" href="https://mariowstech.github.io/">Download Latest Build</a></li>
 </ul>
 </body>
 </html>

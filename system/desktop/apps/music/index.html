@@ -7,19 +7,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/desktop/assets/material-you.css">
-  <script src="/desktop/assets/monet-engine.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
   <title>mariowOS Music Player</title>
   <style>
     :root {
-      --m3-accent-active: #c2f3eb;
-      --m3-accent-on-active: #05211e;
+      --m3-accent-active: #0a84ff;
+      --m3-accent-on-active: #ffffff;
       --m3-tile-inactive: rgba(255, 255, 255, 0.08);
       --m3-tile-on-inactive: #e1e2e5;
-      --m3-dropdown-bg: rgba(24, 25, 28, 0.65);
+      --m3-dropdown-bg: rgba(24, 25, 28, 0.85);
       --m3-item-hover: rgba(255, 255, 255, 0.1);
-      --m3-item-active-bg: rgba(194, 243, 235, 0.16);
-      --m3-text-color: #e6e0e9;
+      --m3-item-active-bg: rgba(10, 132, 255, 0.18);
+      --m3-text-color: #ffffff;
       --m3-glass-border: rgba(255, 255, 255, 0.12);
       --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
     }
@@ -32,7 +31,7 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #121214;
+      background: transparent;
       color: var(--m3-text-color);
       height: 100vh;
       overflow: hidden;
@@ -43,7 +42,7 @@
     .app {
       display: flex;
       height: 100vh;
-      background: radial-gradient(circle at 80% 20%, rgba(35, 40, 45, 0.5) 0%, rgba(15, 15, 18, 0.95) 100%);
+      background: transparent;
       animation: appEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
@@ -83,8 +82,9 @@
 
     #app-toast-container {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 999;
       display: flex;
       flex-direction: column;
@@ -100,7 +100,7 @@
       color: var(--m3-text-color);
       padding: 10px 16px;
       border-radius: 14px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       box-shadow: var(--m3-glass-shadow);
       animation: toastAppIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -112,11 +112,12 @@
 
     /* Sidebar Glassmorphism */
     .sidebar {
-      width: 260px;
-      background: rgba(20, 21, 24, 0.55);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-right: 1px solid var(--m3-glass-border);
+      width: 250px;
+      background: rgba(22, 22, 25, 0.65);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-right: 1px solid rgba(0, 0, 0, 0.4);
+      box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
       padding: 24px 16px;
       display: flex;
       flex-direction: column;
@@ -225,7 +226,7 @@
 
     .playlist-item.active {
       background: var(--m3-item-active-bg);
-      border-color: rgba(194, 243, 235, 0.2);
+      border-color: rgba(10, 132, 255, 0.3);
     }
 
     .playlist-item.active .item-title {
@@ -274,7 +275,7 @@
     }
 
     .item-remove:hover {
-      color: #ff5252;
+      color: #ff453a;
     }
 
     .sidebar-upload {
@@ -346,7 +347,7 @@
 
     .main-album-canvas.playing {
       transform: scale(1.04);
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 30px rgba(194, 243, 235, 0.15);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 30px rgba(10, 132, 255, 0.25);
     }
 
     .main-album-canvas.pulse-trigger {
@@ -418,7 +419,7 @@
     .timeline-fill.playing {
       height: 16px;
       background-color: transparent;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='16' viewBox='0 0 24 16'><path d='M0,8 C6,2 6,14 12,8 C18,2 18,14 24,8' fill='none' stroke='%23c2f3eb' stroke-width='3' stroke-linecap='round'/></svg>");
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='16' viewBox='0 0 24 16'><path d='M0,8 C6,2 6,14 12,8 C18,2 18,14 24,8' fill='none' stroke='%230a84ff' stroke-width='3' stroke-linecap='round'/></svg>");
       background-size: 24px 16px;
       background-repeat: repeat-x;
       animation: squiggle 1s linear infinite;
@@ -511,7 +512,7 @@
     }
 
     .btn-play-pause:hover {
-      background: #eaddff;
+      background: #007aff;
       transform: scale3d(1.06, 1.06, 1);
     }
 
@@ -525,7 +526,7 @@
 
     .volume-icon {
       color: rgba(255, 255, 255, 0.45);
-      font-size: 0.85rem;
+      font-size: 20px;
       cursor: pointer;
       transition: color 0.2s;
     }
@@ -605,7 +606,7 @@
       </div>
 
       <div class="sidebar-upload" onclick="document.getElementById('file-input').click()">
-        <span>+ Load Audio Files</span>
+        <span>+ Load audio files</span>
       </div>
     </div>
 
@@ -617,7 +618,7 @@
 
         <div class="main-track-details">
           <h2 class="main-title" id="track-title">No track selected</h2>
-          <p class="main-artist" id="track-artist">Select a track from library</p>
+          <p class="main-artist" id="track-artist">Select a track from the library</p>
         </div>
 
         <!-- Android 13 Squiggly Timeline Material You -->
@@ -659,7 +660,7 @@
           </div>
 
           <div class="volume-cluster">
-            <span class="volume-icon" id="volume-icon">🔊</span>
+            <span class="volume-icon material-symbols-outlined" id="volume-icon">volume_up</span>
             <div class="volume-bar-wrapper" id="volume-slider-container">
               <div class="volume-fill" id="volume-fill"></div>
             </div>
@@ -750,7 +751,7 @@
             count++;
             if (count === files.length) {
               loadSongsFromDB();
-              showAppToast(`🎵 Added ${count} tracks to library`);
+              showAppToast(`Added ${count} tracks to library`);
             }
           };
         };
@@ -883,7 +884,7 @@
       currentVolume = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
       audio.volume = currentVolume;
       volumeFill.style.width = `${currentVolume * 100}%`;
-      volumeIcon.textContent = currentVolume === 0 ? '🔇' : currentVolume < 0.5 ? '🔉' : '🔊';
+      volumeIcon.textContent = currentVolume === 0 ? 'volume_off' : currentVolume < 0.5 ? 'volume_down' : 'volume_up';
     });
 
     shuffleBtn.addEventListener('click', () => {

@@ -6,150 +6,79 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  html, body { background: transparent; }
   body {
     margin: 0;
     font-family: "Poppins", sans-serif;
-    background: #1e1e1e;
-    color: white;
+    -webkit-font-smoothing: antialiased;
+    color: #fff;
     display: flex;
     height: 100vh;
     overflow: hidden;
+    color-scheme: dark;
   }
-
-  /* Sidebar */
   .sidebar {
-    width: 260px;
-    background: #181818;
-    padding: 20px;
+    width: 250px;
+    flex-shrink: 0;
+    background: rgba(22,22,25,0.65);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    padding: 16px 12px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    border-right: 1px solid rgba(255,255,255,0.05);
-    overflow-y: auto; /* <-- FIX */
-  }
-
-  .sidebar::-webkit-scrollbar {
-    width: 6px;
-  }
-  .sidebar::-webkit-scrollbar-thumb {
-    background: #333;
-    border-radius: 3px;
-  }
-
-  .sidebar h1 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  .search {
-    margin-top: 12px;
-  }
-
-  .search input {
-    width: 90%;
-    padding: 8px 12px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    background: #2a2a2a;
-    color: white;
-    font-family: inherit;
-  }
-
-  .menu {
-    margin-top: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .menu-item {
-    background: #2a2a2a;
-    padding: 10px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.2s;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .menu-item:hover {
-    background: #3a3a3a;
-  }
-
-  .menu-item.active {
-    background: #4a4a4a;
-  }
-
-  .menu-item .title {
-    font-weight: 500;
-    font-size: 15px;
-  }
-
-  .menu-item .subtitle {
-    font-size: 12px;
-    color: #aaa;
-  }
-
-  /* Content area */
-  .content {
-    flex: 1;
-    padding: 20px;
+    gap: 2px;
+    border-right: 1px solid rgba(0,0,0,0.4);
+    box-shadow: inset -1px 0 0 rgba(255,255,255,0.05);
     overflow-y: auto;
   }
-  .content h2 {
-    margin-top: 0;
+  .sidebar h1 { margin: 0 0 0 8px; font-size: 20px; font-weight: 600; }
+  .search { margin-top: 12px; position: relative; }
+  .search input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    outline: none;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    font: 400 13px "Poppins", sans-serif;
+    transition: border-color 0.2s;
   }
-
-    .content p {
-    margin-top: 0;
-    text-align: center; font-family: 'Poppins', sans-serif;
+  .search input::placeholder { color: rgba(255,255,255,0.4); }
+  .search input:focus { border-color: #0a84ff; }
+  .menu { margin-top: 12px; display: flex; flex-direction: column; gap: 2px; }
+  .menu-item {
+    padding: 6px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    flex-direction: column;
   }
-
-      .content div {
-    margin-top: 0;
-    text-align: center; font-family: 'Poppins', sans-serif;
-    color: #272727;
-  }
-
-        .content h3 {
-    margin-top: 230px;
-    text-align: center; font-family: 'Poppins', sans-serif;
-    color: #272727;
-  }
-
-
-  /* Draggable window fix */
-  .window {
-    position: absolute;
-    will-change: transform; /* GPU accelerate */
-  }
-
-    .popup-frame {
-      width: 100%;
-      height: calc(90% - 32px);
-      border: none;
-    }
-
-    * { scrollbar-width: none; }
-    *::-webkit-scrollbar { display: none; }
-    
-    a {
-  text-decoration: none;
-  color: #3F84FC;
-   }
-
+  .menu-item:hover { background: rgba(255,255,255,0.1); }
+  .menu-item.active { background: #0a84ff; }
+  .menu-item .title { font-weight: 500; font-size: 13px; }
+  .menu-item .subtitle { font-size: 11px; color: rgba(255,255,255,0.55); }
+  .menu-item.active .subtitle { color: rgba(255,255,255,0.8); }
+  .content { flex: 1; min-width: 0; padding: 20px 24px; overflow-y: auto; }
+  .content h2 { margin-top: 0; font-size: 24px; font-weight: 600; }
+  .content p { margin-top: 0; text-align: center; }
+  .content div { margin-top: 0; text-align: center; color: rgba(255,255,255,0.5); }
+  .content h3 { margin-top: 230px; text-align: center; font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.5); }
+  .window { position: absolute; will-change: transform; }
+  .popup-frame { width: 100%; height: calc(90% - 32px); border: none; background: transparent; }
+  * { scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
+  a { text-decoration: none; color: #0a84ff; }
 </style>
-  <link rel="stylesheet" href="/desktop/assets/material-you.css">
-  <script src="/desktop/assets/monet-engine.js"></script>
 </head>
 <body>
   <div class="sidebar">
     <h1>Settings</h1>
     <div class="search">
-      <input type="text" placeholder="🔍 Search...">
+      <input type="text" placeholder="Search…">
     </div>
     <div class="menu">
       <div class="menu-item" onclick="loadPage('system', this)">
@@ -160,9 +89,10 @@
   </div>
 
   <div class="content" id="content">
-    <h3>did you break something?</h3>
+    <h3>Did you break something?</h3>
   </div>
 
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 <script>
   const pages = {
     system: `
@@ -223,7 +153,7 @@
     reader.readAsDataURL(pfpFile);
   }
 
-  alert("Profile saved! 🔒");
+  alert("Profile saved.");
 }
 
 function loadProfileEditor() {
@@ -241,14 +171,14 @@ function saveFromSettings() {
   const newPass = document.getElementById("settingsPassword").value.trim();
 
   if (!newUser || !newPass) {
-    alert("Fields cannot be empty!");
+    alert("Fields cannot be empty.");
     return;
   }
 
   localStorage.setItem("username", newUser);
   localStorage.setItem("password", newPass);
 
-  alert("Credentials updated!");
+  alert("Credentials updated.");
 }
 
 

@@ -7,15 +7,18 @@
   <title>Factory Reset Protection</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; background: #f0f2f5; font-family: 'Poppins', sans-serif; }
-    .card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
-    h2 { margin: 0 0 10px 0; color: #1a1a1a; font-weight: 500; }
-    p { color: #666; font-size: 14px; margin-bottom: 30px; }
-    input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; font-family: inherit; outline: none; }
-    input[type="password"]:focus { border-color: #0a84ff; }
-    .btn { background: #0a84ff; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; margin-bottom: 10px; }
+    body { color-scheme: dark; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 30%, #1b2233, #0b0d12 70%); color: #fff; -webkit-font-smoothing: antialiased; font-family: 'Poppins', sans-serif; }
+    .card { background: rgba(28,30,38,0.97); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); width: 100%; max-width: 400px; margin: 0 16px; text-align: center; box-sizing: border-box; }
+    h2 { margin: 0 0 10px 0; color: #fff; font-size: 20px; font-weight: 600; }
+    p { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 30px; }
+    input[type="password"] { width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 20px; box-sizing: border-box; font-family: inherit; font-size: 13px; outline: none; background: rgba(0,0,0,0.2); color: #fff; transition: border-color 0.2s; }
+    input::placeholder { color: rgba(255,255,255,0.4); }
+    input[type="password"]:focus { border-color: #0a84ff; box-shadow: 0 0 0 2px rgba(10,132,255,0.4); }
+    .btn:hover { background: #007aff; }
+    .btn-secondary:hover { background: rgba(10,132,255,0.18); }
+    .btn { background: #0a84ff; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; font-size: 13px; margin-bottom: 10px; transition: background 0.15s; }
     .btn-secondary { background: transparent; color: #0a84ff; border: 1px solid #0a84ff; }
-    .error { color: #ff3b30; font-size: 12px; margin-bottom: 15px; display: none; }
+    .error { color: #ff453a; font-size: 12px; margin-bottom: 15px; display: none; }
   </style>
 </head>
 <body>
@@ -28,7 +31,7 @@
     <input type="password" id="frp-pass" placeholder="Previous Password">
     <button class="btn" onclick="verifyFRP()">Verify Password</button>
     
-    <div style="margin: 20px 0; color: #aaa; font-size: 12px;">OR</div>
+    <div style="margin: 20px 0; color: rgba(255,255,255,0.5); font-size: 12px;">OR</div>
     
     <button class="btn btn-secondary" onclick="document.getElementById('file-upload').click()">Import credentials.json</button>
     <input type="file" id="file-upload" accept=".json" style="display: none;" onchange="importFRP(event)">

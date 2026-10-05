@@ -73,6 +73,7 @@
     .spinner { border: 4px solid #333; border-top: 4px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
+  <script src="/desktop/assets/mariowos-dialogs.js"></script>
 </head>
 <body>
 
@@ -139,8 +140,8 @@
     window.location.href = '/';
   }
 
-  function factoryReset() {
-    if(confirm("Erase all user data? This cannot be undone.")) {
+  async function factoryReset() {
+    if(await mDialog.confirm("Erase all user data? This cannot be undone.")) {
       fetch('/api/recovery/wipe', { method: 'POST' })
         .then(() => { rebootOS(); });
     }

@@ -14,15 +14,13 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-  <link rel="stylesheet" href="/desktop/assets/material-you.css">
-  <script src="/desktop/assets/monet-engine.js"></script>
 <style>
   :root {
     --m3-dropdown-bg: rgba(24, 25, 28, 0.85);
-    --m3-text-color: #e6e0e9;
+    --m3-text-color: #ffffff;
     --m3-glass-border: rgba(255, 255, 255, 0.12);
     --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
-    --m3-accent-active: #5c7cfa;
+    --m3-accent-active: #0a84ff;
   }
 
   /* Applied transparency to html and body, removed hardcoded colors/gradients */
@@ -58,7 +56,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     cursor: pointer; transition: background 0.15s, color 0.15s; font-family: 'Poppins', sans-serif; font-weight: 500;
   }
   .toolbar-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-  .toolbar-btn.active { background: rgba(92, 124, 250, 0.2); color: #c2f3eb; border-color: rgba(92, 124, 250, 0.3); }
+  .toolbar-btn.active { background: rgba(10, 132, 255, 0.18); color: #ffffff; border-color: rgba(10, 132, 255, 0.3); }
   
   .toolbar-divider { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.1); margin: 0 4px; }
   
@@ -74,12 +72,12 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   
   .os-dropdown {
     position: absolute; top: calc(100% + 8px);
-    background: rgba(24, 25, 28, 0.35) !important;
-    backdrop-filter: blur(30px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(22, 26, 35, 0.65) !important;
+    backdrop-filter: blur(40px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 18px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
     z-index: 100; opacity: 0; visibility: hidden; pointer-events: none;
     transform: translateY(10px) scale(0.97); 
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.25s ease;
@@ -123,8 +121,8 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   #app-toast-container { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
   .app-toast {
     background: rgba(24, 25, 28, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--m3-glass-border); color: var(--m3-text-color); padding: 10px 20px;
-    border-radius: 100px; font-size: 13px; font-weight: 500; box-shadow: var(--m3-glass-shadow);
+    border: 1px solid var(--m3-glass-border); color: var(--m3-text-color); padding: 10px 16px;
+    border-radius: 14px; font-size: 13px; font-weight: 500; box-shadow: var(--m3-glass-shadow);
     animation: toastAppIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
   .app-toast.hide { animation: toastAppOut 0.2s forwards; }
@@ -134,14 +132,14 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    min-width: 176px;
-    padding: 6px;
-    background: rgba(24, 25, 28, 0.9);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    min-width: 200px;
+    padding: 8px;
+    background: rgba(22, 26, 35, 0.65);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -157,20 +155,21 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 7px 10px;
+    padding: 10px 14px;
     color: var(--m3-text-color);
     background: transparent;
     border: 0;
-    border-radius: 7px;
-    font: 12px 'Poppins', sans-serif;
+    border-radius: 12px;
+    font: 500 13px 'Poppins', sans-serif;
     text-align: left;
     cursor: pointer;
   }
-  #noteContextMenu button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
-  #noteContextMenu button:disabled { opacity: 0.4; cursor: default; }
-  .note-context-label { display: flex; align-items: center; gap: 9px; }
-  .note-context-label .material-symbols-outlined { font-size: 16px; }
-  #noteContextMenu kbd { color: rgba(255, 255, 255, 0.45); font: 10px 'Poppins', sans-serif; }
+  #noteContextMenu button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
+  #noteContextMenu button:active:not(:disabled) { transform: scale(0.96); }
+  #noteContextMenu button:disabled { opacity: 0.5; cursor: default; }
+  .note-context-label { display: flex; align-items: center; gap: 12px; }
+  .note-context-label .material-symbols-outlined { font-size: 18px; color: rgba(255, 255, 255, 0.7); }
+  #noteContextMenu kbd { color: rgba(255, 255, 255, 0.45); font: 11px 'Poppins', sans-serif; }
   .note-context-divider { height: 1px; margin: 4px 2px; background: rgba(255, 255, 255, 0.1); }
 </style>
 </head>
@@ -614,8 +613,8 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
           overflow: hidden;
         }
         .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-        .notes-tab-btn.active { background: rgba(194, 243, 235, 0.16); color: #c2f3eb; height: 34px; border-color: rgba(194, 243, 235, 0.25); }
-        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #c2f3eb; border-bottom: none; pointer-events: none; }
+        .notes-tab-btn.active { background: rgba(10, 132, 255, 0.18); color: #ffffff; height: 34px; border-color: rgba(10, 132, 255, 0.3); }
+        .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #0a84ff; border-bottom: none; pointer-events: none; }
         
         .tab-color-line {
           position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -623,7 +622,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
         }
 
         .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; z-index: 3; position: relative;}
-        .notes-tab-close:hover { opacity: 1; color: #ff5252; }
+        .notes-tab-close:hover { opacity: 1; color: #ff453a; }
         .notes-tab-btn.dragging { opacity: 0.4; }
         .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
 
@@ -653,10 +652,10 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
         <div style="font-size: 10px; margin-bottom: 8px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.5px;">GROUP COLOR</div>
         <div style="display: flex; gap: 8px;">
           <div class="color-dot" data-color="transparent" style="border: 1px solid rgba(255,255,255,0.3);" title="None"></div>
-          <div class="color-dot" data-color="#ff5f56" style="background: #ff5f56;" title="Red"></div>
+          <div class="color-dot" data-color="#ff453a" style="background: #ff453a;" title="Red"></div>
           <div class="color-dot" data-color="#ffbd2e" style="background: #ffbd2e;" title="Yellow"></div>
           <div class="color-dot" data-color="#27c93f" style="background: #27c93f;" title="Green"></div>
-          <div class="color-dot" data-color="#5c7cfa" style="background: #5c7cfa;" title="Blue"></div>
+          <div class="color-dot" data-color="#0a84ff" style="background: #0a84ff;" title="Blue"></div>
           <div class="color-dot" data-color="#c864fa" style="background: #c864fa;" title="Purple"></div>
         </div>
       `;

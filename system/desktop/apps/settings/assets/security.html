@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Security Settings</title>
@@ -145,6 +146,7 @@
     <!-- Hidden Form -->
     <div class="edit-panel" id="pwdDrop">
       <input type="text" id="secUser" placeholder="Username">
+      <input type="password" id="secCurrent" placeholder="Current Password (leave empty if none)">
       <input type="password" id="secPass" placeholder="New Password">
       <div class="btn-row">
         <button class="btn" onclick="savePassword()">Update Security Info</button>
@@ -192,6 +194,7 @@
 
 </div>
 
+<script src="factory-reset.js"></script>
 <script>
   async function loadUserData() {
     try {
@@ -221,40 +224,63 @@
     const newPassword = document.getElementById('secPass').value;
 
     if (!username || !newPassword) {
-      alert("Both fields are required.");
+      await mDialog.alert("Both fields are required.");
       return;
     }
 
-    await fetch('/set-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, newPassword })
-    });
-    alert("Password updated successfully.");
-    document.getElementById('secPass').value = '';
-    toggleDropdown('pwdDrop');
+    const currentPassword = document.getElementById('secCurrent').value;
+    try {
+      const res = await fetch('/set-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, newPassword, currentPassword })
+      });
+      const text = await res.text();
+      if (!res.ok) { await mDialog.alert("Could not update password: " + text); return; }
+      await mDialog.alert("Password updated successfully.");
+      document.getElementById('secPass').value = '';
+      document.getElementById('secCurrent').value = '';
+      toggleDropdown('pwdDrop');
+    } catch (e) {
+      await mDialog.alert("Network error: " + e.message);
+    }
   }
 
   async function removePassword() {
-    if (confirm("Are you sure you want to remove your password? Anyone will be able to log in without it.")) {
-      await fetch('/clear-password');
-      alert("Password cleared.");
+    if (await mDialog.confirm("Are you sure you want to remove your password? Anyone will be able to log in without it.", { danger: true, okText: "Remove" })) {
+      const currentPassword = await mDialog.prompt("Enter your current password to confirm:", { type: "password", title: "Confirm password" });
+      if (currentPassword === null) return;
+      try {
+        const res = await fetch('/clear-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword })
+        });
+        const text = await res.text();
+        await mDialog.alert(res.ok ? "Password cleared." : "Could not clear password: " + text);
+      } catch (e) {
+        await mDialog.alert("Network error: " + e.message);
+      }
     }
   }
 
   async function resetDesktop() {
-    if (confirm("Reset desktop wallpaper and avatar to default?")) {
-      await fetch('/api/system/reset-desktop', { method: 'POST' });
-      alert("Desktop reset. Reloading system...");
-      window.parent.location.reload();
+    if (await mDialog.confirm("Reset desktop wallpaper and avatar to default?", { danger: true, okText: "Reset" })) {
+      const res = await fetch('/api/system/reset-desktop', { method: 'POST' });
+      if (!res.ok) { await mDialog.alert("Desktop reset failed."); return; }
+      try { localStorage.removeItem('wallpaper'); } catch (e) {}
+      await mDialog.alert("Desktop reset. Reloading system...");
+      window.top.location.reload();
     }
   }
 
   async function factoryReset() {
-    if (confirm("WARNING: This will erase all system preferences. Continue?")) {
-      await fetch('/api/system/factory-reset', { method: 'POST' });
-      alert("System reset. Rebooting kernel...");
-      window.parent.location.href = "/";
+    if (await mDialog.confirm("This will erase all system preferences, apps and data. Continue?", { danger: true, okText: "Erase everything", title: "Factory reset" })) {
+      try {
+        await runFactoryReset();
+      } catch (e) {
+        await mDialog.alert("Factory reset failed: " + e.message);
+      }
     }
   }
 

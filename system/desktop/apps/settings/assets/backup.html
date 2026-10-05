@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Backup & Restore</title>
@@ -11,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
   <style>
-    body { font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 10px 0; background: transparent; overflow-x: hidden; overflow-y: auto; }
+    body { -webkit-font-smoothing: antialiased; font-family: 'Poppins', sans-serif; color: white; margin: 0; padding: 10px 0; background: transparent; overflow-x: hidden; overflow-y: auto; }
     .container { width: 100%; position: relative; padding: 0 10px; box-sizing: border-box; }
     .panel { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
     .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: pointer; transition: background 0.2s; }
@@ -89,7 +90,7 @@ function importBackup(e) {
         if(res.success) {
           window.parent.postMessage({ type: 'show-notification', title: 'Backup Restored', msg: 'System config updated successfully.', icon: '☁️' }, '*');
         } else {
-          alert("Error: " + res.error);
+          mDialog.alert("Error: " + res.error);
         }
       });
   }, () => {

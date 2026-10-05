@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mariowOS Account</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -227,6 +226,22 @@
     .btn-danger-text:hover { text-decoration: underline; }
 
     html::-webkit-scrollbar { display: none; }
+    .verify-row { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px; }
+    .verify-badge { font-size:12px; padding:3px 10px; border-radius:999px; font-weight:600; }
+    .verify-badge.ok { background:rgba(48,209,88,0.2); color:#30d158; }
+    .verify-badge.no { background:rgba(255,159,10,0.2); color:#ff9f0a; }
+    .verify-link { background:none; border:none; color:#0a84ff; cursor:pointer; font-size:13px; padding:0; }
+    .verify-link:hover { text-decoration:underline; }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .modal-backdrop.show { display:flex; }
+    .modal { background:rgba(28,30,38,0.97); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:22px; width:min(400px, calc(100vw - 32px)); box-shadow:0 24px 60px rgba(0,0,0,0.55); color:#fff; display:flex; flex-direction:column; gap:12px; }
+    .modal h3 { margin:0; font-size:16px; font-weight:600; }
+    .modal p { margin:0; font-size:13px; opacity:0.75; }
+    .code-input { font-size:26px; letter-spacing:10px; text-align:center; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); color:#fff; outline:none; }
+    .code-input:focus { border-color:#0a84ff; }
+    .modal-msg { font-size:13px; min-height:18px; }
+    .modal-msg.err { color:#ff453a; } .modal-msg.ok { color:#30d158; }
+    .btn:disabled { opacity:0.5; cursor:default; }
   </style>
 </head>
 <body>
@@ -242,6 +257,10 @@
     </div>
     <div class="user-name" id="displayName">mariowOS User</div>
     <div class="user-email" id="displayEmail">mariowOS Account</div>
+    <div class="verify-row" id="verifyRow" style="display:none;">
+      <span class="verify-badge no" id="verifyBadge">Not verified</span>
+      <button class="verify-link" id="verifyBtn" onclick="openVerifyModal()">Verify email</button>
+    </div>
   </div>
 
   <!-- Group 1: Personal & Security -->
@@ -299,7 +318,7 @@
   <!-- Devices Section -->
   <div class="section-title">Devices</div>
   <div class="list-group">
-    <div class="list-item">
+    <div class="list-item" onclick="jumpToAbout()">
       <div class="item-left">
         <div class="icon-badge bg-gray" style="background: transparent; color: rgba(255,255,255,0.7);"><span class="material-symbols-outlined" style="font-size: 32px;">laptop_mac</span></div>
         <div>
@@ -313,7 +332,131 @@
 
 </div>
 
+<div class="modal-backdrop" id="verifyModal">
+  <div class="modal">
+    <h3>Verify your email</h3>
+    <p id="verifyText">We sent a 6-digit code to your email.</p>
+    <input class="code-input" id="codeInput" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000">
+    <div class="modal-msg" id="verifyMsg"></div>
+    <div class="btn-row">
+      <button class="verify-link" id="resendBtn" onclick="sendCode()">Resend code</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn" style="background:rgba(255,255,255,0.12);" onclick="closeVerifyModal()">Cancel</button>
+        <button class="btn" id="confirmCodeBtn" onclick="confirmCode()">Verify</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+let currentEmail = '';
+let resendTimer = null;
+
+async function readJson(res) {
+  try { return await res.json(); }
+  catch (e) { return { success: false, error: res.status === 404 ? 'The system kernel is outdated: close and restart mariowOS.' : 'Unexpected server response (' + res.status + ').' }; }
+}
+
+function renderVerified(email, verified) {
+  currentEmail = email || '';
+  const row = document.getElementById('verifyRow');
+  row.style.display = currentEmail ? 'flex' : 'none';
+  const badge = document.getElementById('verifyBadge');
+  badge.className = 'verify-badge ' + (verified ? 'ok' : 'no');
+  badge.innerText = verified ? 'Verified' : 'Not verified';
+  document.getElementById('verifyBtn').style.display = verified ? 'none' : 'inline';
+}
+
+function setVerifyMsg(text, kind) {
+  const el = document.getElementById('verifyMsg');
+  el.innerText = text || '';
+  el.className = 'modal-msg' + (kind ? ' ' + kind : '');
+}
+
+function startResendCooldown(seconds) {
+  const btn = document.getElementById('resendBtn');
+  clearInterval(resendTimer);
+  let left = seconds;
+  btn.disabled = true;
+  btn.innerText = `Resend code (${left}s)`;
+  resendTimer = setInterval(() => {
+    left--;
+    if (left <= 0) { clearInterval(resendTimer); btn.disabled = false; btn.innerText = 'Resend code'; }
+    else btn.innerText = `Resend code (${left}s)`;
+  }, 1000);
+}
+
+async function sendCode() {
+  setVerifyMsg('Sending code...');
+  try {
+    const res = await fetch('/api/email/send-code', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail })
+    });
+    const data = await readJson(res);
+    if (!data.success) {
+      setVerifyMsg(data.error || 'Could not send the code.', 'err');
+      if (data.retryAfter) startResendCooldown(data.retryAfter);
+      return false;
+    }
+    document.getElementById('verifyText').innerText = `We sent a 6-digit code to ${currentEmail}. It expires in 10 minutes.`;
+    setVerifyMsg('Code sent.', 'ok');
+    startResendCooldown(60);
+    return true;
+  } catch (e) {
+    setVerifyMsg('Network error: ' + e.message, 'err');
+    return false;
+  }
+}
+
+function openVerifyModal() {
+  if (!currentEmail) return;
+  document.getElementById('codeInput').value = '';
+  document.getElementById('verifyModal').classList.add('show');
+  document.getElementById('codeInput').focus();
+  sendCode();
+}
+
+function closeVerifyModal() {
+  document.getElementById('verifyModal').classList.remove('show');
+  setVerifyMsg('');
+}
+
+async function confirmCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  if (!/^\d{6}$/.test(code)) { setVerifyMsg('Enter the 6-digit code.', 'err'); return; }
+  const btn = document.getElementById('confirmCodeBtn');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/email/verify-code', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail, code })
+    });
+    const data = await readJson(res);
+    if (!data.success) { setVerifyMsg(data.error || 'Wrong code.', 'err'); return; }
+    renderVerified(currentEmail, true);
+    setVerifyMsg('Email verified!', 'ok');
+    setTimeout(closeVerifyModal, 900);
+  } catch (e) {
+    setVerifyMsg('Network error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('verifyModal').classList.contains('show')) confirmCode();
+  if (e.key === 'Escape') closeVerifyModal();
+});
+
+function jumpToAbout() {
+  if (window.parent && typeof window.parent.loadPage === 'function') {
+    const aboutBtn = window.parent.document.querySelector('.menu-item[onclick*="about"]');
+    if (aboutBtn) { aboutBtn.click(); return; }
+  }
+  window.location.href = 'about.html';
+}
+
 let avatarChanged = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -332,6 +475,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('email').value = cfg.email;
       document.getElementById('displayEmail').innerText = cfg.email;
     }
+    renderVerified(cfg.email, cfg.verified === true);
 
     // Cache-bust the avatar preview
     document.getElementById('pfpPreview').src = `/desktop/assets/avatar.user.png?t=${new Date().getTime()}`;
@@ -386,7 +530,7 @@ async function exportSettings() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   } catch (e) {
-    alert('Could not export settings: ' + e.message);
+    await mDialog.alert('Could not export settings: ' + e.message);
   }
 }
 
@@ -417,13 +561,13 @@ async function saveAvatarOnly() {
         window.parent.fetchServerInfo(); 
       }
     } catch (err) {
-      alert(`Could not update profile picture: ${err.message}`);
+      await mDialog.alert(`Could not update profile picture: ${err.message}`);
     }
   }
 }
 
 async function resetAvatar() {
-  if (confirm("Are you sure you want to remove your profile picture?")) {
+  if (await mDialog.confirm("Are you sure you want to remove your profile picture?", { danger: true, okText: "Remove" })) {
     try {
       const response = await fetch('/reset-avatar', { method: 'POST' });
       const result = await response.json();
@@ -436,7 +580,7 @@ async function resetAvatar() {
         window.parent.fetchServerInfo();
       }
     } catch (error) {
-      alert(`Failed to reset avatar: ${error.message}`);
+      await mDialog.alert(`Failed to reset avatar: ${error.message}`);
     }
   }
 }
@@ -446,14 +590,21 @@ async function saveSettings() {
   const email = document.getElementById('email').value.trim();
 
   if (!username || !email) {
-    alert('Username and Email cannot be empty.');
+    await mDialog.alert('Username and Email cannot be empty.');
     return;
   }
 
-  if (username.length > 30 || email.length > 50) {
-    alert('Username is too long. Maximum 30 characters allowed.');
+  if (username.length > 50) {
+    await mDialog.alert('Username is too long. Maximum 50 characters allowed.');
     return;
   }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254) {
+    await mDialog.alert('Please enter a valid email address.');
+    return;
+  }
+
+  const emailChanged = email.toLowerCase() !== currentEmail.toLowerCase();
 
   const settings = { username, email };
 
@@ -464,11 +615,15 @@ async function saveSettings() {
       body: JSON.stringify(settings)
     });
     
-    const data = await response.json();
+    const data = await readJson(response);
     if (data.success) {
       document.getElementById('displayName').innerText = username;
       document.getElementById('deviceName').innerText = username + "'s PC";
       document.getElementById('displayEmail').innerText = email;
+      if (emailChanged) {
+        renderVerified(email, false);
+        if (await mDialog.confirm('Your email changed. Send a verification code now?')) openVerifyModal();
+      }
       
       toggleEditPanel();
 
@@ -476,10 +631,10 @@ async function saveSettings() {
         window.parent.fetchServerInfo();
       }
     } else {
-      alert('Error: ' + (data.error || 'Unknown error'));
+      await mDialog.alert('Error: ' + (data.error || 'Unknown error'));
     }
   } catch (err) {
-    alert('Error saving settings: ' + err.message);
+    await mDialog.alert('Error saving settings: ' + err.message);
   }
 }
 </script>

@@ -21,6 +21,8 @@
       background: transparent; 
       overflow-x: hidden; 
       overflow-y: auto;
+      -webkit-font-smoothing: antialiased;
+      scrollbar-width: none;
     }
 
     .container {
@@ -96,6 +98,7 @@
       border-radius: 6px;
       color: white;
     }
+    .icon-badge { flex-shrink: 0; }
     .icon-badge .material-symbols-outlined { font-size: 18px; }
 
     .bg-rules { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
@@ -189,7 +192,7 @@
             <div class="item-subtitle">Clears active wallpaper and avatar</div>
           </div>
         </div>
-        <div class="item-right"></div>
+        <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
       <div class="list-item danger-text" onclick="navigateToFile('assets/factory-reset.html')">
         <div class="item-left">
