@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+  <title>New Tab</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+      padding: 16px; font-family: 'Poppins', sans-serif; color: #f2f3f7;
+      background: radial-gradient(circle at 30% 20%, #1d2a4a 0%, #0f1117 55%, #0b0c10 100%); }
+    .clock { font-size: 64px; font-weight: 600; letter-spacing: -2px; line-height: 1; }
+    .date { font-size: 14px; color: rgba(242,243,247,.6); text-align: center; margin-top: 6px; }
+    form { width: min(620px, 100%); display: flex; align-items: center; gap: 10px; padding: 0 8px 0 18px; height: 52px;
+      border-radius: 26px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
+    form:focus-within { border-color: #0a84ff; background: rgba(255,255,255,.11); }
+    form .material-symbols-outlined { color: rgba(242,243,247,.55); }
+    input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; font: 15px 'Poppins', sans-serif; }
+    input::placeholder { color: rgba(242,243,247,.45); }
+    .engine { font-size: 12px; color: rgba(242,243,247,.45); }
+    .shortcuts { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; max-width: 640px; }
+    .shortcuts a { width: 92px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px;
+      border-radius: 14px; color: inherit; text-decoration: none; font-size: 12px; }
+    .shortcuts a:hover { background: rgba(255,255,255,.08); }
+    .shortcuts span.icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,.1); font-size: 18px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="date" id="date"></div>
+  </div>
+  <form id="search">
+    <span class="material-symbols-outlined">search</span>
+    <input id="q" placeholder="Search the web or enter an address" autocomplete="off" spellcheck="false" autofocus>
+    <span class="engine" id="engine"></span>
+  </form>
+  <nav class="shortcuts">
+    <a href="https://www.wikipedia.org"><span class="icon">W</span>Wikipedia</a>
+    <a href="https://www.youtube.com"><span class="icon">▶</span>YouTube</a>
+    <a href="https://github.com/mariowOS"><span class="icon">GH</span>mariowOS</a>
+    <a href="https://www.openstreetmap.org"><span class="icon">M</span>Maps</a>
+  </nav>
+  <script>
+    const ENGINES = {
+      google: { name: 'Google', url: 'https://www.google.com/search?q=' },
+      duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+      bing: { name: 'Bing', url: 'https://www.bing.com/search?q=' }
+    };
+    let engineId = 'google';
+    try { engineId = localStorage.getItem('browserSearchEngine') || 'google'; } catch (e) {}
+    const engine = ENGINES[engineId] || ENGINES.google;
+    document.getElementById('engine').textContent = engine.name;
+
+    const tick = () => {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('date').textContent = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+    };
+    tick(); setInterval(tick, 10000);
+
+    document.getElementById('search').addEventListener('submit', event => {
+      event.preventDefault();
+      const value = document.getElementById('q').value.trim();
+      if (!value) return;
+      const isAddress = /^https?:\/\//i.test(value) ||
+        /^(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|(?:[a-z0-9-]+\.)+[a-z]{2,})(?::\d+)?(?:[/?#]\S*)?$/i.test(value);
+      const scheme = /^(?:localhost|\d)/i.test(value) ? 'http://' : 'https://';
+      location.href = isAddress ? (/^https?:\/\//i.test(value) ? value : scheme + value) : engine.url + encodeURIComponent(value);
+    });
+  </script>
+</body>
+</html>

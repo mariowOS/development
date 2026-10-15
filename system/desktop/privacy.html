@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+  <title>mariowOS - Privacy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background: #000; color: #e8e8ea; line-height: 1.6; }
+    main { max-width: 820px; margin: 0 auto; padding: 48px 16px 80px; }
+    h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; color: #fff; }
+    h2 { font-size: 1.25rem; font-weight: 600; color: #fff; margin: 32px 0 8px; }
+    p, li { font-size: 0.95rem; color: #b8b8be; }
+    ul { padding-left: 20px; margin: 6px 0; }
+    a { color: #0a84ff; }
+    .lang { display: flex; gap: 8px; margin: 16px 0 24px; }
+    .lang button { background: #1c1c1f; color: #fff; border: 1px solid #333; border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+    .lang button.active { background: #0a84ff; border-color: #0a84ff; }
+    .muted { color: #6e6e75; font-size: 0.85rem; }
+    [data-lang] { display: none; }
+    [data-lang].show { display: block; }
+    .back { display: inline-block; margin-top: 40px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Privacy</h1>
+  <div class="lang">
+    <button data-set="it" class="active">Italiano</button>
+    <button data-set="en">English</button>
+  </div>
+
+  <section data-lang="it" class="show">
+    <p class="muted">Informativa ai sensi degli artt. 13-14 del Regolamento (UE) 2016/679 (GDPR) e del D.Lgs. 196/2003. Ultimo aggiornamento: 11 ottobre 2026.</p>
+
+    <h2>1. In breve</h2>
+    <p>mariowOS funziona sul tuo computer. Account, file, note, calendario e impostazioni restano sul tuo dispositivo e non vengono inviati agli sviluppatori. Non ci sono pubblicità, analytics o telemetria.</p>
+
+    <h2>2. Titolare del trattamento</h2>
+    <p>Per i dati salvati sul tuo dispositivo, il titolare sei tu (o l'organizzazione che ti ha fornito il dispositivo). Per l'invio delle email descritte al punto 4, il titolare è chi distribuisce questa installazione di mariowOS: mariowstech e il team di mariowOS, contattabili all'indirizzo <a href="mailto:confirmation.mariowos@gmail.com">confirmation.mariowos@gmail.com</a> o su <a href="https://dsc.gg/mariowOS" target="_blank" rel="noopener">dsc.gg/mariowOS</a>.</p>
+
+    <h2>3. Dati salvati sul dispositivo</h2>
+    <ul>
+      <li>Nome utente, indirizzo email e password, salvata solo come hash bcrypt e mai in chiaro.</li>
+      <li>File, note, eventi del calendario, sfondo, avatar e preferenze.</li>
+      <li>Un cookie tecnico di sessione (<code>mw_session</code>, 12 ore), necessario per l'accesso. Non servono consensi per i cookie tecnici.</li>
+      <li>Log tecnici degli errori, che vengono ruotati e cancellati automaticamente.</li>
+    </ul>
+
+    <h2>4. Email</h2>
+    <p>Il tuo indirizzo email viene usato per inviarti i codici di verifica e di recupero password (base giuridica: esecuzione del servizio richiesto) e, solo se lo attivi, il riepilogo giornaliero (base giuridica: consenso, revocabile in qualsiasi momento dalle Impostazioni). Le email vengono spedite tramite il server SMTP di Google (Gmail), che può trattare i dati anche fuori dall'UE con le garanzie previste dal GDPR (EU-US Data Privacy Framework). I codici restano in memoria per 10 minuti.</p>
+
+    <h2>5. Servizi esterni</h2>
+    <p>Font, icone e librerie sono inclusi nel sistema: all'avvio non viene contattato nessun server esterno. Alcune funzioni, quando le usi, contattano servizi di terze parti, che ricevono il tuo indirizzo IP:</p>
+    <ul>
+      <li><strong>Meteo</strong>: Open-Meteo (Svizzera/UE) riceve la città cercata o le coordinate, se usi la posizione attuale.</li>
+      <li><strong>Messaggi</strong>: Element (app.element.io) e Minnit (minnit.chat), caricati solo dopo la tua conferma.</li>
+      <li><strong>Musica</strong>: le radio SomaFM (USA), caricate solo dopo la tua conferma.</li>
+      <li><strong>Last.fm</strong> (USA), solo se inserisci nome utente e chiave API nell'app Musica: mariowOS legge i brani che hai ascoltato ("scrobble"). La chiave resta sul tuo dispositivo.</li>
+      <li><strong>World Radio</strong>: l'elenco radio di radio-browser.info e i server delle singole radio che ascolti, dopo la tua conferma.</li>
+      <li><strong>Audius</strong> (audius.co), dopo la tua conferma, per cercare e ascoltare brani.</li>
+      <li><strong>Web player</strong> (YouTube Music, SoundCloud e altri): si aprono nel browser di mariowOS e valgono le loro informative. La scheda "In riproduzione su questo PC" legge le informazioni del brano da Windows, senza inviarle a nessuno.</li>
+      <li><strong>Spotify</strong> (Svezia/USA), solo se colleghi il tuo account dall'app Musica: mariowOS riceve un token di accesso, salvato solo sul tuo dispositivo, per mostrare e comandare la riproduzione e leggere le tue playlist. La password resta a Spotify. Puoi scollegarti in qualsiasi momento dall'app Musica; il token viene cancellato anche con il ripristino di fabbrica.</li>
+      <li><strong>Aggiornamenti e Store</strong>: GitHub (USA), contattato dal sistema per controllare e scaricare aggiornamenti e app.</li>
+      <li><strong>Browser e ricerca</strong>: i siti che visiti, con le loro informative. Le ricerche vanno al motore scelto nel menu del browser (Google di default, oppure DuckDuckGo o Bing). La pagina "Nuova scheda" è locale. Puoi cancellare cookie e dati dei siti dal menu del browser.</li>
+    </ul>
+    <p>Puoi revocare le conferme ai servizi esterni con il pulsante in fondo a questa pagina.</p>
+
+    <h2>6. Conservazione</h2>
+    <p>I dati restano sul dispositivo finché non li cancelli. Puoi eliminarli tutti con il ripristino di fabbrica (Impostazioni).</p>
+
+    <h2>7. I tuoi diritti</h2>
+    <p>Puoi accedere ai tuoi dati, correggerli, cancellarli, esportarli (Impostazioni → Backup), limitarne il trattamento, opporti e revocare il consenso. Per i dati trattati dal titolare indicato al punto 2 puoi scrivere ai contatti indicati. Hai diritto di proporre reclamo al Garante per la protezione dei dati personali (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">garanteprivacy.it</a>).</p>
+
+    <h2>8. Minori</h2>
+    <p>In Italia il consenso ai servizi online può essere dato da chi ha almeno 14 anni (art. 2-quinquies D.Lgs. 196/2003). Sotto i 14 anni è necessario il consenso di un genitore per attivare il riepilogo email.</p>
+  </section>
+
+  <section data-lang="en">
+    <p class="muted">Notice under Articles 13-14 of Regulation (EU) 2016/679 (GDPR) and Italian Legislative Decree 196/2003. Last updated: 11 October 2026.</p>
+
+    <h2>1. In short</h2>
+    <p>mariowOS runs on your computer. Your account, files, notes, calendar and settings stay on your device and are not sent to the developers. There are no ads, analytics or telemetry.</p>
+
+    <h2>2. Data controller</h2>
+    <p>You (or the organisation that provided your device) are the controller of the data stored on your device. For the emails described in section 4, the controller is whoever distributes this mariowOS installation: mariowstech and the mariowOS team, reachable at <a href="mailto:confirmation.mariowos@gmail.com">confirmation.mariowos@gmail.com</a> or <a href="https://dsc.gg/mariowOS" target="_blank" rel="noopener">dsc.gg/mariowOS</a>.</p>
+
+    <h2>3. Data stored on your device</h2>
+    <ul>
+      <li>Username, email address and password, stored only as a bcrypt hash and never in plain text.</li>
+      <li>Files, notes, calendar events, wallpaper, avatar and preferences.</li>
+      <li>One technical session cookie (<code>mw_session</code>, 12 hours), required to sign in. Technical cookies need no consent.</li>
+      <li>Technical error logs, which are rotated and deleted automatically.</li>
+    </ul>
+
+    <h2>4. Email</h2>
+    <p>Your email address is used to send verification and password-reset codes (legal basis: providing the service you requested) and, only if you turn it on, the daily digest (legal basis: consent, which you can withdraw at any time in Settings). Emails are sent through Google's SMTP server (Gmail), which may process data outside the EU under GDPR safeguards (EU-US Data Privacy Framework). Codes are kept in memory for 10 minutes.</p>
+
+    <h2>5. External services</h2>
+    <p>Fonts, icons and libraries ship with the system, so no external server is contacted at startup. Some features contact third parties when you use them, and those parties receive your IP address:</p>
+    <ul>
+      <li><strong>Weather</strong>: Open-Meteo (Switzerland/EU) receives the city you search for, or your coordinates if you use your current location.</li>
+      <li><strong>Messaging</strong>: Element (app.element.io) and Minnit (minnit.chat), loaded only after you confirm.</li>
+      <li><strong>Music</strong>: SomaFM radio streams (USA), loaded only after you confirm.</li>
+      <li><strong>Last.fm</strong> (USA), only if you enter a username and API key in the Music app: mariowOS reads the songs you played ("scrobbles"). The key stays on your device.</li>
+      <li><strong>World Radio</strong>: the radio-browser.info directory and the servers of the stations you play, after you confirm.</li>
+      <li><strong>Audius</strong> (audius.co), after you confirm, to search and play tracks.</li>
+      <li><strong>Web players</strong> (YouTube Music, SoundCloud and others): they open in the mariowOS browser under their own privacy policies. The "Playing on this PC" card reads track info from Windows and sends it nowhere.</li>
+      <li><strong>Spotify</strong> (Sweden/USA), only if you connect your account in the Music app: mariowOS receives an access token, stored only on your device, to show and control playback and read your playlists. Your password stays with Spotify. You can disconnect at any time from the Music app; a factory reset also deletes the token.</li>
+      <li><strong>Updates and Store</strong>: GitHub (USA), contacted by the system to check for and download updates and apps.</li>
+      <li><strong>Browser and search</strong>: the websites you visit, under their own privacy policies. Searches go to the engine chosen in the browser menu (Google by default, or DuckDuckGo or Bing). The New Tab page is local. You can clear cookies and site data from the browser menu.</li>
+    </ul>
+    <p>You can withdraw your confirmations for external services with the button at the bottom of this page.</p>
+
+    <h2>6. Retention</h2>
+    <p>Data stays on your device until you delete it. You can erase all of it with a factory reset (Settings).</p>
+
+    <h2>7. Your rights</h2>
+    <p>You can access, correct, delete and export your data (Settings → Backup), restrict processing, object, and withdraw consent. For data handled by the controller named in section 2, use the contact details given there. You have the right to lodge a complaint with the Italian Data Protection Authority (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">garanteprivacy.it</a>) or your local authority.</p>
+
+    <h2>8. Children</h2>
+    <p>In Italy, people aged 14 or over can consent to online services themselves (Art. 2-quinquies, Legislative Decree 196/2003). Under 14, a parent's consent is needed to turn on the email digest.</p>
+  </section>
+
+  <p style="margin-top:32px"><button id="revoke" class="lang" style="all:unset;cursor:pointer;color:#0a84ff">Revoca consensi ai servizi esterni / Withdraw external service consents</button></p>
+  <a class="back" href="javascript:history.back()">← Indietro / Back</a>
+</main>
+<script src="/desktop/assets/external-consent.js"></script>
+<script>
+  document.querySelectorAll('.lang button').forEach(btn => btn.onclick = () => {
+    document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('[data-lang]').forEach(s => s.classList.toggle('show', s.dataset.lang === btn.dataset.set));
+    document.documentElement.lang = btn.dataset.set;
+  });
+  document.getElementById('revoke').onclick = () => {
+    mwRevokeExternalConsents();
+    alert('OK');
+  };
+</script>
+</body>
+</html>

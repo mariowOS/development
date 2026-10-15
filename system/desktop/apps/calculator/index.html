@@ -1,321 +1,2038 @@
-
-
+<!--
+mariowOS Calculator - (C) 2026 mariowstech and the mariowOS team
+Licensed under the Apache License, Version 2.0
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --m3-accent-active: #0a84ff;
-            --m3-accent-on-active: #ffffff;
-            --m3-item-hover: rgba(255, 255, 255, 0.15);
-            --m3-text-color: #ffffff;
-            --m3-glass-border: rgba(255, 255, 255, 0.12);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator</title>
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+<style>
+  :root {
+    --accent: #0a84ff;
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.55);
+    --dim: rgba(255, 255, 255, 0.35);
+    --border: rgba(255, 255, 255, 0.1);
+    --panel: rgba(22, 23, 28, 0.72);
+    --key: rgba(255, 255, 255, 0.08);
+    --key-hover: rgba(255, 255, 255, 0.16);
+    --spring: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100vh; overflow: hidden; }
+  body {
+    font-family: 'Poppins', sans-serif; color: var(--text); background: transparent;
+    -webkit-font-smoothing: antialiased; user-select: none; display: flex; flex-direction: column;
+  }
+  button { font-family: inherit; }
+  input { font-family: inherit; user-select: text; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-            user-select: none;
-        }
+  /* ── Top bar ── */
+  .topbar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; flex: 0 0 auto; }
+  .tabs { position: relative; display: flex; padding: 3px; border-radius: 11px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); }
+  .tabs-pill { position: absolute; top: 3px; bottom: 3px; left: 3px; border-radius: 8px; background: var(--accent); transition: transform .35s var(--spring), width .35s ease; }
+  .tab { position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 0; border-radius: 8px;
+    background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: color .2s; }
+  .tab.on, .tab:hover { color: #fff; }
+  .tab .material-symbols-outlined { font-size: 17px; }
+  .topbar-spacer { flex: 1; }
+  .chip { height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--key); color: var(--muted);
+    font-size: 11.5px; font-weight: 600; cursor: pointer; letter-spacing: .04em; }
+  .chip:hover { color: #fff; background: var(--key-hover); }
+  .chip.on { color: #fff; border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
-        body {
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            color: var(--m3-text-color);
-            -webkit-font-smoothing: antialiased;
-        }
+  .view { flex: 1; min-height: 0; display: none; }
+  .view.on { display: flex; }
 
-        /* Contenitore adattato per la finestra popup */
-        .calculator {
-            width: 100%;
-            height: 100%;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-sizing: border-box;
-        }
+  /* ── Calculator ── */
+  .calc { flex: 1; display: flex; gap: 14px; padding: 0 14px 14px; min-width: 0; }
+  .calc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  .display { flex: 0 0 auto; padding: 14px 18px; border-radius: 18px; background: var(--panel); border: 1px solid var(--border); }
+  .expr { width: 100%; border: 0; outline: 0; background: transparent; color: var(--muted); font-size: 17px; text-align: right; caret-color: var(--accent); }
+  .result { margin-top: 2px; min-height: 52px; font-size: 40px; font-weight: 600; letter-spacing: -1px; text-align: right;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: copy; transition: color .2s; }
+  .result.preview { color: var(--dim); }
+  .result.error { color: #ff6961; font-size: 18px; font-weight: 500; letter-spacing: 0; line-height: 52px; }
+  .display-foot { display: flex; align-items: center; gap: 8px; min-height: 22px; margin-top: 4px; }
+  .display-foot .hint { font-size: 11px; color: var(--dim); }
+  .link-btn { margin-left: auto; display: none; align-items: center; gap: 5px; padding: 4px 10px; border: 0; border-radius: 8px; cursor: pointer;
+    background: color-mix(in srgb, var(--accent) 22%, transparent); color: #fff; font-size: 11.5px; font-weight: 500; }
+  .link-btn.show { display: inline-flex; }
+  .link-btn .material-symbols-outlined { font-size: 15px; }
 
-        /* Display del risultato compatto */
-        .display-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: flex-end;
-            padding: 8px 12px;
-            height: 90px;
-            word-wrap: break-word;
-            word-break: break-all;
-        }
+  .pads { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pad { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 1fr; gap: 7px; }
+  .key {
+    border: 0; border-radius: 13px; background: var(--key); color: #fff; font-size: 16px; font-weight: 500; cursor: pointer;
+    transition: background .15s, transform .1s; min-height: 36px;
+  }
+  .key:hover { background: var(--key-hover); }
+  .key:active { transform: scale(.95); }
+  .key.fn { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.05); }
+  .key.op { background: rgba(255, 255, 255, 0.13); font-size: 19px; }
+  .key.eq { background: var(--accent); font-size: 21px; }
+  .key.eq:hover { filter: brightness(1.1); }
+  .key.danger { color: #ff6961; }
+  .key.active { background: color-mix(in srgb, var(--accent) 35%, transparent); color: #fff; }
+  .key sup { font-size: 9px; }
 
-        .sub-display {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.5);
-            font-weight: 400;
-            min-height: 20px;
-        }
+  .history { flex: 0 0 240px; display: flex; flex-direction: column; border-radius: 18px; background: var(--panel); border: 1px solid var(--border); overflow: hidden; }
+  .history-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 8px; font-size: 13px; font-weight: 600; }
+  .history-head button { border: 0; background: none; color: var(--dim); cursor: pointer; font-size: 11.5px; }
+  .history-head button:hover { color: #ff6961; }
+  .history-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+  .h-item { padding: 8px 10px; border-radius: 10px; cursor: pointer; text-align: right; animation: fadeIn .3s var(--spring); }
+  .h-item:hover { background: var(--key); }
+  .h-expr { font-size: 11.5px; color: var(--muted); word-break: break-all; }
+  .h-res { font-size: 16px; font-weight: 600; word-break: break-all; }
+  .h-empty { padding: 20px 10px; text-align: center; color: var(--dim); font-size: 12px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } }
+  @media (max-width: 760px) { .history { display: none; } }
+  /* Compact window (e.g. the 400 px wide default calculator window): keep both keypads, just tighter. */
+  @media (max-width: 640px) {
+    .topbar { padding: 8px 10px; }
+    .tab { padding: 6px 11px; }
+    .calc { padding: 0 10px 10px; }
+    .calc-main { gap: 8px; }
+    .display { padding: 10px 14px; border-radius: 14px; }
+    .expr { font-size: 15px; }
+    .result { font-size: 32px; min-height: 42px; }
+    .result.error { line-height: 42px; font-size: 15px; }
+    .display-foot .hint { display: none; }
+    .pads { gap: 6px; }
+    .pad { gap: 5px; }
+    .key { font-size: 14px; border-radius: 10px; min-height: 30px; }
+    .key.fn { font-size: 11.5px; }
+    .key.op { font-size: 16px; }
+    .key.eq { font-size: 18px; }
+  }
+  @media (max-height: 460px) { .display-foot { display: none; } .result { font-size: 28px; min-height: 36px; } }
 
-        .display {
-            color: #ffffff;
-            font-size: 48px;
-            font-weight: 500;
-            text-align: right;
-            line-height: 1.1;
-        }
+  /* ── Graphing ── */
+  .graph { flex: 1; display: flex; min-width: 0; padding: 0 14px 14px; gap: 12px; }
+  .algebra { flex: 0 0 300px; display: flex; flex-direction: column; border-radius: 18px; background: var(--panel); border: 1px solid var(--border); overflow: hidden; }
+  .alg-list { flex: 1; overflow-y: auto; padding: 6px; }
+  .alg-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 6px 8px 8px; border-radius: 12px; border: 1px solid transparent; }
+  .alg-row:focus-within { background: rgba(255, 255, 255, 0.05); border-color: var(--border); }
+  .alg-dot { flex: 0 0 18px; width: 18px; height: 18px; margin-top: 6px; border-radius: 50%; border: 2px solid var(--c); background: var(--c); cursor: pointer; transition: background .15s; }
+  .alg-dot.off { background: transparent; }
+  .alg-dot.none { border-color: var(--dim); background: transparent; cursor: default; }
+  .alg-main { flex: 1; min-width: 0; }
+  .alg-input { width: 100%; padding: 4px 2px; border: 0; outline: 0; background: transparent; color: #fff; font-size: 14px; }
+  .alg-input::placeholder { color: var(--dim); }
+  .alg-info { font-size: 11.5px; color: var(--muted); padding: 0 2px; min-height: 0; word-break: break-word; }
+  .alg-info.err { color: #ff6961; }
+  .alg-del { flex: 0 0 24px; height: 24px; margin-top: 3px; border: 0; border-radius: 7px; background: transparent; color: var(--dim); cursor: pointer; opacity: 0; transition: opacity .15s; }
+  .alg-row:hover .alg-del, .alg-row:focus-within .alg-del { opacity: 1; }
+  .alg-del:hover { color: #ff6961; background: var(--key); }
+  .alg-del .material-symbols-outlined { font-size: 17px; }
+  .slider { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .slider .lim { font-size: 10.5px; color: var(--dim); min-width: 18px; text-align: center; }
+  .slider input[type=range] { --fill: 50%; flex: 1; height: 18px; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; }
+  .slider input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(to right, var(--c) var(--fill), rgba(255,255,255,.15) var(--fill)); }
+  .slider input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  .play { width: 24px; height: 24px; border: 0; border-radius: 50%; background: var(--key); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .play .material-symbols-outlined { font-size: 16px; font-variation-settings: 'FILL' 1; }
+  .alg-help { padding: 10px 14px 12px; border-top: 1px solid var(--border); font-size: 11px; line-height: 1.6; color: var(--dim); }
+  .alg-help code { color: var(--muted); background: rgba(0,0,0,.3); padding: 1px 5px; border-radius: 5px; font-size: 10.5px; }
 
-        /* Griglia dei pulsanti ottimizzata per 400x550px */
-        .buttons-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 10px;
-            flex: 1;
-            margin-top: 10px;
-        }
-
-        /* Stile base dei pulsanti M3 */
-        .btn {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: var(--m3-text-color);
-            border: 1px solid transparent;
-            border-radius: 20px;
-            font-size: 22px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-            outline: none;
-            height: 100%;
-            width: 100%;
-        }
-
-        .btn:hover {
-            background-color: var(--m3-item-hover);
-            transform: scale(0.97);
-        }
-
-        .btn:active {
-            transform: scale(0.92);
-        }
-
-        .btn:focus-visible {
-            box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4);
-        }
-
-        /* Pulsanti Operatore M3 */
-        .btn-operator {
-            background-color: rgba(255, 255, 255, 0.12);
-            color: var(--m3-accent-active);
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        /* Pulsante Clear */
-        .btn-clear {
-            background-color: rgba(255, 69, 58, 0.18);
-            color: #ff453a;
-            font-weight: 600;
-        }
-
-        .btn-clear:hover {
-            background-color: rgba(255, 69, 58, 0.28);
-        }
-
-        /* Pulsante Uguale M3 Accent */
-        .btn-equals {
-            background-color: var(--m3-accent-active);
-            color: var(--m3-accent-on-active);
-            font-size: 26px;
-            font-weight: 600;
-        }
-
-        .btn-equals:hover {
-            background-color: #007aff;
-        }
-
-        /* Tasto Zero largo */
-        .btn-zero {
-            grid-column: span 3;
-            border-radius: 20px;
-        }
-    </style>
+  .canvas-wrap { position: relative; flex: 1; min-width: 0; border-radius: 18px; overflow: hidden; background: #111318; border: 1px solid var(--border); }
+  canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+  canvas.dragging { cursor: grabbing; }
+  canvas.on-point { cursor: pointer; }
+  .gtools { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .gbtn { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 10px; background: rgba(28, 30, 36, 0.88); color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); transition: background .15s; }
+  .gbtn:hover { background: rgba(50, 53, 62, 0.95); }
+  .gbtn.on { background: var(--accent); border-color: transparent; }
+  .gbtn .material-symbols-outlined { font-size: 19px; }
+  .coords { position: absolute; left: 12px; bottom: 10px; padding: 4px 9px; border-radius: 8px; background: rgba(28, 30, 36, 0.85); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; pointer-events: none; }
+  .tip { position: absolute; padding: 5px 9px; border-radius: 8px; background: rgba(20, 21, 26, 0.95); border: 1px solid var(--border); font-size: 11.5px; pointer-events: none; white-space: nowrap;
+    transform: translate(-50%, calc(-100% - 12px)); display: none; font-variant-numeric: tabular-nums; }
+  .table-panel { position: absolute; left: 12px; top: 10px; width: 230px; max-height: min(380px, calc(100% - 60px)); display: none; flex-direction: column;
+    border-radius: 14px; background: rgba(24, 26, 32, 0.94); border: 1px solid var(--border); backdrop-filter: blur(12px); overflow: hidden; }
+  .table-panel.open { display: flex; animation: fadeIn .25s var(--spring); }
+  .table-head { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .table-head .row { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--muted); }
+  .table-head select, .table-head input { flex: 1; min-width: 0; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.35); color: #fff; font: 12px 'Poppins', sans-serif; outline: none; }
+  .table-head select option { background: #1c1e24; }
+  .table-scroll { overflow-y: auto; }
+  .vtable { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .vtable th { position: sticky; top: 0; background: #1f2128; color: var(--muted); font-weight: 500; padding: 6px 12px; text-align: right; }
+  .vtable td { padding: 5px 12px; text-align: right; border-top: 1px solid rgba(255,255,255,0.05); }
+  .vtable tr:hover td { background: rgba(255,255,255,0.05); }
+  @media (max-width: 700px) { .algebra { flex-basis: 220px; } .alg-help { display: none; } }
+  /* Narrow window: algebra list on top, graph below. */
+  @media (max-width: 600px) {
+    .graph { flex-direction: column; padding: 0 10px 10px; gap: 8px; }
+    .algebra { flex: 0 0 auto; max-height: 40%; border-radius: 14px; }
+    .alg-row { padding: 5px 6px; }
+    .canvas-wrap { flex: 1; min-height: 0; border-radius: 14px; }
+    .gbtn { width: 30px; height: 30px; border-radius: 9px; }
+    .gbtn .material-symbols-outlined { font-size: 17px; }
+    .gtools { top: 8px; right: 8px; gap: 5px; }
+    .table-panel { width: 200px; max-height: calc(100% - 50px); }
+  }
+  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+</style>
 </head>
 <body>
 
-    <div class="calculator">
-        <div class="display-container">
-            <div class="sub-display" id="sub-display"></div>
-            <div class="display" id="display">0</div>
+<div class="topbar">
+  <div class="tabs" id="tabs">
+    <span class="tabs-pill" id="tabsPill"></span>
+    <button class="tab on" data-view="calc"><span class="material-symbols-outlined">calculate</span>Calculator</button>
+    <button class="tab" data-view="graph"><span class="material-symbols-outlined">show_chart</span>Graphing</button>
+  </div>
+  <div class="topbar-spacer"></div>
+  <button class="chip" id="angleBtn" title="Angle unit for trigonometry">RAD</button>
+</div>
+
+<!-- ───────────── Calculator ───────────── -->
+<section class="view on" id="view-calc">
+  <div class="calc">
+    <div class="calc-main">
+      <div class="display">
+        <input class="expr" id="expr" spellcheck="false" autocomplete="off" placeholder="0" aria-label="Expression">
+        <div class="result" id="result" title="Click to copy">0</div>
+        <div class="display-foot">
+          <span class="hint" id="hint">Type or use the keys · Enter = · Esc clears</span>
+          <button class="link-btn" id="plotBtn"><span class="material-symbols-outlined">show_chart</span>Plot this</button>
         </div>
-
-        <div class="buttons-grid">
-            <button class="btn btn-clear" onclick="clearAll()">C</button>
-            <button class="btn btn-operator" onclick="setOperator('/')">÷</button>
-            <button class="btn btn-operator" onclick="setOperator('*')">×</button>
-            <button class="btn btn-operator" onclick="setOperator('-')">−</button>
-
-            <button class="btn" onclick="appendNumber('7')">7</button>
-            <button class="btn" onclick="appendNumber('8')">8</button>
-            <button class="btn" onclick="appendNumber('9')">9</button>
-            <button class="btn btn-operator" onclick="setOperator('+')">+</button>
-
-            <button class="btn" onclick="appendNumber('4')">4</button>
-            <button class="btn" onclick="appendNumber('5')">5</button>
-            <button class="btn" onclick="appendNumber('6')">6</button>
-            <button class="btn btn-equals" onclick="calculate()">=</button>
-
-            <button class="btn" onclick="appendNumber('1')">1</button>
-            <button class="btn" onclick="appendNumber('2')">2</button>
-            <button class="btn" onclick="appendNumber('3')">3</button>
-            <button class="btn" onclick="appendDot()">.</button>
-
-            <button class="btn btn-zero" onclick="appendNumber('0')">0</button>
-        </div>
+      </div>
+      <div class="pads">
+        <div class="pad sci" id="sciPad"></div>
+        <div class="pad" id="numPad"></div>
+      </div>
     </div>
+    <aside class="history">
+      <div class="history-head"><span>History</span><button id="clearHistory">Clear</button></div>
+      <div class="history-list" id="historyList"></div>
+    </aside>
+  </div>
+</section>
 
-    <script>
-        const display = document.getElementById('display');
-        const subDisplay = document.getElementById('sub-display');
+<!-- ───────────── Graphing ───────────── -->
+<section class="view" id="view-graph">
+  <div class="graph">
+    <aside class="algebra">
+      <div class="alg-list" id="algList"></div>
+      <div class="alg-help">
+        Try <code>f(x) = x^2 - 2</code>, <code>x^2 + y^2 = 9</code>, <code>y &lt; sin(x)</code>, <code>a = 2</code>, <code>A = (1, 2)</code>, <code>f'(x)</code>,
+        <code>(cos(t), sin(t))</code>, <code>Integral(f, 0, 2)</code>, <code>L = {(1,2), (2,4.1), (3,5.9)}</code>, <code>FitLine(L)</code>
+      </div>
+    </aside>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="canvas"></canvas>
+      <div class="gtools">
+        <button class="gbtn" id="zoomIn" title="Zoom in"><span class="material-symbols-outlined">add</span></button>
+        <button class="gbtn" id="zoomOut" title="Zoom out"><span class="material-symbols-outlined">remove</span></button>
+        <button class="gbtn" id="homeView" title="Standard view"><span class="material-symbols-outlined">home</span></button>
+        <button class="gbtn on" id="keyPoints" title="Show zeros, extrema and intersections"><span class="material-symbols-outlined">scatter_plot</span></button>
+        <button class="gbtn" id="tableBtn" title="Table of values"><span class="material-symbols-outlined">table_chart</span></button>
+        <button class="gbtn" id="exportPng" title="Save as PNG"><span class="material-symbols-outlined">download</span></button>
+      </div>
+      <div class="table-panel" id="tablePanel">
+        <div class="table-head">
+          <div class="row"><select id="tableFn" aria-label="Function"></select></div>
+          <div class="row">from <input id="tableStart" type="number" value="-5" step="any"> step <input id="tableStep" type="number" value="1" step="any" min="0"></div>
+        </div>
+        <div class="table-scroll"><table class="vtable"><thead><tr><th>x</th><th id="tableFnHead">f(x)</th></tr></thead><tbody id="tableBody"></tbody></table></div>
+      </div>
+      <div class="coords" id="coords">x: 0, y: 0</div>
+      <div class="tip" id="tip"></div>
+    </div>
+  </div>
+</section>
 
-        let currentInput = '0';
-        let firstOperand = null;
-        let operator = null;
-        let shouldResetDisplay = false;
+<script>
+/* ═══════════════════════════ Math engine ═══════════════════════════
+   A small, safe expression language (no eval): tokenizer → recursive-descent
+   parser → AST → compiled closures. Supports implicit multiplication (2x, 3(x+1),
+   sin x), powers, factorial, percent, |abs|, user functions with derivatives f'(x). */
 
-        function updateDisplay() {
-            display.innerText = currentInput;
-            if (currentInput.length > 8) {
-                display.style.fontSize = '32px';
-            } else if (currentInput.length > 5) {
-                display.style.fontSize = '40px';
-            } else {
-                display.style.fontSize = '48px';
-            }
+const CONSTANTS = { pi: Math.PI, 'π': Math.PI, e: Math.E, tau: 2 * Math.PI, phi: (1 + Math.sqrt(5)) / 2, inf: Infinity };
+const ALIASES = { sen: 'sin', tg: 'tan', arcsin: 'asin', arccos: 'acos', arctan: 'atan', arcsen: 'asin', arctg: 'atan', sqr: 'sqrt', ln: 'ln', lg: 'log' };
+
+function gamma(z) {
+  if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+  z -= 1;
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059,
+    12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  let x = c[0];
+  for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5;
+  return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+}
+function factorial(n) {
+  if (Number.isInteger(n)) {
+    if (n < 0) return NaN;
+    if (n > 170) return Infinity;
+    let r = 1; for (let i = 2; i <= n; i++) r *= i; return r;
+  }
+  return gamma(n + 1);
+}
+// Real powers: (-8)^(1/3) = -2, like a calculator, not NaN.
+function powReal(b, e) {
+  if (b >= 0 || Number.isInteger(e)) return Math.pow(b, e);
+  for (let q = 3; q <= 15; q += 2) {
+    const p = Math.round(e * q);
+    if (Math.abs(p / q - e) < 1e-10) return (p % 2 === 0 ? 1 : -1) * Math.pow(-b, e);
+  }
+  return NaN;
+}
+
+const FUNCS = {
+  sin: Math.sin, cos: Math.cos, tan: Math.tan, asin: Math.asin, acos: Math.acos, atan: Math.atan,
+  sec: x => 1 / Math.cos(x), csc: x => 1 / Math.sin(x), cot: x => 1 / Math.tan(x),
+  sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, asinh: Math.asinh, acosh: Math.acosh, atanh: Math.atanh,
+  sqrt: Math.sqrt, cbrt: Math.cbrt, abs: Math.abs, exp: Math.exp, ln: Math.log,
+  log: (x, b) => b === undefined ? Math.log10(x) : Math.log(x) / Math.log(b), log2: Math.log2,
+  floor: Math.floor, ceil: Math.ceil, round: Math.round, sign: Math.sign, sgn: Math.sign,
+  min: Math.min, max: Math.max, mod: (a, b) => ((a % b) + b) % b, nroot: (x, n) => powReal(x, 1 / n),
+  gamma, fact: factorial, random: () => Math.random()
+};
+const TRIG_IN = new Set(['sin', 'cos', 'tan', 'sec', 'csc', 'cot']);
+const TRIG_OUT = new Set(['asin', 'acos', 'atan']);
+
+function tokenize(src) {
+  src = src.replace(/[−–]/g, '-').replace(/[×·∙]/g, '*').replace(/÷/g, '/').replace(/²/g, '^2').replace(/³/g, '^3')
+    .replace(/≤/g, '<=').replace(/≥/g, '>=').replace(/\*\*/g, '^');
+  const tokens = [];
+  let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (/\s/.test(c)) { i++; continue; }
+    const rest = src.slice(i);
+    let m;
+    if ((m = /^(\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/.exec(rest))) {
+      tokens.push({ t: 'num', v: parseFloat(m[0]) }); i += m[0].length; continue;
+    }
+    if ((m = /^[A-Za-zα-ωΑ-Ωπ_][A-Za-z0-9_]*/.exec(rest))) {
+      i += m[0].length;
+      let primes = 0;
+      while (src[i] === "'") { primes++; i++; }
+      tokens.push({ t: 'id', v: m[0], p: primes }); continue;
+    }
+    if (c === '√') { tokens.push({ t: 'id', v: 'sqrt', p: 0, root: true }); i++; continue; }
+    if (rest.startsWith('<=') || rest.startsWith('>=')) { tokens.push({ t: 'op', v: rest.slice(0, 2) }); i += 2; continue; }
+    if ('+-*/^(),!%=<>|'.includes(c)) { tokens.push({ t: 'op', v: c }); i++; continue; }
+    throw new Error(`Unexpected "${c}"`);
+  }
+  return tokens;
+}
+
+// ctx: { vars: Set (allowed variable names), fns: Set (user function names) }
+function parse(src, ctx) {
+  const tokens = tokenize(src);
+  let pos = 0;
+  const peek = () => tokens[pos];
+  const isOp = (v, tok = peek()) => tok && tok.t === 'op' && tok.v === v;
+  const expect = v => { if (!isOp(v)) throw new Error(`Missing "${v}"`); pos++; };
+  const canonical = name => ALIASES[name] || name;
+  const isFunc = name => Boolean(FUNCS[canonical(name)]) || ctx.fns.has(name);
+  const isVar = name => ctx.vars.has(name) || name in CONSTANTS;
+  const known = name => isFunc(name) || isVar(name);
+
+  // "xsin" → x·sin, "ab" → a·b when the pieces are known names.
+  function split(name) {
+    const parts = [];
+    let i = 0;
+    while (i < name.length) {
+      let k = name.length - i;
+      while (k > 0 && !known(name.slice(i, i + k))) k--;
+      if (!k) return null;
+      parts.push(name.slice(i, i + k));
+      i += k;
+    }
+    return parts;
+  }
+
+  function parseRelation() {
+    const a = parseAdditive();
+    const tok = peek();
+    if (tok && tok.t === 'op' && ['<', '>', '<=', '>='].includes(tok.v)) {
+      pos++;
+      return { t: 'rel', op: tok.v, a, b: parseAdditive() };
+    }
+    return a;
+  }
+  function parseAdditive() {
+    let node = parseMultiplicative();
+    while (isOp('+') || isOp('-')) {
+      const op = tokens[pos++].v;
+      node = { t: 'bin', op, a: node, b: parseMultiplicative() };
+    }
+    return node;
+  }
+  function startsPrimary(tok) {
+    return tok && (tok.t === 'num' || tok.t === 'id' || (tok.t === 'op' && tok.v === '('));
+  }
+  function parseMultiplicative() {
+    let node = parseUnary();
+    for (;;) {
+      if (isOp('*') || isOp('/')) {
+        const op = tokens[pos++].v;
+        node = { t: 'bin', op, a: node, b: parseUnary() };
+      } else if (startsPrimary(peek())) {
+        node = { t: 'bin', op: '*', a: node, b: parsePower() };   // implicit multiplication
+      } else break;
+    }
+    return node;
+  }
+  function parseUnary() {
+    if (isOp('-')) { pos++; return { t: 'neg', a: parseUnary() }; }
+    if (isOp('+')) { pos++; return parseUnary(); }
+    return parsePower();
+  }
+  function parsePower() {
+    const base = parsePostfix();
+    if (isOp('^')) { pos++; return { t: 'bin', op: '^', a: base, b: parseUnary() }; }
+    return base;
+  }
+  function parsePostfix() {
+    let node = parsePrimary();
+    while (isOp('!') || isOp('%')) node = { t: 'post', op: tokens[pos++].v, a: node };
+    return node;
+  }
+  function parsePrimary() {
+    const tok = peek();
+    if (!tok) throw new Error('Incomplete expression');
+    if (tok.t === 'num') { pos++; return { t: 'num', v: tok.v }; }
+    if (isOp('(')) {
+      pos++;
+      const inner = parseAdditive();
+      if (isOp(',')) {   // (a, b) point literal
+        pos++;
+        const second = parseAdditive();
+        expect(')');
+        return { t: 'pair', a: inner, b: second };
+      }
+      expect(')');
+      return inner;
+    }
+    if (isOp('|')) {
+      pos++;
+      const inner = parseAdditive();
+      expect('|');
+      return { t: 'call', n: 'abs', args: [inner], p: 0 };
+    }
+    if (tok.t === 'id') {
+      const name = tok.v;
+      if (isFunc(name)) {
+        pos++;
+        const fname = ctx.fns.has(name) ? name : canonical(name);
+        let args;
+        if (isOp('(')) {
+          pos++;
+          args = [];
+          if (!isOp(')')) {
+            args.push(parseAdditive());
+            while (isOp(',')) { pos++; args.push(parseAdditive()); }
+          }
+          expect(')');
+        } else {
+          if (!peek()) throw new Error(`"${name}" needs an argument`);
+          args = [parseUnary()];   // sin x, √2
         }
+        return { t: 'call', n: fname, args, p: tok.p, user: ctx.fns.has(name) };
+      }
+      if (isVar(name)) {
+        if (tok.p) throw new Error(`"${name}'" is not a function`);
+        pos++;
+        return { t: 'var', n: name };
+      }
+      const parts = split(name);
+      if (parts && parts.length > 1) {
+        tokens.splice(pos, 1, ...parts.map((v, k) => ({ t: 'id', v, p: k === parts.length - 1 ? tok.p : 0 })));
+        return parsePrimary();
+      }
+      throw new Error(`Unknown "${name}"`);
+    }
+    throw new Error(`Unexpected "${tok.v}"`);
+  }
 
-        function appendNumber(number) {
-            if (currentInput === '0' || shouldResetDisplay) {
-                currentInput = number;
-                shouldResetDisplay = false;
-            } else {
-                if (currentInput.length < 10) {
-                    currentInput += number;
-                }
-            }
-            updateDisplay();
-        }
+  const ast = parseRelation();
+  if (pos < tokens.length) throw new Error(`Unexpected "${tokens[pos].v}"`);
+  return ast;
+}
 
-        function appendDot() {
-            if (shouldResetDisplay) {
-                currentInput = '0.';
-                shouldResetDisplay = false;
-            } else if (!currentInput.includes('.')) {
-                currentInput += '.';
-            }
-            updateDisplay();
-        }
+function collectVars(node, out = new Set()) {
+  if (!node) return out;
+  if (node.t === 'var') out.add(node.n);
+  ['a', 'b'].forEach(k => node[k] && collectVars(node[k], out));
+  (node.args || []).forEach(arg => collectVars(arg, out));
+  return out;
+}
+function usesUserFns(node, out = new Set()) {
+  if (!node) return out;
+  if (node.t === 'call' && node.user) out.add(node.n);
+  ['a', 'b'].forEach(k => node[k] && usesUserFns(node[k], out));
+  (node.args || []).forEach(arg => usesUserFns(arg, out));
+  return out;
+}
 
-        function setOperator(nextOperator) {
-            const inputValue = parseFloat(currentInput);
+function numericDerivative(g, x, order) {
+  if (order === 0) return g(x);
+  if (order === 1) {
+    const h = 1e-5 * Math.max(1, Math.abs(x));
+    return (g(x + h) - g(x - h)) / (2 * h);
+  }
+  if (order === 2) {
+    const h = 1e-3 * Math.max(1, Math.abs(x));
+    return (g(x + h) - 2 * g(x) + g(x - h)) / (h * h);
+  }
+  const h = 1e-2 * Math.max(1, Math.abs(x));
+  return (numericDerivative(g, x + h, order - 1) - numericDerivative(g, x - h, order - 1)) / (2 * h);
+}
 
-            if (operator && shouldResetDisplay) {
-                operator = nextOperator;
-                subDisplay.innerText = `${firstOperand} ${getOpSymbol(operator)}`;
-                return;
-            }
+// env: { deg, value(name), fns: Map name → { param, body } }
+// locals: variable names read from the evaluation scope object (x, y, function params).
+function compile(node, env, locals = new Set(['x', 'y'])) {
+  const c = n => compile(n, env, locals);
+  switch (node.t) {
+    case 'num': { const v = node.v; return () => v; }
+    case 'var': {
+      const name = node.n;
+      if (locals.has(name)) return s => s[name];
+      if (name in CONSTANTS) { const v = CONSTANTS[name]; return () => v; }
+      return () => env.value(name);
+    }
+    case 'neg': { const a = c(node.a); return s => -a(s); }
+    case 'post': {
+      const a = c(node.a);
+      return node.op === '!' ? s => factorial(a(s)) : s => a(s) / 100;
+    }
+    case 'pair': throw new Error('A point cannot be used here');
+    case 'rel': {
+      const a = c(node.a), b = c(node.b);
+      return { '<': s => a(s) < b(s), '>': s => a(s) > b(s), '<=': s => a(s) <= b(s), '>=': s => a(s) >= b(s) }[node.op];
+    }
+    case 'bin': {
+      const a = c(node.a), b = c(node.b);
+      switch (node.op) {
+        case '+': return s => a(s) + b(s);
+        case '-': return s => a(s) - b(s);
+        case '*': return s => a(s) * b(s);
+        case '/': return s => a(s) / b(s);
+        case '^': return s => powReal(a(s), b(s));
+      }
+      break;
+    }
+    case 'call': {
+      const args = node.args.map(c);
+      const order = node.p || 0;
+      if (node.user) {
+        const name = node.n;
+        if (args.length !== 1) throw new Error(`${name} takes one argument`);
+        const arg = args[0];
+        return s => env.callUser(name, order, arg(s));
+      }
+      const fn = FUNCS[node.n];
+      let base;
+      if (TRIG_IN.has(node.n)) base = v => fn(env.deg ? v * Math.PI / 180 : v);
+      else if (TRIG_OUT.has(node.n)) base = v => { const r = fn(v); return env.deg ? r * 180 / Math.PI : r; };
+      else base = fn;
+      if (order) {
+        if (args.length !== 1) throw new Error('Derivatives need one argument');
+        const arg = args[0];
+        return s => numericDerivative(base, arg(s), order);
+      }
+      if (args.length === 1) { const a0 = args[0]; return s => base(a0(s)); }
+      if (args.length === 2) { const a0 = args[0], a1 = args[1]; return s => base(a0(s), a1(s)); }
+      return s => base(...args.map(a => a(s)));
+    }
+  }
+  throw new Error('Cannot evaluate');
+}
 
-            if (firstOperand === null) {
-                firstOperand = inputValue;
-            } else if (operator) {
-                const result = performCalculation(operator, firstOperand, inputValue);
-                currentInput = String(result);
-                firstOperand = result;
-                updateDisplay();
-            }
+function formatNumber(v, digits = 12) {
+  if (typeof v !== 'number' || Number.isNaN(v)) return 'Undefined';
+  if (!Number.isFinite(v)) return v > 0 ? '∞' : '-∞';
+  if (Math.abs(v) < 1e-12) return '0';
+  const abs = Math.abs(v);
+  if (abs >= 1e15 || abs < 1e-6) {
+    const [m, e] = v.toExponential(digits - 1).split('e');
+    return `${parseFloat(m)}×10^${parseInt(e, 10)}`;
+  }
+  return String(parseFloat(v.toPrecision(digits)));
+}
 
-            shouldResetDisplay = true;
-            operator = nextOperator;
-            subDisplay.innerText = `${firstOperand} ${getOpSymbol(operator)}`;
-        }
+/* ═══════════════════════════ Shared UI ═══════════════════════════ */
 
-        function calculate() {
-            if (!operator || shouldResetDisplay) return;
+const $ = id => document.getElementById(id);
+const store = {
+  get(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch (e) { return fallback; } },
+  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+};
+// Follow the accent color chosen in Settings → Wallpaper & Style.
+try {
+  const accent = JSON.parse(localStorage.getItem('desktopStyle') || '{}').accent;
+  if (/^#[0-9a-f]{6}$/i.test(accent)) document.documentElement.style.setProperty('--accent', accent);
+} catch (e) {}
 
-            const inputValue = parseFloat(currentInput);
-            const result = performCalculation(operator, firstOperand, inputValue);
-            
-            subDisplay.innerText = `${firstOperand} ${getOpSymbol(operator)} ${inputValue} =`;
-            currentInput = String(result);
-            firstOperand = null;
-            operator = null;
-            shouldResetDisplay = true;
-            updateDisplay();
-        }
+let currentView = store.get('calc-view', 'calc');
+function placeTabsPill() {
+  const active = document.querySelector('.tab.on');
+  const pill = $('tabsPill');
+  pill.style.width = active.offsetWidth + 'px';
+  pill.style.transform = `translateX(${active.offsetLeft - 3}px)`;
+}
+function showView(name) {
+  currentView = name;
+  store.set('calc-view', name);
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === `view-${name}`));
+  placeTabsPill();
+  if (name === 'graph') { resizeCanvas(); }
+  else $('expr').focus();
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => showView(t.dataset.view));
+{
+  // Re-place the pill whenever a tab changes size (e.g. when the icon font finishes loading).
+  const observer = new ResizeObserver(placeTabsPill);
+  observer.observe($('tabs'));
+  document.querySelectorAll('.tab').forEach(t => observer.observe(t));
+}
+document.fonts?.ready.then(placeTabsPill);
 
-        function performCalculation(op, first, second) {
-            let res = 0;
-            switch (op) {
-                case '+': res = first + second; break;
-                case '-': res = first - second; break;
-                case '*': res = first * second; break;
-                case '/': res = second !== 0 ? first / second : 'Error'; break;
-                default: res = second;
-            }
-            return typeof res === 'number' ? Math.round(res * 1e8) / 1e8 : res;
-        }
+let degMode = store.get('calc-deg', false);
+function renderAngle() {
+  $('angleBtn').textContent = degMode ? 'DEG' : 'RAD';
+  $('angleBtn').classList.toggle('on', degMode);
+  const k = document.querySelector('[data-k="deg"]');
+  if (k) k.textContent = degMode ? 'DEG' : 'RAD';
+}
+function toggleAngle() {
+  degMode = !degMode;
+  store.set('calc-deg', degMode);
+  renderAngle();
+  updatePreview();
+}
+$('angleBtn').onclick = toggleAngle;
 
-        function getOpSymbol(op) {
-            switch(op) {
-                case '+': return '+';
-                case '-': return '−';
-                case '*': return '×';
-                case '/': return '÷';
-                default: return '';
-            }
-        }
+/* ═══════════════════════════ Calculator ═══════════════════════════ */
 
-        function clearAll() {
-            currentInput = '0';
-            firstOperand = null;
-            operator = null;
-            shouldResetDisplay = false;
-            subDisplay.innerText = '';
-            updateDisplay();
-        }
+const exprInput = $('expr');
+let ans = store.get('calc-ans', 0);
+let history = store.get('calc-history', []);
+let second = false;
+let justEvaluated = false;
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
-            if (e.key === '.' || e.key === ',') appendDot();
-            if (e.key === '+') setOperator('+');
-            if (e.key === '-') setOperator('-');
-            if (e.key === '*') setOperator('*');
-            if (e.key === '/') { e.preventDefault(); setOperator('/'); }
-            if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); calculate(); }
-            if (e.key === 'Escape' || e.key === 'c' || e.key === 'C') clearAll();
-            if (e.key === 'Backspace') {
-                if (currentInput.length > 1 && !shouldResetDisplay) {
-                    currentInput = currentInput.slice(0, -1);
-                } else {
-                    currentInput = '0';
-                }
-                updateDisplay();
-            }
+const calcEnv = {
+  get deg() { return degMode; },
+  value: name => name === 'Ans' ? ans : NaN,
+  callUser: () => NaN
+};
+function evaluateCalc(text) {
+  const ast = parse(text, { vars: new Set(['Ans']), fns: new Set() });
+  if (ast.t === 'rel') throw new Error('Comparisons belong in Graphing');
+  return compile(ast, calcEnv, new Set())({});
+}
+function hasX(text) {
+  try { return collectVars(parse(text, { vars: new Set(['x', 'y', 'Ans']), fns: new Set() })).has('x'); }
+  catch (e) { return false; }
+}
+
+function updatePreview() {
+  const text = exprInput.value.trim();
+  const res = $('result');
+  res.classList.remove('error');
+  $('plotBtn').classList.toggle('show', hasX(text));
+  if (!text) { res.textContent = formatNumber(justEvaluated ? ans : 0); res.classList.toggle('preview', false); return; }
+  if (justEvaluated) return;
+  try {
+    const v = evaluateCalc(text);
+    res.textContent = formatNumber(v);
+    res.classList.add('preview');
+  } catch (e) {
+    res.classList.add('preview');
+    res.textContent = '';
+  }
+}
+
+function commit() {
+  const text = exprInput.value.trim();
+  if (!text) return;
+  const res = $('result');
+  if (hasX(text)) { plotFromCalculator(); return; }
+  try {
+    const v = evaluateCalc(text);
+    if (typeof v !== 'number') throw new Error('Not a number');
+    ans = v;
+    store.set('calc-ans', ans);
+    res.classList.remove('preview', 'error');
+    res.textContent = formatNumber(v);
+    history.unshift({ expr: text, res: formatNumber(v) });
+    history = history.slice(0, 60);
+    store.set('calc-history', history);
+    renderHistory();
+    exprInput.value = Number.isFinite(v) ? formatNumber(v).replace('×10^', 'e') : '';
+    justEvaluated = true;
+  } catch (e) {
+    res.classList.remove('preview');
+    res.classList.add('error');
+    res.textContent = e.message;
+  }
+}
+
+function insert(text, { wrap = false } = {}) {
+  if (justEvaluated && /^[0-9.(πe√a-z]/i.test(text) && !wrap) exprInput.value = '';
+  justEvaluated = false;
+  const start = exprInput.selectionStart ?? exprInput.value.length;
+  const end = exprInput.selectionEnd ?? exprInput.value.length;
+  const value = exprInput.value;
+  if (wrap) {
+    // Wrap the selection (or everything) e.g. 1/(…)
+    const selected = start !== end ? value.slice(start, end) : value;
+    const [before, after] = text.split('…');
+    const wrapped = before + (selected || '') + after;
+    exprInput.value = start !== end ? value.slice(0, start) + wrapped + value.slice(end) : wrapped;
+    const caret = start !== end ? start + wrapped.length : wrapped.length;
+    exprInput.setSelectionRange(caret, caret);
+  } else {
+    exprInput.value = value.slice(0, start) + text + value.slice(end);
+    const caret = start + text.length;
+    exprInput.setSelectionRange(caret, caret);
+  }
+  exprInput.focus();
+  updatePreview();
+}
+
+const SCI_KEYS = [
+  { k: 'second', label: '2nd', cls: 'fn' },
+  { k: 'deg', label: 'RAD', cls: 'fn' },
+  { k: '(', label: '(', cls: 'fn' },
+  { k: ')', label: ')', cls: 'fn' },
+  { k: 'sin', label: 'sin', alt: 'sin⁻¹', ins: 'sin(', altIns: 'asin(', cls: 'fn' },
+  { k: 'cos', label: 'cos', alt: 'cos⁻¹', ins: 'cos(', altIns: 'acos(', cls: 'fn' },
+  { k: 'tan', label: 'tan', alt: 'tan⁻¹', ins: 'tan(', altIns: 'atan(', cls: 'fn' },
+  { k: 'pi', label: 'π', ins: 'π', cls: 'fn' },
+  { k: 'ln', label: 'ln', alt: 'eˣ', ins: 'ln(', altIns: 'e^(', cls: 'fn' },
+  { k: 'log', label: 'log', alt: '10ˣ', ins: 'log(', altIns: '10^(', cls: 'fn' },
+  { k: 'sqrt', label: '√', alt: '∛', ins: '√(', altIns: 'cbrt(', cls: 'fn' },
+  { k: 'e', label: 'e', ins: 'e', cls: 'fn' },
+  { k: 'sq', label: 'x²', alt: 'x³', ins: '^2', altIns: '^3', cls: 'fn' },
+  { k: 'pow', label: 'xʸ', alt: 'ʸ√x', ins: '^', altIns: 'nroot(', cls: 'fn' },
+  { k: 'fact', label: 'x!', ins: '!', cls: 'fn' },
+  { k: 'abs', label: '|x|', ins: 'abs(', cls: 'fn' },
+  { k: 'inv', label: '1/x', wrap: '1/(…)', cls: 'fn' },
+  { k: 'pct', label: '%', ins: '%', cls: 'fn' },
+  { k: 'x', label: 'x', ins: 'x', cls: 'fn' },
+  { k: 'comma', label: ',', ins: ', ', cls: 'fn' }
+];
+const NUM_KEYS = [
+  { k: 'ac', label: 'AC', cls: 'op danger' }, { k: 'back', label: '⌫', cls: 'op' }, { k: 'neg', label: '±', cls: 'op' }, { k: '/', label: '÷', ins: '÷', cls: 'op' },
+  { k: '7', label: '7' }, { k: '8', label: '8' }, { k: '9', label: '9' }, { k: '*', label: '×', ins: '×', cls: 'op' },
+  { k: '4', label: '4' }, { k: '5', label: '5' }, { k: '6', label: '6' }, { k: '-', label: '−', ins: '-', cls: 'op' },
+  { k: '1', label: '1' }, { k: '2', label: '2' }, { k: '3', label: '3' }, { k: '+', label: '+', ins: '+', cls: 'op' },
+  { k: '0', label: '0' }, { k: '.', label: '.' }, { k: 'ans', label: 'Ans', ins: 'Ans', cls: 'fn' }, { k: '=', label: '=', cls: 'eq' }
+];
+
+function buildPad(el, keys) {
+  keys.forEach(key => {
+    const b = document.createElement('button');
+    b.className = 'key ' + (key.cls || '');
+    b.dataset.k = key.k;
+    b.textContent = key.label;
+    b.tabIndex = -1;
+    b.addEventListener('mousedown', e => e.preventDefault());   // keep the caret in the input
+    b.onclick = () => pressKey(key);
+    el.appendChild(b);
+  });
+}
+function renderSecond() {
+  SCI_KEYS.forEach(key => {
+    const b = document.querySelector(`[data-k="${key.k}"]`);
+    if (key.alt) b.textContent = second ? key.alt : key.label;
+  });
+  document.querySelector('[data-k="second"]').classList.toggle('active', second);
+}
+function pressKey(key) {
+  switch (key.k) {
+    case 'second': second = !second; renderSecond(); return;
+    case 'deg': toggleAngle(); return;
+    case 'ac': exprInput.value = ''; justEvaluated = false; $('result').classList.remove('error'); updatePreview(); exprInput.focus(); return;
+    case 'back': {
+      justEvaluated = false;
+      const s = exprInput.selectionStart, e = exprInput.selectionEnd;
+      if (s !== e) exprInput.value = exprInput.value.slice(0, s) + exprInput.value.slice(e);
+      else if (s > 0) { exprInput.value = exprInput.value.slice(0, s - 1) + exprInput.value.slice(s); exprInput.setSelectionRange(s - 1, s - 1); }
+      exprInput.focus(); updatePreview(); return;
+    }
+    case 'neg': {
+      const v = exprInput.value.trim();
+      justEvaluated = false;
+      exprInput.value = !v ? '-' : /^-\(.*\)$/.test(v) ? v.slice(2, -1) : `-(${v})`;
+      exprInput.focus(); updatePreview(); return;
+    }
+    case '=': commit(); return;
+  }
+  if (key.wrap) { insert(key.wrap, { wrap: true }); }
+  else {
+    const text = second && key.altIns ? key.altIns : (key.ins ?? key.label);
+    if (justEvaluated && /^[+\-×÷^!%]/.test(text)) justEvaluated = false;   // continue from the result
+    insert(text);
+  }
+  if (second) { second = false; renderSecond(); }
+}
+
+exprInput.addEventListener('input', () => { justEvaluated = false; updatePreview(); });
+exprInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || (e.key === '=' && !e.shiftKey)) { e.preventDefault(); commit(); }
+  else if (e.key === 'Escape') { e.preventDefault(); pressKey({ k: 'ac' }); }
+  else if (justEvaluated && e.key.length === 1 && /[+\-*/^!%]/.test(e.key)) {
+    justEvaluated = false;   // operator after a result continues from it
+  } else if (justEvaluated && e.key.length === 1 && /[0-9a-z(.√π]/i.test(e.key)) {
+    exprInput.value = '';
+    justEvaluated = false;
+  }
+});
+$('result').onclick = async () => {
+  const text = $('result').textContent;
+  if (!text || $('result').classList.contains('error')) return;
+  try { await navigator.clipboard.writeText(text); $('hint').textContent = 'Copied to clipboard'; setTimeout(() => { $('hint').textContent = 'Type or use the keys · Enter = · Esc clears'; }, 1500); } catch (e) {}
+};
+
+function renderHistory() {
+  const list = $('historyList');
+  list.replaceChildren();
+  if (!history.length) { list.innerHTML = '<div class="h-empty">Your calculations appear here</div>'; return; }
+  history.forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'h-item';
+    const ex = document.createElement('div'); ex.className = 'h-expr'; ex.textContent = h.expr + ' =';
+    const re = document.createElement('div'); re.className = 'h-res'; re.textContent = h.res;
+    item.append(ex, re);
+    item.title = 'Click to reuse';
+    item.onclick = () => { exprInput.value = h.expr; justEvaluated = false; exprInput.focus(); updatePreview(); };
+    list.appendChild(item);
+  });
+}
+$('clearHistory').onclick = () => { history = []; store.set('calc-history', history); renderHistory(); };
+
+function plotFromCalculator() {
+  const text = exprInput.value.trim();
+  if (!text) return;
+  addGraphItem(text);
+  showView('graph');
+}
+$('plotBtn').onclick = plotFromCalculator;
+
+buildPad($('sciPad'), SCI_KEYS);
+buildPad($('numPad'), NUM_KEYS);
+renderHistory();
+renderAngle();
+
+/* ═══════════════════════════ Graphing ═══════════════════════════ */
+
+const COLORS = ['#0a84ff', '#ff453a', '#30d158', '#ff9f0a', '#bf5af2', '#40c8e0', '#ff375f', '#ffd60a', '#ac8e68', '#64d2ff'];
+const FN_NAMES = 'fghpqrstuvw'.split('');
+const POINT_NAMES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+let items = store.get('calc-graph-items', null) || [
+  { text: 'f(x) = x^2 - 2' },
+  { text: 'a = 1' },
+  { text: 'A = (a, f(a))' },
+  { text: 'g(x) = sin(x)' }
+];
+items = items.map((it, i) => ({ text: it.text, color: it.color || COLORS[i % COLORS.length], visible: it.visible !== false, id: Math.random().toString(36).slice(2) }));
+let view = store.get('calc-graph-view', { cx: 0, cy: 0, scale: 50 });
+let showKeyPoints = store.get('calc-keypoints', true);
+let built = [];      // compiled objects, parallel to items
+const numbers = new Map();
+const userFns = new Map();
+
+const graphEnv = {
+  deg: false,
+  depth: 0,
+  value(name) { return numbers.has(name) ? numbers.get(name) : NaN; },
+  callUser(name, order, x) {
+    const f = userFns.get(name);
+    if (!f) return NaN;
+    if (this.depth > 40) return NaN;   // f(x) = f(x) and friends
+    this.depth++;
+    try {
+      const g = v => f.body({ x: v, y: 0, [f.param]: v });
+      return order ? numericDerivative(g, x, order) : g(x);
+    } finally { this.depth--; }
+  }
+};
+
+function saveItems() {
+  store.set('calc-graph-items', items.map(({ text, color, visible }) => ({ text, color, visible })));
+}
+
+// Split "lhs op rhs" at the top-level relation sign.
+function splitRelation(text) {
+  let depth = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '(') depth++;
+    else if (c === ')') depth--;
+    else if (depth === 0 && '=<>≤≥'.includes(c)) {
+      let op = c, len = 1;
+      if ((c === '<' || c === '>') && text[i + 1] === '=') { op = c + '='; len = 2; }
+      if (c === '≤') op = '<=';
+      if (c === '≥') op = '>=';
+      return { lhs: text.slice(0, i).trim(), op, rhs: text.slice(i + len).trim() };
+    }
+  }
+  return null;
+}
+const isPointLiteral = t => /^\(.*\)$/.test(t.trim()) && (() => {
+  let depth = 0;
+  const inner = t.trim().slice(1, -1);
+  for (const c of inner) { if (c === '(') depth++; else if (c === ')') depth--; else if (c === ',' && depth === 0) return true; }
+  return false;
+})();
+
+// Split "a, (b, c), {d}" at top-level commas.
+function splitTopLevel(str) {
+  const parts = [];
+  let depth = 0, start = 0;
+  for (let i = 0; i < str.length; i++) {
+    const c = str[i];
+    if ('([{'.includes(c)) depth++;
+    else if (')]}'.includes(c)) depth--;
+    else if (c === ',' && depth === 0) { parts.push(str.slice(start, i).trim()); start = i + 1; }
+  }
+  parts.push(str.slice(start).trim());
+  return parts.filter(p => p !== '');
+}
+const COMMANDS = ['integral', 'curve', 'fitline', 'fitpoly', 'fitexp', 'fitlog', 'fitpow'];
+// "Integral(f, 0, 2)" → { name: 'integral', args: ['f', '0', '2'] }
+function parseCommand(text) {
+  const t = text.trim();
+  const m = /^([A-Za-z]+)\s*\(/.exec(t);
+  if (!m || !COMMANDS.includes(m[1].toLowerCase()) || !t.endsWith(')')) return null;
+  // The opening parenthesis must close at the very end.
+  let depth = 0;
+  for (let i = m[0].length - 1; i < t.length; i++) {
+    if (t[i] === '(') depth++;
+    else if (t[i] === ')') { depth--; if (depth === 0 && i !== t.length - 1) return null; }
+  }
+  return { name: m[1].toLowerCase(), args: splitTopLevel(t.slice(m[0].length, -1)) };
+}
+const isListLiteral = t => /^\{[\s\S]*\}$/.test(t.trim());
+
+// Least squares: solve A·c = b with partial pivoting.
+function solveLinear(A, b) {
+  const n = b.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let col = 0; col < n; col++) {
+    let pivot = col;
+    for (let r = col + 1; r < n; r++) if (Math.abs(M[r][col]) > Math.abs(M[pivot][col])) pivot = r;
+    if (Math.abs(M[pivot][col]) < 1e-14) return null;
+    [M[col], M[pivot]] = [M[pivot], M[col]];
+    for (let r = 0; r < n; r++) {
+      if (r === col) continue;
+      const k = M[r][col] / M[col][col];
+      for (let c = col; c <= n; c++) M[r][c] -= k * M[col][c];
+    }
+  }
+  return M.map((row, i) => row[n] / row[i]);
+}
+function linearFit(pts) {
+  const n = pts.length;
+  if (n < 2) return null;
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  pts.forEach(([x, y]) => { sx += x; sy += y; sxx += x * x; sxy += x * y; });
+  const den = n * sxx - sx * sx;
+  if (Math.abs(den) < 1e-14) return null;
+  const m = (n * sxy - sx * sy) / den;
+  return { m, q: (sy - m * sx) / n };
+}
+const fmtC = v => formatNumber(v, 4);
+function polyString(coef) {
+  let out = '';
+  for (let k = coef.length - 1; k >= 0; k--) {
+    const c = coef[k];
+    if (Math.abs(c) < 1e-12) continue;
+    const sign = c < 0 ? ' - ' : (out ? ' + ' : '');
+    const mag = Math.abs(c);
+    const num = (mag === 1 && k > 0) ? '' : fmtC(mag);
+    out += (out || c >= 0 ? sign : '-') + num + (k === 0 ? '' : k === 1 ? 'x' : `x^${k}`);
+  }
+  return out || '0';
+}
+function computeFit(fit, rawPts) {
+  const pts = rawPts.filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+  fit.eval = null;
+  let ev = null, eq = '';
+  if (fit.type === 'line') {
+    const r = linearFit(pts);
+    if (r) { ev = x => r.m * x + r.q; eq = polyString([r.q, r.m]); }
+  } else if (fit.type === 'poly') {
+    const deg = Math.max(1, Math.min(8, Math.round(fit.degree || 2)));
+    if (pts.length > deg) {
+      const A = [], b = [];
+      for (let i = 0; i <= deg; i++) {
+        A.push([]);
+        for (let j = 0; j <= deg; j++) A[i].push(pts.reduce((s, [x]) => s + Math.pow(x, i + j), 0));
+        b.push(pts.reduce((s, [x, y]) => s + y * Math.pow(x, i), 0));
+      }
+      const c = solveLinear(A, b);
+      if (c) { ev = x => c.reduceRight((acc, k) => acc * x + k, 0); eq = polyString(c); }
+    }
+  } else if (fit.type === 'exp') {
+    const r = linearFit(pts.filter(([, y]) => y > 0).map(([x, y]) => [x, Math.log(y)]));
+    if (r) { const a = Math.exp(r.q), k = r.m; ev = x => a * Math.exp(k * x); eq = `${fmtC(a)}·e^(${fmtC(k)}x)`; }
+  } else if (fit.type === 'log') {
+    const r = linearFit(pts.filter(([x]) => x > 0).map(([x, y]) => [Math.log(x), y]));
+    if (r) { ev = x => r.q + r.m * Math.log(x); eq = `${fmtC(r.q)} ${r.m < 0 ? '-' : '+'} ${fmtC(Math.abs(r.m))}·ln(x)`; }
+  } else if (fit.type === 'pow') {
+    const r = linearFit(pts.filter(([x, y]) => x > 0 && y > 0).map(([x, y]) => [Math.log(x), Math.log(y)]));
+    if (r) { const a = Math.exp(r.q), k = r.m; ev = x => a * Math.pow(x, k); eq = `${fmtC(a)}·x^${fmtC(k)}`; }
+  }
+  if (!ev) { fit.error = 'Not enough valid points for this fit'; return; }
+  const mean = pts.reduce((s, [, y]) => s + y, 0) / pts.length;
+  let ssRes = 0, ssTot = 0;
+  pts.forEach(([x, y]) => { ssRes += (y - ev(x)) ** 2; ssTot += (y - mean) ** 2; });
+  fit.eval = ev;
+  fit.eq = eq;
+  fit.r2 = ssTot > 0 ? 1 - ssRes / ssTot : 1;
+  fit.error = null;
+}
+function simpson(f, a, b, n = 2000) {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return NaN;
+  if (a === b) return 0;
+  const h = (b - a) / n;
+  let sum = f(a) + f(b);
+  for (let i = 1; i < n; i++) sum += f(a + i * h) * (i % 2 ? 4 : 2);
+  return sum * h / 3;
+}
+
+function buildAll() {
+  // 1. Names defined anywhere, so lines can reference each other in any order.
+  const defined = items.map(it => {
+    const rel = splitRelation(it.text);
+    if (!rel || rel.op !== '=') return null;
+    let m = /^([A-Za-z][A-Za-z0-9_]*)\s*\(\s*([a-z])\s*\)$/.exec(rel.lhs);
+    if (m && !['x', 'y'].includes(m[1])) return { kind: 'fn', name: m[1], param: m[2] };
+    m = /^([A-Za-z][A-Za-z0-9_]*)$/.exec(rel.lhs);
+    if (m && !['x', 'y'].includes(m[1])) {
+      if (isListLiteral(rel.rhs)) return { kind: 'list', name: m[1] };
+      const cmd = parseCommand(rel.rhs);
+      if (cmd && cmd.name.startsWith('fit')) return { kind: 'fn', name: m[1], param: 'x', cmd };
+      if (cmd && cmd.name === 'integral') return { kind: 'cmdnum', name: m[1], cmd };
+      if (cmd) return { kind: 'cmd', name: m[1], cmd };
+      if (isPointLiteral(rel.rhs)) return { kind: 'point', name: m[1] };
+      return { kind: 'name', name: m[1] };
+    }
+    return null;
+  });
+  const usedNames = new Set(defined.filter(Boolean).map(d => d.name));
+  const fnNames = new Set(defined.filter(d => d && d.kind === 'fn').map(d => d.name));
+  const numberNames = new Set(defined.filter(d => d && (d.kind === 'name' || d.kind === 'cmdnum')).map(d => d.name));
+  const vars = new Set(['x', 'y', ...numberNames]);
+  const ctx = { vars, fns: fnNames };
+
+  // A plain name definition depends on x → it is really a function (g = x^2).
+  defined.forEach((d, i) => {
+    if (d?.kind !== 'name') return;
+    try {
+      const rel = splitRelation(items[i].text);
+      const v = collectVars(parse(rel.rhs, ctx));
+      if (v.has('x')) { d.kind = 'fn'; d.param = 'x'; fnNames.add(d.name); numberNames.delete(d.name); vars.delete(d.name); }
+    } catch (e) {}
+  });
+
+  numbers.clear();
+  userFns.clear();
+  const autoName = (pool) => { const n = pool.find(p => !usedNames.has(p)); if (n) usedNames.add(n); return n || '?'; };
+
+  built = items.map((it, i) => {
+    const text = it.text.trim();
+    if (!text) return { kind: 'empty' };
+    const d = defined[i];
+    try {
+      const rel = splitRelation(text);
+      const cmd = d ? d.cmd : (!rel ? parseCommand(text) : null);
+      if (cmd) return buildCommand(cmd, d, ctx, vars, fnNames, autoName);
+      if (d?.kind === 'list' || (!rel && isListLiteral(text))) {
+        const body = (d ? rel.rhs : text).trim().slice(1, -1);
+        const pointsAst = splitTopLevel(body).map(src => {
+          const ast = parse(src, ctx);
+          if (ast.t !== 'pair') throw new Error('A list contains points like (1, 2)');
+          return { fx: compile(ast.a, graphEnv, new Set()), fy: compile(ast.b, graphEnv, new Set()) };
         });
-    </script>
+        return { kind: 'list', name: d ? d.name : null, items: pointsAst, points: [] };
+      }
+      if (d?.kind === 'fn') {
+        const rhs = rel.rhs;
+        const ast = parse(rhs, { vars: new Set([...vars, d.param]), fns: fnNames });
+        const body = compile(ast, graphEnv, new Set(['x', 'y', d.param]));
+        userFns.set(d.name, { param: d.param, body });
+        return { kind: 'function', name: d.name, param: d.param, f: x => body({ x, y: 0, [d.param]: x }), label: `${d.name}(${d.param})` };
+      }
+      if (d?.kind === 'name') {
+        const ast = parse(rel.rhs, ctx);
+        const fn = compile(ast, graphEnv, new Set());
+        return { kind: 'number', name: d.name, fn, slider: ast.t === 'num' || (ast.t === 'neg' && ast.a.t === 'num') };
+      }
+      if (d?.kind === 'point' || (!rel && isPointLiteral(text))) {
+        const src = d ? rel.rhs : text;
+        const ast = parse(src, { vars: new Set([...vars, 't']), fns: fnNames });
+        if (ast.t !== 'pair') throw new Error('A point is written (x, y)');
+        if (collectVars(ast).has('t') && !vars.has('t')) {
+          // (x(t), y(t)) is a parametric curve, t from 0 to 2π by default.
+          const locals = new Set(['t']);
+          return { kind: 'curve', fx: compile(ast.a, graphEnv, locals), fy: compile(ast.b, graphEnv, locals),
+            param: 't', fa: () => 0, fb: () => 2 * Math.PI, defaultRange: true };
+        }
+        const fx = compile(ast.a, graphEnv, new Set()), fy = compile(ast.b, graphEnv, new Set());
+        const free = ast.a.t !== 'pair' && isPlainNumber(ast.a) && isPlainNumber(ast.b);
+        return { kind: 'point', name: d ? d.name : autoName(POINT_NAMES), fx, fy, free };
+      }
+      if (rel) {
+        const lhsAst = parse(rel.lhs, ctx), rhsAst = parse(rel.rhs, ctx);
+        const lv = collectVars(lhsAst), rv = collectVars(rhsAst);
+        const L = compile(lhsAst, graphEnv), R = compile(rhsAst, graphEnv);
+        if (rel.op === '=') {
+          if (rel.lhs === 'y' && !rv.has('y')) {
+            const name = autoName(FN_NAMES);
+            return { kind: 'function', name, param: 'x', f: x => R({ x, y: 0 }), label: 'y', anon: true };
+          }
+          if (!lv.has('x') && !lv.has('y') && !rv.has('x') && !rv.has('y')) throw new Error('Nothing to draw: use x or y');
+          return { kind: 'implicit', F: (x, y) => L({ x, y }) - R({ x, y }) };
+        }
+        const cmp = compile({ t: 'rel', op: rel.op, a: lhsAst, b: rhsAst }, graphEnv);
+        const boundary = (rel.lhs === 'y' && !rv.has('y')) ? { f: x => R({ x, y: 0 }) } : null;
+        return { kind: 'inequality', test: (x, y) => cmp({ x, y }), F: (x, y) => L({ x, y }) - R({ x, y }), boundary, strict: rel.op.length === 1 };
+      }
+      const ast = parse(text, ctx);
+      const v = collectVars(ast);
+      if (v.has('y')) throw new Error('Add "= …" to draw a curve in x and y');
+      if (v.has('x') || usesUserFns(ast).size && v.has('x')) {
+        const fn = compile(ast, graphEnv);
+        const name = autoName(FN_NAMES);
+        return { kind: 'function', name, param: 'x', f: x => fn({ x, y: 0 }), label: name + '(x)', anon: true };
+      }
+      const fn = compile(ast, graphEnv);
+      return { kind: 'value', fn };
+    } catch (e) {
+      return { kind: 'error', error: e.message };
+    }
+  });
+
+  // 2. Numbers can depend on each other: evaluate in passes until stable.
+  for (let pass = 0; pass < built.length + 1; pass++) {
+    let changed = false;
+    built.forEach(b => {
+      if (b.kind !== 'number') return;
+      const v = b.fn({});
+      if (!Object.is(v, numbers.get(b.name))) { numbers.set(b.name, v); changed = true; }
+    });
+    if (!changed) break;
+  }
+  finishBuild();
+  built.forEach(b => { if (b.kind === 'number') numbers.set(b.name, b.fn({})); });
+  built.forEach(b => {
+    if (b.kind === 'number' && !Number.isFinite(numbers.get(b.name))) b.warn = 'Undefined (circular or invalid)';
+  });
+  if (typeof renderTable === 'function') renderTable();
+}
+function isPlainNumber(node) { return node.t === 'num' || (node.t === 'neg' && node.a.t === 'num'); }
+
+// An argument that is a function: "f" (a defined function) or an expression in x.
+function compileFnArg(src, vars, fnNames) {
+  const name = src.trim();
+  if (fnNames.has(name)) return x => graphEnv.callUser(name, 0, x);
+  const ast = parse(src, { vars, fns: fnNames });
+  const fn = compile(ast, graphEnv);
+  return x => fn({ x, y: 0 });
+}
+function compileNumberArg(src, vars, fnNames) {
+  const fn = compile(parse(src, { vars, fns: fnNames }), graphEnv, new Set());
+  return () => fn({});
+}
+
+function buildCommand(cmd, d, ctx, vars, fnNames, autoName) {
+  const { name, args } = cmd;
+  if (name.startsWith('fit')) {
+    const type = name.slice(3);
+    if (!args.length) throw new Error(`${name}(L) needs a list of points`);
+    const listArg = args[0].trim();
+    let inline = null;
+    if (isListLiteral(listArg)) {
+      inline = splitTopLevel(listArg.slice(1, -1)).map(src => {
+        const ast = parse(src, ctx);
+        if (ast.t !== 'pair') throw new Error('A list contains points like (1, 2)');
+        return { fx: compile(ast.a, graphEnv, new Set()), fy: compile(ast.b, graphEnv, new Set()) };
+      });
+    }
+    const fit = { type, ref: inline ? null : listArg, inline, degree: type === 'poly' ? Number(args[1] || 2) : null };
+    if (type === 'poly' && !(fit.degree >= 1 && fit.degree <= 8)) throw new Error('FitPoly(L, n): n from 1 to 8');
+    const fname = d ? d.name : autoName(FN_NAMES);
+    const f = x => fit.eval ? fit.eval(x) : NaN;
+    userFns.set(fname, { param: 'x', body: s => f(s.x) });
+    return { kind: 'function', name: fname, param: 'x', f, fit, label: `${fname}(x)`, anon: !d };
+  }
+  if (name === 'integral') {
+    if (args.length !== 3 && args.length !== 4) throw new Error('Integral(f, a, b) or Integral(f, g, a, b)');
+    const f = compileFnArg(args[0], vars, fnNames);
+    const g = args.length === 4 ? compileFnArg(args[1], vars, fnNames) : null;
+    const fa = compileNumberArg(args[args.length - 2], vars, fnNames), fb = compileNumberArg(args[args.length - 1], vars, fnNames);
+    const drawF = !fnNames.has(args[0].trim()), drawG = g && !fnNames.has(args[1].trim());
+    return { kind: 'integral', name: d ? d.name : null, f, g, fa, fb, drawF, drawG, value: NaN };
+  }
+  if (name === 'curve') {
+    if (args.length !== 5) throw new Error('Curve(x(t), y(t), t, a, b)');
+    const param = args[2].trim();
+    if (!/^[a-z]$/.test(param) || param === 'x' || param === 'y') throw new Error('The parameter must be a single letter, e.g. t');
+    const pv = new Set([...vars, param]);
+    const locals = new Set([param]);
+    const fx = compile(parse(args[0], { vars: pv, fns: fnNames }), graphEnv, locals);
+    const fy = compile(parse(args[1], { vars: pv, fns: fnNames }), graphEnv, locals);
+    return { kind: 'curve', fx, fy, param, fa: compileNumberArg(args[3], vars, fnNames), fb: compileNumberArg(args[4], vars, fnNames) };
+  }
+  throw new Error(`Unknown command ${name}`);
+}
+
+// After numbers are known: list coordinates, fits and integrals.
+function finishBuild() {
+  built.forEach(b => {
+    if (b.kind === 'list') b.points = b.items.map(p => [p.fx({}), p.fy({})]);
+  });
+  const lists = new Map(built.filter(b => b.kind === 'list' && b.name).map(b => [b.name, b]));
+  built.forEach(b => {
+    if (b.kind !== 'function' || !b.fit) return;
+    const fit = b.fit;
+    const pts = fit.inline ? fit.inline.map(p => [p.fx({}), p.fy({})]) : lists.get(fit.ref)?.points;
+    if (!pts) { fit.eval = null; fit.error = `Unknown list "${fit.ref}"`; return; }
+    computeFit(fit, pts);
+  });
+  built.forEach(b => {
+    if (b.kind === 'curve') { b.a = b.fa({}); b.b = b.fb({}); }
+    if (b.kind !== 'integral') return;
+    b.a = b.fa({}); b.b = b.fb({});
+    const h = b.g ? (x => b.f(x) - b.g(x)) : b.f;
+    b.value = simpson(h, b.a, b.b);
+    if (b.name) numbers.set(b.name, b.value);
+  });
+}
+
+/* ── Algebra panel ── */
+
+function renderAlgebra() {
+  const list = $('algList');
+  const focused = document.activeElement?.closest?.('.alg-row')?.dataset.id;
+  const caret = document.activeElement?.selectionStart;
+  list.replaceChildren();
+  items.forEach((it, i) => list.appendChild(buildRow(it, built[i], i)));
+  list.appendChild(buildRow(null, null, items.length));
+  if (focused) {
+    const input = list.querySelector(`.alg-row[data-id="${focused}"] .alg-input`);
+    if (input) { input.focus(); if (caret != null) input.setSelectionRange(caret, caret); }
+  }
+}
+
+function buildRow(it, b, index) {
+  const row = document.createElement('div');
+  row.className = 'alg-row';
+  row.dataset.id = it ? it.id : 'new';
+  row.style.setProperty('--c', it ? it.color : 'rgba(255,255,255,.3)');
+
+  const dot = document.createElement('button');
+  const drawable = b && ['function', 'implicit', 'inequality', 'point', 'list', 'integral', 'curve'].includes(b.kind);
+  dot.className = 'alg-dot' + (!it || !drawable ? ' none' : it.visible ? '' : ' off');
+  dot.title = drawable ? (it.visible ? 'Hide' : 'Show') : '';
+  dot.onclick = () => { if (!drawable) return; it.visible = !it.visible; saveItems(); renderAlgebra(); requestDraw(); };
+
+  const main = document.createElement('div');
+  main.className = 'alg-main';
+  const input = document.createElement('input');
+  input.className = 'alg-input';
+  input.spellcheck = false;
+  input.autocomplete = 'off';
+  input.placeholder = it ? '' : 'Input…';
+  input.value = it ? it.text : '';
+  input.addEventListener('input', () => {
+    if (!it) {
+      if (!input.value.trim()) return;
+      const created = addGraphItem(input.value, { silent: true });
+      rebuild();
+      const newInput = $('algList').querySelector(`.alg-row[data-id="${created.id}"] .alg-input`);
+      if (newInput) { newInput.focus(); newInput.setSelectionRange(newInput.value.length, newInput.value.length); }
+      return;
+    }
+    it.text = input.value;
+    scheduleRebuild();
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (it) addMissingSliders(it);
+      rebuild();
+      const rows = [...$('algList').querySelectorAll('.alg-input')];
+      const at = it ? items.indexOf(it) : index;
+      const next = rows[Math.min(at + 1, rows.length - 1)];
+      next?.focus();
+    } else if (e.key === 'Backspace' && it && !input.value) {
+      e.preventDefault();
+      removeItem(it);
+    }
+  });
+  main.appendChild(input);
+
+  const info = document.createElement('div');
+  info.className = 'alg-info';
+  if (b) {
+    if (b.kind === 'error') {
+      info.classList.add('err');
+      const missing = sliderCandidates(b.error);
+      info.textContent = missing.length
+        ? `${missing.join(', ')} ${missing.length > 1 ? 'are' : 'is'} not defined · press Enter to add ${missing.length > 1 ? 'sliders' : 'a slider'}`
+        : b.error;
+    }
+    else if (b.warn) { info.classList.add('err'); info.textContent = b.warn; }
+    else if (b.kind === 'value') { info.textContent = '= ' + formatNumber(b.fn({}), 10); }
+    else if (b.kind === 'number' && !b.slider) { info.textContent = '= ' + formatNumber(numbers.get(b.name), 10); }
+    else if (b.kind === 'point') {
+      const x = b.fx({}), y = b.fy({});
+      info.textContent = `${b.name} = (${formatNumber(x, 5)}, ${formatNumber(y, 5)})${b.free ? ' · drag it on the graph' : ''}`;
+    }
+    else if (b.kind === 'function' && b.anon) info.textContent = `${b.name}(x)`;
+    else if (b.kind === 'inequality') info.textContent = 'Shaded region';
+    else if (b.kind === 'list') info.textContent = `${b.name ? b.name + ': ' : ''}${b.points.length} points`;
+    else if (b.kind === 'integral') info.textContent = `${b.name ? b.name + ' ' : ''}= ${formatNumber(b.value, 8)}  (area from ${formatNumber(b.a, 4)} to ${formatNumber(b.b, 4)})`;
+    else if (b.kind === 'curve') info.textContent = `Parametric curve, ${b.param} from ${formatNumber(b.a, 4)} to ${formatNumber(b.b, 4)}${b.defaultRange ? ' · Curve(x, y, t, a, b) to change' : ''}`;
+    if (b.kind === 'function' && b.fit) {
+      if (b.fit.error) { info.classList.add('err'); info.textContent = b.fit.error; }
+      else info.textContent = `${b.name}(x) = ${b.fit.eq} · R² = ${formatNumber(b.fit.r2, 5)}`;
+    }
+  }
+  if (info.textContent) main.appendChild(info);
+  if (b && b.kind === 'number' && b.slider && !b.warn) main.appendChild(buildSlider(it, b));
+
+  row.append(dot, main);
+  if (it) {
+    const del = document.createElement('button');
+    del.className = 'alg-del';
+    del.title = 'Delete';
+    del.innerHTML = '<span class="material-symbols-outlined">close</span>';
+    del.onclick = () => removeItem(it);
+    row.appendChild(del);
+  }
+  return row;
+}
+
+const playing = new Map();   // item id → animation handle
+function buildSlider(it, b) {
+  const value = numbers.get(b.name);
+  const span = Math.max(5, Math.ceil(Math.abs(value) * 2));
+  const min = -span, max = span;
+  const wrap = document.createElement('div');
+  wrap.className = 'slider';
+  const play = document.createElement('button');
+  play.className = 'play';
+  play.title = 'Animate';
+  play.innerHTML = `<span class="material-symbols-outlined">${playing.has(it.id) ? 'pause' : 'play_arrow'}</span>`;
+  const range = document.createElement('input');
+  range.type = 'range';
+  range.min = min; range.max = max; range.step = (max - min) / 200;
+  range.value = value;
+  const paint = () => range.style.setProperty('--fill', ((range.value - min) / (max - min) * 100) + '%');
+  paint();
+  const setValue = v => {
+    const rounded = Math.round(v * 100) / 100;
+    it.text = `${b.name} = ${rounded}`;
+    const input = range.closest('.alg-row').querySelector('.alg-input');
+    input.value = it.text;
+    range.value = rounded;
+    paint();
+    rebuild({ keepAlgebra: true });
+    const info = range.closest('.alg-row');
+    updateRowInfos();
+  };
+  range.oninput = () => setValue(Number(range.value));
+  play.onclick = () => {
+    if (playing.has(it.id)) {
+      cancelAnimationFrame(playing.get(it.id).raf);
+      playing.delete(it.id);
+      play.innerHTML = '<span class="material-symbols-outlined">play_arrow</span>';
+      return;
+    }
+    const state = { dir: 1, last: performance.now(), raf: 0 };
+    playing.set(it.id, state);
+    play.innerHTML = '<span class="material-symbols-outlined">pause</span>';
+    const tick = now => {
+      if (!playing.has(it.id)) return;
+      const dt = (now - state.last) / 1000;
+      state.last = now;
+      let v = Number(range.value) + state.dir * (max - min) * dt / 4;
+      if (v > max) { v = max; state.dir = -1; }
+      if (v < min) { v = min; state.dir = 1; }
+      setValue(v);
+      state.raf = requestAnimationFrame(tick);
+    };
+    state.raf = requestAnimationFrame(tick);
+  };
+  const lo = document.createElement('span'); lo.className = 'lim'; lo.textContent = min;
+  const hi = document.createElement('span'); hi.className = 'lim'; hi.textContent = max;
+  wrap.append(play, lo, range, hi);
+  return wrap;
+}
+// Refresh the small info lines (points that depend on sliders) without rebuilding inputs.
+function updateRowInfos() {
+  const rows = $('algList').querySelectorAll('.alg-row');
+  built.forEach((b, i) => {
+    if (b.kind !== 'point' && b.kind !== 'value' && b.kind !== 'integral' && !(b.kind === 'number' && !b.slider)) return;
+    const info = rows[i]?.querySelector('.alg-info');
+    if (!info) return;
+    if (b.kind === 'integral') { info.textContent = `${b.name ? b.name + ' ' : ''}= ${formatNumber(b.value, 8)}  (area from ${formatNumber(b.a, 4)} to ${formatNumber(b.b, 4)})`; return; }
+    if (b.kind === 'value') info.textContent = '= ' + formatNumber(b.fn({}), 10);
+    else if (b.kind === 'number') info.textContent = '= ' + formatNumber(numbers.get(b.name), 10);
+    else info.textContent = `${b.name} = (${formatNumber(b.fx({}), 5)}, ${formatNumber(b.fy({}), 5)})${b.free ? ' · drag it on the graph' : ''}`;
+  });
+}
+
+function addGraphItem(text, { silent = false } = {}) {
+  const used = new Set(items.map(i => i.color));
+  const color = COLORS.find(c => !used.has(c)) || COLORS[items.length % COLORS.length];
+  const it = { text, color, visible: true, id: Math.random().toString(36).slice(2) };
+  items.push(it);
+  saveItems();
+  if (!silent) rebuild();
+  return it;
+}
+// Coefficients like a, b, k used before being defined become sliders (Desmos/GeoGebra style).
+// Only on commit (Enter or clicking elsewhere), so half-typed words never create sliders.
+const AUTO_SLIDER_LETTERS = new Set('abcdkmnpqrsuvw'.split(''));
+function sliderCandidates(error) {
+  const m = /^Unknown "([A-Za-z]+)"$/.exec(error || '');
+  if (!m) return [];
+  const defined = new Set(built.map(b => b.name).filter(Boolean));
+  const letters = [...new Set(m[1].split(''))];
+  // Every letter must be either already known or a slider candidate, e.g. "ax" → a.
+  const ok = letters.every(ch => AUTO_SLIDER_LETTERS.has(ch) || ['x', 'y', 't', 'e'].includes(ch) || defined.has(ch));
+  if (!ok) return [];
+  return letters.filter(ch => AUTO_SLIDER_LETTERS.has(ch) && !defined.has(ch));
+}
+function addMissingSliders(it) {
+  let added = 0;
+  // The parser stops at the first unknown name, so repeat until nothing is missing.
+  for (let round = 0; round < 6; round++) {
+    buildAll();
+    const b = built[items.indexOf(it)];
+    const missing = b?.kind === 'error' ? sliderCandidates(b.error) : [];
+    if (!missing.length) break;
+    missing.forEach(ch => {
+      const used = new Set(items.map(i => i.color));
+      const color = COLORS.find(c => !used.has(c)) || COLORS[items.length % COLORS.length];
+      // Insert above the line that uses it, like a definition.
+      items.splice(items.indexOf(it), 0, { text: `${ch} = 1`, color, visible: true, id: Math.random().toString(36).slice(2) });
+      added++;
+    });
+  }
+  if (added) saveItems();
+  return added;
+}
+document.addEventListener('mousedown', e => {
+  const active = document.activeElement;
+  if (!active?.classList?.contains('alg-input') || active.contains(e.target)) return;
+  const id = active.closest('.alg-row')?.dataset.id;
+  const it = items.find(i => i.id === id);
+  if (it && addMissingSliders(it)) rebuild();
+});
+
+function removeItem(it) {
+  if (playing.has(it.id)) { cancelAnimationFrame(playing.get(it.id).raf); playing.delete(it.id); }
+  const index = items.indexOf(it);
+  items.splice(index, 1);
+  saveItems();
+  rebuild();
+  const inputs = $('algList').querySelectorAll('.alg-input');
+  inputs[Math.max(0, index - 1)]?.focus();
+}
+
+let rebuildTimer = null;
+function scheduleRebuild() {
+  clearTimeout(rebuildTimer);
+  rebuildTimer = setTimeout(() => rebuild(), 120);
+}
+function rebuild({ keepAlgebra = false } = {}) {
+  saveItems();
+  buildAll();
+  if (!keepAlgebra) renderAlgebra();
+  requestDraw();
+}
+
+/* ── Canvas ── */
+
+const canvas = $('canvas');
+const cctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+let drawQueued = false;
+let keyPointCache = [];
+let hover = null;
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width) return;
+  DPR = window.devicePixelRatio || 1;
+  W = rect.width; H = rect.height;
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  requestDraw();
+}
+new ResizeObserver(resizeCanvas).observe($('canvasWrap'));
+
+const sx = x => W / 2 + (x - view.cx) * view.scale;
+const sy = y => H / 2 - (y - view.cy) * view.scale;
+const wx = px => view.cx + (px - W / 2) / view.scale;
+const wy = py => view.cy - (py - H / 2) / view.scale;
+
+function requestDraw() {
+  if (drawQueued) return;
+  drawQueued = true;
+  requestAnimationFrame(() => { drawQueued = false; draw(); });
+}
+
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / p;
+  return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * p;
+}
+function fmtTick(v, step) {
+  if (Math.abs(v) < step / 1e6) return '0';
+  const decimals = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+  if (Math.abs(v) >= 1e6 || (Math.abs(v) < 1e-4)) return v.toExponential(1).replace('e+', 'e');
+  return v.toFixed(decimals);
+}
+
+function drawGrid() {
+  const step = niceStep(80 / view.scale);
+  const minorDiv = String(step / Math.pow(10, Math.floor(Math.log10(step)))).startsWith('2') ? 4 : 5;
+  const minor = step / minorDiv;
+  const x0 = wx(0), x1 = wx(W), y0 = wy(H), y1 = wy(0);
+  cctx.lineWidth = 1;
+  // minor
+  cctx.strokeStyle = 'rgba(255,255,255,0.035)';
+  cctx.beginPath();
+  for (let x = Math.ceil(x0 / minor) * minor; x <= x1; x += minor) { const p = Math.round(sx(x)) + 0.5; cctx.moveTo(p, 0); cctx.lineTo(p, H); }
+  for (let y = Math.ceil(y0 / minor) * minor; y <= y1; y += minor) { const p = Math.round(sy(y)) + 0.5; cctx.moveTo(0, p); cctx.lineTo(W, p); }
+  cctx.stroke();
+  // major
+  cctx.strokeStyle = 'rgba(255,255,255,0.09)';
+  cctx.beginPath();
+  for (let x = Math.ceil(x0 / step) * step; x <= x1; x += step) { const p = Math.round(sx(x)) + 0.5; cctx.moveTo(p, 0); cctx.lineTo(p, H); }
+  for (let y = Math.ceil(y0 / step) * step; y <= y1; y += step) { const p = Math.round(sy(y)) + 0.5; cctx.moveTo(0, p); cctx.lineTo(W, p); }
+  cctx.stroke();
+  // axes
+  const ax = sx(0), ay = sy(0);
+  cctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  cctx.lineWidth = 1.4;
+  cctx.beginPath();
+  if (ax >= 0 && ax <= W) { cctx.moveTo(ax, 0); cctx.lineTo(ax, H); }
+  if (ay >= 0 && ay <= H) { cctx.moveTo(0, ay); cctx.lineTo(W, ay); }
+  cctx.stroke();
+  // labels (stick to the edge when the axis is off-screen)
+  cctx.font = '11px Poppins, sans-serif';
+  cctx.fillStyle = 'rgba(255,255,255,0.55)';
+  const labelY = Math.min(Math.max(ay + 4, 4), H - 16);
+  cctx.textAlign = 'center'; cctx.textBaseline = 'top';
+  for (let x = Math.ceil(x0 / step) * step; x <= x1; x += step) {
+    if (Math.abs(x) < step / 2) continue;
+    cctx.fillText(fmtTick(x, step), sx(x), labelY);
+  }
+  const labelX = Math.min(Math.max(ax - 6, 30), W - 6);
+  cctx.textAlign = 'right'; cctx.textBaseline = 'middle';
+  for (let y = Math.ceil(y0 / step) * step; y <= y1; y += step) {
+    if (Math.abs(y) < step / 2) continue;
+    cctx.fillText(fmtTick(y, step), labelX, sy(y));
+  }
+  if (ax >= 0 && ax <= W && ay >= 0 && ay <= H) { cctx.textAlign = 'right'; cctx.textBaseline = 'top'; cctx.fillText('0', ax - 5, ay + 4); }
+}
+
+function plotFunction(f, color, width = 2.4) {
+  cctx.strokeStyle = color;
+  cctx.lineWidth = width;
+  cctx.lineJoin = 'round';
+  cctx.beginPath();
+  let pen = false, prevY = null, prevX = null;
+  const step = 1;
+  for (let px = -step; px <= W + step; px += step) {
+    const x = wx(px);
+    const y = f(x);
+    if (!Number.isFinite(y)) { pen = false; prevY = null; continue; }
+    let py = sy(y);
+    if (prevY !== null && Math.abs(py - prevY) > H) {
+      // Big jump: continuous steep curve or an asymptote? Check the midpoint.
+      const ym = f(wx(px - step / 2));
+      const pm = sy(ym);
+      const between = Number.isFinite(ym) && (pm - prevY) * (py - pm) >= 0;
+      if (!between) pen = false;
+    }
+    py = Math.max(-1e5, Math.min(1e5, py));
+    if (pen) cctx.lineTo(px, py); else cctx.moveTo(px, py);
+    pen = true;
+    prevY = py; prevX = px;
+  }
+  cctx.stroke();
+}
+
+// Marching squares for F(x, y) = 0.
+function plotImplicit(F, color, width = 2.4, dashed = false) {
+  const cell = 5;
+  const cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 1;
+  const v = new Float64Array(cols * rows);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) v[j * cols + i] = F(wx(i * cell), wy(j * cell));
+  cctx.strokeStyle = color;
+  cctx.lineWidth = width;
+  cctx.setLineDash(dashed ? [6, 5] : []);
+  cctx.beginPath();
+  const lerp = (a, b) => a / (a - b);
+  for (let j = 0; j < rows - 1; j++) {
+    for (let i = 0; i < cols - 1; i++) {
+      const a = v[j * cols + i], b = v[j * cols + i + 1], c = v[(j + 1) * cols + i + 1], d = v[(j + 1) * cols + i];
+      if (!(Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(c) && Number.isFinite(d))) continue;
+      const pts = [];
+      const X = i * cell, Y = j * cell;
+      if ((a > 0) !== (b > 0)) pts.push([X + cell * lerp(a, b), Y]);
+      if ((b > 0) !== (c > 0)) pts.push([X + cell, Y + cell * lerp(b, c)]);
+      if ((d > 0) !== (c > 0)) pts.push([X + cell * lerp(d, c), Y + cell]);
+      if ((a > 0) !== (d > 0)) pts.push([X, Y + cell * lerp(a, d)]);
+      if (pts.length < 2) continue;
+      // Skip sign flips across poles (e.g. 1/x): a real zero has small values nearby.
+      const m = Math.max(Math.abs(a), Math.abs(b), Math.abs(c), Math.abs(d));
+      const center = F(wx(X + cell / 2), wy(Y + cell / 2));
+      if (Number.isFinite(center) && Math.abs(center) > m * 4) continue;
+      cctx.moveTo(pts[0][0], pts[0][1]); cctx.lineTo(pts[1][0], pts[1][1]);
+      if (pts.length === 4) { cctx.moveTo(pts[2][0], pts[2][1]); cctx.lineTo(pts[3][0], pts[3][1]); }
+    }
+  }
+  cctx.stroke();
+  cctx.setLineDash([]);
+}
+
+function shadeRegion(test, color) {
+  const cell = 4;
+  cctx.fillStyle = color + '33';
+  for (let j = 0; j < H; j += cell) {
+    let start = -1;
+    const y = wy(j + cell / 2);
+    for (let i = 0; i < W; i += cell) {
+      const inside = test(wx(i + cell / 2), y);
+      if (inside && start < 0) start = i;
+      if (!inside && start >= 0) { cctx.fillRect(start, j, i - start, cell); start = -1; }
+    }
+    if (start >= 0) cctx.fillRect(start, j, W - start, cell);   // run reaching the right edge
+  }
+}
+
+function drawPoint(x, y, color, label, size = 5.5) {
+  const px = sx(x), py = sy(y);
+  if (px < -20 || px > W + 20 || py < -20 || py > H + 20) return;
+  cctx.beginPath();
+  cctx.arc(px, py, size, 0, Math.PI * 2);
+  cctx.fillStyle = color;
+  cctx.fill();
+  cctx.lineWidth = 2;
+  cctx.strokeStyle = '#111318';
+  cctx.stroke();
+  if (label) {
+    cctx.font = '600 12px Poppins, sans-serif';
+    cctx.fillStyle = color;
+    cctx.textAlign = 'left'; cctx.textBaseline = 'bottom';
+    cctx.fillText(label, px + 8, py - 6);
+  }
+}
+
+/* ── Key points: zeros, extrema, intersections ── */
+
+function bisect(g, a, b, iterations = 60) {
+  let fa = g(a);
+  for (let k = 0; k < iterations; k++) {
+    const m = (a + b) / 2, fm = g(m);
+    if (!Number.isFinite(fm)) return null;
+    if ((fa > 0) === (fm > 0)) { a = m; fa = fm; } else b = m;
+  }
+  return (a + b) / 2;
+}
+function goldenExtremum(f, a, b, maximize) {
+  const r = (Math.sqrt(5) - 1) / 2;
+  let c = b - r * (b - a), d = a + r * (b - a);
+  for (let k = 0; k < 60; k++) {
+    const fc = f(c), fd = f(d);
+    if (maximize ? fc > fd : fc < fd) { b = d; } else { a = c; }
+    c = b - r * (b - a); d = a + r * (b - a);
+  }
+  return (a + b) / 2;
+}
+function findRoots(g, x0, x1, n = 500) {
+  const roots = [];
+  // Curves that touch over a stretch (e.g. sin x and |x| near 0) flip sign from rounding
+  // noise: keep only roots at least a couple of samples apart.
+  const minGap = (x1 - x0) / n * 2;
+  const push = r => { if (!roots.length || Math.abs(r - roots[roots.length - 1]) > minGap) roots.push(r); };
+  let prevX = x0, prevY = g(x0);
+  let touching = Math.abs(prevY) < 1e-9;
+  for (let i = 1; i <= n; i++) {
+    const x = x0 + (x1 - x0) * i / n, y = g(x);
+    if (Number.isFinite(prevY) && Number.isFinite(y)) {
+      if (Math.abs(y) < 1e-9) {
+        // Curves that coincide over a stretch: report only where they start to overlap.
+        if (!touching) push(x);
+        touching = true;
+        prevX = x; prevY = y;
+        continue;
+      }
+      touching = false;
+      if (y === 0) push(x);
+      else if ((prevY > 0) !== (y > 0) && prevY !== 0) {
+        const r = bisect(g, prevX, x);
+        // Reject sign changes across a pole (|g| stays large).
+        if (r !== null && Math.abs(g(r)) < 1e-6 * Math.max(1, Math.abs(prevY), Math.abs(y))) push(r);
+      }
+    }
+    prevX = x; prevY = y;
+    if (roots.length > 40) break;
+  }
+  return roots;
+}
+function computeKeyPoints() {
+  const pts = [];
+  const x0 = wx(0), x1 = wx(W);
+  const fns = built.map((b, i) => ({ b, it: items[i] })).filter(o => o.b.kind === 'function' && o.it.visible);
+  for (const { b, it } of fns) {
+    const f = b.f;
+    findRoots(f, x0, x1).forEach(x => pts.push({ x, y: 0, color: it.color, label: `Zero of ${b.name}` }));
+    // extrema: sign change of the slope
+    const n = 400;
+    let prev = f(x0), prevSlope = null;
+    for (let i = 1; i <= n; i++) {
+      const xa = x0 + (x1 - x0) * (i - 1) / n, x = x0 + (x1 - x0) * i / n, y = f(x);
+      if (!Number.isFinite(y) || !Number.isFinite(prev)) { prev = y; prevSlope = null; continue; }
+      const slope = Math.sign(y - prev);
+      if (prevSlope !== null && slope !== 0 && prevSlope !== 0 && slope !== prevSlope) {
+        const maximize = prevSlope > 0;
+        const xe = goldenExtremum(f, xa - (x1 - x0) / n, x, maximize);
+        const ye = f(xe);
+        if (Number.isFinite(ye)) pts.push({ x: xe, y: ye, color: it.color, label: `${maximize ? 'Maximum' : 'Minimum'} of ${b.name}` });
+      }
+      if (slope !== 0) prevSlope = slope;
+      prev = y;
+      if (pts.length > 200) break;
+    }
+    const y0 = f(0);
+    if (Number.isFinite(y0) && x0 < 0 && x1 > 0) pts.push({ x: 0, y: y0, color: it.color, label: `${b.name}(0)` });
+  }
+  for (let i = 0; i < fns.length; i++) {
+    for (let j = i + 1; j < fns.length; j++) {
+      const f = fns[i].b.f, g = fns[j].b.f;
+      findRoots(x => f(x) - g(x), x0, x1).forEach(x => pts.push({ x, y: f(x), color: '#ffffff', label: `Intersection ${fns[i].b.name} ∩ ${fns[j].b.name}` }));
+    }
+  }
+  return pts.filter(p => Number.isFinite(p.y));
+}
+
+function plotParametric(b, color) {
+  const a = b.a, z = b.b;
+  if (!Number.isFinite(a) || !Number.isFinite(z) || a === z) return;
+  const n = 2000;
+  cctx.strokeStyle = color;
+  cctx.lineWidth = 2.4;
+  cctx.beginPath();
+  let pen = false, prev = null;
+  for (let i = 0; i <= n; i++) {
+    const t = a + (z - a) * i / n;
+    const s = { [b.param]: t };
+    const x = b.fx(s), y = b.fy(s);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) { pen = false; continue; }
+    const px = sx(x), py = sy(y);
+    if (prev && Math.hypot(px - prev[0], py - prev[1]) > Math.max(W, H)) pen = false;
+    if (pen) cctx.lineTo(px, py); else cctx.moveTo(px, py);
+    pen = true;
+    prev = [px, py];
+  }
+  cctx.stroke();
+}
+
+function shadeIntegral(b, color) {
+  let a = b.a, z = b.b;
+  if (!Number.isFinite(a) || !Number.isFinite(z)) return;
+  if (a > z) [a, z] = [z, a];
+  const lo = Math.max(a, wx(-10)), hi = Math.min(z, wx(W + 10));
+  if (lo >= hi) return;
+  const n = Math.max(2, Math.ceil((sx(hi) - sx(lo)) / 2));
+  const top = [], bottom = [];
+  for (let i = 0; i <= n; i++) {
+    const x = lo + (hi - lo) * i / n;
+    const y1 = b.f(x), y0 = b.g ? b.g(x) : 0;
+    if (!Number.isFinite(y1) || !Number.isFinite(y0)) continue;
+    top.push([sx(x), Math.max(-1e5, Math.min(1e5, sy(y1)))]);
+    bottom.push([sx(x), Math.max(-1e5, Math.min(1e5, sy(y0)))]);
+  }
+  if (top.length < 2) return;
+  cctx.beginPath();
+  top.forEach(([px, py], i) => i ? cctx.lineTo(px, py) : cctx.moveTo(px, py));
+  for (let i = bottom.length - 1; i >= 0; i--) cctx.lineTo(bottom[i][0], bottom[i][1]);
+  cctx.closePath();
+  cctx.fillStyle = color + '4d';
+  cctx.fill();
+  // edges at a and b
+  cctx.strokeStyle = color;
+  cctx.lineWidth = 1.2;
+  cctx.setLineDash([4, 4]);
+  cctx.beginPath();
+  [[top[0], bottom[0]], [top[top.length - 1], bottom[bottom.length - 1]]].forEach(([p, q]) => { cctx.moveTo(p[0], p[1]); cctx.lineTo(q[0], q[1]); });
+  cctx.stroke();
+  cctx.setLineDash([]);
+}
+
+function draw() {
+  if (!W) return;
+  cctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  cctx.fillStyle = '#111318';
+  cctx.fillRect(0, 0, W, H);
+  drawGrid();
+
+  built.forEach((b, i) => {
+    const it = items[i];
+    if (!it.visible) return;
+    try {
+      if (b.kind === 'integral') {
+        shadeIntegral(b, it.color);
+        if (b.drawF) plotFunction(b.f, it.color, 2);
+        if (b.drawG) plotFunction(b.g, it.color, 2);
+      }
+      if (b.kind === 'inequality') {
+        shadeRegion(b.test, it.color);
+        if (b.boundary) {
+          cctx.setLineDash(b.strict ? [6, 5] : []);
+          plotFunction(b.boundary.f, it.color, 2);
+          cctx.setLineDash([]);
+        } else plotImplicit(b.F, it.color, 2, b.strict);
+      }
+    } catch (e) {}
+  });
+  built.forEach((b, i) => {
+    const it = items[i];
+    if (!it.visible) return;
+    try {
+      if (b.kind === 'function') plotFunction(b.f, it.color);
+      else if (b.kind === 'implicit') plotImplicit(b.F, it.color);
+      else if (b.kind === 'curve') plotParametric(b, it.color);
+    } catch (e) {}
+  });
+
+  keyPointCache = showKeyPoints ? computeKeyPoints() : [];
+  keyPointCache.forEach(p => {
+    const px = sx(p.x), py = sy(p.y);
+    cctx.beginPath();
+    cctx.arc(px, py, 4, 0, Math.PI * 2);
+    cctx.fillStyle = '#2a2d35';
+    cctx.fill();
+    cctx.lineWidth = 2;
+    cctx.strokeStyle = p.color;
+    cctx.stroke();
+  });
+
+  built.forEach((b, i) => {
+    const it = items[i];
+    if (!it.visible || b.kind !== 'list') return;
+    b.points.forEach(([x, y]) => { if (Number.isFinite(x) && Number.isFinite(y)) drawPoint(x, y, it.color, null, 4.5); });
+  });
+  built.forEach((b, i) => {
+    const it = items[i];
+    if (!it.visible || b.kind !== 'point') return;
+    const x = b.fx({}), y = b.fy({});
+    if (Number.isFinite(x) && Number.isFinite(y)) drawPoint(x, y, it.color, b.name, b.free ? 6.5 : 5.5);
+  });
+
+  if (hover) {
+    drawPoint(hover.x, hover.y, hover.color, null, 5);
+  }
+  store.set('calc-graph-view', view);
+}
+
+/* ── Interaction ── */
+
+function hitPoint(px, py) {
+  for (let i = built.length - 1; i >= 0; i--) {
+    const b = built[i];
+    if (b.kind !== 'point' || !items[i].visible) continue;
+    const x = b.fx({}), y = b.fy({});
+    if (Math.hypot(sx(x) - px, sy(y) - py) < 10) return { b, it: items[i], x, y };
+  }
+  return null;
+}
+
+let drag = null;
+canvas.addEventListener('mousedown', e => {
+  const r = canvas.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const hit = hitPoint(px, py);
+  if (hit && hit.b.free) {
+    drag = { type: 'point', it: hit.it, name: hit.b.name };
+  } else {
+    drag = { type: 'pan', startX: e.clientX, startY: e.clientY, cx: view.cx, cy: view.cy };
+    canvas.classList.add('dragging');
+  }
+});
+window.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  if (drag?.type === 'pan') {
+    view.cx = drag.cx - (e.clientX - drag.startX) / view.scale;
+    view.cy = drag.cy + (e.clientY - drag.startY) / view.scale;
+    requestDraw();
+    return;
+  }
+  if (drag?.type === 'point') {
+    const snap = niceStep(80 / view.scale) / 10;
+    const x = Math.round(wx(px) / snap) * snap, y = Math.round(wy(py) / snap) * snap;
+    const f = v => String(parseFloat(v.toFixed(6)));
+    drag.it.text = `${drag.name} = (${f(x)}, ${f(y)})`;
+    const row = $('algList').querySelector(`.alg-row[data-id="${drag.it.id}"]`);
+    if (row) row.querySelector('.alg-input').value = drag.it.text;
+    rebuild({ keepAlgebra: true });
+    updateRowInfos();
+    return;
+  }
+  if (e.target !== canvas) return;
+  updateHover(px, py);
+});
+window.addEventListener('mouseup', () => {
+  if (drag) { drag = null; canvas.classList.remove('dragging'); saveItems(); }
+});
+canvas.addEventListener('mouseleave', () => { hover = null; $('tip').style.display = 'none'; requestDraw(); });
+
+function updateHover(px, py) {
+  const x = wx(px), y = wy(py);
+  $('coords').textContent = `x: ${formatNumber(x, 4)}, y: ${formatNumber(y, 4)}`;
+  canvas.classList.toggle('on-point', Boolean(hitPoint(px, py)?.b.free));
+  const tip = $('tip');
+  let best = null;
+  // Key points first, then the nearest curve.
+  for (const p of keyPointCache) {
+    const d = Math.hypot(sx(p.x) - px, sy(p.y) - py);
+    if (d < 9 && (!best || d < best.d)) best = { d, x: p.x, y: p.y, color: p.color, label: p.label };
+  }
+  if (!best) {
+    built.forEach((b, i) => {
+      if (b.kind !== 'function' || !items[i].visible) return;
+      const fy = b.f(x);
+      if (!Number.isFinite(fy)) return;
+      const d = Math.abs(sy(fy) - py);
+      if (d < 14 && (!best || d < best.d)) best = { d, x, y: fy, color: items[i].color, label: b.name };
+    });
+  }
+  if (best) {
+    hover = best;
+    tip.style.display = 'block';
+    tip.style.left = sx(best.x) + 'px';
+    tip.style.top = sy(best.y) + 'px';
+    tip.innerHTML = '';
+    const strong = document.createElement('strong');
+    strong.style.color = best.color;
+    strong.textContent = best.label + '  ';
+    tip.append(strong, `(${formatNumber(best.x, 5)}, ${formatNumber(best.y, 5)})`);
+  } else {
+    hover = null;
+    tip.style.display = 'none';
+  }
+  requestDraw();
+}
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  zoomAt(e.clientX - r.left, e.clientY - r.top, Math.pow(1.0015, -e.deltaY));
+}, { passive: false });
+function zoomAt(px, py, factor) {
+  const x = wx(px), y = wy(py);
+  view.scale = Math.min(1e6, Math.max(1e-4, view.scale * factor));
+  view.cx = x - (px - W / 2) / view.scale;
+  view.cy = y + (py - H / 2) / view.scale;
+  requestDraw();
+}
+$('zoomIn').onclick = () => zoomAt(W / 2, H / 2, 1.5);
+$('zoomOut').onclick = () => zoomAt(W / 2, H / 2, 1 / 1.5);
+$('homeView').onclick = () => { view = { cx: 0, cy: 0, scale: 50 }; requestDraw(); };
+$('keyPoints').onclick = () => {
+  showKeyPoints = !showKeyPoints;
+  store.set('calc-keypoints', showKeyPoints);
+  $('keyPoints').classList.toggle('on', showKeyPoints);
+  requestDraw();
+};
+$('keyPoints').classList.toggle('on', showKeyPoints);
+$('exportPng').onclick = () => {
+  draw();
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'graph.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+};
+
+document.addEventListener('keydown', e => {
+  if (currentView !== 'graph' || e.target.closest('input')) return;
+  if (e.key === '+' || e.key === '=') zoomAt(W / 2, H / 2, 1.25);
+  if (e.key === '-') zoomAt(W / 2, H / 2, 0.8);
+});
+
+/* ── Table of values ── */
+
+let tableFnName = store.get('calc-table-fn', null);
+function renderTable() {
+  const panel = $('tablePanel');
+  if (!panel.classList.contains('open')) return;
+  const fns = built.filter(b => b.kind === 'function');
+  const select = $('tableFn');
+  select.replaceChildren(...fns.map(b => {
+    const o = document.createElement('option');
+    o.value = b.name;
+    o.textContent = `${b.name}(x)${b.fit ? ' · fit' : ''}`;
+    return o;
+  }));
+  const body = $('tableBody');
+  body.replaceChildren();
+  if (!fns.length) {
+    $('tableFnHead').textContent = 'f(x)';
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="2" style="text-align:center;color:rgba(255,255,255,.4)">Add a function first</td>';
+    body.appendChild(tr);
+    return;
+  }
+  const chosen = fns.find(b => b.name === tableFnName) || fns[0];
+  tableFnName = chosen.name;
+  select.value = chosen.name;
+  $('tableFnHead').textContent = `${chosen.name}(x)`;
+  const start = Number($('tableStart').value) || 0;
+  const step = Math.abs(Number($('tableStep').value)) || 1;
+  for (let i = 0; i <= 30; i++) {
+    const x = start + i * step;
+    const tr = document.createElement('tr');
+    const tx = document.createElement('td'); tx.textContent = formatNumber(x, 8);
+    const ty = document.createElement('td'); ty.textContent = formatNumber(chosen.f(x), 8);
+    tr.append(tx, ty);
+    body.appendChild(tr);
+  }
+}
+$('tableBtn').onclick = () => {
+  const panel = $('tablePanel');
+  panel.classList.toggle('open');
+  $('tableBtn').classList.toggle('on', panel.classList.contains('open'));
+  renderTable();
+};
+$('tableFn').onchange = e => { tableFnName = e.target.value; store.set('calc-table-fn', tableFnName); renderTable(); };
+$('tableStart').oninput = renderTable;
+$('tableStep').oninput = renderTable;
+
+/* ── Boot ── */
+buildAll();
+renderAlgebra();
+showView(currentView);
+updatePreview();
+</script>
 </body>
 </html>

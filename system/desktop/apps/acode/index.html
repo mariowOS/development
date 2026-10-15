@@ -63,6 +63,21 @@
         .tree-item.active { background: color-mix(in srgb, var(--accent-color) 35%, transparent); color: #fff; font-weight: 500; }
         .tree-children { padding-left: 14px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid rgba(255,255,255,0.05); margin-left: 14px; }
         
+        /* Inline Input for Tree */
+        .tree-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--accent-color);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            outline: none;
+            flex: 1;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+        
         .workspace-area { flex: 1; display: flex; flex-direction: column; min-width: 0; background: transparent; }
         
         #fallback-tabs { display: flex; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-color); overflow-x: auto; flex-shrink: 0; }
@@ -130,6 +145,7 @@
         .status-item.has-errors { color: #ff453a; }
         .status-item.has-warnings { color: #fb8c00; }
 
+        /* Context Menu */
         #context-menu {
             display: none; position: fixed; z-index: 10000;
             background: rgba(24, 25, 28, 0.65); backdrop-filter: blur(30px) saturate(200%);
@@ -139,6 +155,33 @@
         .ctx-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: 12px; font-weight: 500; color: #fff; border-radius: 8px; cursor: pointer; }
         .ctx-item:hover { background: rgba(255, 255, 255, 0.15); }
         .ctx-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
+
+        /* Inline Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 34px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999999;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(18, 22, 32, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: #fff;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toastSlideIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), toastFadeOut 0.3s ease 2.5s forwards;
+        }
+        @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastFadeOut { to { opacity: 0; } }
     </style>
 </head>
 <body>
@@ -192,7 +235,6 @@
                         <span class="material-symbols-outlined" style="font-size: 16px;" onclick="closePanels()">close</span>
                     </div>
                 </div>
-                <!-- Cliccando ovunque qui dentro, focus all'input -->
                 <div class="terminal-content" id="terminalContent" onclick="document.getElementById('termInput').focus()">
                     <div id="termOutput">
                         <div class="term-line" style="color: #888;">mariowOS Pipeline Environment v1.0.0</div>
@@ -282,6 +324,30 @@ Have fun from mariow :D
         const IS_EMBEDDED = window.parent !== window;
         let ctxTarget = null; 
 
+        // --- Inline Notification & Dialog Wrapper ---
+        async function showAlert(title, message, type = "info") {
+            if (type === "error" && typeof mDialog !== 'undefined' && typeof mDialog.alert === 'function') {
+                try { await mDialog.alert(message); return; } catch(e) { console.error(e); }
+            }
+            
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            let icon = type === 'error' ? 'error' : (type === 'save' ? 'save' : 'info');
+            let iconColor = type === 'error' ? '#ff453a' : (type === 'save' ? '#30d158' : '#0a84ff');
+            
+            toast.innerHTML = `<span class="material-symbols-outlined" style="font-size:18px; color: ${iconColor};">${icon}</span> <div><strong>${title}</strong>:${message}</div>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 2800);
+        }
+
         // Cross-Origin Worker Proxy
         window.MonacoEnvironment = {
             getWorkerUrl: function(workerId, label) {
@@ -295,15 +361,8 @@ Have fun from mariow :D
         // Init Monaco Editor
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
         require(['vs/editor/editor.main'], function() {
-            
-            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-                noSemanticValidation: false,
-                noSyntaxValidation: false
-            });
-            monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
-                target: monaco.languages.typescript.ScriptTarget.ES6,
-                allowNonTsExtensions: true
-            });
+            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({ noSemanticValidation: false, noSyntaxValidation: false });
+            monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ target: monaco.languages.typescript.ScriptTarget.ES6, allowNonTsExtensions: true });
 
             editor = monaco.editor.create(document.getElementById('monaco-container'), {
                 value: "", language: "html", theme: "vs-dark", automaticLayout: true,
@@ -316,10 +375,7 @@ Have fun from mariow :D
                 saveTimeout = setTimeout(() => {
                     if(activeTabId) {
                         const tab = openTabs.find(t => t.id === activeTabId);
-                        if(tab) {
-                            setNodeContent(tab.pathArr, editor.getValue());
-                            saveFS();
-                        }
+                        if(tab) { setNodeContent(tab.pathArr, editor.getValue()); saveFS(); }
                     }
                 }, 800);
             });
@@ -338,10 +394,7 @@ Have fun from mariow :D
         termInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const cmdLine = termInput.value.trim();
-                if (cmdLine) {
-                    printTerm(`mariow@acode:~$ ${cmdLine}`, '');
-                    executeCommand(cmdLine);
-                }
+                if (cmdLine) { printTerm(`mariow@acode:~$ ${cmdLine}`, ''); executeCommand(cmdLine); }
                 termInput.value = '';
             }
         });
@@ -349,13 +402,8 @@ Have fun from mariow :D
         function printTerm(text, typeClass = 'info') {
             const line = document.createElement('div');
             line.className = 'term-line ' + typeClass;
-            
-            if (text.startsWith('mariow@acode:~$')) {
-                line.innerHTML = `<span class="term-prompt">mariow@acode:~$</span> <span>${text.substring(15)}</span>`;
-            } else {
-                line.innerText = text;
-            }
-            
+            if (text.startsWith('mariow@acode:~$')) line.innerHTML = `<span class="term-prompt">mariow@acode:~$</span> <span>${text.substring(15)}</span>`;
+            else line.innerText = text;
             termOutput.appendChild(line);
             termContent.scrollTop = termContent.scrollHeight;
         }
@@ -363,56 +411,33 @@ Have fun from mariow :D
         function executeCommand(cmdLine) {
             const args = cmdLine.split(' ');
             const cmd = args[0].toLowerCase();
-
             switch(cmd) {
                 case 'run':
                     if (!activeTabId) { printTerm('Error: Open a project file first to run.', 'error'); return; }
-                    printTerm('Starting pipeline engine...', 'info');
-                    printTerm('Bundling dependencies and rendering view...', 'info');
-                    testApp();
-                    printTerm('App launched in preview window.', 'success');
-                    break;
+                    printTerm('Starting pipeline engine...', 'info'); printTerm('Bundling dependencies and rendering view...', 'info'); testApp(); printTerm('App launched in preview window.', 'success'); break;
                 case 'build':
                     if (!activeTabId) { printTerm('Error: Open a project file first to build.', 'error'); return; }
                     const activeTab = openTabs.find(t => t.id === activeTabId);
-                    const projName = activeTab.pathArr[0];
-                    printTerm(`Building project: ${projName}...`, 'info');
-                    exportZipPath([projName]);
-                    printTerm('Build complete. Triggering ZIP download.', 'success');
-                    break;
+                    printTerm(`Building project: ${activeTab.pathArr[0]}...`, 'info'); exportZipPath([activeTab.pathArr[0]]); printTerm('Build complete. Triggering ZIP download.', 'success'); break;
                 case 'checkerrors':
                     if (!editor) return;
                     const markers = monaco.editor.getModelMarkers({ resource: editor.getModel().uri });
                     const errs = markers.filter(m => m.severity === monaco.MarkerSeverity.Error).length;
                     const warns = markers.filter(m => m.severity === monaco.MarkerSeverity.Warning).length;
                     printTerm(`Linting active file... Errors: ${errs}, Warnings:${warns}`, errs > 0 ? 'error' : (warns > 0 ? 'warning' : 'success'));
-                    if (errs > 0 || warns > 0) {
-                        printTerm('Opening Problems Panel...', 'info');
-                        setTimeout(() => togglePanel('problemsPanel'), 600);
-                    }
+                    if (errs > 0 || warns > 0) { printTerm('Opening Problems Panel...', 'info'); setTimeout(() => togglePanel('problemsPanel'), 600); }
                     break;
-                case 'clear':
-                    termOutput.innerHTML = '';
-                    break;
-                case 'help':
-                    printTerm('Available pipeline commands:\n  run         - Bundle and preview the active project\n  build       - Export the active project as a .zip file\n  checkerrors - Run syntax and semantic validation on active file\n  clear       - Clear terminal output\n  help        - Show this message', 'info');
-                    break;
-                default:
-                    printTerm(`acode: command not found: ${cmd}. Type 'help' for available commands.`, 'error');
+                case 'clear': termOutput.innerHTML = ''; break;
+                case 'help': printTerm('Available pipeline commands:\n  run         - Bundle and preview the active project\n  build       - Export the active project as a .zip file\n  checkerrors - Run syntax and semantic validation on active file\n  clear       - Clear terminal output\n  help        - Show this message', 'info'); break;
+                default: printTerm(`acode: command not found: ${cmd}. Type 'help' for available commands.`, 'error');
             }
         }
 
         // --- Gestione Pannelli ---
         function togglePanel(panelId) {
-            if(activePanel === panelId) {
-                closePanels();
-            } else {
-                closePanels();
-                activePanel = panelId;
-                document.getElementById(panelId).style.display = 'flex';
-                if (panelId === 'terminalPanel') {
-                    setTimeout(() => document.getElementById('termInput').focus(), 50);
-                }
+            if(activePanel === panelId) { closePanels(); } else {
+                closePanels(); activePanel = panelId; document.getElementById(panelId).style.display = 'flex';
+                if (panelId === 'terminalPanel') setTimeout(() => document.getElementById('termInput').focus(), 50);
                 if(editor) editor.layout();
             }
         }
@@ -425,175 +450,76 @@ Have fun from mariow :D
 
         function updateProblemsUI(markers) {
             let errors = 0, warnings = 0;
-            const list = document.getElementById('problemsList');
-            list.innerHTML = '';
-            
-            if(markers.length === 0) {
-                list.innerHTML = '<div style="padding: 12px 14px; opacity: 0.5; font-size: 11px;">No problems have been detected in the workspace.</div>';
-            }
+            const list = document.getElementById('problemsList'); list.innerHTML = '';
+            if(markers.length === 0) list.innerHTML = '<div style="padding: 12px 14px; opacity: 0.5; font-size: 11px;">No problems have been detected in the workspace.</div>';
 
             markers.forEach(m => {
-                if(m.severity === monaco.MarkerSeverity.Error) errors++;
-                else if(m.severity === monaco.MarkerSeverity.Warning) warnings++;
-                
+                if(m.severity === monaco.MarkerSeverity.Error) errors++; else if(m.severity === monaco.MarkerSeverity.Warning) warnings++;
                 const el = document.createElement('div');
                 const isErr = m.severity === monaco.MarkerSeverity.Error;
                 el.className = `problem-item ${isErr ? 'error' : 'warning'}`;
-                const icon = isErr ? 'error' : 'warning';
                 const color = isErr ? '#ff453a' : '#ff9f0a';
-                
-                el.innerHTML = `
-                    <span class="material-symbols-outlined" style="font-size:16px; color:${color};">${icon}</span>
-                    <span class="problem-msg">${m.message}</span>
-                    <span class="problem-source">[${m.source || 'monaco'}]</span>
-                    <span class="problem-line">Ln ${m.startLineNumber}, Col${m.startColumn}</span>
-                `;
-                
-                el.onclick = () => {
-                    editor.setPosition({ lineNumber: m.startLineNumber, column: m.startColumn });
-                    editor.focus();
-                    if(activePanel !== 'problemsPanel') togglePanel('problemsPanel');
-                };
-                
+                el.innerHTML = `<span class="material-symbols-outlined" style="font-size:16px; color:${color};">${isErr ? 'error' : 'warning'}</span><span class="problem-msg">${m.message}</span><span class="problem-source">[${m.source || 'monaco'}]</span><span class="problem-line">Ln ${m.startLineNumber}, Col${m.startColumn}</span>`;
+                el.onclick = () => { editor.setPosition({ lineNumber: m.startLineNumber, column: m.startColumn }); editor.focus(); if(activePanel !== 'problemsPanel') togglePanel('problemsPanel'); };
                 list.appendChild(el);
             });
-
-            document.getElementById('errorCount').innerText = errors;
-            document.getElementById('warningCount').innerText = warnings;
-            
-            const sItem = document.getElementById('statusProblems');
-            sItem.className = 'status-item';
-            if(errors > 0) sItem.classList.add('has-errors');
-            else if(warnings > 0) sItem.classList.add('has-warnings');
+            document.getElementById('errorCount').innerText = errors; document.getElementById('warningCount').innerText = warnings;
+            const sItem = document.getElementById('statusProblems'); sItem.className = 'status-item';
+            if(errors > 0) sItem.classList.add('has-errors'); else if(warnings > 0) sItem.classList.add('has-warnings');
         }
 
         window.addEventListener('resize', () => { if(editor) editor.layout(); });
 
         // --- File System Utilities ---
         function saveFS() { localStorage.setItem('mariowOS_fs', JSON.stringify(fileSystem)); }
-        
-        function getNode(pathArr) {
-            let curr = fileSystem;
-            for(let p of pathArr) {
-                if(curr[p] === undefined) return null;
-                curr = curr[p];
-            }
-            return curr;
-        }
-
-        function setNodeContent(pathArr, content) {
-            if(pathArr.length === 0) return;
-            let parent = fileSystem;
-            for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
-            parent[pathArr[pathArr.length-1]] = content;
-        }
-
-        function deleteNode(pathArr) {
-            if(pathArr.length === 0) return;
-            let parent = fileSystem;
-            for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
-            delete parent[pathArr[pathArr.length-1]];
-            saveFS();
-        }
-
+        function getNode(pathArr) { let curr = fileSystem; for(let p of pathArr) { if(curr[p] === undefined) return null; curr = curr[p]; } return curr; }
+        function setNodeContent(pathArr, content) { if(pathArr.length === 0) return; let parent = fileSystem; for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]]; parent[pathArr[pathArr.length-1]] = content; }
+        function deleteNode(pathArr) { if(pathArr.length === 0) return; let parent = fileSystem; for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]]; delete parent[pathArr[pathArr.length-1]]; saveFS(); }
         function renameNode(pathArr, newName) {
             if(pathArr.length === 0) return;
-            let parent = fileSystem;
-            for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
-            
+            let parent = fileSystem; for(let i=0; i<pathArr.length-1; i++) parent = parent[pathArr[i]];
             const oldName = pathArr[pathArr.length-1];
             if(oldName !== newName && parent[newName] === undefined) {
-                parent[newName] = parent[oldName];
-                delete parent[oldName];
-                saveFS();
-                return true;
-            }
-            return false;
+                parent[newName] = parent[oldName]; delete parent[oldName]; saveFS(); return true;
+            } return false;
         }
 
         // --- Tabs Logic ---
         function switchTab(id) {
-            if(activeTabId && editor) {
-                const prevTab = openTabs.find(t => t.id === activeTabId);
-                if(prevTab) setNodeContent(prevTab.pathArr, editor.getValue());
-            }
-
-            activeTabId = id;
-            const tab = openTabs.find(t => t.id === id);
-            if(!tab) return;
-
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('monaco-container').style.display = 'block';
-            document.getElementById('statusLang').style.display = 'flex';
-
+            if(activeTabId && editor) { const prevTab = openTabs.find(t => t.id === activeTabId); if(prevTab) setNodeContent(prevTab.pathArr, editor.getValue()); }
+            activeTabId = id; const tab = openTabs.find(t => t.id === id); if(!tab) return;
+            document.getElementById('emptyState').style.display = 'none'; document.getElementById('monaco-container').style.display = 'block'; document.getElementById('statusLang').style.display = 'flex';
             let lang = 'html', label = 'HTML';
-            if(tab.name.endsWith('.css')) { lang = 'css'; label = 'CSS'; }
-            if(tab.name.endsWith('.js')) { lang = 'javascript'; label = 'JavaScript'; }
-            if(tab.name.endsWith('.json')) { lang = 'json'; label = 'JSON'; }
-
+            if(tab.name.endsWith('.css')) { lang = 'css'; label = 'CSS'; } if(tab.name.endsWith('.js')) { lang = 'javascript'; label = 'JavaScript'; } if(tab.name.endsWith('.json')) { lang = 'json'; label = 'JSON'; }
             document.getElementById('statusLang').innerText = label;
-
-            monaco.editor.setModelLanguage(editor.getModel(), lang);
-            editor.setValue(getNode(tab.pathArr) || "");
-            
-            const markers = monaco.editor.getModelMarkers({ resource: editor.getModel().uri });
-            updateProblemsUI(markers);
-
-            renderTree();
-            renderTabs();
+            monaco.editor.setModelLanguage(editor.getModel(), lang); editor.setValue(getNode(tab.pathArr) || "");
+            updateProblemsUI(monaco.editor.getModelMarkers({ resource: editor.getModel().uri }));
+            renderTree(); renderTabs();
         }
 
         function closeTab(e, id) {
-            e.stopPropagation();
-            const idx = openTabs.findIndex(t => t.id === id);
-            if(idx === -1) return;
-
-            if(activeTabId === id && editor) {
-                setNodeContent(openTabs[idx].pathArr, editor.getValue());
-            }
-
+            e.stopPropagation(); const idx = openTabs.findIndex(t => t.id === id); if(idx === -1) return;
+            if(activeTabId === id && editor) setNodeContent(openTabs[idx].pathArr, editor.getValue());
             openTabs.splice(idx, 1);
-
             if(openTabs.length === 0) {
-                activeTabId = null;
-                document.getElementById('emptyState').style.display = 'flex';
-                document.getElementById('monaco-container').style.display = 'none';
-                document.getElementById('statusLang').style.display = 'none';
-                updateProblemsUI([]); 
-            } else {
-                const nextIdx = Math.min(idx, openTabs.length - 1);
-                switchTab(openTabs[nextIdx].id);
-            }
-            renderTabs();
-            renderTree();
+                activeTabId = null; document.getElementById('emptyState').style.display = 'flex'; document.getElementById('monaco-container').style.display = 'none'; document.getElementById('statusLang').style.display = 'none'; updateProblemsUI([]); 
+            } else { switchTab(openTabs[Math.min(idx, openTabs.length - 1)].id); }
+            renderTabs(); renderTree();
         }
 
         function closeTabsByPath(pathArr) {
             const pathStr = pathArr.join('/');
             const tabsToClose = openTabs.filter(t => t.pathArr.join('/').startsWith(pathStr));
-            tabsToClose.forEach(t => {
-                const idx = openTabs.findIndex(ot => ot.id === t.id);
-                if(idx > -1) openTabs.splice(idx, 1);
-            });
-            
-            if(openTabs.length === 0) {
-                activeTabId = null;
-                document.getElementById('emptyState').style.display = 'flex';
-                document.getElementById('monaco-container').style.display = 'none';
-                document.getElementById('statusLang').style.display = 'none';
-                updateProblemsUI([]);
-            } else if (!openTabs.find(t => t.id === activeTabId)) {
-                switchTab(openTabs[0].id);
-            }
-            renderTabs();
-            renderTree();
+            tabsToClose.forEach(t => { const idx = openTabs.findIndex(ot => ot.id === t.id); if(idx > -1) openTabs.splice(idx, 1); });
+            if(openTabs.length === 0) { activeTabId = null; document.getElementById('emptyState').style.display = 'flex'; document.getElementById('monaco-container').style.display = 'none'; document.getElementById('statusLang').style.display = 'none'; updateProblemsUI([]); }
+            else if (!openTabs.find(t => t.id === activeTabId)) switchTab(openTabs[0].id);
+            renderTabs(); renderTree();
         }
 
         function updateTabPaths(oldPathArr, newName) {
             const oldPathStr = oldPathArr.join('/');
             openTabs.forEach(t => {
-                const tabPathStr = t.pathArr.join('/');
-                if (tabPathStr.startsWith(oldPathStr)) {
+                if (t.pathArr.join('/').startsWith(oldPathStr)) {
                     t.pathArr[oldPathArr.length - 1] = newName;
                     if(t.pathArr.length === oldPathArr.length) t.name = newName; 
                 }
@@ -603,133 +529,122 @@ Have fun from mariow :D
 
         function renderTabs() {
             if (!IS_EMBEDDED) {
-                const fTabs = document.getElementById('fallback-tabs');
-                fTabs.innerHTML = '';
+                const fTabs = document.getElementById('fallback-tabs'); fTabs.innerHTML = '';
                 openTabs.forEach(tab => {
-                    const isActive = tab.id === activeTabId;
-                    const el = document.createElement('div');
-                    el.className = 'fallback-tab' + (isActive ? ' active' : '');
+                    const el = document.createElement('div'); el.className = 'fallback-tab' + (tab.id === activeTabId ? ' active' : '');
                     el.innerHTML = `<span>${tab.name}</span> <span class="fallback-tab-close">×</span>`;
-                    el.onclick = () => switchTab(tab.id);
-                    el.querySelector('.fallback-tab-close').onclick = (e) => closeTab(e, tab.id);
+                    el.onclick = () => switchTab(tab.id); el.querySelector('.fallback-tab-close').onclick = (e) => closeTab(e, tab.id);
                     fTabs.appendChild(el);
-                });
-                return;
+                }); return;
             }
-
-            const osTabs = window.parent.document.getElementById('os-acode-tabs');
-            if(!osTabs) return;
-
+            const osTabs = window.parent.document.getElementById('os-acode-tabs'); if(!osTabs) return;
             osTabs.innerHTML = '';
             openTabs.forEach(tab => {
-                const isActive = tab.id === activeTabId;
-                const btn = window.parent.document.createElement('div');
-                btn.className = 'notes-tab-btn' + (isActive ? ' active' : '');
-                
-                let icon = 'description';
-                if(tab.name.endsWith('.html')) icon = 'html';
-                if(tab.name.endsWith('.css')) icon = 'css';
-                if(tab.name.endsWith('.js')) icon = 'javascript';
-
-                btn.innerHTML = `
-                    <span class="material-symbols-outlined" style="font-size:14px; opacity:0.8;">${icon}</span>
-                    <span style="white-space: nowrap; font-size:12px; margin-right:4px;">${tab.name}</span>
-                    <button class="notes-tab-close" style="background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:0 2px; margin-left: auto;">×</button>
-                `;
-                btn.onclick = () => switchTab(tab.id);
-                btn.querySelector('.notes-tab-close').onclick = (e) => closeTab(e, tab.id);
+                const btn = window.parent.document.createElement('div'); btn.className = 'notes-tab-btn' + (tab.id === activeTabId ? ' active' : '');
+                let icon = 'description'; if(tab.name.endsWith('.html')) icon = 'html'; if(tab.name.endsWith('.css')) icon = 'css'; if(tab.name.endsWith('.js')) icon = 'javascript';
+                btn.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px; opacity:0.8;">${icon}</span><span style="white-space: nowrap; font-size:12px; margin-right:4px;">${tab.name}</span><button class="notes-tab-close" style="background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:0 2px; margin-left: auto;">×</button>`;
+                btn.onclick = () => switchTab(tab.id); btn.querySelector('.notes-tab-close').onclick = (e) => closeTab(e, tab.id);
                 osTabs.appendChild(btn);
             });
         }
 
+        // --- DOM Path Helper ---
+        function findTreeElement(pathArr, isContainer) {
+            const pathStr = pathArr.join('/');
+            const elements = document.querySelectorAll(isContainer ? '.tree-node' : '.tree-item');
+            for (let el of elements) { if (el.dataset.path === pathStr) return el; }
+            return null;
+        }
+
+        // --- VSCode-style Inline Inputs ---
+        function showInlineInput(container, iconName, defaultValue, callback) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'tree-item';
+            wrapper.style.cursor = 'default';
+            
+            wrapper.innerHTML = `
+                <span class="material-symbols-outlined" style="font-size:14px;">${iconName}</span>
+                <input type="text" class="tree-input" value="${defaultValue}">
+            `;
+            
+            if (container.firstChild) container.insertBefore(wrapper, container.firstChild);
+            else container.appendChild(wrapper);
+            
+            const input = wrapper.querySelector('input');
+            input.focus();
+            if (defaultValue) {
+                const dotIdx = defaultValue.lastIndexOf('.');
+                input.setSelectionRange(0, dotIdx > -1 ? dotIdx : defaultValue.length);
+            }
+            
+            let done = false;
+            const finish = (val) => {
+                if (done) return;
+                done = true; wrapper.remove();
+                callback(val ? val.trim() : null);
+            };
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') finish(input.value);
+                if (e.key === 'Escape') finish(null);
+            });
+            input.addEventListener('blur', () => finish(input.value));
+            wrapper.addEventListener('click', e => e.stopPropagation());
+        }
+
         // --- UI & Rendering Albero ---
         function renderTree() {
-            const tree = document.getElementById('fileTree');
-            tree.innerHTML = '';
-            for (const projectName in fileSystem) {
-                tree.appendChild(createTreeNode([projectName]));
-            }
+            const tree = document.getElementById('fileTree'); tree.innerHTML = '';
+            for (const projectName in fileSystem) tree.appendChild(createTreeNode([projectName]));
         }
 
         function createTreeNode(pathArr) {
-            const nodeName = pathArr[pathArr.length-1];
-            const nodeData = getNode(pathArr);
-            const isFolder = typeof nodeData === 'object';
-            
-            const container = document.createElement('div');
-            container.className = 'tree-node';
+            const nodeName = pathArr[pathArr.length-1]; const nodeData = getNode(pathArr); const isFolder = typeof nodeData === 'object';
+            const container = document.createElement('div'); container.className = 'tree-node';
+            container.dataset.path = pathArr.join('/');
             
             const item = document.createElement('div');
-            
-            let isActive = false;
-            if(activeTabId) {
-                const actTab = openTabs.find(t => t.id === activeTabId);
-                if(actTab && actTab.pathArr.join('/') === pathArr.join('/')) isActive = true;
-            }
+            let isActive = false; if(activeTabId) { const actTab = openTabs.find(t => t.id === activeTabId); if(actTab && actTab.pathArr.join('/') === pathArr.join('/')) isActive = true; }
             item.className = 'tree-item' + (isActive ? ' active' : '');
+            item.dataset.path = pathArr.join('/');
             
             let icon = isFolder ? (pathArr.length === 1 ? 'folder_open' : 'folder') : 'description';
             if(!isFolder) {
-                if(nodeName.endsWith('.html')) icon = 'html';
-                if(nodeName.endsWith('.css')) icon = 'css';
-                if(nodeName.endsWith('.js')) icon = 'javascript';
-                if(nodeName.endsWith('.json')) icon = 'data_object';
+                if(nodeName.endsWith('.html')) icon = 'html'; if(nodeName.endsWith('.css')) icon = 'css';
+                if(nodeName.endsWith('.js')) icon = 'javascript'; if(nodeName.endsWith('.json')) icon = 'data_object';
             }
             
             item.innerHTML = `<span class="material-symbols-outlined" style="font-size:${isFolder?'16px':'14px'};">${icon}</span> <span>${nodeName}</span>`;
             
             item.onclick = (e) => {
                 e.stopPropagation();
-                if(isFolder) {
-                    const childrenDiv = container.querySelector('.tree-children');
-                    if(childrenDiv) childrenDiv.style.display = childrenDiv.style.display === 'none' ? 'flex' : 'none';
-                } else {
-                    openFileAndCreateTab(pathArr);
-                }
+                if(isFolder) { const childrenDiv = Array.from(container.children).find(c => c.classList.contains('tree-children')); if(childrenDiv) childrenDiv.style.display = childrenDiv.style.display === 'none' ? 'flex' : 'none'; } 
+                else openFileAndCreateTab(pathArr);
             };
-            
-            item.oncontextmenu = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                showContextMenu(e, pathArr, isFolder);
-            };
-
+            item.oncontextmenu = (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e, pathArr, isFolder); };
             container.appendChild(item);
 
             if (isFolder) {
-                const childrenDiv = document.createElement('div');
-                childrenDiv.className = 'tree-children';
-                for (const childName in nodeData) {
-                    childrenDiv.appendChild(createTreeNode([...pathArr, childName]));
-                }
+                const childrenDiv = document.createElement('div'); childrenDiv.className = 'tree-children';
+                for (const childName in nodeData) childrenDiv.appendChild(createTreeNode([...pathArr, childName]));
                 container.appendChild(childrenDiv);
             }
             return container;
         }
 
         function openFileAndCreateTab(pathArr) {
-            const pathStr = pathArr.join('/');
-            const existingTab = openTabs.find(t => t.pathArr.join('/') === pathStr);
-            
-            if (existingTab) {
-                switchTab(existingTab.id);
-            } else {
-                const id = 'tab_' + Date.now();
-                openTabs.push({ id, pathArr: [...pathArr], name: pathArr[pathArr.length-1] });
-                switchTab(id);
-            }
+            const existingTab = openTabs.find(t => t.pathArr.join('/') === pathArr.join('/'));
+            if (existingTab) switchTab(existingTab.id);
+            else { const id = 'tab_' + Date.now(); openTabs.push({ id, pathArr: [...pathArr], name: pathArr[pathArr.length-1] }); switchTab(id); }
         }
 
         // --- Menu Contestuale ---
         const ctxMenu = document.getElementById('context-menu');
         function showContextMenu(e, pathArr, isFolder) {
-            ctxTarget = { pathArr, isFolder };
-            ctxMenu.style.display = 'flex';
-            
+            ctxTarget = { pathArr, isFolder }; ctxMenu.style.display = 'flex';
             let x = e.clientX; let y = e.clientY;
-            if (x + 160 > window.innerWidth) x = window.innerWidth - 160;
-            if (y + 180 > window.innerHeight) y = window.innerHeight - 180;
+            if (x + 160 > window.innerWidth) x = window.innerWidth - 160; if (y + 180 > window.innerHeight) y = window.innerHeight - 180;
             ctxMenu.style.left = `${x}px`; ctxMenu.style.top = `${y}px`;
-
             document.getElementById('ctx-new-file').style.display = isFolder ? 'flex' : 'none';
             document.getElementById('ctx-new-folder').style.display = isFolder ? 'flex' : 'none';
             document.getElementById('ctx-div-1').style.display = isFolder ? 'block' : 'none';
@@ -741,121 +656,121 @@ Have fun from mariow :D
         document.getElementById('ctx-rename').onclick = () => promptRename();
         document.getElementById('ctx-delete').onclick = async () => {
             if(await mDialog.confirm(`Are you sure you want to delete '${ctxTarget.pathArr[ctxTarget.pathArr.length-1]}'?`)) {
-                deleteNode(ctxTarget.pathArr);
-                closeTabsByPath(ctxTarget.pathArr); 
-                renderTree();
+                deleteNode(ctxTarget.pathArr); closeTabsByPath(ctxTarget.pathArr); renderTree();
             }
         };
         document.getElementById('ctx-export').onclick = () => exportZipPath(ctxTarget.pathArr);
 
-        async function promptCreateProject() {
-            const name = await mDialog.prompt("Enter project name:");
-            if (name && !fileSystem[name]) {
-                fileSystem[name] = { 'index.html': DEFAULT_TEMPLATE, 'assets': {} };
-                saveFS(); renderTree(); openFileAndCreateTab([name, 'index.html']);
-            }
-        }
-
-        async function promptCreateNode(isFolder) {
-            const name = await mDialog.prompt(`Enter ${isFolder ? 'folder' : 'file'} name:`);
-            if (name) {
-                const targetNode = getNode(ctxTarget.pathArr);
-                if(targetNode[name] === undefined) {
-                    targetNode[name] = isFolder ? {} : "";
-                    saveFS(); renderTree();
-                    if(!isFolder) openFileAndCreateTab([...ctxTarget.pathArr, name]);
+        function promptCreateProject() {
+            const tree = document.getElementById('fileTree');
+            showInlineInput(tree, 'folder', '', (name) => {
+                if (name) {
+                    if (!fileSystem[name]) {
+                        fileSystem[name] = { 'index.html': DEFAULT_TEMPLATE, 'assets': {} };
+                        saveFS(); renderTree(); openFileAndCreateTab([name, 'index.html']);
+                    } else {
+                        showAlert("Error", "Project name already exists.", "error");
+                    }
                 }
-            }
+            });
         }
 
-        async function promptRename() {
+        function promptCreateNode(isFolder) {
+            const nodeEl = findTreeElement(ctxTarget.pathArr, true);
+            if (!nodeEl) return;
+            
+            let childrenDiv = Array.from(nodeEl.children).find(c => c.classList.contains('tree-children'));
+            if (!childrenDiv) {
+                childrenDiv = document.createElement('div'); childrenDiv.className = 'tree-children'; nodeEl.appendChild(childrenDiv);
+            }
+            childrenDiv.style.display = 'flex'; 
+            
+            showInlineInput(childrenDiv, isFolder ? 'folder' : 'description', '', (name) => {
+                if (name) {
+                    const targetNode = getNode(ctxTarget.pathArr);
+                    if(targetNode[name] === undefined) {
+                        targetNode[name] = isFolder ? {} : "";
+                        saveFS(); renderTree();
+                        if(!isFolder) openFileAndCreateTab([...ctxTarget.pathArr, name]);
+                    } else showAlert("Error", "Name already exists.", "error");
+                } else renderTree(); 
+            });
+        }
+
+        function promptRename() {
+            const itemEl = findTreeElement(ctxTarget.pathArr, false);
+            if (!itemEl) return;
+            
             const oldName = ctxTarget.pathArr[ctxTarget.pathArr.length-1];
-            const newName = await mDialog.prompt("Rename to:", { defaultValue: oldName });
-            if(newName && newName !== oldName) {
-                if(renameNode(ctxTarget.pathArr, newName)) {
-                    updateTabPaths(ctxTarget.pathArr, newName);
-                    renderTree();
-                } else {
-                    if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Name already exists.", "⚠️");
+            const textSpan = itemEl.querySelector('span:nth-child(2)');
+            const originalDisplay = textSpan.style.display;
+            textSpan.style.display = 'none';
+            
+            const input = document.createElement('input');
+            input.type = 'text'; input.className = 'tree-input'; input.value = oldName;
+            itemEl.appendChild(input);
+            input.focus();
+            
+            const dotIdx = oldName.lastIndexOf('.');
+            input.setSelectionRange(0, dotIdx > -1 && !ctxTarget.isFolder ? dotIdx : oldName.length);
+            
+            let done = false;
+            const finish = (newName) => {
+                if(done) return; done = true;
+                input.remove(); textSpan.style.display = originalDisplay;
+                newName = newName ? newName.trim() : null;
+                
+                if(newName && newName !== oldName) {
+                    if(renameNode(ctxTarget.pathArr, newName)) { updateTabPaths(ctxTarget.pathArr, newName); renderTree(); }
+                    else showAlert("Error", "Name already exists.", "error");
                 }
-            }
+            };
+            
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') finish(input.value); if (e.key === 'Escape') finish(null); });
+            input.addEventListener('blur', () => finish(input.value));
+            input.addEventListener('click', e => e.stopPropagation());
         }
 
         // --- Export & Run ---
         async function exportZipPath(pathArr) {
-            const zip = new JSZip();
-            const rootNode = getNode(pathArr);
-            const exportName = pathArr[pathArr.length-1];
-            
+            const zip = new JSZip(); const rootNode = getNode(pathArr); const exportName = pathArr[pathArr.length-1];
             function addToZip(folderObj, nodeData) {
                 if(typeof nodeData === 'string') return; 
-                for (const key in nodeData) {
-                    if (typeof nodeData[key] === 'string') { folderObj.file(key, nodeData[key]); } 
-                    else { addToZip(folderObj.folder(key), nodeData[key]); }
-                }
+                for (const key in nodeData) { if (typeof nodeData[key] === 'string') folderObj.file(key, nodeData[key]); else addToZip(folderObj.folder(key), nodeData[key]); }
             }
-
-            if(typeof rootNode === 'string') { zip.file(exportName, rootNode); } 
-            else { addToZip(zip, rootNode); }
-            
-            zip.generateAsync({type:"blob"}).then(function(content) {
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(content);
-                a.download = exportName + ".zip"; a.click();
+            if(typeof rootNode === 'string') zip.file(exportName, rootNode); else addToZip(zip, rootNode);
+            zip.generateAsync({type:"blob"}).then(content => {
+                const a = document.createElement("a"); a.href = URL.createObjectURL(content); a.download = exportName + ".zip"; a.click();
             });
         }
 
         function testApp() {
-            if (!activeTabId) { 
-                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Open a project file first.", "⚠️");
-                return; 
-            }
-            
+            if (!activeTabId) { showAlert("Error", "Open a project file first.", "error"); return; }
             const activeTab = openTabs.find(t => t.id === activeTabId);
-            const projectRootName = activeTab.pathArr[0];
-            const projectRoot = fileSystem[projectRootName];
+            const projectRootName = activeTab.pathArr[0]; const projectRoot = fileSystem[projectRootName];
             
-            if (!projectRoot['index.html']) {
-                if (window.parent && window.parent.showNotification) window.parent.showNotification("Error", "Missing index.html to run.", "⚠️");
-                return;
-            }
-            
-            if (editor && activeTab) {
-                setNodeContent(activeTab.pathArr, editor.getValue());
-                saveFS();
-            }
+            if (!projectRoot['index.html']) { showAlert("Error", "Missing index.html to run.", "error"); return; }
+            if (editor && activeTab) { setNodeContent(activeTab.pathArr, editor.getValue()); saveFS(); }
             
             let htmlCode = projectRoot['index.html'];
-            
             function resolveDependencies(folder, pathPrefix = "") {
                 for(const filename in folder) {
-                    if(typeof folder[filename] === 'object') {
-                        resolveDependencies(folder[filename], pathPrefix + filename + "/");
-                    } else {
+                    if(typeof folder[filename] === 'object') resolveDependencies(folder[filename], pathPrefix + filename + "/");
+                    else {
                         const fullPath = pathPrefix + filename;
-                        if (filename.endsWith('.css')) {
-                            const linkTag = new RegExp(`<link[^>]*href=["']${fullPath}["'][^>]*>`, 'gi');
-                            htmlCode = htmlCode.replace(linkTag, `<style>${folder[filename]}</style>`);
-                        }
-                        if (filename.endsWith('.js')) {
-                            const scriptTag = new RegExp(`<script[^>]*src=["']${fullPath}["'][^>]*><\\/script>`, 'gi');
-                            htmlCode = htmlCode.replace(scriptTag, `<script>${folder[filename]}<\/script>`);
-                        }
+                        if (filename.endsWith('.css')) htmlCode = htmlCode.replace(new RegExp(`<link[^>]*href=["']${fullPath}["'][^>]*>`, 'gi'), `<style>${folder[filename]}</style>`);
+                        if (filename.endsWith('.js')) htmlCode = htmlCode.replace(new RegExp(`<script[^>]*src=["']${fullPath}["'][^>]*><\\/script>`, 'gi'), `<script>${folder[filename]}<\/script>`);
                     }
                 }
             }
             resolveDependencies(projectRoot);
 
-            const blob = new Blob([htmlCode], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            
-            const popupId = 'mariowos_ide_preview_window';
-            const parentDoc = window.parent.document;
+            const blob = new Blob([htmlCode], { type: 'text/html' }); const url = URL.createObjectURL(blob);
+            const popupId = 'mariowos_ide_preview_window'; const parentDoc = window.parent.document;
             let popupDiv = parentDoc.getElementById(popupId);
             
             if (!popupDiv) {
-                popupDiv = parentDoc.createElement("div");
-                popupDiv.id = popupId; popupDiv.className = "popup"; 
+                popupDiv = parentDoc.createElement("div"); popupDiv.id = popupId; popupDiv.className = "popup"; 
                 popupDiv.innerHTML = `
                     <div class="popup-header">
                         <span>🧪 Preview: ${projectRootName}</span>
@@ -875,57 +790,33 @@ Have fun from mariow :D
                 pActions.querySelector('.min-btn').addEventListener('click', () => window.parent.minimizePopup(popupId));
                 pActions.querySelector('.max-btn').addEventListener('click', () => window.parent.toggleMaximize(popupId));
                 pActions.querySelector('.close-btn').addEventListener('click', () => window.parent.closePopup(popupId));
-
                 void popupDiv.offsetWidth; 
             } else {
-                const headerSpan = popupDiv.querySelector('.popup-header span');
-                if (headerSpan) headerSpan.innerText = '🧪 Preview: ' + projectRootName;
-                const iframe = popupDiv.querySelector('iframe');
-                if (iframe) { iframe.dataset.defaultSrc = url; iframe.src = url; }
+                const headerSpan = popupDiv.querySelector('.popup-header span'); if (headerSpan) headerSpan.innerText = '🧪 Preview: ' + projectRootName;
+                const iframe = popupDiv.querySelector('iframe'); if (iframe) { iframe.dataset.defaultSrc = url; iframe.src = url; }
             }
             
-            window.parent.openPopup(popupId);
-            window.parent.focusPopup(popupDiv);
+            window.parent.openPopup(popupId); window.parent.focusPopup(popupDiv);
         }
 
         // --- OS Injection ---
         if (IS_EMBEDDED) {
             document.getElementById('fallback-menubar').style.display = 'none';
             document.getElementById('fallback-tabs').style.display = 'none';
-
             const iframes = window.parent.document.querySelectorAll('iframe');
             let myPopupId = null, myPopupEl = null;
 
-            iframes.forEach(iframe => {
-                if (iframe.contentWindow === window) {
-                    myPopupEl = iframe.closest('.popup');
-                    if(myPopupEl) myPopupId = myPopupEl.id;
-                }
-            });
+            iframes.forEach(iframe => { if (iframe.contentWindow === window) { myPopupEl = iframe.closest('.popup'); if(myPopupEl) myPopupId = myPopupEl.id; } });
 
             if (myPopupEl && myPopupId) {
                 const osHeader = myPopupEl.querySelector('.popup-header');
-
                 if (!window.parent.document.getElementById('codestudio-os-styles')) {
-                    const style = window.parent.document.createElement('style');
-                    style.id = 'codestudio-os-styles';
+                    const style = window.parent.document.createElement('style'); style.id = 'codestudio-os-styles';
                     style.textContent = `
-                        .cs-os-btn {
-                            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-                            color: #ddd; border-radius: 6px; padding: 4px 10px; display: flex; align-items: center; gap: 6px;
-                            cursor: pointer; transition: all 0.2s; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500;
-                        }
+                        .cs-os-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #ddd; border-radius: 6px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 500; }
                         .cs-os-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; transform: translateY(-1px); }
                         .cs-os-btn.primary { background: rgba(10, 132, 255, 0.18); color: #fff; border-color: rgba(10, 132, 255, 0.3); }
-                        
-                        .notes-tab-btn {
-                            display: flex; align-items: center; gap: 8px;
-                            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
-                            border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px;
-                            color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
-                            cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
-                            transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
-                        }
+                        .notes-tab-btn { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px; color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500; cursor: pointer; position: relative; height: 28px; box-sizing: border-box; transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none; }
                         .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
                         .notes-tab-btn.active { background: rgba(10, 132, 255, 0.18); color: #fff; height: 34px; border-color: rgba(10, 132, 255, 0.3); }
                         .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #0a84ff; border-bottom: none; pointer-events: none; }
@@ -935,19 +826,14 @@ Have fun from mariow :D
                 }
 
                 osHeader.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 8px; color: #0a84ff; cursor: move; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">code</span>
-                    </div>
-                    
+                    <div style="display: flex; align-items: center; gap: 8px; color: #0a84ff; cursor: move; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;"><span class="material-symbols-outlined" style="font-size: 18px;">code</span></div>
                     <div id="os-acode-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 8px; cursor: move;"></div>
-                    
                     <div id="os-acode-actions" style="display: flex; gap: 6px; margin-left: 12px; align-items: center; flex-shrink: 0;">
                         <button class="cs-os-btn" id="os-cs-run-pipeline" title="Run Pipeline"><span class="material-symbols-outlined" style="font-size: 14px;">terminal</span></button>
                         <button class="cs-os-btn" id="os-cs-new-proj" title="New Project"><span class="material-symbols-outlined" style="font-size: 14px;">create_new_folder</span></button>
                         <button class="cs-os-btn" id="os-cs-save" title="Save File (Ctrl+S)"><span class="material-symbols-outlined" style="font-size: 14px;">save</span> Save</button>
                         <button class="cs-os-btn primary" id="os-cs-run" title="Run App (Ctrl+Enter)"><span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span> Run</button>
                     </div>
-
                     <div class="window-actions" id="os-acode-win-actions" style="flex-shrink: 0; margin-left: 12px;">
                         <span class="material-symbols-outlined action-btn min-btn">remove</span>
                         <span class="material-symbols-outlined action-btn max-btn">crop_square</span>
@@ -956,7 +842,6 @@ Have fun from mariow :D
                 `;
 
                 const pDoc = window.parent.document;
-                
                 pDoc.getElementById('os-acode-tabs').addEventListener('mousedown', e => { if(e.target.closest('.notes-tab-btn')) e.stopPropagation(); });
                 pDoc.getElementById('os-acode-actions').addEventListener('mousedown', e => { if(e.target.closest('button')) e.stopPropagation(); });
                 
@@ -967,13 +852,10 @@ Have fun from mariow :D
                 wActions.querySelector('.close-btn').addEventListener('click', () => window.parent.closePopup(myPopupId));
 
                 pDoc.getElementById('os-cs-new-proj').addEventListener('click', () => promptCreateProject());
-                pDoc.getElementById('os-cs-run-pipeline').addEventListener('click', () => { togglePanel('terminalPanel'); });
+                pDoc.getElementById('os-cs-run-pipeline').addEventListener('click', () => togglePanel('terminalPanel'));
                 pDoc.getElementById('os-cs-save').addEventListener('click', () => {
                     if (editor && activeTabId) {
-                        const tab = openTabs.find(t => t.id === activeTabId);
-                        setNodeContent(tab.pathArr, editor.getValue());
-                        saveFS();
-                        window.parent.showNotification("ACode", "File saved successfully.", "💾");
+                        const tab = openTabs.find(t => t.id === activeTabId); setNodeContent(tab.pathArr, editor.getValue()); saveFS(); showAlert("ACode", "File saved successfully.", "save");
                     }
                 });
                 pDoc.getElementById('os-cs-run').addEventListener('click', () => testApp());
@@ -983,12 +865,7 @@ Have fun from mariow :D
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 's') { 
                 e.preventDefault(); 
-                if(editor && activeTabId) { 
-                    const tab = openTabs.find(t => t.id === activeTabId);
-                    setNodeContent(tab.pathArr, editor.getValue()); 
-                    saveFS();
-                    if(IS_EMBEDDED && window.parent.showNotification) window.parent.showNotification("ACode", "Saved", "💾");
-                } 
+                if(editor && activeTabId) { const tab = openTabs.find(t => t.id === activeTabId); setNodeContent(tab.pathArr, editor.getValue()); saveFS(); showAlert("ACode", "Saved", "save"); } 
             }
             if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); testApp(); }
             if (e.ctrlKey && e.key === '`') { e.preventDefault(); togglePanel('terminalPanel'); }

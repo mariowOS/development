@@ -7,8 +7,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wallpaper Settings</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+<link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
 <style>
 body {
   font-family: 'Poppins', sans-serif;
@@ -90,6 +90,55 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* --- Controls, themed with the user's accent color (--accent) --- */
+:root { --accent: #0a84ff; }
+.seg { position: relative; display: flex; padding: 4px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; }
+.seg-pill { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 9px; background: var(--accent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 45%, transparent); transition: transform .35s cubic-bezier(.2,1.2,.4,1), width .35s ease; }
+.seg button { position: relative; z-index: 1; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px;
+  border: 0; border-radius: 9px; background: transparent; color: rgba(255,255,255,0.65); font: 500 12.5px 'Poppins', sans-serif; cursor: pointer; transition: color .2s; }
+.seg button .material-symbols-outlined { font-size: 17px; }
+.seg button:hover, .seg button.on { color: #fff; }
+.row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; align-items: center; gap: 16px; min-height: 34px; }
+.row select { grid-column: 2 / -1; justify-self: end; }
+.row label { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 500; white-space: nowrap; }
+.row label .material-symbols-outlined { font-size: 18px; color: rgba(255,255,255,0.55); }
+.row output { min-width: 50px; padding: 3px 8px; border-radius: 7px; background: rgba(255,255,255,0.07); font-size: 11.5px; font-weight: 500;
+  color: rgba(255,255,255,0.8); text-align: center; font-variant-numeric: tabular-nums; }
+.hint { font-size: 12px; color: rgba(255,255,255,0.5); }
+input[type=range] { --fill: 50%; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; }
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) 0, var(--accent) var(--fill), rgba(255,255,255,0.14) var(--fill)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%;
+  background: #fff; border: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.45); transition: transform .15s, box-shadow .2s; }
+input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.12); }
+input[type=range]:active::-webkit-slider-thumb, input[type=range]:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.18); box-shadow: 0 2px 6px rgba(0,0,0,0.45), 0 0 0 6px color-mix(in srgb, var(--accent) 30%, transparent); }
+.swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+.swatch { position: relative; width: 32px; height: 32px; border-radius: 50%; border: 0; cursor: pointer; padding: 0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); transition: transform .15s; }
+.swatch:hover { transform: scale(1.1); }
+.swatch.on { box-shadow: 0 0 0 2px #15171b, 0 0 0 4px #fff; }
+.swatch.on::after { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; content: "check";
+  font-family: 'Material Symbols Outlined'; font-size: 18px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+.swatch.custom { overflow: hidden; background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); }
+.swatch.custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.gradients { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.gradients button { position: relative; height: 62px; border-radius: 12px; border: 0; cursor: pointer; color: #fff;
+  font: 600 11.5px 'Poppins', sans-serif; text-shadow: 0 1px 3px rgba(0,0,0,0.6); display: flex; align-items: flex-end; padding: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); transition: transform .15s; }
+.gradients button:hover { transform: translateY(-2px); }
+.gradients button.on { box-shadow: 0 0 0 2px #15171b, 0 0 0 4px var(--accent); }
+select { min-width: 160px; padding: 8px 34px 8px 12px; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; outline: none; cursor: pointer;
+  color: #fff; font: 13px 'Poppins', sans-serif; -webkit-appearance: none; appearance: none;
+  background: rgba(0,0,0,0.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff99' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 10px center; }
+select:hover { border-color: rgba(255,255,255,0.25); }
+select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+select option { background: #1c1e24; }
+.saved { font-size: 11.5px; color: rgba(255,255,255,0.45); text-align: right; min-height: 16px; margin: -12px 4px 0 0; }
+.mode-panel[hidden] { display: none; }
+
 html::-webkit-scrollbar { display: none; }
 </style>
 </head>
@@ -113,8 +162,62 @@ html::-webkit-scrollbar { display: none; }
     <div id="status" class="status"></div>
   </div>
 
+  <div class="section-title">Background</div>
+  <div class="panel">
+    <div class="seg" id="modeSeg">
+      <span class="seg-pill" id="segPill"></span><button data-mode="image"><span class="material-symbols-outlined">image</span>Picture</button><button data-mode="color"><span class="material-symbols-outlined">format_color_fill</span>Solid color</button><button data-mode="gradient"><span class="material-symbols-outlined">gradient</span>Gradient</button>
+    </div>
+    <div class="mode-panel" data-for="image">
+      <div class="row"><label for="fit"><span class="material-symbols-outlined">fit_screen</span>Fit</label>
+        <select id="fit"><option value="cover">Fill</option><option value="contain">Fit</option><option value="stretch">Stretch</option><option value="center">Center</option><option value="tile">Tile</option></select>
+      </div>
+    </div>
+    <div class="mode-panel" data-for="color"><div class="swatches" id="bgColors"></div></div>
+    <div class="mode-panel" data-for="gradient"><div class="gradients" id="gradients"></div></div>
+    <div class="row"><label for="brightness"><span class="material-symbols-outlined">light_mode</span>Brightness</label><input type="range" id="brightness" min="30" max="130"><output data-for="brightness"></output></div>
+    <div class="row"><label for="saturation"><span class="material-symbols-outlined">palette</span>Saturation</label><input type="range" id="saturation" min="0" max="200"><output data-for="saturation"></output></div>
+    <div class="row"><label for="blur"><span class="material-symbols-outlined">blur_on</span>Blur</label><input type="range" id="blur" min="0" max="30"><output data-for="blur"></output></div>
+  </div>
+
+  <div class="section-title">Accent color</div>
+  <div class="panel">
+    <div class="swatches" id="accents"></div>
+    <div class="hint">Used for the dock indicator, calendar, highlights and buttons.</div>
+  </div>
+
+  <div class="section-title">Windows</div>
+  <div class="panel">
+    <div class="row"><label for="radius"><span class="material-symbols-outlined">rounded_corner</span>Corner radius</label><input type="range" id="radius" min="0" max="28"><output data-for="radius"></output></div>
+    <div class="row"><label for="glass"><span class="material-symbols-outlined">opacity</span>Opacity</label><input type="range" id="glass" min="30" max="100"><output data-for="glass"></output></div>
+  </div>
+
+  <div class="section-title">Desktop</div>
+  <div class="panel">
+    <div class="row"><label for="iconScale"><span class="material-symbols-outlined">apps</span>Icon size</label><input type="range" id="iconScale" min="70" max="150" step="5"><output data-for="iconScale"></output></div>
+    <div class="row"><label for="uiFont"><span class="material-symbols-outlined">text_fields</span>System font</label>
+      <select id="uiFont">
+        <option value="Poppins">Poppins (default)</option><option value="Inter">Inter</option><option value="Nunito">Nunito</option>
+        <option value="Roboto Slab">Roboto Slab</option><option value="Lora">Lora</option><option value="JetBrains Mono">JetBrains Mono</option>
+        <option value="system-ui">System</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="saved" id="savedState"></div>
   <div class="section-title">Defaults</div>
   <div class="panel" style="padding: 12px;">
+    <div class="list-item" onclick="resetStyle()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(180deg, #5e5ce6, #3634a3); display: flex; align-items: center; justify-content: center;">
+          <span class="material-symbols-outlined" style="font-size: 18px; color: #fff;">format_paint</span>
+        </div>
+        <div>
+          <div style="font-size: 14px; font-weight: 500;">Reset Style</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Restore accent, adjustments, windows, icons and font</div>
+        </div>
+      </div>
+      <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.3);">chevron_right</span>
+    </div>
     <div class="list-item" onclick="resetToFactory()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
       <div style="display: flex; align-items: center; gap: 12px;">
         <div style="width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(180deg, #8e8e93, #636366); display: flex; align-items: center; justify-content: center;">
@@ -164,8 +267,9 @@ async function applyWallpaper() {
     const data = await res.json();
     if (data.success) {
       status.textContent = 'Wallpaper applied successfully!';
+      saveStyle({ wallpaperMode: 'image' });
       status.style.color = '#34c759';
-      window.parent.postMessage({ type: 'apply-wallpaper' }, '*');
+      window.top.postMessage({ type: 'apply-wallpaper' }, location.origin);
     } else {
       throw new Error(data.error);
     }
@@ -180,12 +284,13 @@ async function resetToFactory() {
   if (await mDialog.confirm("Restore the default factory wallpaper?")) {
     fetch('/api/system/reset-desktop', { method: 'POST' })
       .then(() => {
+        saveStyle({ wallpaperMode: 'image' });
         document.getElementById('status').textContent = 'Factory wallpaper restored';
         document.getElementById('status').style.color = '#34c759';
         document.getElementById('previewArea').style.display = 'none';
         document.getElementById('applyBtn').disabled = true;
         selectedFile = null;
-        window.parent.postMessage({ type: 'apply-wallpaper' }, '*');
+        window.top.postMessage({ type: 'apply-wallpaper' }, location.origin);
       });
   }
 }
@@ -203,6 +308,137 @@ dropArea.addEventListener('drop', (e) => {
     previewFile({ target: { files: [file] } });
   }
 });
+
+// --- Personalisation: saved in localStorage "desktopStyle", applied live by the desktop ---
+// Keep defaults and gradients in sync with DESKTOP_STYLE_DEFAULTS in com.mariowos.desktop.html.
+const STYLE_DEFAULTS = {
+  accent: '#0a84ff', wallpaperMode: 'image', wallpaperColor: '#1c2333', gradient: 'aurora', fit: 'cover',
+  brightness: 100, saturation: 100, blur: 0, radius: 16, glass: 75, iconScale: 100, uiFont: 'Poppins'
+};
+const ACCENTS = ['#0a84ff', '#5e5ce6', '#bf5af2', '#ff375f', '#ff453a', '#ff9f0a', '#ffd60a', '#30d158', '#40c8e0', '#8e8e93'];
+const BG_COLORS = ['#1c2333', '#000000', '#2c2c2e', '#0b3d2e', '#3a1c4a', '#4a1c1c', '#1c3a4a', '#f2f2f7'];
+const GRADIENTS = {
+  aurora: ['Aurora', 'linear-gradient(135deg, #0f2027 0%, #203a43 45%, #2c5364 100%)'],
+  sunset: ['Sunset', 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #6a3093 100%)'],
+  ocean: ['Ocean', 'linear-gradient(160deg, #000428 0%, #004e92 100%)'],
+  forest: ['Forest', 'linear-gradient(160deg, #0b3d2e 0%, #1d6b4f 55%, #a8e063 100%)'],
+  candy: ['Candy', 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)'],
+  midnight: ['Midnight', 'radial-gradient(circle at 30% 20%, #3a3f73 0%, #141629 60%, #07080f 100%)']
+};
+const UNITS = { brightness: '%', saturation: '%', blur: 'px', radius: 'px', glass: '%', iconScale: '%' };
+
+function loadStyle() {
+  try { return { ...STYLE_DEFAULTS, ...JSON.parse(localStorage.getItem('desktopStyle') || '{}') }; }
+  catch (e) { return { ...STYLE_DEFAULTS }; }
+}
+let style = loadStyle();
+
+// Applied instantly via localStorage + postMessage, then persisted to config.json (debounced).
+let persistTimer = null;
+function saveStyle(patch) {
+  style = { ...style, ...patch };
+  try { localStorage.setItem('desktopStyle', JSON.stringify(style)); } catch (e) {}
+  window.top.postMessage({ type: 'apply-style' }, location.origin);
+  renderStyle();
+  clearTimeout(persistTimer);
+  document.getElementById('savedState').textContent = 'Saving…';
+  persistTimer = setTimeout(persistStyle, 400);
+}
+async function persistStyle() {
+  const label = document.getElementById('savedState');
+  try {
+    const res = await fetch('/api/desktop-style', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(style) });
+    if (!res.ok) throw new Error();
+    label.textContent = 'Saved';
+  } catch (e) {
+    label.textContent = 'Could not save to the system: changes last only until restart';
+  }
+}
+function paintRange(input) {
+  input.style.setProperty('--fill', ((input.value - input.min) / (input.max - input.min) * 100) + '%');
+}
+function placePill() {
+  const active = document.querySelector('#modeSeg button.on');
+  const pill = document.getElementById('segPill');
+  if (!active || !pill) return;
+  const first = !pill.dataset.placed;
+  if (first) pill.style.transition = 'none';
+  pill.style.width = active.offsetWidth + 'px';
+  pill.style.transform = `translateX(${active.offsetLeft - 4}px)`;
+  if (first) { pill.offsetWidth; pill.style.transition = ''; pill.dataset.placed = '1'; }
+}
+new ResizeObserver(placePill).observe(document.getElementById('modeSeg'));
+document.fonts?.ready.then(placePill);
+
+function swatch(color, active, onPick) {
+  const b = document.createElement('button');
+  b.className = 'swatch' + (active ? ' on' : '');
+  b.style.background = color;
+  b.title = color;
+  b.onclick = () => onPick(color);
+  return b;
+}
+function customSwatch(value, active, onPick) {
+  const wrap = document.createElement('label');
+  wrap.className = 'swatch custom' + (active ? ' on' : '');
+  wrap.title = 'Custom color';
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.value = value;
+  input.onchange = () => onPick(input.value);
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function renderStyle() {
+  document.documentElement.style.setProperty('--accent', style.accent);
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === style.wallpaperMode));
+  document.querySelectorAll('.mode-panel').forEach(p => { p.hidden = p.dataset.for !== style.wallpaperMode; });
+  document.getElementById('fit').value = style.fit;
+  document.getElementById('uiFont').value = style.uiFont;
+  Object.keys(UNITS).forEach(id => {
+    document.getElementById(id).value = style[id];
+    document.querySelector(`output[data-for="${id}"]`).textContent = style[id] + UNITS[id];
+    paintRange(document.getElementById(id));
+  });
+  placePill();
+  document.getElementById('accents').replaceChildren(
+    ...ACCENTS.map(c => swatch(c, c === style.accent, accent => saveStyle({ accent }))),
+    customSwatch(style.accent, !ACCENTS.includes(style.accent), accent => saveStyle({ accent })));
+  document.getElementById('bgColors').replaceChildren(
+    ...BG_COLORS.map(c => swatch(c, c === style.wallpaperColor, wallpaperColor => saveStyle({ wallpaperColor }))),
+    customSwatch(style.wallpaperColor, !BG_COLORS.includes(style.wallpaperColor), wallpaperColor => saveStyle({ wallpaperColor })));
+  document.getElementById('gradients').replaceChildren(...Object.entries(GRADIENTS).map(([id, [name, css]]) => {
+    const b = document.createElement('button');
+    b.style.background = css;
+    b.textContent = name;
+    b.className = id === style.gradient ? 'on' : '';
+    b.onclick = () => saveStyle({ gradient: id });
+    return b;
+  }));
+}
+
+document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => saveStyle({ wallpaperMode: b.dataset.mode }));
+document.getElementById('fit').onchange = e => saveStyle({ fit: e.target.value });
+document.getElementById('uiFont').onchange = e => saveStyle({ uiFont: e.target.value });
+Object.keys(UNITS).forEach(id => {
+  document.getElementById(id).oninput = e => saveStyle({ [id]: Number(e.target.value) });
+});
+
+async function resetStyle() {
+  if (!(await mDialog.confirm('Reset accent color, adjustments, windows, icon size and font to their defaults?'))) return;
+  style = { ...STYLE_DEFAULTS, wallpaperMode: style.wallpaperMode, wallpaperColor: style.wallpaperColor, gradient: style.gradient, fit: style.fit };
+  saveStyle({});
+}
+
+renderStyle();
+// config.json is the source of truth; localStorage only caches it.
+fetch('/get-settings').then(r => r.ok ? r.json() : null).then(cfg => {
+  if (!cfg || !cfg.desktopStyle) return;
+  style = { ...STYLE_DEFAULTS, ...cfg.desktopStyle };
+  try { localStorage.setItem('desktopStyle', JSON.stringify(style)); } catch (e) {}
+  renderStyle();
+}).catch(() => {});
 </script>
 </body>
 </html>

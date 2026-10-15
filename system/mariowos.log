@@ -1,0 +1,24 @@
+
+> development@1.0.0 start-os
+> electron system/launcher.js
+
+
+[sniffer]: booting...
+[kernel]: kernel booted on [win32] at http://127.0.0.1:3000
+[sniffer]: kernel loaded; booting GUI.
+Error occurred in handler for 'GUEST_VIEW_MANAGER_CALL': Error: ERR_ABORTED (-3) loading 'https://mariowstech.github.io/mariowOS-landpages/browser-homepage/index.html'
+    at rejectAndCleanup (node:electron/js2c/browser_init:1:94793)
+    at WebContents.navigationListener (node:electron/js2c/browser_init:1:95073)
+    at WebContents.emit (node:events:526:24)
+    at WebContents.loadURL (node:electron/js2c/browser_init:1:98299)
+    at node:electron/js2c/browser_init:1:113883
+    at node:electron/js2c/browser_init:1:113034
+    at Session.<anonymous> (node:electron/js2c/browser_init:1:118178)
+    at Session.emit (node:events:514:28) {
+  errno: -3,
+  code: 'ERR_ABORTED',
+  url: 'https://mariowstech.github.io/mariowOS-landpages/browser-homepage/index.html'
+}
+[kernel]: Wi-Fi Hardware Toggle Error: Command failed: netsh interface set interface name="Wi-Fi" admin=disabled
+[kernel]: Wi-Fi Hardware Toggle Error: Command failed: netsh interface set interface name="Wi-Fi" admin=enabled
+[sniffer]: system shutdown initiated...

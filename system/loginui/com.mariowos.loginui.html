@@ -11,7 +11,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet" id="default-font">
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet" id="default-font">
 <style>
 * { box-sizing: border-box; }
 html,body {
@@ -210,7 +210,7 @@ function applyCustomSettings() {
       fontLink.rel = 'stylesheet';
       document.head.appendChild(fontLink);
     }
-    fontLink.href = `https://fonts.googleapis.com/css?family=${font.replace(/ /g, '+')}:${weight}&display=swap`;
+    fontLink.href = "/desktop/assets/fonts/fonts.css";
   }
 
   const timeEl = document.getElementById('time');

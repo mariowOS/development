@@ -1,6 +1,6 @@
 // mariowOS Electron entry point. The backend owns the web shell; Electron owns
 // the fullscreen window and supervises the backend's explicit lifecycle codes.
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const { spawn } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -300,6 +300,21 @@ const MOUSE_NAV_BLOCKER = `(() => {
         window.addEventListener(type, block, true));
 })();`;
 
+// Inside a browser tab the mouse back/forward buttons must walk that tab's history,
+// not the shell's: block the default and navigate the page itself.
+const WEBVIEW_MOUSE_NAV = `(() => {
+    if (window.__mariowosMouseNav) return;
+    window.__mariowosMouseNav = true;
+    const handle = event => {
+        if (event.button !== 3 && event.button !== 4) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (event.type === 'mouseup') event.button === 3 ? history.back() : history.forward();
+    };
+    ['mousedown', 'mouseup', 'auxclick', 'pointerdown', 'pointerup'].forEach(type =>
+        window.addEventListener(type, handle, true));
+})();`;
+
 function blockMouseHistoryNavigation(win) {
     const inject = frame => {
         if (!frame || frame.isDestroyed?.()) return;
@@ -335,6 +350,13 @@ function bootMariowOS() {
     });
     mainWindow.webContents.on('context-menu', event => event.preventDefault());
     blockMouseHistoryNavigation(mainWindow);
+    // The shell must never navigate "back" (boot -> login -> desktop): Chromium can still
+    // route the mouse back button from a browser tab to the shell, so the shell keeps no history.
+    mainWindow.webContents.on('did-navigate', () => {
+        const history = mainWindow?.webContents?.navigationHistory;
+        if (history?.clear) history.clear();
+        else mainWindow?.webContents?.clearHistory?.();
+    });
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
@@ -343,6 +365,54 @@ function bootMariowOS() {
     }).catch(error => {
         console.error('[sniffer]: could not load boot animation:', error);
     });
+}
+
+// SECURITY (B-01): webviewTag is enabled for the in-OS browser app, so every webview
+// and every attempt to open a new window must be constrained. Without this, a page
+// loaded in a webview could attach a webview with nodeIntegration on, inject a
+// preload, or pop native windows pointing anywhere.
+app.on('web-contents-created', (_event, contents) => {
+    // Never let a child webview turn Node back on or load a preload of its choosing.
+    contents.on('will-attach-webview', (_e, webPreferences, params) => {
+        delete webPreferences.preload;
+        webPreferences.nodeIntegration = false;
+        webPreferences.contextIsolation = true;
+        webPreferences.sandbox = true;
+    });
+    // Window.open / target=_blank: from a browser tab (webview) open it as a new in-OS tab;
+    // from anything else open http(s) in the user's real browser. Native windows are always denied.
+    const isWebview = contents.getType() === 'webview';
+    contents.setWindowOpenHandler(({ url }) => {
+        if (/^https?:\/\//i.test(url)) {
+            if (isWebview && mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('browser:open-tab', url);
+            else shell.openExternal(url);
+        }
+        return { action: 'deny' };
+    });
+    // Keyboard focus inside a webview never reaches the desktop page, so browser
+    // shortcuts are intercepted here and forwarded to it.
+    if (isWebview) {
+        contents.on('dom-ready', () => contents.executeJavaScript(WEBVIEW_MOUSE_NAV).catch(() => {}));
+        contents.on('before-input-event', (event, input) => {
+            if (input.type !== 'keyDown') return;
+            const shortcut = browserShortcutFor(input);
+            if (!shortcut || !mainWindow || mainWindow.isDestroyed()) return;
+            event.preventDefault();
+            mainWindow.webContents.send('browser:shortcut', shortcut);
+        });
+    }
+});
+
+function browserShortcutFor(input) {
+    const key = input.key.toLowerCase();
+    const ctrl = input.control || input.meta;
+    if (key === 'f5' || (ctrl && key === 'r')) return 'reload';
+    if (input.alt && key === 'arrowleft') return 'back';
+    if (input.alt && key === 'arrowright') return 'forward';
+    if (!ctrl) return null;
+    if (key === 'tab') return input.shift ? 'prev-tab' : 'next-tab';
+    return { t: 'new-tab', w: 'close-tab', l: 'focus-url', f: 'find',
+        '=': 'zoom-in', '+': 'zoom-in', '-': 'zoom-out', '0': 'zoom-reset' }[key] || null;
 }
 
 app.whenReady().then(() => {

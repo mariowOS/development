@@ -1,0 +1,10 @@
+{
+  "_comment": "Per-app endpoint permissions. Transparent on purpose: readable, not obfuscated. Set enforced=true only after the desktop shell mints per-app tokens (POST /api/app/token) and apps send them as the X-App-Token header. Paths not listed here stay open to every app.",
+  "enforced": false,
+  "rules": [
+    { "prefix": "/api/remote/exec", "apps": ["terminal"] },
+    { "prefix": "/api/recovery/debug", "apps": ["terminal"] },
+    { "prefix": "/api/sandbox/", "apps": ["sandbox"] },
+    { "prefix": "/api/store/", "apps": ["store"] }
+  ]
+}

@@ -33,5 +33,13 @@
     "eula": "ACode is a free and open-source IDE for developing mariowOS applications. It is licensed under the Apache License, Version 2.0. You can use this software freely, but you must give credit to the original creators and comply with the terms of the license. You can obtain a copy of the license at http://www.apache.org/licenses/LICENSE-2.0. \r\nThis project uses open-source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LLC. For privacy information, please refer to https://developers.google.com/fonts/faq/privacy.\r\n\r\nRequirements:\r\n- Runtime and full DE access.",
     "repoUrl": "https://github.com/mariowOS/acode.git",
     "icon": "https://raw.githubusercontent.com/mariowOS/acode/refs/heads/main/icon.png"
+  },
+  {
+    "id": "com.prova.test",
+    "title": "test",
+    "developer": "no",
+    "desc": "no descr",
+    "repoUrl": "prova",
+    "icon": "📦"
   }
 ]

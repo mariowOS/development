@@ -1,0 +1,6 @@
+2026-10-02T17:49:36.451Z ESOCKET self-signed certificate in certificate chain
+Error: self-signed certificate in certificate chain
+    at TLSSocket.onConnectSecure (node:internal/tls/wrap:1767:34)
+    at TLSSocket.emit (node:events:509:20)
+    at TLSSocket._finishInit (node:internal/tls/wrap:1202:8)
+    at ssl.onhandshakedone (node:internal/tls/wrap:983:12)

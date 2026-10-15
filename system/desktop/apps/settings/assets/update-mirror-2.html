@@ -3,9 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+<link rel="stylesheet" href="/desktop/assets/fonts/fonts.css">
 <style>
+:root {
+  --accent: #0a84ff;
+  --menu: rgba(26, 28, 34, 0.96);
+  --spring: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
@@ -19,6 +25,13 @@ body {
   align-items: center;
   justify-content: center;
   background: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Material Symbols shortcut */
+.ms { 
+  font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; 
+  line-height: 1; display: inline-block; white-space: nowrap; direction: ltr; font-feature-settings: 'liga'; 
 }
 
 .card {
@@ -28,37 +41,6 @@ body {
   max-width: 420px;
   position: relative;
   z-index: 1;
-}
-
-/* ── Logo ── */
-.logo-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 28px;
-}
-
-.logo-img {
-  width: 200px;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
-  transition: filter 0.5s;
-  position: relative;
-}
-
-.logo-img.updating {
-  animation: logoPulse 2s ease-in-out infinite;
-}
-
-@keyframes logoPulse {
-  0%, 100% { filter: drop-shadow(0 0 12px rgba(10,132,255,0.3)) brightness(1); }
-  50% { filter: drop-shadow(0 0 28px rgba(10,132,255,0.6)) brightness(1.1); }
-}
-
-.logo-img.done {
-  filter: drop-shadow(0 0 18px rgba(52,199,89,0.4));
 }
 
 /* ── Progress bar ── */
@@ -88,96 +70,6 @@ body {
   box-shadow: 0 0 12px rgba(52,199,89,0.5);
 }
 
-.pct-text {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  margin-bottom: 16px;
-  transition: color 0.5s;
-  display: none;
-}
-
-.pct-text.visible { display: block; }
-
-.pct-text.complete {
-  color: #34c759;
-}
-
-/* ── Status ── */
-.status {
-  font-size: 16px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 8px;
-  min-height: 28px;
-}
-
-.status-update {
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  min-height: 20px;
-}
-
-/* ── Version info ── */
-.version-row {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin: 16px 0 24px 0;
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-}
-
-.version-row span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.version-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.version-dot.current { background: #0a84ff; }
-.version-dot.latest { background: #34c759; }
-
-/* ── Changelog ── */
-.changelog {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 18px 22px;
-  margin-bottom: 24px;
-  text-align: left;
-  display: none;
-  max-height: 160px;
-  overflow-y: auto;
-}
-
-.changelog-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-}
-
-.changelog-text {
-  font-size: 13px;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.changelog::-webkit-scrollbar { width: 6px; }
-.changelog::-webkit-scrollbar-track { background: transparent; }
-.changelog::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
-.changelog::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
-
 /* ── Button ── */
 .btn {
   background: #0a84ff;
@@ -201,14 +93,13 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(10,132,255, 0.4);
 }
-
 .btn:active { transform: scale(0.97); }
 
 .links {
   display: flex;
   gap: 20px;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .links a {
@@ -217,36 +108,7 @@ body {
   font-size: 13px;
   transition: color 0.2s;
 }
-
 .links a:hover { text-decoration: underline; }
-
-/* ── Space particles ── */
-.particles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  background: #fff;
-  animation: starFloat var(--dur) ease-in-out infinite;
-  animation-delay: var(--delay);
-}
-
-.particle.s1 { width: 1.5px; height: 1.5px; opacity: 0.5; }
-.particle.s2 { width: 2px; height: 2px; opacity: 0.7; }
-.particle.s3 { width: 3px; height: 3px; opacity: 0.9; box-shadow: 0 0 4px rgba(255,255,255,0.5); }
-
-@keyframes starFloat {
-  0% { opacity: 0; transform: translateY(0) scale(0); }
-  15% { opacity: var(--max-opacity, 1); }
-  85% { opacity: var(--max-opacity, 1); }
-  100% { opacity: 0; transform: translateY(-80px) scale(1); }
-}
 
 body {
   display: block;
@@ -254,9 +116,6 @@ body {
   height: 100%;
   overflow: auto;
   color: #fff;
-  -webkit-font-smoothing: antialiased;
-  font-family: 'Poppins', sans-serif;
-  background: transparent;
 }
 
 .card {
@@ -417,7 +276,6 @@ body {
   background: #0a84ff;
   box-shadow: none;
 }
-
 .progress-fill.complete { background: #34c759; box-shadow: none; }
 
 .notice {
@@ -426,17 +284,50 @@ body {
   font-size: 11px;
   line-height: 1.5;
 }
-
 .notice.error { color: #ff453a; }
 
-.links {
-  justify-content: flex-start;
-  gap: 16px;
-  margin: 16px 0 0;
+/* ── Channel Footer & Notes Design Menu ── */
+.channel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding: 16px 12px 0 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-.links a { color: rgba(255,255,255,.5); font-size: 11px; }
-.links a:hover { color: rgba(255,255,255,.85); }
+.channel-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+}
+
+.tb { 
+  height: 32px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; 
+  gap: 6px; border: 0; border-radius: 8px; background: rgba(255,255,255,0.06); color: rgba(255,255,255,.85); 
+  cursor: pointer; font-size: 13px; transition: background .15s, color .15s; font-family: inherit; 
+}
+.tb:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.tb.on { background: color-mix(in srgb, var(--accent) 25%, transparent); color: #fff; }
+.tb:disabled { opacity: .35; cursor: wait; }
+.tb.style-btn { min-width: 120px; justify-content: space-between; font-weight: 500; border: 1px solid rgba(255,255,255,0.05); }
+
+.menu { 
+  position: fixed; z-index: 1000; min-width: 160px; padding: 6px; border-radius: 14px; background: var(--menu); 
+  border: 1px solid rgba(255,255,255,.1); box-shadow: 0 18px 50px rgba(0,0,0,.5); backdrop-filter: blur(30px); 
+  display: none; flex-direction: column; animation: pop .18s var(--spring); 
+}
+.menu.open { display: flex; }
+@keyframes pop { from { opacity: 0; transform: scale(.96) translateY(4px); } }
+
+.menu button { 
+  display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 9px; 
+  background: transparent; cursor: pointer; font-size: 13px; text-align: left; font-family: inherit; color: #fff; transition: background .15s;
+}
+.menu button:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+.menu button.active { background: color-mix(in srgb, var(--accent) 25%, transparent); color: #fff; font-weight: 600; }
+.menu button:disabled { opacity: .4; cursor: default; }
+.menu button .ms { font-size: 18px; color: rgba(255,255,255,.7); width: 20px; }
 
 @media (max-width: 420px) {
   .card { padding: 20px 0 16px; }
@@ -488,10 +379,24 @@ body {
     <p class="notice" id="appsNotice" hidden></p>
   </section>
 
+  <div class="channel-footer">
+    <span class="channel-label">Update Channel</span>
+    <button class="tb style-btn" id="channelBtn" title="Change update channel" disabled>
+      <span id="channelName">Loading...</span>
+      <span class="ms" style="font-size: 18px;">expand_more</span>
+    </button>
+  </div>
+
   <nav class="links" aria-label="Update resources">
     <a href="https://mariowstech.github.io/mariowOS-landpages/roadmap/index.html">Roadmap</a>
   </nav>
 </main>
+
+<div class="menu" id="channelMenu">
+  <button data-channel="stable"><span class="ms">verified</span>Stable</button>
+  <button data-channel="beta"><span class="ms">science</span>Beta</button>
+  <button data-channel="insiders"><span class="ms">bug_report</span>Insiders</button>
+</div>
 
 <script>
 const appNames = {
@@ -759,7 +664,113 @@ function finishUpdate(kind, succeeded, message) {
   }
 }
 
-Promise.all([checkSystemUpdates(), checkAppUpdates()]);
+/* ── Menu Channel Logic (Notes Design) ── */
+const channelBtn = document.getElementById('channelBtn');
+const channelMenu = document.getElementById('channelMenu');
+const channelName = document.getElementById('channelName');
+
+function openMenu(menu, anchor) {
+  closeMenus();
+  menu.classList.add('open');
+  
+  const rect = anchor.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+
+  let leftPos = rect.left;
+  
+  // Se il menu sfora il margine destro dell'iframe, allinealo al lato destro del bottone
+  if (leftPos + menuRect.width > window.innerWidth - 8) {
+    leftPos = rect.right - menuRect.width;
+  }
+
+  // Applica le posizioni
+  menu.style.left = Math.max(8, leftPos) + 'px';
+  menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+}
+
+function closeMenus() {
+  document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open'));
+}
+
+// Chiude il menu se si clicca fuori
+document.addEventListener('mousedown', e => {
+  if (!e.target.closest('.menu') && !e.target.closest('#channelBtn')) {
+    closeMenus();
+  }
+});
+// Chiude il menu col tasto esc
+document.addEventListener('keydown', e => { 
+  if (e.key === 'Escape') closeMenus(); 
+});
+
+channelBtn.onclick = () => {
+  if (!channelMenu.classList.contains('open')) {
+    // Rendilo block temporaneamente per misurarlo (senza opacità) se necessario,
+    // o semplicemente aggiungendo open, le dimensioni vengono calcolate correttamente.
+    openMenu(channelMenu, channelBtn);
+  } else {
+    closeMenus();
+  }
+};
+
+function updateChannelUI(channel) {
+  const names = { stable: 'Stable', beta: 'Beta', insiders: 'Insiders' };
+  channelName.textContent = names[channel] || channel;
+  channelMenu.querySelectorAll('button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.channel === channel);
+  });
+}
+
+async function initChannelSelector() {
+  try {
+    const res = await fetch('/api/system/update-channel');
+    const data = await res.json();
+    let current = data.channel || 'stable';
+    
+    updateChannelUI(current);
+    channelBtn.disabled = false;
+
+    channelMenu.querySelectorAll('button').forEach(btn => {
+      btn.onclick = async () => {
+        closeMenus();
+        const newChannel = btn.dataset.channel;
+        if (newChannel === current) return;
+
+        channelBtn.disabled = true;
+        setBusy(true);
+        const names = { stable: 'Stable', beta: 'Beta', insiders: 'Insiders' };
+        setNotice('systemNotice', `Switching to ${names[newChannel] || newChannel}...`);
+        
+        try {
+          const reqRes = await fetch('/api/system/update-channel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ channel: newChannel })
+          });
+          const reqData = await reqRes.json();
+          
+          if (!reqRes.ok || !reqData.success) {
+            throw new Error(reqData.error || 'Failed to change update channel.');
+          }
+          
+          current = newChannel;
+          updateChannelUI(newChannel);
+          setNotice('systemNotice', '');
+          await checkSystemUpdates();
+        } catch (err) {
+          setNotice('systemNotice', err.message, true);
+        } finally {
+          channelBtn.disabled = false;
+          setBusy(false);
+        }
+      };
+    });
+  } catch (e) {
+    console.error("Non è stato possibile caricare il canale di aggiornamento", e);
+  }
+}
+
+Promise.all([initChannelSelector(), checkSystemUpdates(), checkAppUpdates()]);
 </script>
 </body>
 </html>

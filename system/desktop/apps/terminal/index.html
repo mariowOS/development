@@ -12,14 +12,12 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+  <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
   <style>
     @font-face {
       font-family: 'MesloLGS NF';
-      src: url('https://cdn.jsdelivr.net/gh/romkatv/powerlevel10k-media@master/MesloLGS%20NF%20Regular.ttf') format('truetype');
+      src: url('/desktop/assets/vendor/MesloLGS-NF-Regular.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
     }
@@ -231,6 +229,41 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   </div>
 
   <script>
+    // SECURITY (M-06): safe arithmetic evaluator for the `math` command. Tokenizes
+    // numbers and + - * / % ( ) only, then evaluates via shunting-yard. Anything else
+    // (identifiers, calls, etc.) throws, so no arbitrary JavaScript can run.
+    function safeMath(input) {
+      const tokens = String(input).match(/\d+\.?\d*|[()+\-*/%]/g);
+      if (!tokens || tokens.join("").replace(/\s/g, "") !== String(input).replace(/\s/g, "")) {
+        throw new Error("invalid");
+      }
+      const prec = { "+": 1, "-": 1, "*": 2, "/": 2, "%": 2 };
+      const out = [], ops = [];
+      for (const t of tokens) {
+        if (/^\d/.test(t)) out.push(parseFloat(t));
+        else if (t === "(") ops.push(t);
+        else if (t === ")") {
+          while (ops.length && ops[ops.length - 1] !== "(") out.push(ops.pop());
+          if (ops.pop() !== "(") throw new Error("paren");
+        } else {
+          while (ops.length && prec[ops[ops.length - 1]] >= prec[t]) out.push(ops.pop());
+          ops.push(t);
+        }
+      }
+      while (ops.length) { const o = ops.pop(); if (o === "(") throw new Error("paren"); out.push(o); }
+      const st = [];
+      for (const tok of out) {
+        if (typeof tok === "number") st.push(tok);
+        else {
+          const b = st.pop(), a = st.pop();
+          if (a === undefined || b === undefined) throw new Error("operand");
+          st.push(tok === "+" ? a + b : tok === "-" ? a - b : tok === "*" ? a * b : tok === "%" ? a % b : a / b);
+        }
+      }
+      if (st.length !== 1 || !Number.isFinite(st[0])) throw new Error("result");
+      return st[0];
+    }
+
     const terminalsContainer = document.getElementById("terminals-container");
     const dmgrOverlay = document.getElementById("dmgr-overlay");
     const nanoOverlay = document.getElementById("nano-overlay");
@@ -1434,7 +1467,9 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
         case "math":
           try {
             const expr = cmd.slice(5);
-            const result = eval(expr);
+            // SECURITY (M-06): no eval(). Accept only arithmetic and evaluate it with a
+            // tiny shunting-yard parser so a "math" command can never run arbitrary JS.
+            const result = safeMath(expr);
             outputLine.innerText = `${expr} = ${result}`;
           } catch {
             outputLine.innerHTML = "<span class='color-red'>E: Invalid expression, check syntax.</span>";

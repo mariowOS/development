@@ -16,8 +16,8 @@
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
     "multer": "^2.0.2",
-    "node-cron": "^3.0.3",
-    "nodemailer": "^7.0.0"
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.0.15"
   },
   "allowScripts": {
     "bcrypt@6.0.0": true

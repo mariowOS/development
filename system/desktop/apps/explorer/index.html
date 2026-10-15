@@ -1,1062 +1,1140 @@
-<!-- 
-mariowOS File Explorer - (C) 2026 mariowstech and the mariowOS team 
-Licensed under the Apache License, Version 2.0 
+<!--
+mariowOS Files - (C) 2026 mariowstech and the mariowOS team
+Licensed under the Apache License, Version 2.0
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-  <style>
-    :root {
-      --m3-bg: rgba(18, 22, 32, 0.4);
-      --m3-sidebar: rgba(255, 255, 255, 0.02);
-      --m3-accent: #0a84ff;
-      --m3-text: #ffffff;
-      --m3-text-muted: rgba(255, 255, 255, 0.5);
-      --m3-hover: rgba(255, 255, 255, 0.08);
-      --spring: cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    
-    html, body {
-      margin: 0; padding: 0; width: 100vw; height: 100vh; font-family: 'Poppins', sans-serif;
-      background: transparent; color: var(--m3-text); overflow: hidden;
-      display: flex; user-select: none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Files</title>
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
+<style>
+  :root {
+    --accent: #0a84ff;
+    --text: #fff;
+    --muted: rgba(255,255,255,.55);
+    --dim: rgba(255,255,255,.35);
+    --border: rgba(255,255,255,.08);
+    --hover: rgba(255,255,255,.07);
+    --sidebar: rgba(20,21,26,.72);
+    --menu: rgba(26,28,34,.97);
+    --spring: cubic-bezier(.16,1,.3,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100vh; overflow: hidden; }
+  body { display: flex; font-family: 'Poppins', sans-serif; color: var(--text); background: transparent; -webkit-font-smoothing: antialiased; user-select: none; }
+  button, input { font-family: inherit; color: inherit; }
+  .ms { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; line-height: 1; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; font-feature-settings: 'liga'; }
 
-    /* Sidebar */
-/* Replace the existing .sidebar and .nav-item rules; keep the existing icon color rules. */
-.sidebar {
-  width: 250px;
-  flex: 0 0 250px;
-  padding: 0;
-  gap: 0;
-  background: rgba(22, 22, 25, 0.65);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  border-right: 1px solid rgba(0, 0, 0, 0.4);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  box-sizing: border-box;
-}
+  /* Sidebar */
+  .sidebar { width: 220px; flex: 0 0 220px; display: flex; flex-direction: column; background: var(--sidebar); border-right: 1px solid rgba(0,0,0,.35); backdrop-filter: blur(30px); overflow-y: auto; padding: 10px 8px; }
+  .side-label { padding: 12px 10px 4px; font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--dim); }
+  .side-item { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; font-size: 13px; cursor: pointer; color: rgba(255,255,255,.85); transition: background .15s; }
+  .side-item:hover { background: var(--hover); }
+  .side-item.active { background: color-mix(in srgb, var(--accent) 24%, transparent); color: #fff; }
+  .side-item.drop-target { outline: 2px dashed var(--accent); outline-offset: -2px; }
+  .side-item .ms { font-size: 19px; width: 20px; color: var(--accent); }
+  .side-item.trash .ms { color: rgba(255,255,255,.7); }
+  .side-item .badge { margin-left: auto; font-size: 11px; color: var(--dim); }
+  .storage { margin: auto 8px 4px; padding: 10px; border-radius: 10px; background: rgba(255,255,255,.04); font-size: 11px; color: var(--muted); }
+  .storage-bar { height: 5px; margin-top: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .storage-bar span { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
 
-.sidebar::-webkit-scrollbar {
-  width: 0;
-}
+  /* Main */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
+  .topbar { display: flex; align-items: center; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,.18); }
+  .ib { width: 32px; height: 32px; flex: 0 0 32px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: transparent; color: rgba(255,255,255,.8); cursor: pointer; }
+  .ib:hover:not(:disabled) { background: var(--hover); color: #fff; }
+  .ib:disabled { opacity: .3; cursor: default; }
+  .ib.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .ib .ms { font-size: 20px; }
+  .crumbs { flex: 1; min-width: 0; height: 34px; display: flex; align-items: center; gap: 2px; padding: 0 6px; border-radius: 9px; background: rgba(0,0,0,.28); border: 1px solid var(--border); overflow: hidden; cursor: text; }
+  .crumbs:focus-within { border-color: var(--accent); }
+  .crumb { flex: 0 0 auto; padding: 3px 7px; border-radius: 6px; font-size: 12.5px; color: rgba(255,255,255,.8); cursor: pointer; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+  .crumb:hover { background: var(--hover); color: #fff; }
+  .crumb.last { color: #fff; font-weight: 500; }
+  .crumb-sep { flex: 0 0 auto; font-size: 16px; color: var(--dim); }
+  .crumbs input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 12.5px; user-select: text; }
+  .search { width: 200px; height: 34px; display: flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 9px; background: rgba(0,0,0,.28); border: 1px solid var(--border); }
+  .search:focus-within { border-color: var(--accent); }
+  .search .ms { font-size: 17px; color: var(--dim); }
+  .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 12.5px; user-select: text; }
+  .actionbar { display: flex; align-items: center; gap: 2px; padding: 5px 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .ab { height: 30px; display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border: 0; border-radius: 8px; background: transparent; color: rgba(255,255,255,.82); cursor: pointer; font-size: 12.5px; }
+  .ab:hover:not(:disabled) { background: var(--hover); color: #fff; }
+  .ab:disabled { opacity: .3; cursor: default; }
+  .ab .ms { font-size: 18px; }
+  .ab.primary { background: color-mix(in srgb, var(--accent) 22%, transparent); color: #fff; }
+  .sep { width: 1px; height: 18px; margin: 0 4px; background: rgba(255,255,255,.1); }
+  .grow { flex: 1; }
+  .readonly-pill { display: none; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: rgba(255,159,10,.15); color: #ffb340; font-size: 11px; }
+  .readonly-pill.show { display: inline-flex; }
+  .readonly-pill .ms { font-size: 14px; }
 
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 12px 16px;
-}
+  /* Content */
+  .content { flex: 1; overflow: auto; position: relative; outline: none; }
+  .content.drag-over::after { content: 'Drop files to upload them here'; position: absolute; inset: 10px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--accent); border-radius: 14px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: 14px; pointer-events: none; }
+  .list-head { position: sticky; top: 0; z-index: 2; display: grid; grid-template-columns: minmax(0,1fr) 150px 110px 90px; gap: 10px; padding: 7px 16px; background: rgba(22,24,30,.96); border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--muted); }
+  .list-head span { cursor: pointer; display: flex; align-items: center; gap: 3px; }
+  .list-head span:hover { color: #fff; }
+  .list-head span.right { justify-content: flex-end; }
+  .list-head .ms { font-size: 15px; }
+  .row { display: grid; grid-template-columns: minmax(0,1fr) 150px 110px 90px; gap: 10px; align-items: center; padding: 5px 16px; margin: 0 6px; border-radius: 8px; font-size: 13px; cursor: default; }
+  .row:hover { background: var(--hover); }
+  .row.selected, .tile.selected { background: color-mix(in srgb, var(--accent) 26%, transparent); }
+  .row.cut, .tile.cut { opacity: .45; }
+  .row.drop-target, .tile.drop-target { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .row .name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .row .name span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .meta { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .meta.right { text-align: right; }
+  .row .sub { color: var(--dim); font-size: 11px; }
+  .ficon { font-size: 22px; flex: 0 0 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr)); gap: 6px; padding: 12px; }
+  .tile { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px 8px; border-radius: 12px; cursor: default; text-align: center; }
+  .tile:hover { background: var(--hover); }
+  .tile .thumb { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 10px; overflow: hidden; }
+  .tile .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .tile .thumb .ms { font-size: 52px; }
+  .tile .label { width: 100%; font-size: 12px; line-height: 1.3; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .rename-input { width: 100%; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--accent); outline: 0; background: rgba(0,0,0,.5); font-size: 12.5px; user-select: text; }
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 70%; color: var(--dim); font-size: 13px; text-align: center; padding: 20px; }
+  .empty .ms { font-size: 48px; opacity: .5; }
+  .status { display: flex; align-items: center; gap: 14px; padding: 5px 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--dim); }
+  .status .grow { flex: 1; }
 
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 400;
-  cursor: pointer;
-  user-select: none;
-  transition: background 180ms ease, transform 180ms ease;
-}
+  /* Icons by type */
+  .c-folder { color: #64b5ff; } .c-image { color: #4cd964; } .c-audio { color: #ff6b9d; } .c-video { color: #bf5af2; }
+  .c-doc { color: #5e9cff; } .c-code { color: #ffd60a; } .c-archive { color: #ff9f0a; } .c-pdf { color: #ff453a; } .c-exe { color: #a1a1a6; } .c-file { color: rgba(255,255,255,.6); } .c-drive { color: #8e8e93; }
 
-.nav-item:hover:not(.active) {
-  background: rgba(255, 255, 255, 0.1);
-}
+  /* Menus, toasts, preview */
+  .menu { position: fixed; z-index: 1000; min-width: 210px; padding: 6px; border-radius: 13px; background: var(--menu); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 18px 50px rgba(0,0,0,.5); display: none; flex-direction: column; animation: pop .16s var(--spring); }
+  .menu.open { display: flex; }
+  @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+  .menu button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 10px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; font-size: 13px; text-align: left; }
+  .menu button:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+  .menu button:disabled { opacity: .35; cursor: default; }
+  .menu button .ms { font-size: 18px; width: 20px; color: rgba(255,255,255,.7); }
+  .menu button.danger, .menu button.danger .ms { color: #ff6961; }
+  .menu button.checked .check { margin-left: auto; color: var(--accent); }
+  .menu kbd { margin-left: auto; font: 11px 'Poppins', sans-serif; color: var(--dim); }
+  .menu hr { border: 0; border-top: 1px solid rgba(255,255,255,.08); margin: 4px 2px; }
+  .toasts { position: absolute; bottom: 36px; right: 14px; display: flex; flex-direction: column; gap: 8px; z-index: 500; }
+  .toast { min-width: 220px; max-width: 320px; padding: 9px 12px; border-radius: 11px; background: rgba(28,30,36,.96); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 12px 34px rgba(0,0,0,.45); font-size: 12.5px; animation: pop .2s var(--spring); }
+  .toast .bar { height: 4px; margin-top: 7px; border-radius: 2px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .toast .bar span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .toast.error { border-color: rgba(255,69,58,.5); }
+  .toast button { margin-left: 8px; border: 0; background: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 12.5px; }
+  .preview { position: fixed; inset: 0; z-index: 900; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.72); backdrop-filter: blur(8px); }
+  .preview.open { display: flex; }
+  .preview-box { position: relative; width: min(92vw, 1000px); height: min(86vh, 720px); display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; background: #16181d; border: 1px solid rgba(255,255,255,.1); box-shadow: 0 30px 80px rgba(0,0,0,.6); animation: pop .2s var(--spring); }
+  .preview-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .preview-head .title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .preview-body { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; overflow: auto; }
+  .preview-body img, .preview-body video { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .preview-body iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+  .preview-body pre { width: 100%; height: 100%; margin: 0; padding: 16px 20px; overflow: auto; font: 12.5px/1.6 'JetBrains Mono', 'Roboto Mono', monospace; white-space: pre-wrap; word-break: break-word; color: #e8e8ea; user-select: text; }
+  .preview-body .audio { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .preview-body .audio .ms { font-size: 90px; color: #ff6b9d; }
+  .preview-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(0,0,0,.55); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .preview-nav.prev { left: 10px; } .preview-nav.next { right: 10px; }
+  .props { display: grid; grid-template-columns: 110px 1fr; gap: 8px 14px; font-size: 13px; }
+  .props span:nth-child(odd) { color: var(--muted); }
+  .props span:nth-child(even) { user-select: text; word-break: break-all; }
 
-.nav-item:hover .icon-bg {
-  transform: none;
-}
-.nav-item:active {
-  transform: none;
-}
-
-.nav-item.active {
-  background: #0a84ff;
-}
-
-.icon-bg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  border-radius: 6px;
-  color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 180ms ease;
-}
-
-.icon-bg .material-symbols-outlined {
-  font-size: 15px;
-  font-weight: 400;
-}
-
-.sidebar-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-  margin: 4px 14px;
-}
-.main-content {
-  display: flex;
-  flex: 1 1 0;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-.c-home { background: linear-gradient(180deg, #0a84ff, #007aff); }
-.c-desktop { background: linear-gradient(180deg, #5e5ce6, #5856d6); }
-.c-documents { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
-.c-downloads { background: linear-gradient(180deg, #32d74b, #28cd41); }
-.c-pictures { background: linear-gradient(180deg, #bf5af2, #af52de); }
-.c-videos { background: linear-gradient(180deg, #ff3b30, #ff453a); }
-.c-root { background: linear-gradient(180deg, #98989d, #706f76); }
-.home-drive { align-items: flex-start; }
-.home-drive .icon-bg { margin-top: 1px; }
-.home-drive-info { flex: 1; min-width: 0; }
-.home-drive-label { line-height: 24px; }
-.drive-usage-label { display: block; margin: 4px 0 6px; color: var(--m3-text-muted); font-size: 10px; line-height: 1.3; }
-.drive-usage-track { height: 4px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, 0.16); }
-.drive-usage-fill { width: 0; height: 100%; border-radius: inherit; background: #0a84ff; transition: width 0.4s var(--spring); }
-    
-    /* Toolbar */
-    .toolbar {
-      height: 56px; display: flex; align-items: center; padding: 0 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05); gap: 12px; background: rgba(0,0,0,0.2); 
-      width: 100%; box-sizing: border-box; flex-shrink: 0;
-    }
-    .toolbar-btn {
-      background: transparent; border: none; color: var(--m3-text);
-      border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.15s, transform 0.2s;
-    }
-    .toolbar-btn:hover:not(:disabled) { background: var(--m3-hover); }
-    .toolbar-btn:active:not(:disabled) { transform: scale(0.9); }
-    .toolbar-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    #addressBar { 
-      flex: 1; background: rgba(255,255,255,0.05); border: 1px solid transparent; color: #fff; 
-      padding: 6px 12px; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; 
-    }
-    #addressBar:focus { border-color: var(--m3-accent); }
-    
-    /* Full-Width File List View Container */
-    .file-list-container { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 0; width: 100%; box-sizing: border-box; }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; table-layout: fixed; }
-    th { color: var(--m3-text-muted); font-size: 12px; font-weight: 500; padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.14); position: sticky; top: 0; background: rgba(128, 128, 128, 0.12); backdrop-filter: blur(40px) saturate(200%); -webkit-backdrop-filter: blur(40px) saturate(200%); z-index: 5; text-align: left; }
-    .sort-button { display: flex; width: 100%; align-items: center; gap: 6px; padding: 4px 8px; color: inherit; background: transparent; border: 0; border-radius: 6px; font: inherit; text-align: left; cursor: pointer; }
-    .sort-button:hover { color: #fff; background: rgba(255,255,255,0.08); }
-    .sort-indicator { font-size: 14px; opacity: 0.7; }
-    td { padding: 12px 24px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.02); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
-    .file-row { cursor: pointer; transition: background 0.15s; }
-    .file-row:hover, .file-row.selected { background: var(--m3-hover); }
-    .file-row:active { transform: scale(0.99); }
-    
-    .name-col { display: flex; align-items: center; gap: 12px; font-weight: 500;}
-    .file-icon { font-size: 24px; flex-shrink: 0; }
-    .icon-folder { color: #0a84ff; font-variation-settings: 'FILL' 1; }
-    .icon-image { color: #ff8a65; }
-    .icon-doc { color: #4db6ac; }
-    .icon-movie { color: #ce93d8; }
-
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--m3-text-muted); gap: 12px; }
-
-    /* Context Menu */
-    #contextMenu { position: fixed; background: rgba(24, 25, 28, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 6px; z-index: 100; min-width: 170px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(10px) scale(0.95); transform-origin: top left; transition: transform 0.3s var(--spring), opacity 0.2s ease, visibility 0.2s ease; will-change: transform, opacity; }
-    #contextMenu.open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0) scale(1) translateZ(0); }
-    .cm-item { padding: 8px 12px; font-size: 13px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .cm-item:hover { background: rgba(255,255,255,0.1); }
-    .cm-item.danger { color: #ff453a; }
-    .badge-readonly { background: rgba(255,255,255,0.15); font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 600; color: #ff8a65; }
-
-    /* Inline Editing Inputs */
-    .inline-edit-input {
-      background: rgba(255, 255, 255, 0.12) !important;
-      border: 1px solid var(--m3-accent) !important;
-      color: #fff !important;
-      font-family: 'Poppins', sans-serif !important;
-      font-size: 13px !important;
-      font-weight: 500 !important;
-      padding: 3px 8px !important;
-      border-radius: 6px !important;
-      outline: none !important;
-      box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4) !important;
-      width: 100%;
-      max-width: 280px;
-      box-sizing: border-box;
-    }
-
-    /* Inline Confirmation Bar */
-    .inline-confirm-bar {
-      position: absolute;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(24, 28, 38, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      z-index: 200;
-      font-size: 13px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-      animation: slideUpConfirm 0.25s var(--spring) forwards;
-    }
-    @keyframes slideUpConfirm {
-      from { opacity: 0; transform: translate(-50%, 15px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
-    .confirm-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: #fff;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.15s;
-      font-family: 'Poppins', sans-serif;
-    }
-    .confirm-btn:hover { background: rgba(255, 255, 255, 0.2); }
-    .confirm-btn:active { transform: scale(0.95); }
-    .confirm-btn.danger { background: #ff453a; color: #fff; }
-    .confirm-btn.danger:hover { background: #ff736b; }
-
-    #uploadInput { display: none; }
-    * { scrollbar-width: none; }
-    *::-webkit-scrollbar { display: none; }
-  </style>
+  @media (max-width: 720px) {
+    .sidebar { width: 58px; flex-basis: 58px; padding: 10px 6px; }
+    .side-item { justify-content: center; padding: 9px; }
+    .side-item .txt, .side-item .badge, .side-label, .storage { display: none; }
+    .search { width: 130px; }
+    .list-head, .row { grid-template-columns: minmax(0,1fr) 80px; }
+    .list-head .c-date, .list-head .c-type, .row .m-date, .row .m-type { display: none; }
+    .ab .txt { display: none; }
+  }
+  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+</style>
 </head>
 <body>
 
-<!-- Replace the existing <aside class="sidebar">...</aside> with this. -->
-<aside class="sidebar">
-  <div class="sidebar-menu">
-    <div class="nav-item" data-path="/home/Desktop" onclick="navClick('/home/Desktop')">
-      <div class="icon-bg c-desktop"><span class="material-symbols-outlined">desktop_windows</span></div>Desktop
-    </div>
-    <div class="nav-item" data-path="/home/Documents" onclick="navClick('/home/Documents')">
-      <div class="icon-bg c-documents"><span class="material-symbols-outlined">description</span></div>Documents
-    </div>
-    <div class="nav-item" data-path="/home/Downloads" onclick="navClick('/home/Downloads')">
-      <div class="icon-bg c-downloads"><span class="material-symbols-outlined">download</span></div>Downloads
-    </div>
-    <div class="nav-item" data-path="/home/Pictures" onclick="navClick('/home/Pictures')">
-      <div class="icon-bg c-pictures"><span class="material-symbols-outlined">image</span></div>Pictures
-    </div>
-    <div class="nav-item" data-path="/home/Videos" onclick="navClick('/home/Videos')">
-      <div class="icon-bg c-videos"><span class="material-symbols-outlined">movie</span></div>Videos
-    </div>
+<aside class="sidebar" id="sidebar"></aside>
 
-    <div class="sidebar-divider"></div>
-
-    <div class="nav-item home-drive" data-path="/home" onclick="navClick('/home')">
-      <div class="icon-bg c-root"><span class="material-symbols-outlined">hard_drive</span></div>
-      <div class="home-drive-info">
-        <div class="home-drive-label">Home</div>
-        <span id="driveUsageLabel" class="drive-usage-label">Checking disk usage…</span>
-        <div class="drive-usage-track" role="progressbar" aria-label="System disk usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div id="driveUsageFill" class="drive-usage-fill"></div>
-        </div>
-      </div>
-    </div>
-    <div class="nav-item" data-path="/" onclick="navClick('/')">
-      <div class="icon-bg c-root"><span class="material-symbols-outlined">dns</span></div>/
-    </div>
+<main class="main">
+  <div class="topbar">
+    <button class="ib" id="backBtn" title="Back (Alt+Left)"><span class="ms">arrow_back</span></button>
+    <button class="ib" id="fwdBtn" title="Forward (Alt+Right)"><span class="ms">arrow_forward</span></button>
+    <button class="ib" id="upBtn" title="Up (Alt+Up)"><span class="ms">arrow_upward</span></button>
+    <button class="ib" id="refreshBtn" title="Refresh (F5)"><span class="ms">refresh</span></button>
+    <div class="crumbs" id="crumbs" title="Click to type a path (Ctrl+L)"></div>
+    <label class="search"><span class="ms">search</span><input id="searchInput" placeholder="Search" spellcheck="false" autocomplete="off"></label>
   </div>
-</aside>
-
-  <main class="main-content" id="mainArea">
-    <div class="toolbar">
-      <button class="toolbar-btn" id="btnUp" onclick="goUp()" title="Go Up"><span class="material-symbols-outlined">arrow_upward</span></button>
-      <input type="text" id="addressBar" onkeydown="if(event.key==='Enter') navigateTo(this.value)">
-      <button class="toolbar-btn" id="btnNewFolder" title="New Folder" onclick="startInlineNewFolder()"><span class="material-symbols-outlined">create_new_folder</span></button>
-      <button class="toolbar-btn" id="btnNewFile" title="New Text File" onclick="startInlineNewFile()"><span class="material-symbols-outlined">note_add</span></button>
-      <button class="toolbar-btn" id="btnUpload" title="Upload File" onclick="document.getElementById('uploadInput').click()"><span class="material-symbols-outlined">upload_file</span></button>
-    </div>
-    
-    <div class="file-list-container">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 50%;"><button class="sort-button" data-sort="name" aria-sort="ascending">Name <span class="sort-indicator material-symbols-outlined">arrow_upward</span><span id="readonlyBadge" class="badge-readonly" style="display:none">READ-ONLY</span></button></th>
-            <th style="width: 25%;"><button class="sort-button" data-sort="date" aria-sort="none">Date Modified <span class="sort-indicator material-symbols-outlined"></span></button></th>
-            <th style="width: 25%;"><button class="sort-button" data-sort="size" aria-sort="none">Size <span class="sort-indicator material-symbols-outlined"></span></button></th>
-          </tr>
-        </thead>
-        <tbody id="fileList"></tbody>
-      </table>
-    </div>
-
-    <!-- Inline Confirmation Bar (No Browser Popups) -->
-    <div id="inlineConfirmBar" class="inline-confirm-bar" style="display: none;">
-      <span class="material-symbols-outlined" style="color: #ff453a; font-size: 20px;">delete</span>
-      <span id="confirmMessage">Delete selected item?</span>
-      <div style="display: flex; gap: 8px; margin-left: 8px;">
-        <button class="confirm-btn" onclick="cancelInlineDelete()">Cancel</button>
-        <button class="confirm-btn danger" onclick="executeInlineDelete()">Delete</button>
-      </div>
-    </div>
-
-  </main>
-
-  <div id="contextMenu">
-    <div class="cm-item" id="cmOpen" onclick="openSelected()"><span class="material-symbols-outlined" style="font-size:16px;">open_in_new</span> Open</div>
-    <div class="cm-item" id="cmOpenTerminal" onclick="openInTerminal()"><span class="material-symbols-outlined" style="font-size:16px;">terminal</span> Open in Terminal</div>
-    <div class="cm-item" id="cmRename" onclick="startInlineRename()"><span class="material-symbols-outlined" style="font-size:16px;">drive_file_rename_outline</span> Rename</div>
-    <div class="cm-item danger" id="cmDelete" onclick="startInlineDelete()"><span class="material-symbols-outlined" style="font-size:16px;">delete</span> Delete</div>
-    <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;" id="cmDivider"></div>
-    <div class="cm-item" id="cmNew" onclick="startInlineNewFolder()"><span class="material-symbols-outlined" style="font-size:16px;">create_new_folder</span> New Folder</div>
-    <div class="cm-item" id="cmNewFile" onclick="startInlineNewFile()"><span class="material-symbols-outlined" style="font-size:16px;">note_add</span> New Text File</div>
-    <div class="cm-item" id="cmUpload" onclick="document.getElementById('uploadInput').click()"><span class="material-symbols-outlined" style="font-size:16px;">upload_file</span> Upload File</div>
+  <div class="actionbar" id="actionbar">
+    <button class="ab primary" id="newFolderBtn" title="New folder (Ctrl+Shift+N)"><span class="ms">create_new_folder</span><span class="txt">New folder</span></button>
+    <button class="ab" id="newFileBtn" title="New text file"><span class="ms">note_add</span><span class="txt">New file</span></button>
+    <button class="ab" id="uploadBtn" title="Upload files"><span class="ms">upload</span><span class="txt">Upload</span></button>
+    <div class="sep"></div>
+    <button class="ab" id="cutBtn" title="Cut (Ctrl+X)"><span class="ms">content_cut</span></button>
+    <button class="ab" id="copyBtn" title="Copy (Ctrl+C)"><span class="ms">content_copy</span></button>
+    <button class="ab" id="pasteBtn" title="Paste (Ctrl+V)"><span class="ms">content_paste</span></button>
+    <button class="ab" id="renameBtn" title="Rename (F2)"><span class="ms">drive_file_rename_outline</span></button>
+    <button class="ab" id="deleteBtn" title="Move to trash (Delete)"><span class="ms">delete</span></button>
+    <div class="grow"></div>
+    <span class="readonly-pill" id="readonlyPill"><span class="ms">lock</span>Read-only</span>
+    <button class="ab" id="sortBtn" title="Sort"><span class="ms">sort</span><span class="txt">Sort</span></button>
+    <button class="ib" id="viewBtn" title="Switch view"><span class="ms">grid_view</span></button>
   </div>
+  <div class="content" id="content" tabindex="0"></div>
+  <div class="status"><span id="statusLeft"></span><span class="grow"></span><span id="statusRight"></span></div>
+  <div class="toasts" id="toasts"></div>
+</main>
 
-  <input type="file" id="uploadInput" multiple>
+<div class="menu" id="ctxMenu"></div>
+<div class="menu" id="sortMenu"></div>
+<div class="preview" id="preview">
+  <div class="preview-box">
+    <div class="preview-head"><span class="title" id="previewTitle"></span>
+      <button class="ib" id="previewOpen" title="Open in Notes"><span class="ms">edit_note</span></button>
+      <button class="ib" id="previewDownload" title="Download"><span class="ms">download</span></button>
+      <button class="ib" id="previewClose" title="Close (Esc)"><span class="ms">close</span></button></div>
+    <div class="preview-body" id="previewBody"></div>
+    <button class="preview-nav prev" id="previewPrev"><span class="ms">chevron_left</span></button>
+    <button class="preview-nav next" id="previewNext"><span class="ms">chevron_right</span></button>
+  </div>
+</div>
+<input type="file" id="uploadInput" multiple hidden>
 
 <script>
-  const IS_EMBEDDED = window.parent !== window;
-  let tabs = [];
-  let currentTabId = null;
-  let tabsContainer;
+/* ───────────────────────── Setup ───────────────────────── */
+const $ = id => document.getElementById(id);
+const IS_EMBEDDED = window.parent !== window;
+const TRASH = 'trash:';
+const HOME_FOLDERS = [
+  { name: 'Home', path: '/home', icon: 'home' },
+  { name: 'Desktop', path: '/home/Desktop', icon: 'desktop_windows' },
+  { name: 'Documents', path: '/home/Documents', icon: 'description' },
+  { name: 'Downloads', path: '/home/Downloads', icon: 'download' },
+  { name: 'Pictures', path: '/home/Pictures', icon: 'image' },
+  { name: 'Music', path: '/home/Music', icon: 'music_note' },
+  { name: 'Videos', path: '/home/Videos', icon: 'movie' }
+];
+const TYPES = {
+  image: ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg', '.ico', '.avif'],
+  audio: ['.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac'],
+  video: ['.mp4', '.webm', '.mov', '.mkv', '.avi'],
+  pdf: ['.pdf'],
+  code: ['.js', '.ts', '.json', '.html', '.htm', '.css', '.py', '.java', '.c', '.cpp', '.h', '.cs', '.php', '.rb', '.go', '.rs', '.sh', '.bat', '.ps1', '.xml', '.yml', '.yaml', '.sql', '.vbs'],
+  doc: ['.txt', '.md', '.rtf', '.doc', '.docx', '.odt', '.csv', '.log', '.ini', '.cfg'],
+  archive: ['.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz'],
+  exe: ['.exe', '.msi', '.dll', '.bin', '.iso', '.dmg', '.apk']
+};
+const TYPE_ICON = { folder: 'folder', image: 'image', audio: 'music_note', video: 'movie', pdf: 'picture_as_pdf', code: 'code', doc: 'description', archive: 'folder_zip', exe: 'terminal', file: 'draft', drive: 'hard_drive' };
+const TYPE_LABEL = { folder: 'Folder', image: 'Image', audio: 'Audio', video: 'Video', pdf: 'PDF document', code: 'Code', doc: 'Document', archive: 'Archive', exe: 'Program', file: 'File', drive: 'Drive' };
+const TEXT_EXT = new Set([...TYPES.code, '.txt', '.md', '.csv', '.log', '.ini', '.cfg']);
 
-  let currentPath = '/home';
-  let isReadOnly = false;
-  let selectedFile = null;
-  let sortKey = 'name';
-  let sortDirection = 1;
+function kindOf(item) {
+  if (item.isVolume) return 'drive';
+  if (item.type === 'folder') return 'folder';
+  for (const [kind, exts] of Object.entries(TYPES)) if (exts.includes(item.ext)) return kind;
+  return 'file';
+}
+const store = {
+  get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+try {
+  const accent = JSON.parse(localStorage.getItem('desktopStyle') || '{}').accent;
+  if (/^#[0-9a-f]{6}$/i.test(accent)) document.documentElement.style.setProperty('--accent', accent);
+} catch (e) {}
 
-  // --- CROSS-FRAME TAB INJECTION LOGIC ---
-  if (IS_EMBEDDED) {
-    const parentPopup = window.frameElement.closest('.popup');
-    const osHeader = parentPopup.querySelector('.popup-header');
-    
-    if (!window.parent.document.getElementById('explorer-os-styles')) {
-      const style = window.parent.document.createElement('style');
-      style.id = 'explorer-os-styles';
-      style.textContent = `
-        .explorer-tab-btn {
-          display: flex; align-items: center; gap: 8px;
-          background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12);
-          border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px;
-          color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500;
-          cursor: pointer; position: relative; height: 28px; box-sizing: border-box;
-          transition: all 0.2s; font-family: 'Poppins', sans-serif; user-select: none;
-        }
-        .explorer-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-        .explorer-tab-btn.active { background: rgba(10, 132, 255, 0.18); color: #fff; height: 34px; border-color: rgba(10, 132, 255, 0.3); }
-        .explorer-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid #0a84ff; border-bottom: none; pointer-events: none; }
-        .tab-color-line { position: absolute; top: 0; left: 0; right: 0; height: 3px; transition: background 0.2s; z-index: 2; pointer-events: none; }
-        .explorer-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; margin-left: 4px; z-index: 3; }
-        .explorer-tab-close:hover { opacity: 1; color: #ff453a; }
-      `;
-      window.parent.document.head.appendChild(style);
-    }
+let currentPath = '/home';
+let items = [];
+let readOnly = false;
+let selection = new Set();
+let anchor = null;
+let clipboard = store.get('files-clipboard', null);   // { mode, fromPath, names }
+let viewMode = store.get('files-view', 'list');
+let sortKey = store.get('files-sort', 'name');
+let sortDir = store.get('files-sort-dir', 1);
+let showHidden = store.get('files-hidden', false);
+let searchQuery = '';
+let searchResults = null;
+const history = { back: [], fwd: [] };
+let loadToken = 0;
 
-    osHeader.style.gap = '8px';
-    osHeader.innerHTML = `
-      <span style="white-space: nowrap; font-size: 13px; flex-shrink: 0; cursor: move;">Files</span>
-      <div id="os-explorer-tabs" style="display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move;"></div>
-      <div id="os-explorer-actions" style="display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-right: 8px;">
-        <button class="browser-nav-btn" id="os-explorer-new" title="New Tab"><span class="material-symbols-outlined" style="font-size: 16px;">add</span></button>
-      </div>
-      <div class="window-actions">
-        <span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('${parentPopup.id}')">remove</span>
-        <span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('${parentPopup.id}')">crop_square</span>
-        <span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('${parentPopup.id}')">close</span>
-      </div>
-    `;
-
-    tabsContainer = window.parent.document.getElementById('os-explorer-tabs');
-    window.parent.document.getElementById('os-explorer-new').addEventListener('click', () => createTab('/home', 'Home'));
+/* ───────────────────────── Helpers ───────────────────────── */
+function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+function icon(name, cls = '') { return el('span', 'ms ' + cls, name); }
+function joinPath(dir, name) { return (dir === '/' ? '' : dir.replace(/\/$/, '')) + '/' + name; }
+function parentOf(p) {
+  if (p === '/' || p === TRASH) return null;
+  if (p === '/device') return '/';
+  const up = p.replace(/\/[^/]*\/?$/, '') || '/';
+  return /^\/device\/[A-Za-z]:?$/.test(p) ? '/device' : up;
+}
+const isHome = p => p === '/home' || p.startsWith('/home/');
+function formatSize(bytes) {
+  if (!(bytes >= 0)) return '';
+  const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let i = 0, v = bytes;
+  while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+  return `${i ? v.toFixed(1) : v} ${u[i]}`;
+}
+function formatDate(ms, fallback) {
+  if (!ms) return fallback && fallback !== '--' ? fallback : '';
+  const d = new Date(ms), now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  return sameDay ? `Today ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : d.toLocaleString([], { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+async function api(url, options) {
+  const res = await fetch(url, options);
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok || (data && data.success === false)) {
+    const err = new Error(data?.error || (res.status === 401 ? 'Session expired: log in again' : `Request failed (${res.status})`));
+    err.status = res.status;
+    throw err;
   }
+  return data || {};
+}
+const postJson = (url, body) => api(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+function toast(message, { error = false, action, progress = false, sticky = false } = {}) {
+  const t = el('div', 'toast' + (error ? ' error' : ''));
+  const line = el('div');
+  const text = el('span', null, message);
+  line.append(text);
+  if (action) { const b = el('button', null, action.label); b.onclick = () => { action.run(); t.remove(); }; line.append(b); }
+  t.append(line);
+  let bar = null;
+  if (progress) { const wrap = el('div', 'bar'); bar = el('span'); wrap.append(bar); t.append(wrap); }
+  $('toasts').append(t);
+  if (!sticky && !progress) setTimeout(() => t.remove(), action ? 6000 : 3200);
+  return { set(pct, msg) { if (bar) bar.style.width = pct + '%'; if (msg) text.textContent = msg; }, done(msg, isError) { if (msg) text.textContent = msg; if (isError) t.classList.add('error'); setTimeout(() => t.remove(), 2500); }, remove() { t.remove(); } };
+}
+function notifyDesktop() {
+  if (IS_EMBEDDED) window.parent.postMessage({ type: 'refresh-desktop' }, location.origin);
+}
 
-  // --- TAB ENGINE ---
-  function buildTabElement(id, name, color="transparent") {
-    const doc = IS_EMBEDDED ? window.parent.document : document;
-    const btn = doc.createElement('div');
-    btn.className = 'explorer-tab-btn';
-    btn.dataset.id = id;
-
-    const colorLine = doc.createElement('div');
-    colorLine.className = 'tab-color-line';
-    colorLine.style.background = color;
-    
-    const span = doc.createElement('span');
-    span.className = 'tab-title';
-    span.textContent = name;
-    
-    const closeBtn = doc.createElement('button');
-    closeBtn.className = 'explorer-tab-close';
-    closeBtn.textContent = '×';
-    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeTab(id); });
-
-    btn.appendChild(colorLine); btn.appendChild(span); btn.appendChild(closeBtn);
-    btn.addEventListener('click', () => switchTab(id));
-    return btn;
+/* ───────────────────────── Sidebar ───────────────────────── */
+function sideItem(label, iconName, pathValue, extra = '') {
+  const item = el('div', 'side-item ' + extra);
+  item.dataset.path = pathValue;
+  item.append(icon(iconName), el('span', 'txt', label));
+  item.title = label;
+  item.onclick = () => navigate(pathValue);
+  if (pathValue !== TRASH && isHome(pathValue)) makeDropTarget(item, () => pathValue);
+  if (pathValue === TRASH) {
+    item.addEventListener('dragover', e => { if (dragData) { e.preventDefault(); item.classList.add('drop-target'); } });
+    item.addEventListener('dragleave', () => item.classList.remove('drop-target'));
+    item.addEventListener('drop', e => { e.preventDefault(); item.classList.remove('drop-target'); if (dragData) trashItems(dragData.names, dragData.fromPath); });
   }
-
-  function createTab(path = '/home', name = 'Home') {
-    const id = Date.now().toString();
-    tabs.push({ id, path, name, color: "transparent" });
-    const btn = buildTabElement(id, name, "transparent");
-    if(tabsContainer) tabsContainer.appendChild(btn);
-    switchTab(id);
-  }
-
-  function switchTab(id) {
-    const targetBtn = tabsContainer ? [...tabsContainer.children].find(b => b.dataset.id === id) : null;
-    if(targetBtn && targetBtn.classList.contains('active')) return;
-
-    if(tabsContainer) {
-      tabsContainer.querySelectorAll('.explorer-tab-btn').forEach(b => b.classList.remove('active'));
-      targetBtn.classList.add('active');
-    }
-    
-    currentTabId = id;
-    const activeTab = tabs.find(t => t.id === id);
-    if(activeTab) navigateTo(activeTab.path, false);
-  }
-
-  function closeTab(id) {
-    const index = tabs.findIndex(t => t.id === id);
-    if(index === -1) return;
-    tabs.splice(index, 1);
-    
-    if(tabsContainer) {
-      const btn = [...tabsContainer.children].find(b => b.dataset.id === id);
-      if(btn) btn.remove();
-    }
-    
-    if(tabs.length > 0) { switchTab(tabs[Math.min(index, tabs.length - 1)].id); } 
-    else { createTab('/home', 'Home'); }
-  }
-
-  function updateTabTitle(name) {
-    const activeTab = tabs.find(t => t.id === currentTabId);
-    if(activeTab) activeTab.name = name;
-    if(tabsContainer) {
-      const btn = tabsContainer.querySelector(`.explorer-tab-btn[data-id="${currentTabId}"]`);
-      if(btn) btn.querySelector('.tab-title').textContent = name;
-    }
-  }
-
-  // --- FILE SYSTEM LOGIC ---
-  let isInlineEditing = false;
-  let selectedItem = null;
-
-  function isFile(item) {
-    return Boolean(item && item.type !== 'folder');
-  }
-
-  function openFileInNotes(item) {
-    if (currentPath === '/' || !isFile(item)) return;
-    window.parent.postMessage({
-      type: 'open-file-in-notes',
-      path: currentPath,
-      name: item.name
-    }, window.location.origin);
-  }
-
-  window.addEventListener('message', (e) => {
-    if (e.data.type === 'navigate' && e.data.path) navigateTo(e.data.path);
-    if (e.data.type === 'refresh-view') renderList(currentPath);
+  return item;
+}
+async function renderSidebar() {
+  const side = $('sidebar');
+  side.replaceChildren(el('div', 'side-label', 'Quick access'));
+  HOME_FOLDERS.forEach(f => side.append(sideItem(f.name, f.icon, f.path)));
+  side.append(sideItem('Trash', 'delete', TRASH, 'trash'));
+  side.append(el('div', 'side-label', 'Locations'));
+  side.append(sideItem('System', 'dns', '/'));
+  try {
+    const data = await api('/api/system/files?path=/device');
+    (data.contents || []).forEach(v => side.append(sideItem(v.name, 'hard_drive', '/device/' + v.name)));
+  } catch (e) { side.append(sideItem('This PC', 'computer', '/device')); }
+  const storage = el('div', 'storage');
+  storage.id = 'storage';
+  side.append(storage);
+  loadStorage();
+  highlightSidebar();
+}
+async function loadStorage() {
+  try {
+    const d = await api('/api/system/storage');
+    const box = $('storage');
+    if (!box || !d.totalBytes) return;
+    box.replaceChildren(el('div', null, `${formatSize(d.usedBytes)} of ${formatSize(d.totalBytes)} used`));
+    const bar = el('div', 'storage-bar'); const fill = el('span'); fill.style.width = Math.min(100, d.usagePercent || 0) + '%'; bar.append(fill); box.append(bar);
+  } catch (e) {}
+}
+function highlightSidebar() {
+  let best = null;
+  document.querySelectorAll('.side-item').forEach(i => {
+    i.classList.remove('active');
+    const p = i.dataset.path;
+    if (currentPath === p || (p !== '/' && p !== TRASH && currentPath.startsWith(p + '/'))) { if (!best || p.length > best.dataset.path.length) best = i; }
   });
+  best?.classList.add('active');
+}
 
-  async function renderList(path) {
-    cancelInlineDelete();
-    isInlineEditing = false;
-    const list = document.getElementById('fileList');
-    list.innerHTML = '<tr><td colspan="3" style="text-align:center; color:rgba(255,255,255,0.5); padding: 40px;">Loading...</td></tr>';
-    
-    try {
-      const res = await fetch(`/api/system/files?path=${encodeURIComponent(path)}`);
-      const data = await res.json();
-      
-      if (!data.success) throw new Error(data.error);
-
-      // Enforce Read-Only UI Rules
-      isReadOnly = data.isReadOnly;
-      document.getElementById('readonlyBadge').style.display = isReadOnly ? 'inline-block' : 'none';
-      document.getElementById('btnNewFolder').disabled = isReadOnly;
-      document.getElementById('btnNewFile').disabled = isReadOnly;
-      document.getElementById('btnUpload').disabled = isReadOnly;
-      
-      if (!data.contents || data.contents.length === 0) {
-        list.innerHTML = `<tr><td colspan="3"><div class="empty-state"><span class="material-symbols-outlined" style="font-size:48px; opacity:0.5;">folder_open</span>This folder is empty.</div></td></tr>`;
-        selectedItem = null;
-        selectedFile = null;
-        return;
-      }
-
-      list.innerHTML = '';
-      data.contents.forEach(item => {
-        if (item.name.startsWith('.')) return;
-
-        const tr = document.createElement('tr');
-        tr.className = 'file-row';
-        tr.dataset.name = item.name;
-        tr.dataset.type = item.type;
-        tr.dataset.date = item.date;
-        tr.dataset.size = item.size === '--' ? '-1' : String(parseFloat(item.size) || 0);
-        
-        tr.onclick = (e) => {
-          if (isInlineEditing) return;
-          if (path === '/' && item.type === 'folder' && item.name.toLowerCase() === 'home') {
-            navigateTo('/home');
-            return;
-          }
-          if (e.detail === 2) {
-            if (item.type === 'folder') {
-              navigateTo(path === '/' ? `/${item.name}` : `${path}/${item.name}`);
-            } else if (path !== '/') openFileInNotes(item);
-            return;
-          }
-          selectRow(tr, item);
-        };
-        
-        tr.oncontextmenu = (e) => {
-          e.preventDefault();
-          selectRow(tr, item);
-          showContextMenu(e.clientX, e.clientY, true);
-        };
-
-        let icon = 'description', iconClass = 'icon-doc';
-        if (item.type === 'folder') { icon = 'folder'; iconClass = 'icon-folder'; }
-        else if (['.jpg', '.png', '.gif', '.jpeg'].includes(item.ext)) { icon = 'image'; iconClass = 'icon-image'; }
-        else if (['.mp4', '.mkv', '.avi'].includes(item.ext)) { icon = 'movie'; iconClass = 'icon-movie'; }
-        else if (['.zip', '.rar', '.7z'].includes(item.ext)) { icon = 'folder_zip'; }
-
-        tr.innerHTML = `
-          <td><div class="name-col"><span class="material-symbols-outlined file-icon ${iconClass}">${icon}</span><span class="file-name-text">${item.name}</span></div></td>
-          <td style="color: rgba(255,255,255,0.7);">${item.date}</td>
-          <td style="color: rgba(255,255,255,0.7);">${item.size}</td>
-        `;
-        list.appendChild(tr);
-      });
-      sortFileRows(sortKey, false);
-    } catch (e) {
-      list.innerHTML = '<tr><td colspan="3"><div class="empty-state" style="color:#ff453a;"><span class="material-symbols-outlined" style="font-size:48px;">block</span>Access Denied</div></td></tr>';
-    }
-  }
-
-  function sortFileRows(key, toggleDirection = true) {
-    if (toggleDirection) {
-      if (sortKey === key) sortDirection *= -1;
-      else {
-        sortKey = key;
-        sortDirection = 1;
-      }
-    }
-
-    const rows = [...document.querySelectorAll('#fileList .file-row')];
-    rows.sort((left, right) => {
-      const folderOrder = Number(right.dataset.type === 'folder') - Number(left.dataset.type === 'folder');
-      if (folderOrder) return folderOrder;
-
-      let comparison = 0;
-      if (sortKey === 'name') {
-        comparison = left.dataset.name.localeCompare(right.dataset.name, undefined, { numeric: true, sensitivity: 'base' });
-      } else if (sortKey === 'size') {
-        comparison = Number(left.dataset.size) - Number(right.dataset.size);
-      } else {
-        const leftDate = Date.parse(left.dataset.date);
-        const rightDate = Date.parse(right.dataset.date);
-        comparison = Number.isNaN(leftDate) || Number.isNaN(rightDate)
-          ? left.dataset.date.localeCompare(right.dataset.date)
-          : leftDate - rightDate;
-      }
-      return comparison * sortDirection || left.dataset.name.localeCompare(right.dataset.name, undefined, { numeric: true, sensitivity: 'base' });
-    });
-    rows.forEach(row => document.getElementById('fileList').appendChild(row));
-
-    document.querySelectorAll('.sort-button').forEach(button => {
-      const active = button.dataset.sort === sortKey;
-      button.setAttribute('aria-sort', active ? (sortDirection === 1 ? 'ascending' : 'descending') : 'none');
-      button.querySelector('.sort-indicator').textContent = active
-        ? (sortDirection === 1 ? 'arrow_upward' : 'arrow_downward')
-        : '';
-    });
-  }
-
-  function selectRow(row, item) {
-    document.querySelectorAll('.file-row').forEach(r => r.classList.remove('selected'));
-    if (row) row.classList.add('selected');
-    selectedItem = item;
-    selectedFile = item ? item.name : null;
-  }
-
-  function updateSidebar(path) {
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    let matchPath = path;
-    if (path !== '/' && path.startsWith('/') && !path.startsWith('/home')) {
-      matchPath = '/'; 
-    }
-    const activeMatch = [...document.querySelectorAll('.nav-item')].find(el => el.dataset.path === matchPath);
-    if (activeMatch) activeMatch.classList.add('active');
-  }
-
-  function navClick(path) { navigateTo(path); }
-
-  function navigateTo(path, updateState = true) {
-    if(updateState) {
-      const activeTab = tabs.find(t => t.id === currentTabId);
-      if(activeTab) activeTab.path = path;
-    }
-    
-    currentPath = path;
-    document.getElementById('addressBar').value = path;
-    renderList(path);
-    updateSidebar(path);
-    
-    const folderName = path === '/' ? 'System Root' : (path === '/home' ? 'Home' : path.split('/').pop());
-    updateTabTitle(folderName);
-    document.getElementById('btnUp').disabled = (path === '/' || path === '/home');
-  }
-
-  function goUp() {
-    const activeTab = tabs.find(t => t.id === currentTabId);
-    if(!activeTab || activeTab.path === '/' || activeTab.path === '/home') return;
-    const parts = activeTab.path.split('/');
-    parts.pop();
-    navigateTo(parts.join('/') || '/');
-  }
-
-  /* --- INLINE FILE OPERATIONS (NO BROWSER POPUPS) --- */
-
-  // 1. Inline New Folder
-  function startInlineNewFolder() {
-    if (isReadOnly || isInlineEditing) return;
-    cancelInlineDelete();
-
-    const list = document.getElementById('fileList');
-    const emptyState = list.querySelector('.empty-state');
-    if (emptyState) list.innerHTML = '';
-
-    isInlineEditing = true;
-    const tr = document.createElement('tr');
-    tr.className = 'file-row inline-edit-row';
-    tr.innerHTML = `
-      <td>
-        <div class="name-col">
-          <span class="material-symbols-outlined file-icon icon-folder">folder</span>
-          <input type="text" class="inline-edit-input" value="New Folder" />
-        </div>
-      </td>
-      <td style="color: rgba(255,255,255,0.5);">Just now</td>
-      <td style="color: rgba(255,255,255,0.5);">--</td>
-    `;
-    list.prepend(tr);
-
-    const input = tr.querySelector('input');
-    input.focus();
-    input.select();
-
-    let committed = false;
-    const commit = async () => {
-      if (committed) return;
-      committed = true;
-      const folderName = input.value.trim();
-      if (!folderName) {
-        tr.remove();
-        isInlineEditing = false;
-        if (list.children.length === 0) renderList(currentPath);
-        return;
-      }
-
-      try {
-        await fetch('/api/system/files/create-folder', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ path: currentPath, name: folderName })
-        });
-        isInlineEditing = false;
-        renderList(currentPath);
-        window.parent.postMessage({ type: 'refresh-desktop' }, '*');
-      } catch (err) {
-        tr.remove();
-        isInlineEditing = false;
-      }
-    };
-
-    const cancel = () => {
-      if (committed) return;
-      committed = true;
-      tr.remove();
-      isInlineEditing = false;
-      if (list.children.length === 0) renderList(currentPath);
-    };
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-    });
-    input.addEventListener('blur', commit);
-  }
-
-  // 2. Inline New Text File
-  function startInlineNewFile() {
-    if (isReadOnly || isInlineEditing) return;
-    cancelInlineDelete();
-
-    const list = document.getElementById('fileList');
-    const emptyState = list.querySelector('.empty-state');
-    if (emptyState) list.innerHTML = '';
-
-    isInlineEditing = true;
-    const tr = document.createElement('tr');
-    tr.className = 'file-row inline-edit-row';
-    tr.innerHTML = `
-      <td>
-        <div class="name-col">
-          <span class="material-symbols-outlined file-icon icon-doc">description</span>
-          <input type="text" class="inline-edit-input" value="New File.txt" />
-        </div>
-      </td>
-      <td style="color: rgba(255,255,255,0.5);">Just now</td>
-      <td style="color: rgba(255,255,255,0.5);">0 KB</td>
-    `;
-    list.prepend(tr);
-
-    const input = tr.querySelector('input');
-    input.focus();
-    // Select name part excluding extension
-    input.setSelectionRange(0, 8);
-
-    let committed = false;
-    const commit = async () => {
-      if (committed) return;
-      committed = true;
-      let fileName = input.value.trim();
-      if (!fileName) {
-        tr.remove();
-        isInlineEditing = false;
-        if (list.children.length === 0) renderList(currentPath);
-        return;
-      }
-
-      try {
-        await fetch('/api/system/files/content', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ path: currentPath, name: fileName, content: '' })
-        });
-        isInlineEditing = false;
-        renderList(currentPath);
-        window.parent.postMessage({ type: 'refresh-desktop' }, '*');
-      } catch (err) {
-        tr.remove();
-        isInlineEditing = false;
-      }
-    };
-
-    const cancel = () => {
-      if (committed) return;
-      committed = true;
-      tr.remove();
-      isInlineEditing = false;
-      if (list.children.length === 0) renderList(currentPath);
-    };
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-    });
-    input.addEventListener('blur', commit);
-  }
-
-  // 3. Inline Rename
-  function startInlineRename() {
-    if (isReadOnly || !selectedItem || isInlineEditing) return;
-    cancelInlineDelete();
-
-    const selectedRow = document.querySelector(`.file-row.selected`);
-    if (!selectedRow) return;
-
-    const nameCol = selectedRow.querySelector('.name-col');
-    const nameTextSpan = selectedRow.querySelector('.file-name-text');
-    if (!nameCol || !nameTextSpan) return;
-
-    isInlineEditing = true;
-    const oldName = selectedItem.name;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'inline-edit-input';
-    input.value = oldName;
-
-    nameTextSpan.style.display = 'none';
-    nameCol.appendChild(input);
-    input.focus();
-
-    // Select without extension if file
-    const lastDot = oldName.lastIndexOf('.');
-    if (selectedItem.type !== 'folder' && lastDot > 0) {
-      input.setSelectionRange(0, lastDot);
+/* ───────────────────────── Navigation ───────────────────────── */
+function normalizePath(p) {
+  if (!p) return '/home';
+  if (p === TRASH) return TRASH;
+  p = String(p).trim().replace(/\\/g, '/');
+  if (p === '~' || p.startsWith('~/')) p = '/home' + p.slice(1);
+  if (!p.startsWith('/')) p = '/' + p;
+  p = p.replace(/\/{2,}/g, '/');
+  if (p.length > 1) p = p.replace(/\/$/, '');
+  return p;
+}
+async function navigate(p, { push = true } = {}) {
+  p = normalizePath(p);
+  if (push && p !== currentPath) { history.back.push(currentPath); history.fwd = []; }
+  currentPath = p;
+  selection.clear();
+  anchor = null;
+  searchQuery = '';
+  searchResults = null;
+  $('searchInput').value = '';
+  await load();
+}
+async function load() {
+  const token = ++loadToken;
+  $('content').classList.remove('drag-over');
+  renderCrumbs();
+  highlightSidebar();
+  updateNavButtons();
+  try {
+    if (currentPath === TRASH) {
+      const d = await api('/api/system/files/trash');
+      if (token !== loadToken) return;
+      items = d.items.map(t => ({ name: t.name, type: t.isFolder ? 'folder' : 'file', ext: t.isFolder ? '' : (t.name.match(/\.[^.]+$/) || [''])[0].toLowerCase(), bytes: -1, mtime: t.deletedAt, trashId: t.id, from: t.from }));
+      readOnly = true;
     } else {
-      input.select();
+      const d = await api('/api/system/files?path=' + encodeURIComponent(currentPath));
+      if (token !== loadToken) return;
+      items = d.contents || [];
+      readOnly = Boolean(d.isReadOnly);
     }
-
-    let committed = false;
-    const commit = async () => {
-      if (committed) return;
-      committed = true;
-      const newName = input.value.trim();
-
-      if (!newName || newName === oldName) {
-        input.remove();
-        nameTextSpan.style.display = '';
-        isInlineEditing = false;
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/system/files/rename', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ path: currentPath, oldName, newName })
-        });
-        const resData = await res.json();
-        if (resData.success) {
-          selectedItem.name = newName;
-          selectedFile = newName;
-          nameTextSpan.textContent = newName;
-          selectedRow.dataset.name = newName;
-          input.remove();
-          nameTextSpan.style.display = '';
-          isInlineEditing = false;
-          window.parent.postMessage({ type: 'refresh-desktop' }, '*');
-        } else {
-          input.remove();
-          nameTextSpan.style.display = '';
-          isInlineEditing = false;
-        }
-      } catch (err) {
-        input.remove();
-        nameTextSpan.style.display = '';
-        isInlineEditing = false;
-      }
-    };
-
-    const cancel = () => {
-      if (committed) return;
-      committed = true;
-      input.remove();
-      nameTextSpan.style.display = '';
-      isInlineEditing = false;
-    };
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
-    });
-    input.addEventListener('blur', commit);
+    render();
+  } catch (error) {
+    if (token !== loadToken) return;
+    items = [];
+    readOnly = true;
+    renderMessage(error.status === 404 ? 'This folder does not exist' : error.status === 403 ? 'Access denied' : error.message, error.status === 404 ? 'folder_off' : 'block');
   }
+}
+function updateNavButtons() {
+  $('backBtn').disabled = !history.back.length;
+  $('fwdBtn').disabled = !history.fwd.length;
+  $('upBtn').disabled = !parentOf(currentPath);
+}
+$('backBtn').onclick = () => { if (!history.back.length) return; history.fwd.push(currentPath); navigate(history.back.pop(), { push: false }); };
+$('fwdBtn').onclick = () => { if (!history.fwd.length) return; history.back.push(currentPath); navigate(history.fwd.pop(), { push: false }); };
+$('upBtn').onclick = () => { const up = parentOf(currentPath); if (up) navigate(up); };
+$('refreshBtn').onclick = () => { load(); };
 
-  // 4. Inline Delete Confirmation
-  function startInlineDelete() {
-    if (isReadOnly || !selectedItem) return;
-    const confirmBar = document.getElementById('inlineConfirmBar');
-    document.getElementById('confirmMessage').textContent = `Delete "${selectedItem.name}"?`;
-    confirmBar.style.display = 'flex';
-  }
-
-  function cancelInlineDelete() {
-    const confirmBar = document.getElementById('inlineConfirmBar');
-    if (confirmBar) confirmBar.style.display = 'none';
-  }
-
-  async function executeInlineDelete() {
-    if (isReadOnly || !selectedItem) return;
-    const itemToDelete = selectedItem;
-    cancelInlineDelete();
-
-    try {
-      await fetch('/api/system/files/delete', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ path: currentPath, name: itemToDelete.name })
-      });
-      selectedItem = null;
-      selectedFile = null;
-      renderList(currentPath);
-      window.parent.postMessage({ type: 'refresh-desktop' }, '*');
-    } catch (err) {
-      console.error("Delete failed", err);
-    }
-  }
-
-  // 5. Keep System Root files unopened; open files from user folders in Notes.
-  function openSelected() {
-    if (!selectedItem) return;
-    if (selectedItem.type === 'folder') {
-      navigateTo(currentPath === '/' ? `/${selectedItem.name}` : `${currentPath}/${selectedItem.name}`);
-    } else {
-      openFileInNotes(selectedItem);
-    }
-  }
-
-  function openInTerminal() {
-    const terminalPath = selectedItem?.type === 'folder'
-      ? `${currentPath === '/' ? '' : currentPath}/${selectedItem.name}`
-      : currentPath;
-    window.parent.postMessage({ type: 'open-terminal-in-directory', path: terminalPath || '/' }, window.location.origin);
-    cm.classList.remove('open');
-  }
-
-  // File Upload
-  document.getElementById('uploadInput').addEventListener('change', async (e) => {
-    if(isReadOnly) return;
-    for(let file of e.target.files) {
-      const reader = new FileReader();
-      reader.onload = async (evt) => {
-        const b64 = evt.target.result.split(',')[1];
-        await fetch('/api/system/files/upload', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({path: currentPath, name: file.name, data: b64})
-        });
-        renderList(currentPath);
-        window.parent.postMessage({type: 'refresh-desktop'}, '*');
-      };
-      reader.readAsDataURL(file);
-    }
+function renderCrumbs() {
+  const box = $('crumbs');
+  box.replaceChildren();
+  if (currentPath === TRASH) { const c = el('span', 'crumb last', 'Trash'); box.append(icon('delete', 'crumb-sep'), c); return; }
+  const parts = currentPath.split('/').filter(Boolean);
+  const root = el('span', 'crumb' + (parts.length ? '' : ' last'), '/');
+  root.onclick = e => { e.stopPropagation(); navigate('/'); };
+  box.append(root);
+  let acc = '';
+  parts.forEach((part, i) => {
+    acc += '/' + part;
+    const target = acc;
+    box.append(icon('chevron_right', 'crumb-sep'));
+    const label = target === '/home' ? 'Home' : part;
+    const c = el('span', 'crumb' + (i === parts.length - 1 ? ' last' : ''), label);
+    c.onclick = e => { e.stopPropagation(); navigate(target); };
+    if (isHome(target) && i < parts.length - 1) makeDropTarget(c, () => target);
+    box.append(c);
   });
-
-  /* Context Menu Handling */
-  const cm = document.getElementById('contextMenu');
-  function showContextMenu(x, y, hasSelection) {
-    document.getElementById('cmOpen').style.display =
-      (hasSelection && (selectedItem?.type === 'folder' || currentPath !== '/')) ? 'flex' : 'none';
-    document.getElementById('cmOpenTerminal').style.display = 'flex';
-    document.getElementById('cmRename').style.display = (hasSelection && !isReadOnly) ? 'flex' : 'none';
-    document.getElementById('cmDelete').style.display = (hasSelection && !isReadOnly) ? 'flex' : 'none';
-
-    document.getElementById('cmDivider').style.display = (hasSelection && !isReadOnly) ? 'block' : 'none';
-    document.getElementById('cmNew').style.display = isReadOnly ? 'none' : 'flex';
-    document.getElementById('cmNewFile').style.display = isReadOnly ? 'none' : 'flex';
-    document.getElementById('cmUpload').style.display = isReadOnly ? 'none' : 'flex';
-
-    cm.style.left = '0px';
-    cm.style.top = '0px';
-    cm.classList.add('open');
-
-    const rect = cm.getBoundingClientRect();
-    cm.style.left = `${Math.max(8, Math.min(x, window.innerWidth - rect.width - 8))}px`;
-    cm.style.top = `${Math.max(8, Math.min(y, window.innerHeight - rect.height - 8))}px`;
-  }
-  
-  document.getElementById('mainArea').oncontextmenu = (e) => {
-    if(e.target.closest('.file-row')) return;
-    e.preventDefault();
-    selectRow(null, null);
-    showContextMenu(e.clientX, e.clientY, false);
+}
+function editAddress() {
+  const box = $('crumbs');
+  if (box.querySelector('input')) return;
+  const input = el('input');
+  input.value = currentPath === TRASH ? '' : currentPath;
+  input.spellcheck = false;
+  box.replaceChildren(input);
+  input.focus();
+  input.select();
+  input.onkeydown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); navigate(input.value); }
+    if (e.key === 'Escape') { e.preventDefault(); renderCrumbs(); $('content').focus(); }
   };
+  input.onblur = () => setTimeout(() => { if (box.contains(input)) renderCrumbs(); }, 100);
+}
+$('crumbs').onclick = editAddress;
 
-  document.addEventListener('contextmenu', event => event.preventDefault(), true);
-
-  document.querySelectorAll('.sort-button').forEach(button => {
-    button.addEventListener('click', () => sortFileRows(button.dataset.sort));
+/* ───────────────────────── Rendering ───────────────────────── */
+function visibleItems() {
+  let list = searchResults || items;
+  if (!showHidden) list = list.filter(i => !i.name.startsWith('.'));
+  const dir = sortDir;
+  const cmp = {
+    name: (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
+    date: (a, b) => (a.mtime || 0) - (b.mtime || 0),
+    size: (a, b) => (a.bytes || 0) - (b.bytes || 0),
+    type: (a, b) => TYPE_LABEL[kindOf(a)].localeCompare(TYPE_LABEL[kindOf(b)]) || (a.ext || '').localeCompare(b.ext || '')
+  }[sortKey];
+  return [...list].sort((a, b) => {
+    if ((a.type === 'folder') !== (b.type === 'folder')) return a.type === 'folder' ? -1 : 1;
+    return (cmp(a, b) || a.name.localeCompare(b.name)) * dir;
   });
-  
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('#contextMenu')) cm.classList.remove('open');
+}
+function renderMessage(text, iconName = 'folder_open') {
+  const box = $('content');
+  box.replaceChildren();
+  const e = el('div', 'empty');
+  e.append(icon(iconName), el('div', null, text));
+  box.append(e);
+  updateStatus();
+  updateActions();
+}
+function itemKey(item) { return (item.dir || '') + '\u0000' + item.name; }
+function render() {
+  const box = $('content');
+  const list = visibleItems();
+  box.replaceChildren();
+  $('readonlyPill').classList.toggle('show', readOnly && currentPath !== TRASH && !searchResults);
+  $('viewBtn').querySelector('.ms').textContent = viewMode === 'list' ? 'grid_view' : 'view_list';
+  if (!list.length) {
+    renderMessage(searchResults ? `No results for "${searchQuery}"` : currentPath === TRASH ? 'The trash is empty' : 'This folder is empty' + (readOnly ? '' : ' · drop files here to upload'),
+      searchResults ? 'search_off' : currentPath === TRASH ? 'delete' : 'folder_open');
+    return;
+  }
+  if (viewMode === 'list') {
+    const head = el('div', 'list-head');
+    [['name', 'Name', ''], ['date', currentPath === TRASH ? 'Deleted' : 'Modified', 'c-date'], ['type', searchResults ? 'Folder' : 'Type', 'c-type'], ['size', 'Size', 'right']].forEach(([key, label, cls]) => {
+      const h = el('span', cls, label);
+      if (sortKey === key) h.append(icon(sortDir > 0 ? 'arrow_upward' : 'arrow_downward'));
+      h.onclick = () => { if (sortKey === key) sortDir = -sortDir; else { sortKey = key; sortDir = 1; } store.set('files-sort', sortKey); store.set('files-sort-dir', sortDir); render(); };
+      head.append(h);
+    });
+    box.append(head);
+  }
+  const container = viewMode === 'grid' ? el('div', 'grid') : el('div');
+  const cutSet = clipboard?.mode === 'cut' && clipboard.fromPath === currentPath ? new Set(clipboard.names) : null;
+  list.forEach(item => {
+    const kind = kindOf(item);
+    const node = viewMode === 'grid' ? el('div', 'tile') : el('div', 'row');
+    node.dataset.key = itemKey(item);
+    if (selection.has(itemKey(item))) node.classList.add('selected');
+    if (cutSet?.has(item.name)) node.classList.add('cut');
+    const iconEl = icon(TYPE_ICON[kind], 'ficon c-' + kind);
+    if (viewMode === 'grid') {
+      const thumb = el('div', 'thumb');
+      if (kind === 'image' && isHome(item.dir || currentPath) && item.ext !== '.svg' && !item.trashId) {
+        const img = el('img');
+        img.loading = 'lazy';
+        img.alt = '';
+        img.src = `/api/system/files/raw?path=${encodeURIComponent(item.dir || currentPath)}&name=${encodeURIComponent(item.name)}`;
+        img.onerror = () => img.replaceWith(icon(TYPE_ICON[kind], 'c-' + kind));
+        thumb.append(img);
+      } else thumb.append(icon(TYPE_ICON[kind], 'c-' + kind));
+      node.append(thumb, el('div', 'label', item.name));
+      node.title = `${item.name}\n${TYPE_LABEL[kind]}${item.bytes >= 0 ? ' · ' + formatSize(item.bytes) : ''}`;
+    } else {
+      const name = el('div', 'name');
+      name.append(iconEl, el('span', null, item.name));
+      const date = el('div', 'meta m-date', formatDate(item.mtime, item.date));
+      const type = el('div', 'meta m-type', searchResults ? (item.dir === '/home' ? 'Home' : item.dir.replace('/home/', '')) : currentPath === TRASH ? (item.from || '') : TYPE_LABEL[kind]);
+      const size = el('div', 'meta right', item.type === 'folder' ? '' : formatSize(item.bytes));
+      node.append(name, date, type, size);
+    }
+    node.addEventListener('mousedown', e => onItemMouseDown(e, item));
+    node.addEventListener('dblclick', () => openItem(item));
+    node.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); if (!selection.has(itemKey(item))) selectOnly(item); openContextMenu(e.clientX, e.clientY, item); });
+    if (!readOnly && !item.trashId) {
+      node.draggable = true;
+      node.addEventListener('dragstart', e => onDragStart(e, item));
+      node.addEventListener('dragend', () => { dragData = null; });
+      if (item.type === 'folder') makeDropTarget(node, () => joinPath(item.dir || currentPath, item.name));
+    }
+    container.append(node);
   });
+  box.append(container);
+  updateStatus();
+  updateActions();
+}
+function refreshSelectionClasses() {
+  document.querySelectorAll('[data-key]').forEach(n => n.classList.toggle('selected', selection.has(n.dataset.key)));
+  updateStatus();
+  updateActions();
+}
+function updateStatus() {
+  const list = items.length || searchResults ? visibleItems() : [];
+  const sel = selectedItems();
+  $('statusLeft').textContent = `${list.length} ${list.length === 1 ? 'item' : 'items'}${searchResults ? ` found in ${currentPath === '/home' ? 'Home' : currentPath}` : ''}`;
+  const bytes = sel.reduce((s, i) => s + (i.bytes > 0 ? i.bytes : 0), 0);
+  $('statusRight').textContent = sel.length ? `${sel.length} selected${bytes ? ' · ' + formatSize(bytes) : ''}` : '';
+}
+function updateActions() {
+  const sel = selectedItems();
+  const writable = !readOnly && currentPath !== TRASH;
+  const homeSel = sel.length && sel.every(i => isHome(i.dir || currentPath)) && !sel.some(i => i.trashId);
+  $('newFolderBtn').disabled = !writable || Boolean(searchResults);
+  $('newFileBtn').disabled = !writable || Boolean(searchResults);
+  $('uploadBtn').disabled = !writable || Boolean(searchResults);
+  $('cutBtn').disabled = !homeSel || readOnly;
+  $('copyBtn').disabled = !homeSel;
+  $('pasteBtn').disabled = !writable || !clipboard || Boolean(searchResults);
+  $('renameBtn').disabled = sel.length !== 1 || !homeSel || readOnly;
+  $('deleteBtn').disabled = !(homeSel && !readOnly) && !(currentPath === TRASH && sel.length);
+  $('deleteBtn').title = currentPath === TRASH ? 'Delete forever' : 'Move to trash (Delete)';
+}
 
-  // Global Keyboard Shortcuts for Inline Actions
-  document.addEventListener('keydown', (e) => {
-    const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
-    const isConfirmOpen = document.getElementById('inlineConfirmBar').style.display === 'flex';
+/* ───────────────────────── Selection ───────────────────────── */
+function selectedItems() {
+  const list = searchResults || items;
+  return list.filter(i => selection.has(itemKey(i)));
+}
+function selectOnly(item) { selection = new Set([itemKey(item)]); anchor = itemKey(item); refreshSelectionClasses(); }
+function onItemMouseDown(e, item) {
+  if (e.button !== 0) return;
+  const key = itemKey(item);
+  if (e.shiftKey && anchor) {
+    const keys = visibleItems().map(itemKey);
+    const a = keys.indexOf(anchor), b = keys.indexOf(key);
+    if (a >= 0 && b >= 0) {
+      if (!(e.ctrlKey || e.metaKey)) selection.clear();
+      keys.slice(Math.min(a, b), Math.max(a, b) + 1).forEach(k => selection.add(k));
+    }
+  } else if (e.ctrlKey || e.metaKey) {
+    if (selection.has(key)) selection.delete(key); else selection.add(key);
+    anchor = key;
+  } else if (!selection.has(key)) {
+    selection = new Set([key]);
+    anchor = key;
+  }
+  refreshSelectionClasses();
+  $('content').focus({ preventScroll: true });
+}
+$('content').addEventListener('mousedown', e => {
+  if (e.target === $('content') || e.target.classList.contains('grid') || e.target.classList.contains('empty')) { selection.clear(); refreshSelectionClasses(); }
+});
+$('content').addEventListener('contextmenu', e => {
+  if (e.target.closest('[data-key]')) return;
+  e.preventDefault();
+  selection.clear();
+  refreshSelectionClasses();
+  openContextMenu(e.clientX, e.clientY, null);
+});
+function moveSelection(delta, extend) {
+  const list = visibleItems();
+  if (!list.length) return;
+  const keys = list.map(itemKey);
+  const lastKey = [...selection].pop();
+  let index = keys.indexOf(lastKey);
+  if (viewMode === 'grid' && Math.abs(delta) > 1) {
+    const grid = document.querySelector('.grid');
+    const cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(' ').length : 1;
+    delta = Math.sign(delta) * cols;
+  }
+  index = index < 0 ? 0 : Math.max(0, Math.min(keys.length - 1, index + delta));
+  if (extend) selection.add(keys[index]); else { selection = new Set([keys[index]]); anchor = keys[index]; }
+  refreshSelectionClasses();
+  document.querySelector(`[data-key="${CSS.escape(keys[index])}"]`)?.scrollIntoView({ block: 'nearest' });
+}
 
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
-      e.preventDefault();
-      const addressBar = document.getElementById('addressBar');
-      addressBar.focus();
-      addressBar.select();
+/* ───────────────────────── Opening and previews ───────────────────────── */
+function openItem(item) {
+  if (item.trashId) { restoreItems([item]); return; }
+  const dir = item.dir || currentPath;
+  if (item.type === 'folder') { navigate(item.isVolume ? '/device/' + item.name : joinPath(dir, item.name)); return; }
+  const kind = kindOf(item);
+  if (['image', 'audio', 'video', 'pdf'].includes(kind)) { openPreview(item); return; }
+  if (TEXT_EXT.has(item.ext) || !item.ext) {
+    if (!isHome(dir)) { toast('Files outside Home can only be listed, not opened', { error: true }); return; }
+    openInNotes(item);
+    return;
+  }
+  if (isHome(dir)) { toast(`No app can open ${item.ext} files here. Downloading it instead.`); download(item); }
+  else toast('Files outside Home can only be listed, not opened', { error: true });
+}
+function openInNotes(item) {
+  const dir = item.dir || currentPath;
+  if (IS_EMBEDDED) window.parent.postMessage({ type: 'open-file-in-notes', path: dir, name: item.name }, location.origin);
+  else toast('Notes is available inside mariowOS');
+}
+function rawUrl(item, dl = false) {
+  return `/api/system/files/raw?path=${encodeURIComponent(item.dir || currentPath)}&name=${encodeURIComponent(item.name)}${dl ? '&download=1' : ''}`;
+}
+function download(item) {
+  const a = el('a');
+  a.href = rawUrl(item, true);
+  a.download = item.name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+}
+let previewList = [], previewIndex = 0;
+function openPreview(item) {
+  if (!isHome(item.dir || currentPath)) { toast('Previews work for files in Home', { error: true }); return; }
+  previewList = visibleItems().filter(i => i.type !== 'folder' && (['image', 'audio', 'video', 'pdf'].includes(kindOf(i)) || TEXT_EXT.has(i.ext)));
+  previewIndex = Math.max(0, previewList.findIndex(i => itemKey(i) === itemKey(item)));
+  if (!previewList.length) previewList = [item];
+  showPreview();
+}
+async function showPreview() {
+  const item = previewList[previewIndex];
+  const body = $('previewBody');
+  body.replaceChildren();
+  $('preview').classList.add('open');
+  $('previewTitle').textContent = item.name;
+  $('previewPrev').style.display = previewList.length > 1 ? '' : 'none';
+  $('previewNext').style.display = previewList.length > 1 ? '' : 'none';
+  $('previewOpen').style.display = TEXT_EXT.has(item.ext) ? '' : 'none';
+  const kind = kindOf(item);
+  if (kind === 'image' && item.ext !== '.svg') { const img = el('img'); img.src = rawUrl(item); img.alt = item.name; body.append(img); }
+  else if (kind === 'video') { const v = el('video'); v.src = rawUrl(item); v.controls = true; v.autoplay = true; body.append(v); }
+  else if (kind === 'audio') { const wrap = el('div', 'audio'); const a = el('audio'); a.src = rawUrl(item); a.controls = true; a.autoplay = true; wrap.append(icon('music_note'), el('div', null, item.name), a); body.append(wrap); }
+  else if (kind === 'pdf') { const f = el('iframe'); f.src = rawUrl(item); body.append(f); }
+  else {
+    const pre = el('pre', null, 'Loading…');
+    body.append(pre);
+    try {
+      const d = await api(`/api/system/files/content?path=${encodeURIComponent(item.dir || currentPath)}&name=${encodeURIComponent(item.name)}`);
+      pre.textContent = d.content.length > 400000 ? d.content.slice(0, 400000) + '\n\n… (file truncated in preview)' : d.content;
+    } catch (e) { pre.textContent = e.message; }
+  }
+}
+function closePreview() { $('preview').classList.remove('open'); $('previewBody').replaceChildren(); $('content').focus({ preventScroll: true }); }
+$('previewClose').onclick = closePreview;
+$('preview').addEventListener('mousedown', e => { if (e.target === $('preview')) closePreview(); });
+$('previewPrev').onclick = () => { previewIndex = (previewIndex - 1 + previewList.length) % previewList.length; showPreview(); };
+$('previewNext').onclick = () => { previewIndex = (previewIndex + 1) % previewList.length; showPreview(); };
+$('previewDownload').onclick = () => download(previewList[previewIndex]);
+$('previewOpen').onclick = () => { const item = previewList[previewIndex]; closePreview(); openInNotes(item); };
+
+/* ───────────────────────── File operations ───────────────────────── */
+async function createFolder() {
+  if (readOnly || currentPath === TRASH) return;
+  const name = await mDialog.prompt('Folder name', { title: 'New folder', defaultValue: uniqueLocal('New folder'), okText: 'Create' });
+  if (!name) return;
+  try {
+    await postJson('/api/system/files/create-folder', { path: currentPath, name: name.trim() });
+    await load();
+    const created = items.find(i => i.name === name.trim());
+    if (created) selectOnly(created);
+    notifyDesktop();
+  } catch (e) { toast(e.message, { error: true }); }
+}
+async function createFile() {
+  if (readOnly || currentPath === TRASH) return;
+  const name = await mDialog.prompt('File name', { title: 'New text file', defaultValue: uniqueLocal('New file.txt'), okText: 'Create' });
+  if (!name) return;
+  try {
+    await postJson('/api/system/files/content', { path: currentPath, name: name.trim(), content: '', createOnly: true });
+    await load();
+    const created = items.find(i => i.name === name.trim());
+    if (created) selectOnly(created);
+    notifyDesktop();
+  } catch (e) { toast(e.message, { error: true }); }
+}
+function uniqueLocal(name) {
+  const names = new Set(items.map(i => i.name.toLowerCase()));
+  if (!names.has(name.toLowerCase())) return name;
+  const dot = name.lastIndexOf('.');
+  const base = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : '';
+  for (let n = 2; n < 1000; n++) { const c = `${base} (${n})${ext}`; if (!names.has(c.toLowerCase())) return c; }
+  return name;
+}
+function startRename(item) {
+  if (!item || readOnly || item.trashId) return;
+  const node = document.querySelector(`[data-key="${CSS.escape(itemKey(item))}"]`);
+  if (!node) return;
+  const label = node.querySelector('.label') || node.querySelector('.name span:last-child');
+  const input = el('input', 'rename-input');
+  input.value = item.name;
+  label.replaceWith(input);
+  input.focus();
+  const dot = item.type === 'file' ? item.name.lastIndexOf('.') : -1;
+  input.setSelectionRange(0, dot > 0 ? dot : item.name.length);
+  let done = false;
+  const finish = async commit => {
+    if (done) return;
+    done = true;
+    const newName = input.value.trim();
+    if (!commit || !newName || newName === item.name) { render(); return; }
+    try {
+      await postJson('/api/system/files/rename', { path: item.dir || currentPath, oldName: item.name, newName });
+      await load();
+      const renamed = items.find(i => i.name === newName);
+      if (renamed) selectOnly(renamed);
+      notifyDesktop();
+    } catch (e) { toast(e.message, { error: true }); render(); }
+  };
+  input.addEventListener('mousedown', e => e.stopPropagation());
+  input.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') finish(true);
+    if (e.key === 'Escape') finish(false);
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+// Group selected items by folder (search results can come from many folders).
+function groupByDir(list) {
+  const groups = new Map();
+  list.forEach(i => { const d = i.dir || currentPath; if (!groups.has(d)) groups.set(d, []); groups.get(d).push(i.name); });
+  return groups;
+}
+async function trashItems(names, fromPath = currentPath) {
+  if (!names.length) return;
+  try {
+    await postJson('/api/system/files/trash', { path: fromPath, names });
+    toast(`${names.length} ${names.length === 1 ? 'item' : 'items'} moved to the trash`, { action: { label: 'Undo', run: undoTrash } });
+    lastTrashed = { names, fromPath, at: Date.now() };
+    await reload();
+    notifyDesktop();
+  } catch (e) { toast(e.message, { error: true }); }
+}
+let lastTrashed = null;
+async function undoTrash() {
+  if (!lastTrashed) return;
+  try {
+    const d = await api('/api/system/files/trash');
+    const ids = d.items.filter(t => t.from === lastTrashed.fromPath && lastTrashed.names.includes(t.name) && t.deletedAt >= lastTrashed.at - 5000).map(t => t.id);
+    await postJson('/api/system/files/trash/restore', { ids });
+    lastTrashed = null;
+    await reload();
+    notifyDesktop();
+  } catch (e) { toast(e.message, { error: true }); }
+}
+async function deleteSelection({ permanent = false } = {}) {
+  const sel = selectedItems();
+  if (!sel.length) return;
+  if (currentPath === TRASH) {
+    if (!(await mDialog.confirm(`Delete ${sel.length === 1 ? `"${sel[0].name}"` : sel.length + ' items'} forever? This cannot be undone.`, { title: 'Delete forever', okText: 'Delete', danger: true }))) return;
+    try { await postJson('/api/system/files/trash/empty', { ids: sel.map(i => i.trashId) }); await load(); } catch (e) { toast(e.message, { error: true }); }
+    return;
+  }
+  if (readOnly) return;
+  if (permanent) {
+    if (!(await mDialog.confirm(`Delete ${sel.length === 1 ? `"${sel[0].name}"` : sel.length + ' items'} forever? They will not go to the trash.`, { title: 'Delete forever', okText: 'Delete', danger: true }))) return;
+    for (const [dir, names] of groupByDir(sel)) {
+      for (const name of names) {
+        try { await postJson('/api/system/files/delete', { path: dir, name, recursive: true }); } catch (e) { toast(`${name}: ${e.message}`, { error: true }); }
+      }
+    }
+    await reload();
+    notifyDesktop();
+    return;
+  }
+  for (const [dir, names] of groupByDir(sel)) await trashItems(names, dir);
+}
+async function restoreItems(list) {
+  try {
+    const d = await postJson('/api/system/files/trash/restore', { ids: list.map(i => i.trashId) });
+    toast(`Restored ${d.restored.length} ${d.restored.length === 1 ? 'item' : 'items'}`);
+    await load();
+    notifyDesktop();
+  } catch (e) { toast(e.message, { error: true }); }
+}
+async function emptyTrash() {
+  if (!(await mDialog.confirm('Permanently delete everything in the trash?', { title: 'Empty trash', okText: 'Empty', danger: true }))) return;
+  try { await postJson('/api/system/files/trash/empty', {}); await load(); } catch (e) { toast(e.message, { error: true }); }
+}
+function setClipboard(mode) {
+  const sel = selectedItems().filter(i => isHome(i.dir || currentPath) && !i.trashId);
+  if (!sel.length) return;
+  const groups = groupByDir(sel);
+  if (groups.size > 1) { toast('Select items from one folder to copy or cut', { error: true }); return; }
+  const [[fromPath, names]] = groups;
+  clipboard = { mode, fromPath, names };
+  store.set('files-clipboard', clipboard);
+  toast(`${names.length} ${names.length === 1 ? 'item' : 'items'} ${mode === 'cut' ? 'cut' : 'copied'}`);
+  render();
+}
+async function paste(toPath = currentPath) {
+  if (!clipboard || readOnly || currentPath === TRASH) return;
+  await transfer(clipboard.fromPath, toPath, clipboard.names, clipboard.mode === 'cut' ? 'move' : 'copy');
+  if (clipboard.mode === 'cut') { clipboard = null; store.set('files-clipboard', null); }
+}
+async function transfer(fromPath, toPath, names, mode) {
+  const t = toast(`${mode === 'move' ? 'Moving' : 'Copying'} ${names.length} ${names.length === 1 ? 'item' : 'items'}…`, { sticky: true });
+  try {
+    const d = await postJson('/api/system/files/transfer', { fromPath, toPath, names, mode });
+    const errors = (d.results || []).filter(r => r.error);
+    t.remove();
+    if (errors.length) toast(errors.map(r => `${r.name}: ${r.error}`).join('\n'), { error: true });
+    else toast(`${mode === 'move' ? 'Moved' : 'Copied'} ${names.length} ${names.length === 1 ? 'item' : 'items'}`);
+  } catch (e) { t.remove(); toast(e.message, { error: true }); }
+  await reload();
+  notifyDesktop();
+}
+async function reload() {
+  if (searchResults) await runSearch(searchQuery); else await load();
+}
+
+/* ── Uploads with progress (raw binary, no base64) ── */
+function uploadFiles(files, toPath = currentPath) {
+  if (readOnly || currentPath === TRASH || !files.length) return;
+  const list = [...files];
+  const t = toast(`Uploading ${list.length} ${list.length === 1 ? 'file' : 'files'}…`, { progress: true });
+  const total = list.reduce((s, f) => s + f.size, 0) || 1;
+  let sent = 0, failed = 0;
+  const next = i => {
+    if (i >= list.length) {
+      t.done(failed ? `${list.length - failed} uploaded, ${failed} failed` : `Uploaded ${list.length} ${list.length === 1 ? 'file' : 'files'}`, failed > 0);
+      load();
+      notifyDesktop();
       return;
     }
+    const file = list[i];
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/api/system/files/upload-raw?path=${encodeURIComponent(toPath)}&name=${encodeURIComponent(file.name)}&conflict=rename`);
+    xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+    xhr.upload.onprogress = e => t.set(Math.round((sent + e.loaded) / total * 100), `Uploading ${file.name} (${i + 1}/${list.length})`);
+    xhr.onload = () => { if (xhr.status >= 300) failed++; sent += file.size; next(i + 1); };
+    xhr.onerror = () => { failed++; sent += file.size; next(i + 1); };
+    xhr.send(file);
+  };
+  next(0);
+}
+$('uploadBtn').onclick = () => $('uploadInput').click();
+$('uploadInput').onchange = e => { uploadFiles(e.target.files); e.target.value = ''; };
 
-    if (e.key === 'Escape') {
-      if (isConfirmOpen) { cancelInlineDelete(); return; }
-    }
-
-    if (isInput || isInlineEditing) return;
-
-    if (e.key === 'F2' && selectedItem && !isReadOnly) {
+/* ── Drag and drop: internal moves and external uploads ── */
+let dragData = null;
+function onDragStart(e, item) {
+  if (!selection.has(itemKey(item))) selectOnly(item);
+  const sel = selectedItems();
+  const groups = groupByDir(sel);
+  if (groups.size !== 1) { e.preventDefault(); return; }
+  const [[fromPath, names]] = groups;
+  dragData = { fromPath, names };
+  e.dataTransfer.effectAllowed = 'copyMove';
+  e.dataTransfer.setData('text/plain', names.join('\n'));
+}
+function makeDropTarget(node, getPath) {
+  node.addEventListener('dragover', e => {
+    const target = getPath();
+    if (dragData ? (dragData.names.length && !(dragData.fromPath === parentOf(target) && dragData.names.includes(target.split('/').pop())) && target !== dragData.fromPath) : e.dataTransfer.types.includes('Files')) {
       e.preventDefault();
-      startInlineRename();
-    } else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedItem && !isReadOnly) {
-      e.preventDefault();
-      startInlineDelete();
-    } else if (e.key === 'Enter' && selectedItem) {
-      e.preventDefault();
-      openSelected();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = dragData && (e.ctrlKey || e.altKey) ? 'copy' : dragData ? 'move' : 'copy';
+      node.classList.add('drop-target');
     }
   });
-
-  /* In-App Drag and Drop */
-  document.body.addEventListener('dragenter', e => e.preventDefault());
-  document.body.addEventListener('dragover', e => e.preventDefault());
-  document.body.addEventListener('drop', e => {
+  node.addEventListener('dragleave', () => node.classList.remove('drop-target'));
+  node.addEventListener('drop', e => {
     e.preventDefault();
-    if(isReadOnly) return;
-    document.getElementById('uploadInput').files = e.dataTransfer.files;
-    document.getElementById('uploadInput').dispatchEvent(new Event('change'));
+    e.stopPropagation();
+    node.classList.remove('drop-target');
+    const target = getPath();
+    if (dragData) { const d = dragData; dragData = null; transfer(d.fromPath, target, d.names, e.ctrlKey || e.altKey ? 'copy' : 'move'); }
+    else if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files, target);
   });
+}
+const content = $('content');
+content.addEventListener('dragover', e => {
+  if (dragData || readOnly || currentPath === TRASH || !e.dataTransfer.types.includes('Files')) return;
+  e.preventDefault();
+  content.classList.add('drag-over');
+});
+content.addEventListener('dragleave', e => { if (e.target === content) content.classList.remove('drag-over'); });
+content.addEventListener('drop', e => {
+  content.classList.remove('drag-over');
+  if (dragData) return;
+  e.preventDefault();
+  if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+});
 
-  function formatStorageSize(bytes) {
-    const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-    let size = bytes;
-    let unitIndex = 0;
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
-    return `${size.toFixed(unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+/* ───────────────────────── Search ───────────────────────── */
+let searchTimer = null;
+$('searchInput').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  searchTimer = setTimeout(() => runSearch(q), 300);
+});
+$('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.target.value = ''; runSearch(''); $('content').focus(); }
+  if (e.key === 'ArrowDown' || e.key === 'Enter') { e.preventDefault(); $('content').focus(); moveSelection(0); }
+});
+async function runSearch(q) {
+  searchQuery = q;
+  selection.clear();
+  if (!q) { searchResults = null; render(); return; }
+  if (!isHome(currentPath)) {
+    // Outside Home: filter the current folder only.
+    searchResults = items.filter(i => i.name.toLowerCase().includes(q.toLowerCase())).map(i => ({ ...i, dir: currentPath }));
+    render();
+    return;
   }
+  const token = ++loadToken;
+  try {
+    const d = await api(`/api/system/files/search?path=${encodeURIComponent(currentPath)}&q=${encodeURIComponent(q)}`);
+    if (token !== loadToken) return;
+    searchResults = d.results;
+    render();
+  } catch (e) { toast(e.message, { error: true }); }
+}
 
-  async function refreshDriveUsage() {
-    const label = document.getElementById('driveUsageLabel');
-    const fill = document.getElementById('driveUsageFill');
-    const progress = fill.parentElement;
-    try {
-      const response = await fetch('/api/system/storage');
-      const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.error || 'Unable to read disk usage');
-      const percent = Math.round(data.usagePercent);
-      label.textContent = `${formatStorageSize(data.usedBytes)} of ${formatStorageSize(data.totalBytes)} used`;
-      fill.style.width = `${percent}%`;
-      progress.setAttribute('aria-valuenow', String(percent));
-      progress.setAttribute('aria-valuetext', `${percent}% used`);
-    } catch (error) {
-      console.error('Could not load system disk usage:', error);
-      label.textContent = 'Disk usage unavailable';
-      fill.style.width = '0%';
-      progress.setAttribute('aria-valuenow', '0');
-      progress.removeAttribute('aria-valuetext');
+/* ───────────────────────── Menus ───────────────────────── */
+function menuItem(iconName, label, run, { kbd = '', danger = false, disabled = false, checked = null } = {}) {
+  const b = el('button', (danger ? 'danger ' : '') + (checked ? 'checked' : ''));
+  b.disabled = disabled;
+  b.append(icon(iconName), el('span', null, label));
+  if (checked !== null) b.append(icon(checked ? 'check' : '', 'check'));
+  else if (kbd) b.append(el('kbd', null, kbd));
+  b.onclick = () => { closeMenus(); run(); };
+  return b;
+}
+const hr = () => el('hr');
+function openMenu(menu, x, y) {
+  closeMenus();
+  menu.classList.add('open');
+  const r = menu.getBoundingClientRect();
+  menu.style.left = Math.max(6, Math.min(x, innerWidth - r.width - 6)) + 'px';
+  menu.style.top = Math.max(6, Math.min(y, innerHeight - r.height - 6)) + 'px';
+}
+function closeMenus() { document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open')); }
+document.addEventListener('mousedown', e => { if (!e.target.closest('.menu') && !e.target.closest('#sortBtn')) closeMenus(); });
+window.addEventListener('blur', closeMenus);
+
+function openContextMenu(x, y, item) {
+  const menu = $('ctxMenu');
+  menu.replaceChildren();
+  const sel = selectedItems();
+  const writable = !readOnly && currentPath !== TRASH;
+  if (currentPath === TRASH) {
+    if (sel.length) menu.append(menuItem('restore_from_trash', 'Restore', () => restoreItems(sel)), menuItem('delete_forever', 'Delete forever', () => deleteSelection(), { danger: true }));
+    else menu.append(menuItem('delete_sweep', 'Empty trash', emptyTrash, { danger: true, disabled: !items.length }));
+  } else if (item) {
+    const kind = kindOf(item);
+    const inHome = isHome(item.dir || currentPath);
+    menu.append(menuItem(item.type === 'folder' ? 'folder_open' : 'open_in_new', 'Open', () => openItem(item), { kbd: 'Enter' }));
+    if (item.type === 'file' && inHome) {
+      if (['image', 'audio', 'video', 'pdf'].includes(kind) || TEXT_EXT.has(item.ext)) menu.append(menuItem('visibility', 'Quick look', () => openPreview(item), { kbd: 'Space' }));
+      if (TEXT_EXT.has(item.ext) || !item.ext) menu.append(menuItem('edit_note', 'Edit in Notes', () => openInNotes(item)));
+      menu.append(menuItem('download', 'Download', () => sel.forEach(download)));
     }
+    if (searchResults) menu.append(menuItem('folder', 'Show in folder', () => { const d = item.dir; navigate(d).then(() => { const f = items.find(i => i.name === item.name); if (f) selectOnly(f); }); }));
+    if (item.type === 'folder') menu.append(menuItem('terminal', 'Open in Terminal', () => openTerminal(joinPath(item.dir || currentPath, item.name))));
+    menu.append(hr(),
+      menuItem('content_cut', 'Cut', () => setClipboard('cut'), { kbd: 'Ctrl+X', disabled: !inHome || readOnly }),
+      menuItem('content_copy', 'Copy', () => setClipboard('copy'), { kbd: 'Ctrl+C', disabled: !inHome }),
+      menuItem('drive_file_rename_outline', 'Rename', () => startRename(item), { kbd: 'F2', disabled: sel.length !== 1 || !inHome || readOnly }),
+      menuItem('content_copy', 'Copy path', () => navigator.clipboard?.writeText(joinPath(item.dir || currentPath, item.name))),
+      menuItem('info', 'Properties', () => showProperties(item)),
+      hr(),
+      menuItem('delete', 'Move to trash', () => deleteSelection(), { kbd: 'Del', danger: true, disabled: !inHome || readOnly }));
+  } else {
+    menu.append(
+      menuItem('create_new_folder', 'New folder', createFolder, { disabled: !writable }),
+      menuItem('note_add', 'New text file', createFile, { disabled: !writable }),
+      menuItem('upload', 'Upload files…', () => $('uploadInput').click(), { disabled: !writable }),
+      menuItem('content_paste', 'Paste', () => paste(), { kbd: 'Ctrl+V', disabled: !writable || !clipboard }),
+      hr(),
+      menuItem('select_all', 'Select all', selectAll, { kbd: 'Ctrl+A' }),
+      menuItem('refresh', 'Refresh', load, { kbd: 'F5' }),
+      menuItem('terminal', 'Open in Terminal', () => openTerminal(currentPath)),
+      menuItem('visibility', 'Show hidden files', toggleHidden, { checked: showHidden }));
   }
+  openMenu(menu, x, y);
+}
+function openTerminal(p) {
+  if (IS_EMBEDDED) window.parent.postMessage({ type: 'open-terminal-in-directory', path: p || '/' }, location.origin);
+}
+function toggleHidden() { showHidden = !showHidden; store.set('files-hidden', showHidden); render(); }
+function selectAll() { selection = new Set(visibleItems().map(itemKey)); refreshSelectionClasses(); }
 
-  // Boot Up
-  createTab('/home', 'Home');
-  refreshDriveUsage();
-  setInterval(refreshDriveUsage, 60000);
+$('sortBtn').onclick = () => {
+  const menu = $('sortMenu');
+  menu.replaceChildren();
+  [['name', 'Name'], ['date', 'Date modified'], ['size', 'Size'], ['type', 'Type']].forEach(([key, label]) =>
+    menu.append(menuItem(key === 'name' ? 'sort_by_alpha' : key === 'date' ? 'schedule' : key === 'size' ? 'straighten' : 'category', label, () => { sortKey = key; store.set('files-sort', key); render(); }, { checked: sortKey === key })));
+  menu.append(hr(),
+    menuItem('arrow_upward', 'Ascending', () => { sortDir = 1; store.set('files-sort-dir', 1); render(); }, { checked: sortDir > 0 }),
+    menuItem('arrow_downward', 'Descending', () => { sortDir = -1; store.set('files-sort-dir', -1); render(); }, { checked: sortDir < 0 }),
+    hr(),
+    menuItem('visibility', 'Show hidden files', toggleHidden, { checked: showHidden }));
+  const r = $('sortBtn').getBoundingClientRect();
+  openMenu(menu, r.left, r.bottom + 6);
+};
+$('viewBtn').onclick = () => { viewMode = viewMode === 'list' ? 'grid' : 'list'; store.set('files-view', viewMode); render(); };
+$('newFolderBtn').onclick = createFolder;
+$('newFileBtn').onclick = createFile;
+$('cutBtn').onclick = () => setClipboard('cut');
+$('copyBtn').onclick = () => setClipboard('copy');
+$('pasteBtn').onclick = () => paste();
+$('renameBtn').onclick = () => startRename(selectedItems()[0]);
+$('deleteBtn').onclick = () => deleteSelection();
+
+function showProperties(item) {
+  const kind = kindOf(item);
+  const box = el('div', 'props');
+  const rows = [['Name', item.name], ['Type', TYPE_LABEL[kind] + (item.ext ? ` (${item.ext})` : '')], ['Location', item.dir || currentPath],
+    ['Size', item.bytes >= 0 ? `${formatSize(item.bytes)} (${item.bytes.toLocaleString()} bytes)` : '—'], ['Modified', formatDate(item.mtime, item.date) || '—']];
+  rows.forEach(([k, v]) => box.append(el('span', null, k), el('span', null, v)));
+  mDialog.alert(rows.map(([k, v]) => `${k}: ${v}`).join('\n'), { title: 'Properties', kind: 'info' });
+}
+
+/* ───────────────────────── Keyboard ───────────────────────── */
+document.addEventListener('keydown', e => {
+  if (document.querySelector('.mdlg-backdrop')) return;
+  const inField = e.target.closest('input');
+  const ctrl = e.ctrlKey || e.metaKey;
+  if ($('preview').classList.contains('open')) {
+    if (e.key === 'Escape' || e.key === ' ') { e.preventDefault(); closePreview(); }
+    if (e.key === 'ArrowRight') $('previewNext').click();
+    if (e.key === 'ArrowLeft') $('previewPrev').click();
+    return;
+  }
+  if (e.key === 'Escape') { closeMenus(); if (!inField) { selection.clear(); refreshSelectionClasses(); } return; }
+  if (ctrl && e.key.toLowerCase() === 'l') { e.preventDefault(); editAddress(); return; }
+  if (ctrl && e.key.toLowerCase() === 'f') { e.preventDefault(); $('searchInput').focus(); $('searchInput').select(); return; }
+  if (e.key === 'F5') { e.preventDefault(); load(); return; }
+  if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); $('backBtn').click(); return; }
+  if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); $('fwdBtn').click(); return; }
+  if (e.altKey && e.key === 'ArrowUp') { e.preventDefault(); $('upBtn').click(); return; }
+  if (inField) return;
+  const sel = selectedItems();
+  if (ctrl && e.shiftKey && e.key.toLowerCase() === 'n') { e.preventDefault(); createFolder(); }
+  else if (ctrl && e.key.toLowerCase() === 'a') { e.preventDefault(); selectAll(); }
+  else if (ctrl && e.key.toLowerCase() === 'c') { e.preventDefault(); setClipboard('copy'); }
+  else if (ctrl && e.key.toLowerCase() === 'x') { e.preventDefault(); setClipboard('cut'); }
+  else if (ctrl && e.key.toLowerCase() === 'v') { e.preventDefault(); paste(); }
+  else if (e.key === 'F2') { e.preventDefault(); if (sel.length === 1) startRename(sel[0]); }
+  else if (e.key === 'Delete') { e.preventDefault(); deleteSelection({ permanent: e.shiftKey }); }
+  else if (e.key === 'Enter') { e.preventDefault(); if (sel.length === 1) openItem(sel[0]); }
+  else if (e.key === 'Backspace') { e.preventDefault(); $('backBtn').click(); }
+  else if (e.key === ' ') { e.preventDefault(); if (sel.length === 1 && sel[0].type === 'file') openPreview(sel[0]); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); moveSelection(viewMode === 'grid' ? 2 : 1, e.shiftKey); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); moveSelection(viewMode === 'grid' ? -2 : -1, e.shiftKey); }
+  else if (e.key === 'ArrowRight' && viewMode === 'grid') { e.preventDefault(); moveSelection(1, e.shiftKey); }
+  else if (e.key === 'ArrowLeft' && viewMode === 'grid') { e.preventDefault(); moveSelection(-1, e.shiftKey); }
+});
+// Mouse back/forward buttons over the window.
+window.addEventListener('mouseup', e => {
+  if (e.button === 3) { e.preventDefault(); $('backBtn').click(); }
+  if (e.button === 4) { e.preventDefault(); $('fwdBtn').click(); }
+});
+
+/* ───────────────────────── Desktop integration ───────────────────────── */
+window.addEventListener('message', e => {
+  if (e.origin !== location.origin || !e.data || typeof e.data !== 'object') return;
+  if (e.data.type === 'navigate' && typeof e.data.path === 'string') navigate(e.data.path);
+  if (e.data.type === 'refresh-view') load();
+});
+// The old Files app injected tabs into the desktop window header: restore it.
+(function restoreDesktopHeader() {
+  if (!IS_EMBEDDED) return;
+  try {
+    const doc = window.parent.document;
+    const header = doc.querySelector('#popup10 .popup-header');
+    if (header && header.querySelector('#os-explorer-tabs, #os-explorer-actions')) {
+      header.style.gap = '';
+      header.innerHTML = '<span>Files</span><div class="window-actions">' +
+        '<span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup(\'popup10\')">remove</span>' +
+        '<span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize(\'popup10\')">crop_square</span>' +
+        '<span class="material-symbols-outlined action-btn close-btn" onclick="closePopup(\'popup10\')">close</span></div>';
+    }
+    doc.getElementById('explorer-os-styles')?.remove();
+  } catch (e) {}
+})();
+
+/* ───────────────────────── Boot ───────────────────────── */
+const startPath = new URLSearchParams(location.search).get('path') || '/home';
+renderSidebar();
+navigate(startPath, { push: false });
+setInterval(loadStorage, 60000);
 </script>
 </body>
 </html>

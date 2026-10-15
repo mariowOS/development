@@ -17,10 +17,8 @@ Questions? https://discord.gg/YDVxw6jfbH
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+  <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
 
   <style>
     :root {
@@ -206,6 +204,24 @@ Questions? https://discord.gg/YDVxw6jfbH
       transform-origin: center center;
     }
 
+    .resize-handle { position: absolute; z-index: 50; touch-action: none; }
+    .resize-handle.n, .resize-handle.s { left: 10px; right: 10px; height: 6px; cursor: ns-resize; }
+    .resize-handle.e, .resize-handle.w { top: 10px; bottom: 10px; width: 6px; cursor: ew-resize; }
+    .resize-handle.n { top: 0; } .resize-handle.s { bottom: 0; }
+    .resize-handle.e { right: 0; } .resize-handle.w { left: 0; }
+    .resize-handle.ne, .resize-handle.nw, .resize-handle.se, .resize-handle.sw { width: 14px; height: 14px; }
+    .resize-handle.ne { top: 0; right: 0; cursor: nesw-resize; } .resize-handle.sw { bottom: 0; left: 0; cursor: nesw-resize; }
+    .resize-handle.nw { top: 0; left: 0; cursor: nwse-resize; } .resize-handle.se { bottom: 0; right: 0; cursor: nwse-resize; }
+    .popup.maximized .resize-handle { display: none; }
+    .snap-preview {
+      position: fixed; z-index: 290; pointer-events: none; border-radius: 16px;
+      background: rgba(255, 255, 255, 0.12); border: 2px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      opacity: 0; transform: scale(0.97);
+      transition: opacity 0.18s ease, transform 0.25s var(--spring), left 0.2s var(--spring), top 0.2s var(--spring), width 0.2s var(--spring), height 0.2s var(--spring);
+    }
+    .snap-preview.visible { opacity: 1; transform: scale(1); }
+
     .popup.active { display: block; animation: popupIn 0.3s var(--spring) forwards; }
     .popup.closing { display: block; animation: popupOut 0.2s ease-in forwards; }
     .popup.minimizing { animation: popupMinimize 0.35s var(--spring) forwards; }
@@ -281,6 +297,8 @@ Questions? https://discord.gg/YDVxw6jfbH
     .dock-icon.running:hover { transform: none !important; background: rgba(255, 255, 255, 0.08) !important; }
     .dock-icon:active { transform: scale(0.85) translateY(2px); background: rgba(255, 255, 255, 0.05) !important; }
 
+    body.window-dragging iframe, body.window-dragging webview { pointer-events: none !important; }
+    body.window-dragging { user-select: none; cursor: grabbing; }
     .dock-icon.drag-over-left { transform: translateX(8px) scale(1.1); }
     .dock-icon.drag-over-right { transform: translateX(-8px) scale(1.1); }
     .dock-icon img, .dock-icon .menu-icon-symbol { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; pointer-events: none; transition: transform 0.35s var(--spring-bounce); }
@@ -449,45 +467,68 @@ Questions? https://discord.gg/YDVxw6jfbH
     .spotlight-item-icon { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; }
 
     #popup2 { background: #15171b !important; }
-    #popup2 .popup-header { height: 36px; background: #202226 !important; cursor: move; }
-    .browser-window-title { flex: 0 0 auto; white-space: nowrap; font-size: 12px; }
-    .browser-tabs { display: flex; min-width: 0; height: 100%; flex: 1; align-items: flex-end; gap: 4px; overflow-x: auto; margin: 0 8px 0 12px; scrollbar-width: none; }
+    #popup2 .popup-header { height: 36px; padding: 0 12px 0 8px; background: #1b1d21 !important; cursor: move; }
+    .browser-tabs { display: flex; min-width: 0; height: 100%; flex: 1; align-items: flex-end; gap: 2px; overflow-x: auto; margin: 0 4px 0 0; scrollbar-width: none; }
     .browser-tabs::-webkit-scrollbar { display: none; }
     .browser-tab-btn {
-      position: relative; display: flex; min-width: 76px; max-width: 180px; flex: 0 1 150px; height: 28px;
-      align-items: center; gap: 7px; overflow: hidden; padding: 5px 10px;
-      border: 1px solid rgba(255,255,255,.12); border-bottom: none; border-radius: 10px 10px 0 0;
-      color: rgba(255,255,255,.58); background: rgba(255,255,255,.03);
-      font: 11px 'Poppins', sans-serif; cursor: pointer; text-align: left; user-select: none;
+      position: relative; display: flex; min-width: 60px; max-width: 220px; flex: 0 1 200px; height: 30px;
+      align-items: center; gap: 8px; overflow: hidden; padding: 0 6px 0 10px;
+      border-radius: 9px 9px 0 0; color: rgba(255,255,255,.6); background: transparent;
+      font: 12px 'Poppins', sans-serif; cursor: pointer; text-align: left; user-select: none;
     }
-    .browser-tab-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
-    .browser-tab-btn.active { height: 34px; color: #fff; background: rgba(10,132,255,.16); border-color: rgba(10,132,255,.28); }
-    .browser-tab-btn.active::before { position: absolute; inset: 0; border: 2px solid #0a84ff; border-bottom: 0; border-radius: 10px 10px 0 0; content: ""; pointer-events: none; }
+    .browser-tab-btn:not(.active) + .browser-tab-btn:not(.active)::after { position: absolute; left: -1px; top: 8px; bottom: 8px; width: 1px; background: rgba(255,255,255,.12); content: ""; }
+    .browser-tab-btn:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .browser-tab-btn.active { color: #fff; background: #26292e; }
+    .browser-tab-icon { width: 16px; height: 16px; flex: 0 0 16px; display: flex; align-items: center; justify-content: center; font-size: 15px; color: rgba(255,255,255,.55); }
+    .browser-tab-icon img { width: 16px; height: 16px; object-fit: contain; }
+    .browser-tab-icon.loading::before { width: 12px; height: 12px; border: 2px solid rgba(10,132,255,.25); border-top-color: #0a84ff; border-radius: 50%; content: ""; animation: browserSpin .7s linear infinite; }
+    .browser-tab-icon.loading > * { display: none; }
+    @keyframes browserSpin { to { transform: rotate(360deg); } }
     .browser-tab-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .browser-tab-close { position: relative; z-index: 1; display: inline-flex; width: 18px; height: 18px; flex: 0 0 18px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 4px; color: inherit; background: transparent; cursor: pointer; font-size: 14px;
-    }
-    .browser-tab-close:hover { color: #ff453a; background: rgba(255,255,255,.1); }
-    #browserNewTab { flex: 0 0 28px; margin: 0 8px 3px 0; }
+    .browser-tab-close { position: relative; z-index: 1; display: inline-flex; width: 20px; height: 20px; flex: 0 0 20px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; color: inherit; background: transparent; cursor: pointer; font-size: 14px; opacity: .7; }
+    .browser-tab-close:hover { opacity: 1; background: rgba(255,255,255,.14); }
+    #browserNewTab { flex: 0 0 28px; margin: 0 8px 1px 0; }
     #popup2 .browser-tab-btn, #popup2 .browser-tab-close { transition: none; }
-    .browser-toolbar { display: flex; min-width: 0; height: 42px; align-items: center; gap: 6px; padding: 5px 10px; background: #202226; border-bottom: 1px solid rgba(255,255,255,.08); }
-    #browserUrl {
-      min-width: 0; height: 30px; flex: 1; padding: 0 11px; border: 1px solid rgba(255,255,255,.08);
-      border-radius: 8px; outline: none; color: #f4f4f5; background: #15171b !important; font: 12px 'Poppins', sans-serif;
-    }
-    #browserUrl:focus { border-color: rgba(255,255,255,.24); }
+    .browser-toolbar { position: relative; display: flex; min-width: 0; height: 42px; align-items: center; gap: 2px; padding: 0 8px; background: #26292e; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .browser-url-wrap { display: flex; min-width: 0; height: 30px; flex: 1; align-items: center; gap: 6px; margin: 0 6px; padding: 0 4px 0 10px; border: 1px solid transparent; border-radius: 15px; background: #15171b; }
+    .browser-url-wrap:focus-within { border-color: #0a84ff; }
+    .browser-url-icon { font-size: 15px !important; color: rgba(255,255,255,.5); }
+    .browser-url-icon.secure { color: #30d158; }
+    #browserUrl { min-width: 0; height: 100%; flex: 1; padding: 0; border: 0; outline: none; color: #f4f4f5; background: transparent !important; font: 12.5px 'Poppins', sans-serif; }
     #browserUrl::placeholder { color: rgba(255,255,255,.42); }
+    #browserZoom { flex: 0 0 auto; height: 22px; padding: 0 8px; border: 0; border-radius: 11px; color: #fff; background: rgba(255,255,255,.1); font: 11px 'Poppins', sans-serif; cursor: pointer; }
+    #browserZoom[hidden] { display: none; }
     .browser-nav-btn {
       display: inline-flex; width: 30px; height: 30px; flex: 0 0 30px; align-items: center; justify-content: center;
-      padding: 0; border: 0; border-radius: 7px; color: rgba(255,255,255,.72); background: transparent !important; cursor: pointer;
+      padding: 0; border: 0; border-radius: 50%; color: rgba(255,255,255,.78); background: transparent !important; cursor: pointer;
     }
     .browser-nav-btn:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.1) !important; }
-    .browser-nav-btn:disabled { color: rgba(255,255,255,.28); cursor: default; }
+    .browser-nav-btn:disabled { color: rgba(255,255,255,.25); cursor: default; }
     #popup2 .browser-nav-btn { transition: none; }
     #popup2 .action-btn { transition: color .15s; }
     #popup2 .action-btn:hover, #popup2 .action-btn:active { transform: none; }
+    .browser-progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: #0a84ff; opacity: 0; transition: width .4s ease, opacity .3s ease; pointer-events: none; }
+    .browser-progress.active { opacity: 1; }
     .browser-tab-content { position: relative; width: 100%; height: calc(100% - 78px); background: #fff; }
     .browser-view { display: flex; width: 100%; height: 100%; border: 0; background: #fff; }
     .browser-view[hidden] { display: none; }
+    .browser-error { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; color: #e8e8ea; background: #15171b; font-family: 'Poppins', sans-serif; }
+    .browser-error[hidden] { display: none; }
+    .browser-error .material-symbols-outlined { font-size: 48px; color: rgba(255,255,255,.4); }
+    .browser-error h2 { font-size: 20px; font-weight: 600; }
+    .browser-error p { max-width: 460px; font-size: 13px; color: rgba(255,255,255,.6); word-break: break-word; }
+    .browser-error button { margin-top: 8px; padding: 8px 22px; border: 0; border-radius: 16px; color: #fff; background: #0a84ff; font: 13px 'Poppins', sans-serif; cursor: pointer; }
+    .browser-findbar { position: absolute; top: 8px; right: 12px; z-index: 3; display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 10px; border-radius: 10px; background: #26292e; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .browser-findbar[hidden] { display: none; }
+    .browser-findbar input { width: 200px; border: 0; outline: 0; color: #fff; background: transparent; font: 12.5px 'Poppins', sans-serif; }
+    .browser-findbar span.count { min-width: 44px; font-size: 11px; color: rgba(255,255,255,.55); text-align: right; }
+    .browser-menu { position: absolute; top: 4px; right: 8px; z-index: 4; min-width: 230px; padding: 6px; border-radius: 12px; background: #26292e; box-shadow: 0 12px 32px rgba(0,0,0,.5); font: 12.5px 'Poppins', sans-serif; color: #e8e8ea; }
+    .browser-menu[hidden] { display: none; }
+    .browser-menu button { display: flex; width: 100%; align-items: center; gap: 10px; padding: 7px 10px; border: 0; border-radius: 8px; color: inherit; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+    .browser-menu button:hover { background: rgba(255,255,255,.08); }
+    .browser-menu .menu-label { padding: 6px 10px 2px; font-size: 11px; color: rgba(255,255,255,.45); }
+    .browser-menu hr { margin: 5px 4px; border: 0; border-top: 1px solid rgba(255,255,255,.08); }
+    .browser-menu .check { width: 16px; font-size: 15px !important; color: #0a84ff; }
 
     #toast-container { position: fixed; bottom: 70px; right: 20px; z-index: 9999; display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none; }
     .toast { background-color: rgba(15, 20, 30, 0.65) !important; -webkit-backdrop-filter: blur(40px) saturate(210%); backdrop-filter: blur(40px) saturate(210%); border-radius: 14px; padding: 12px 16px; color: #fff; width: 260px; display: flex; align-items: center; gap: 12px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important; pointer-events: auto; animation: toastIn 0.4s var(--spring-bounce) forwards; font-size: 13px; transform: translateZ(0);}
@@ -497,6 +538,9 @@ Questions? https://discord.gg/YDVxw6jfbH
     .toast-title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
     .toast-msg { font-size: 11px; color: #aaa; line-height: 1.3; }
   </style>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
+<script src="/desktop/assets/external-consent.js"></script>
+<script src="/desktop/assets/calendar-core.js"></script>
 </head>
 
 <body>
@@ -738,20 +782,34 @@ Questions? https://discord.gg/YDVxw6jfbH
 
   <div id="popup2" class="popup">
     <div class="popup-header">
-      <span class="browser-window-title">Browser</span>
       <div class="browser-tabs" id="browserTabs" role="tablist" aria-label="Browser tabs"></div>
-      <button class="browser-nav-btn" id="browserNewTab" onclick="createBrowserTab()" aria-label="New tab"><span class="material-symbols-outlined" style="font-size:18px;">add</span></button>
+      <button class="browser-nav-btn" id="browserNewTab" onclick="createBrowserTab()" aria-label="New tab" title="New tab (Ctrl+T)"><span class="material-symbols-outlined" style="font-size:18px;">add</span></button>
       <div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup2')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup2')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup2')">close</span></div>
     </div>
     <div class="browser-toolbar">
-      <button class="browser-nav-btn" id="browserBack" onclick="browserNav('back')" aria-label="Back"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
-      <button class="browser-nav-btn" id="browserForward" onclick="browserNav('fwd')" aria-label="Forward"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
-      <button class="browser-nav-btn" onclick="browserNav('reload')" aria-label="Reload"><span class="material-symbols-outlined" style="font-size:17px;">refresh</span></button>
-      <input id="browserUrl" type="text" placeholder="Search or enter a website" autocomplete="url" spellcheck="false" onkeydown="if(event.key==='Enter') navigateBrowser()" />
-      <button class="browser-nav-btn" onclick="navigateBrowser()" aria-label="Go"><span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span></button>
+      <button class="browser-nav-btn" id="browserBack" onclick="browserNav('back')" aria-label="Back" title="Back (Alt+Left)"><span class="material-symbols-outlined" style="font-size:20px;">arrow_back</span></button>
+      <button class="browser-nav-btn" id="browserForward" onclick="browserNav('fwd')" aria-label="Forward" title="Forward (Alt+Right)"><span class="material-symbols-outlined" style="font-size:20px;">arrow_forward</span></button>
+      <button class="browser-nav-btn" id="browserReload" onclick="browserNav('reload')" aria-label="Reload" title="Reload (F5)"><span class="material-symbols-outlined" style="font-size:20px;">refresh</span></button>
+      <button class="browser-nav-btn" onclick="browserNav('home')" aria-label="Home" title="Home"><span class="material-symbols-outlined" style="font-size:20px;">home</span></button>
+      <div class="browser-url-wrap">
+        <span class="material-symbols-outlined browser-url-icon" id="browserUrlIcon">search</span>
+        <input id="browserUrl" type="text" placeholder="Search or enter a website" autocomplete="off" spellcheck="false" />
+        <button id="browserZoom" onclick="browserZoom(0)" title="Reset zoom" hidden>100%</button>
+      </div>
+      <button class="browser-nav-btn" onclick="toggleBrowserMenu()" aria-label="Menu" title="Menu"><span class="material-symbols-outlined" style="font-size:20px;">more_vert</span></button>
+      <div class="browser-progress" id="browserProgress"></div>
     </div>
     <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div>
-    <div class="browser-tab-content" id="browserTabContent"></div>
+    <div class="browser-tab-content" id="browserTabContent">
+      <div class="browser-findbar" id="browserFindbar" hidden>
+        <input id="browserFindInput" placeholder="Find in page" spellcheck="false" />
+        <span class="count" id="browserFindCount"></span>
+        <button class="browser-nav-btn" onclick="browserFind(false)" aria-label="Previous match"><span class="material-symbols-outlined" style="font-size:18px;">keyboard_arrow_up</span></button>
+        <button class="browser-nav-btn" onclick="browserFind(true)" aria-label="Next match"><span class="material-symbols-outlined" style="font-size:18px;">keyboard_arrow_down</span></button>
+        <button class="browser-nav-btn" onclick="closeBrowserFind()" aria-label="Close find"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
+      </div>
+      <div class="browser-menu" id="browserMenu" hidden></div>
+    </div>
   </div>
 
   <div id="popup3" class="popup">
@@ -784,7 +842,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div><iframe data-default-src="/desktop/apps/terminal/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
 
-  <div id="popup9" class="popup" style="width: 400px; height: 550px;">
+  <div id="popup9" class="popup" style="width: 820px; height: 580px;">
     <div class="popup-header"><span>Calculator</span><div class="window-actions"><span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup('popup9')">remove</span><span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize('popup9')">crop_square</span><span class="material-symbols-outlined action-btn close-btn" onclick="closePopup('popup9')">close</span></div></div>
     <div class="popup-glass" onclick="focusPopup(this.parentElement)"></div><iframe data-default-src="/desktop/apps/calculator/index.html" src="about:blank" class="popup-frame"></iframe>
   </div>
@@ -1511,6 +1569,12 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     function openPopup(popupId) {
       const popup = document.getElementById(popupId); if(!popup) return;
+      const externalView = popup.querySelector('[data-default-src^="http"]');
+      if (externalView && !popup.dataset.consentOk) {
+        const host = new URL(externalView.dataset.defaultSrc).host;
+        mwExternalConsent(host, host).then(ok => { if (ok) { popup.dataset.consentOk = '1'; openPopup(popupId); } });
+        return;
+      }
       popup.classList.remove("closing", "minimizing"); 
       const iframe = popup.querySelector('iframe');
       const embeddedView = iframe || popup.querySelector('webview');
@@ -1577,6 +1641,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         const embeddedView = popup.querySelector('iframe, webview'); if (embeddedView) { if (!embeddedView.dataset.defaultSrc) embeddedView.dataset.defaultSrc = embeddedView.src; embeddedView.src = 'about:blank'; }
         if (popupId === 'popup2') closeBrowserTabs();
         if (popupId === 'popup8') terminalFrameReady = false;
+        if (popupId === 'popup5') notesFrameReady = false;
         runningApps.delete(popupId); updateDock(); popup.removeEventListener("animationend", onAnimationEnd); 
       };
       popup.addEventListener("animationend", onAnimationEnd);
@@ -1596,44 +1661,159 @@ Questions? https://discord.gg/YDVxw6jfbH
       updateContextBar(); 
     }
 
+    function makeResizable(el, minTop) {
+      if (el.dataset.resizeSetup) return; el.dataset.resizeSetup = 'true';
+      const MIN_W = 320, MIN_H = 200;
+      ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].forEach(dir => {
+        const h = document.createElement('div'); h.className = `resize-handle ${dir}`; el.appendChild(h);
+        h.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0 || el.classList.contains('maximized')) return;
+          e.preventDefault(); e.stopPropagation(); focusPopup(el);
+          const startX = e.clientX, startY = e.clientY;
+          const r = el.getBoundingClientRect();
+          const sL = r.left, sT = r.top, sW = r.width, sH = r.height;
+          const maxBottom = window.innerHeight - TASKBAR_H, maxRight = window.innerWidth;
+          let px = startX, py = startY, raf = 0;
+          el.style.transition = 'none'; document.body.classList.add('window-dragging');
+          try { h.setPointerCapture(e.pointerId); } catch (_) {}
+          const apply = () => {
+            raf = 0; const dx = px - startX, dy = py - startY;
+            let L = sL, T = sT, W = sW, H = sH;
+            if (dir.includes('e')) W = Math.min(Math.max(MIN_W, sW + dx), maxRight - sL);
+            if (dir.includes('s')) H = Math.min(Math.max(MIN_H, sH + dy), maxBottom - sT);
+            if (dir.includes('w')) { W = Math.max(MIN_W, sW - dx); L = sL + sW - W; if (L < 0) { W += L; L = 0; } }
+            if (dir.includes('n')) { H = Math.max(MIN_H, sH - dy); T = sT + sH - H; if (T < minTop) { H -= minTop - T; T = minTop; } }
+            el.style.left = L + 'px'; el.style.top = T + 'px'; el.style.width = W + 'px'; el.style.height = H + 'px';
+          };
+          const move = (ev) => { px = ev.clientX; py = ev.clientY; if (!raf) raf = requestAnimationFrame(apply); };
+          const up = () => {
+            if (raf) { cancelAnimationFrame(raf); apply(); }
+            h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up);
+            document.body.classList.remove('window-dragging'); el.style.transition = '';
+            delete el.dataset.snapped;
+            el.dataset.prevWidth = el.style.width; el.dataset.prevHeight = el.style.height;
+          };
+          h.addEventListener('pointermove', move); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up);
+        });
+      });
+    }
+
     function makeDraggable(el, handle, minTop) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, isDragging = false;
+      let isDragging = false, offsetX = 0, offsetY = 0, lastX = 0, rafId = 0, pendingX = 0, pendingY = 0, pointerId = null;
       const isInteractiveHeaderTarget = target => target.closest('.action-btn, .browser-tab-btn, #browserNewTab');
       handle.addEventListener('dblclick', (e) => { if (isInteractiveHeaderTarget(e.target)) return; toggleMaximize(el.id); });
-      handle.onmousedown = dragMouseDown; handle.ontouchstart = (e) => dragMouseDown(e.touches[0]);
+      handle.style.touchAction = 'none';
+      handle.addEventListener('pointerdown', dragMouseDown);
+      makeResizable(el, minTop);
 
-      function dragMouseDown(e) { 
-        if (isInteractiveHeaderTarget(e.target)) return;
+      function dragMouseDown(e) {
+        if (e.button !== 0 || isInteractiveHeaderTarget(e.target)) return;
+        e.preventDefault();
         focusPopup(el); isDragging = true; el.style.transition = 'none';
         
-        if (el.classList.contains('maximized')) {
-           el.classList.remove('maximized'); const prevW = el.dataset.prevWidth || '1048px'; const prevH = el.dataset.prevHeight || '600px';
+        if (el.classList.contains('maximized') || el.dataset.snapped) {
+           el.classList.remove('maximized'); delete el.dataset.snapped; const prevW = el.dataset.prevWidth || '1048px'; const prevH = el.dataset.prevHeight || '600px';
            el.style.transition = 'width 0.35s var(--spring), height 0.35s var(--spring), border-radius 0.35s ease';
            el.style.width = prevW; el.style.height = prevH; el.style.borderRadius = '16px';
            let nLeft = e.clientX - (parseInt(prevW) / 2); el.style.left = nLeft + 'px'; el.style.top = Math.max(minTop, e.clientY - 18) + 'px'; 
            setTimeout(() => { if (isDragging) el.style.transition = 'none'; }, 350);
         }
 
-        pos3 = e.clientX; pos4 = e.clientY; 
-        document.onmouseup = closeDrag; document.onmousemove = drag; 
-        document.ontouchend = closeDrag; document.ontouchmove = (ev) => drag(ev.touches[0]); 
+        // Offset fisso cursore→finestra: niente accumulo di errori/arrotondamenti
+        offsetX = e.clientX - (parseFloat(el.style.left) || el.offsetLeft);
+        offsetY = e.clientY - (parseFloat(el.style.top) || el.offsetTop);
+        lastX = e.clientX;
+        // Gli iframe delle app "rubano" il mousemove: disabilitali durante il drag
+        document.body.classList.add('window-dragging');
+        pointerId = e.pointerId;
+        try { handle.setPointerCapture(pointerId); } catch (_) {}
+        handle.addEventListener('pointermove', drag);
+        handle.addEventListener('pointerup', closeDrag);
+        handle.addEventListener('pointercancel', closeDrag);
       }
-      
+
       function drag(e) {
         if(!isDragging) return;
-        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY;
-        let newTop = el.offsetTop - pos2; let newLeft = el.offsetLeft - pos1;
-        const maxLeft = window.innerWidth - el.offsetWidth - 8; const maxTop = window.innerHeight - el.offsetHeight - TASKBAR_H - 8;
-        newLeft = Math.max(8, Math.min(newLeft, maxLeft)); newTop = Math.max(minTop, Math.min(newTop, maxTop));
-        let rot = Math.max(-4, Math.min(4, pos1 * 0.4)); el.style.transform = `rotate(${rot}deg)`;
-        el.style.top = newTop + "px"; el.style.left = newLeft + "px";
+        pendingX = e.clientX; pendingY = e.clientY;
+        if (!rafId) rafId = requestAnimationFrame(applyDrag);
       }
-      
-      function closeDrag() { 
-        isDragging = false; document.onmouseup = null; document.onmousemove = null; document.ontouchend = null; document.ontouchmove = null; 
+
+      function applyDrag() {
+        rafId = 0;
+        if (!isDragging) return;
+        const maxLeft = window.innerWidth - el.offsetWidth - 8; const maxTop = window.innerHeight - el.offsetHeight - TASKBAR_H - 8;
+        const newLeft = Math.max(8, Math.min(pendingX - offsetX, maxLeft)); const newTop = Math.max(minTop, Math.min(pendingY - offsetY, maxTop));
+        const dx = lastX - pendingX; lastX = pendingX;
+        const rot = Math.max(-4, Math.min(4, dx * 0.4)); el.style.transform = `rotate(${rot}deg)`;
+        el.style.top = newTop + "px"; el.style.left = newLeft + "px";
+        snapZone = getSnapZone(pendingX, pendingY);
+        showSnapPreview(snapZone);
+      }
+
+      function closeDrag() {
+        const zone = isDragging ? snapZone : null; snapZone = null; showSnapPreview(null);
+        isDragging = false;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+        try { if (pointerId !== null) handle.releasePointerCapture(pointerId); } catch (_) {}
+        pointerId = null;
+        handle.removeEventListener('pointermove', drag);
+        handle.removeEventListener('pointerup', closeDrag);
+        handle.removeEventListener('pointercancel', closeDrag);
+        document.body.classList.remove('window-dragging');
         el.style.transition = 'transform 0.4s var(--spring)'; el.style.transform = 'rotate(0deg)'; setTimeout(() => { if (!isDragging) el.style.transition = ''; }, 400);
+        if (zone) applySnap(el, zone);
       }
     }
+
+    // ---- Partizioni schermo (snap) ----
+    let snapZone = null, snapPreviewEl = null;
+    const SNAP_EDGE = 14;
+    function getSnapZone(x, y) {
+      const W = window.innerWidth, H = window.innerHeight - TASKBAR_H;
+      const left = x <= SNAP_EDGE, right = x >= W - SNAP_EDGE, top = y <= SNAP_EDGE, bottom = y >= H - SNAP_EDGE;
+      const C = SNAP_EDGE * 5; // tolleranza angoli
+      const inTop = y <= C, inBottom = y >= H - C, inLeft = x <= C, inRight = x >= W - C;
+      if (left)  return inTop ? 'tl' : inBottom ? 'bl' : 'left';
+      if (right) return inTop ? 'tr' : inBottom ? 'br' : 'right';
+      if (top)   return inLeft ? 'tl' : inRight ? 'tr' : 'max';
+      if (bottom && inLeft) return 'bl';
+      if (bottom && inRight) return 'br';
+      return null;
+    }
+    function snapRect(zone) {
+      const W = window.innerWidth, H = window.innerHeight - TASKBAR_H, hw = W / 2, hh = H / 2;
+      return ({
+        left: [0, 0, hw, H], right: [hw, 0, hw, H], max: [0, 0, W, H],
+        tl: [0, 0, hw, hh], tr: [hw, 0, hw, hh], bl: [0, hh, hw, hh], br: [hw, hh, hw, hh]
+      })[zone];
+    }
+    function showSnapPreview(zone) {
+      if (!snapPreviewEl) {
+        snapPreviewEl = document.createElement('div'); snapPreviewEl.className = 'snap-preview';
+        document.body.appendChild(snapPreviewEl);
+      }
+      if (!zone) { snapPreviewEl.classList.remove('visible'); return; }
+      const [l, t, w, h] = snapRect(zone);
+      Object.assign(snapPreviewEl.style, { left: l + 'px', top: t + 'px', width: w + 'px', height: h + 'px' });
+      snapPreviewEl.classList.add('visible');
+    }
+    function applySnap(el, zone) {
+      if (zone === 'max') { toggleMaximize(el.id); return; }
+      // Salva la dimensione "libera" per ripristinarla quando si trascina via
+      el.dataset.prevWidth = el.style.width || getComputedStyle(el).width;
+      el.dataset.prevHeight = el.style.height || getComputedStyle(el).height;
+      el.dataset.snapped = zone;
+      const [l, t, w, h] = snapRect(zone);
+      el.style.transition = 'width 0.3s var(--spring), height 0.3s var(--spring), top 0.3s var(--spring), left 0.3s var(--spring), transform 0.4s var(--spring)';
+      el.style.left = l + 'px'; el.style.top = t + 'px'; el.style.width = w + 'px'; el.style.height = h + 'px';
+      setTimeout(() => { el.style.transition = ''; }, 400);
+    }
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.popup[data-snapped]').forEach(p => {
+        const [l, t, w, h] = snapRect(p.dataset.snapped);
+        p.style.left = l + 'px'; p.style.top = t + 'px'; p.style.width = w + 'px'; p.style.height = h + 'px';
+      });
+    });
 
     document.addEventListener('mousedown', (e) => { const popup = e.target.closest('.popup'); if (popup && e.target.closest('.popup-header')) focusPopup(popup); });
 
@@ -1731,145 +1911,199 @@ Questions? https://discord.gg/YDVxw6jfbH
       } else if (e.key === 'Escape') { closeSpotlight(); }
     }
 
+    // --- Browser (popup2) ---
+    const BROWSER_HOME = `${location.origin}/desktop/browser-home.html`;
+    const BROWSER_ENGINES = {
+      google: { name: 'Google', url: 'https://www.google.com/search?q=' },
+      duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+      bing: { name: 'Bing', url: 'https://www.bing.com/search?q=' }
+    };
+    const BROWSER_ZOOM_STEPS = [0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+
+    function getBrowserEngineId() {
+      try { const id = localStorage.getItem('browserSearchEngine'); if (BROWSER_ENGINES[id]) return id; } catch (e) {}
+      return 'google';
+    }
+
     function normalizeBrowserUrl(value) {
       const input = value.trim();
       if (!input) return null;
-
-      let candidate = input;
-      if (!/^https?:\/\//i.test(candidate)) {
-        if (/^[a-z][a-z\d+.-]*:/i.test(candidate) && !/^localhost:/i.test(candidate)) {
-          throw new Error('Only HTTP and HTTPS websites can be opened.');
-        }
-        const looksLikeHost = /^(?:localhost|(?:[a-z0-9-]+\.)+[a-z]{2,})(?::\d+)?(?:[/?#].*)?$/i.test(candidate);
-        if (looksLikeHost) candidate = `https://${candidate}`;
-        else return `https://www.google.com/search?q=${encodeURIComponent(input)}`;
+      if (/^https?:\/\//i.test(input)) {
+        const url = new URL(input);
+        return url.href;
       }
-
-      const url = new URL(candidate);
-      if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-        throw new Error('Only HTTP and HTTPS websites can be opened.');
+      // localhost, IPv4 and host.tld, each with optional port and path
+      const hostMatch = /^(localhost|\d{1,3}(?:\.\d{1,3}){3}|(?:[a-z0-9-]+\.)+[a-z]{2,})(?::\d{1,5})?(?:[/?#]\S*)?$/i.exec(input);
+      if (hostMatch) {
+        const local = /^(localhost|\d)/i.test(hostMatch[1]);
+        return new URL(`${local ? 'http' : 'https'}://${input}`).href;
       }
-      return url.href;
+      if (/^[a-z][a-z\d+.-]*:\/\//i.test(input)) throw new Error('Only HTTP and HTTPS websites can be opened.');
+      return BROWSER_ENGINES[getBrowserEngineId()].url + encodeURIComponent(input);
     }
 
     let browserTabs = [];
     let activeBrowserTabId = null;
     let nextBrowserTabId = 1;
-    const BROWSER_HOME = 'https://mariowstech.github.io/mariowOS-landpages/browser-homepage/index.html';
+    let browserProgressTimer = null;
 
+    const browserEl = id => document.getElementById(id);
     function getActiveBrowserTab() {
       return browserTabs.find(tab => tab.id === activeBrowserTabId) || null;
     }
-
-    function updateBrowserNavigationState() {
-      const tab = getActiveBrowserTab();
-      const back = document.getElementById('browserBack');
-      const forward = document.getElementById('browserForward');
-      back.disabled = !tab || !tab.ready || !tab.view.canGoBack();
-      forward.disabled = !tab || !tab.ready || !tab.view.canGoForward();
+    function browserDisplayUrl(url) {
+      return !url || url === BROWSER_HOME || url === 'about:blank' ? '' : url;
     }
 
-    function renderBrowserTabs() {
-      const strip = document.getElementById('browserTabs');
-      strip.replaceChildren();
-      browserTabs.forEach(tab => {
-        const button = document.createElement('div');
-        button.className = `browser-tab-btn${tab.id === activeBrowserTabId ? ' active' : ''}`;
-        button.dataset.browserTabId = String(tab.id);
-        button.setAttribute('role', 'tab');
-        button.tabIndex = 0;
-        button.setAttribute('aria-selected', String(tab.id === activeBrowserTabId));
-        const title = document.createElement('span');
-        title.className = 'browser-tab-title';
-        title.textContent = tab.title;
-        button.appendChild(title);
+    function updateBrowserToolbar() {
+      const tab = getActiveBrowserTab();
+      browserEl('browserBack').disabled = !tab || !tab.ready || !tab.view.canGoBack();
+      browserEl('browserForward').disabled = !tab || !tab.ready || !tab.view.canGoForward();
 
-        const close = document.createElement('button');
-        close.type = 'button';
-        close.className = 'browser-tab-close material-symbols-outlined';
-        close.textContent = 'close';
-        close.setAttribute('role', 'button');
-        close.setAttribute('aria-label', `Close ${tab.title}`);
-        close.addEventListener('click', event => {
-          event.stopPropagation();
-          closeBrowserTab(tab.id);
-        });
-        button.appendChild(close);
-        button.addEventListener('click', () => selectBrowserTab(tab.id));
-        button.addEventListener('keydown', event => {
-          if (event.target !== button || (event.key !== 'Enter' && event.key !== ' ')) return;
-          event.preventDefault();
-          selectBrowserTab(tab.id);
-        });
-        strip.appendChild(button);
+      const reload = browserEl('browserReload');
+      const loading = !!tab?.loading;
+      reload.querySelector('.material-symbols-outlined').textContent = loading ? 'close' : 'refresh';
+      reload.setAttribute('aria-label', loading ? 'Stop' : 'Reload');
+      reload.title = loading ? 'Stop (Esc)' : 'Reload (F5)';
+
+      const input = browserEl('browserUrl');
+      if (document.activeElement !== input) input.value = browserDisplayUrl(tab?.url);
+      const icon = browserEl('browserUrlIcon');
+      const shown = browserDisplayUrl(tab?.url);
+      icon.textContent = !shown ? 'search' : shown.startsWith('https:') ? 'lock' : 'info';
+      icon.classList.toggle('secure', shown.startsWith('https:'));
+      icon.title = !shown ? '' : shown.startsWith('https:') ? 'Secure connection' : 'Connection is not secure';
+
+      const zoom = browserEl('browserZoom');
+      const factor = tab?.zoom || 1;
+      zoom.hidden = factor === 1;
+      zoom.textContent = `${Math.round(factor * 100)}%`;
+
+      const progress = browserEl('browserProgress');
+      clearTimeout(browserProgressTimer);
+      if (loading) {
+        progress.classList.add('active');
+        progress.style.width = `${tab.progress || 15}%`;
+      } else if (progress.classList.contains('active')) {
+        progress.style.width = '100%';
+        browserProgressTimer = setTimeout(() => { progress.classList.remove('active'); progress.style.width = '0'; }, 300);
+      }
+    }
+
+    function createBrowserTabButton(tab) {
+      const button = document.createElement('div');
+      button.className = 'browser-tab-btn';
+      button.dataset.browserTabId = String(tab.id);
+      button.setAttribute('role', 'tab');
+      button.tabIndex = 0;
+      button.innerHTML = `<span class="browser-tab-icon"><span class="material-symbols-outlined" style="font-size:15px;">public</span></span>
+        <span class="browser-tab-title"></span>
+        <button type="button" class="browser-tab-close material-symbols-outlined">close</button>`;
+      button.querySelector('.browser-tab-close').addEventListener('click', event => {
+        event.stopPropagation();
+        closeBrowserTab(tab.id);
       });
-
+      button.addEventListener('click', () => selectBrowserTab(tab.id));
+      button.addEventListener('auxclick', event => { if (event.button === 1) { event.preventDefault(); closeBrowserTab(tab.id); } });
+      button.addEventListener('keydown', event => {
+        if (event.target !== button || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        selectBrowserTab(tab.id);
+      });
+      tab.button = button;
+      browserEl('browserTabs').appendChild(button);
     }
 
     function updateBrowserTab(tab) {
-      const button = document.querySelector(`.browser-tab-btn[data-browser-tab-id="${tab.id}"]`);
-      if (!button) {
-        renderBrowserTabs();
-        return;
+      const button = tab.button;
+      const title = tab.title || 'New Tab';
+      button.querySelector('.browser-tab-title').textContent = title;
+      button.title = title;
+      button.querySelector('.browser-tab-close').setAttribute('aria-label', `Close ${title}`);
+      const icon = button.querySelector('.browser-tab-icon');
+      icon.classList.toggle('loading', !!tab.loading);
+      const currentImg = icon.querySelector('img');
+      if (tab.favicon && currentImg?.src !== tab.favicon) {
+        const img = document.createElement('img');
+        img.alt = '';
+        img.src = tab.favicon;
+        img.onerror = () => { tab.favicon = null; updateBrowserTab(tab); };
+        icon.replaceChildren(img);
+      } else if (!tab.favicon && currentImg) {
+        icon.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">public</span>';
       }
-      button.querySelector('.browser-tab-title').textContent = tab.title;
-      button.querySelector('.browser-tab-close').setAttribute('aria-label', `Close ${tab.title}`);
-      if (tab.id === activeBrowserTabId) {
-        document.getElementById('browserUrl').value = tab.url;
-        updateBrowserNavigationState();
+      tab.errorEl.hidden = !tab.error;
+      if (tab.error) {
+        tab.errorEl.querySelector('p').textContent = `${tab.error.url}\n${tab.error.description}`;
       }
+      if (tab.id === activeBrowserTabId) updateBrowserToolbar();
     }
 
     function selectBrowserTab(tabId) {
       const selected = browserTabs.find(tab => tab.id === tabId);
       if (!selected) return;
-
       activeBrowserTabId = tabId;
-      browserTabs.forEach(tab => { tab.view.hidden = tab.id !== tabId; });
-      document.getElementById('browserUrl').value = selected.url;
-      document.querySelector('#popup2 .browser-window-title').textContent = 'Browser';
-      renderBrowserTabs();
-      updateBrowserNavigationState();
+      browserTabs.forEach(tab => {
+        const active = tab.id === tabId;
+        tab.view.hidden = !active;
+        tab.errorEl.hidden = !active || !tab.error;
+        tab.button.classList.toggle('active', active);
+        tab.button.setAttribute('aria-selected', String(active));
+      });
+      selected.button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      closeBrowserFind();
+      browserEl('browserUrl').value = browserDisplayUrl(selected.url);
+      updateBrowserToolbar();
     }
 
     function attachBrowserTabEvents(tab) {
       const view = tab.view;
+      const refresh = () => updateBrowserTab(tab);
       view.addEventListener('dom-ready', () => {
         tab.ready = true;
-        updateBrowserNavigationState();
+        if (tab.zoom && tab.zoom !== 1) view.setZoomFactor(tab.zoom);
+        tab.progress = 70;
+        refresh();
       });
       view.addEventListener('did-start-loading', () => {
         tab.loading = true;
-        updateBrowserNavigationState();
+        tab.progress = 15;
+        tab.error = null;
+        refresh();
       });
       view.addEventListener('did-stop-loading', () => {
         tab.loading = false;
-        updateBrowserNavigationState();
+        refresh();
       });
       view.addEventListener('did-navigate', event => {
         tab.url = event.url;
-        updateBrowserTab(tab);
+        tab.favicon = null;
+        tab.progress = 45;
+        refresh();
       });
       view.addEventListener('did-navigate-in-page', event => {
+        if (!event.isMainFrame) return;
         tab.url = event.url;
-        updateBrowserTab(tab);
+        refresh();
       });
       view.addEventListener('page-title-updated', event => {
         tab.title = event.title || 'New Tab';
-        updateBrowserTab(tab);
+        refresh();
+      });
+      view.addEventListener('page-favicon-updated', event => {
+        tab.favicon = (event.favicons || []).find(src => /^(https?|data):/i.test(src)) || null;
+        refresh();
       });
       view.addEventListener('did-fail-load', event => {
-        if (event.isMainFrame && event.errorCode !== -3) {
-          showNotification('Page failed to load', event.errorDescription || 'Check your connection and try again.', '⚠️');
-        }
+        // -3 is an aborted load (user stop / new navigation), not a real failure.
+        if (!event.isMainFrame || event.errorCode === -3) return;
+        tab.error = { url: event.validatedURL || tab.url, description: event.errorDescription || 'The page could not be loaded.' };
+        tab.title = "Can't reach this page";
+        refresh();
       });
-      view.addEventListener('new-window', event => {
-        event.preventDefault();
-        try {
-          createBrowserTab(normalizeBrowserUrl(event.url));
-        } catch (error) {
-          showNotification('Unable to open website', error.message, '⚠️');
-        }
+      view.addEventListener('found-in-page', event => {
+        const result = event.result || {};
+        if (result.finalUpdate) browserEl('browserFindCount').textContent = result.matches ? `${result.activeMatchOrdinal}/${result.matches}` : '0/0';
       });
       view.addEventListener('will-navigate', event => {
         if (!/^https?:\/\//i.test(event.url)) event.preventDefault();
@@ -1881,13 +2115,28 @@ Questions? https://discord.gg/YDVxw6jfbH
       view.className = 'browser-view';
       view.setAttribute('webpreferences', 'contextIsolation=yes,nodeIntegration=no,sandbox=yes');
       view.setAttribute('allowpopups', '');
-      view.src = url || 'about:blank';
+      view.src = url || BROWSER_HOME;
 
-      const tab = { id: nextBrowserTabId++, title: 'New Tab', url: url || '', view, loading: false, ready: false };
+      const errorEl = document.createElement('div');
+      errorEl.className = 'browser-error';
+      errorEl.hidden = true;
+      errorEl.innerHTML = `<span class="material-symbols-outlined">cloud_off</span><h2>Can't reach this page</h2>
+        <p style="white-space:pre-line"></p><button type="button">Try again</button>`;
+
+      const tab = { id: nextBrowserTabId++, title: 'New Tab', url: url || BROWSER_HOME, view, errorEl,
+        loading: false, ready: false, favicon: null, error: null, zoom: 1, progress: 0 };
+      errorEl.querySelector('button').addEventListener('click', () => {
+        tab.error = null;
+        tab.view.src = tab.url;
+        updateBrowserTab(tab);
+      });
       attachBrowserTabEvents(tab);
-      document.getElementById('browserTabContent').appendChild(view);
+      browserEl('browserTabContent').append(view, errorEl);
       browserTabs.push(tab);
+      createBrowserTabButton(tab);
+      updateBrowserTab(tab);
       selectBrowserTab(tab.id);
+      if (!url || url === BROWSER_HOME) setTimeout(() => browserEl('browserUrl').focus(), 0);
       return tab;
     }
 
@@ -1895,51 +2144,55 @@ Questions? https://discord.gg/YDVxw6jfbH
       if (browserTabs.length === 0) createBrowserTab();
     }
 
+    // Links with target=_blank / window.open from any web page arrive here (see launcher.js).
+    function openUrlInBrowserTab(url) {
+      if (!document.getElementById('popup2').classList.contains('active') || browserTabs.length === 0) {
+        openPopup('popup2');
+        navigateBrowser(url);
+      } else {
+        createBrowserTab(url);
+        focusPopup(document.getElementById('popup2'));
+      }
+    }
+
+    function destroyBrowserTab(tab) {
+      tab.view.src = 'about:blank';
+      tab.view.remove();
+      tab.errorEl.remove();
+      tab.button.remove();
+    }
+
     function closeBrowserTab(tabId) {
       const index = browserTabs.findIndex(tab => tab.id === tabId);
       if (index < 0) return;
       const [tab] = browserTabs.splice(index, 1);
-      tab.view.src = 'about:blank';
-      tab.view.remove();
-
-      if (activeBrowserTabId === tabId) {
-        activeBrowserTabId = null;
-        if (browserTabs.length === 0) {
-          createBrowserTab();
-          return;
-        }
-        selectBrowserTab(browserTabs[Math.min(index, browserTabs.length - 1)].id);
-      } else {
-        renderBrowserTabs();
-      }
+      destroyBrowserTab(tab);
+      if (activeBrowserTabId !== tabId) return;
+      activeBrowserTabId = null;
+      if (browserTabs.length === 0) createBrowserTab();
+      else selectBrowserTab(browserTabs[Math.min(index, browserTabs.length - 1)].id);
     }
 
     function closeBrowserTabs() {
-      browserTabs.forEach(tab => {
-        tab.view.src = 'about:blank';
-        tab.view.remove();
-      });
+      browserTabs.forEach(destroyBrowserTab);
       browserTabs = [];
       activeBrowserTabId = null;
-      document.getElementById('browserTabs').replaceChildren();
-      document.getElementById('browserTabContent').replaceChildren();
+      closeBrowserFind();
+      browserEl('browserMenu').hidden = true;
     }
 
-    function navigateBrowser(value = document.getElementById('browserUrl').value) {
-      const input = document.getElementById('browserUrl');
+    function navigateBrowser(value = browserEl('browserUrl').value) {
       try {
         const url = normalizeBrowserUrl(value);
         if (!url) return;
         const tab = getActiveBrowserTab();
-        if (!tab) {
-          createBrowserTab(url);
-          return;
-        }
+        if (!tab) { createBrowserTab(url); return; }
         tab.url = url;
+        tab.error = null;
         tab.title = 'Loading…';
-        input.value = url;
-        updateBrowserTab(tab);
+        browserEl('browserUrl').blur();
         tab.view.src = url;
+        updateBrowserTab(tab);
       } catch (error) {
         showNotification('Unable to open website', error.message, '⚠️');
       }
@@ -1955,11 +2208,166 @@ Questions? https://discord.gg/YDVxw6jfbH
     document.addEventListener('click', (e) => { if(e.target.id === 'spotlightSearch') closeSpotlight(); });
     function browserNav(action) {
       const tab = getActiveBrowserTab();
-      if (!tab || !tab.ready) return;
+      if (!tab) return;
+      if (action === 'home') { navigateBrowser(BROWSER_HOME); return; }
+      if (action === 'reload' && tab.error) { tab.error = null; tab.view.src = tab.url; updateBrowserTab(tab); return; }
+      if (!tab.ready) return;
       if (action === 'back' && tab.view.canGoBack()) tab.view.goBack();
       if (action === 'fwd' && tab.view.canGoForward()) tab.view.goForward();
-      if (action === 'reload') tab.view.reload();
+      if (action === 'reload') tab.loading ? tab.view.stop() : tab.view.reload();
+      if (action === 'stop') tab.view.stop();
     }
+
+    function browserZoom(direction) {
+      const tab = getActiveBrowserTab();
+      if (!tab || !tab.ready) return;
+      let index = BROWSER_ZOOM_STEPS.indexOf(tab.zoom);
+      if (index < 0) index = BROWSER_ZOOM_STEPS.indexOf(1);
+      if (direction === 0) index = BROWSER_ZOOM_STEPS.indexOf(1);
+      else index = Math.max(0, Math.min(BROWSER_ZOOM_STEPS.length - 1, index + direction));
+      tab.zoom = BROWSER_ZOOM_STEPS[index];
+      tab.view.setZoomFactor(tab.zoom);
+      updateBrowserToolbar();
+    }
+
+    function openBrowserFind() {
+      const bar = browserEl('browserFindbar');
+      bar.hidden = false;
+      const input = browserEl('browserFindInput');
+      input.focus();
+      input.select();
+    }
+    function browserFind(forward = true, findNext = true) {
+      const tab = getActiveBrowserTab();
+      const text = browserEl('browserFindInput').value;
+      if (!tab || !tab.ready) return;
+      if (!text) { tab.view.stopFindInPage('clearSelection'); browserEl('browserFindCount').textContent = ''; return; }
+      tab.view.findInPage(text, { forward, findNext });
+    }
+    function closeBrowserFind() {
+      const bar = browserEl('browserFindbar');
+      if (!bar || bar.hidden) return;
+      bar.hidden = true;
+      browserEl('browserFindCount').textContent = '';
+      const tab = getActiveBrowserTab();
+      if (tab?.ready) tab.view.stopFindInPage('clearSelection');
+    }
+
+    function toggleBrowserMenu(force) {
+      const menu = browserEl('browserMenu');
+      const show = typeof force === 'boolean' ? force : menu.hidden;
+      if (!show) { menu.hidden = true; return; }
+      const engine = getBrowserEngineId();
+      const zoom = Math.round((getActiveBrowserTab()?.zoom || 1) * 100);
+      menu.innerHTML = `
+        <button data-act="new-tab"><span class="material-symbols-outlined check" style="color:inherit">add</span>New tab<span style="margin-left:auto;opacity:.5">Ctrl+T</span></button>
+        <button data-act="find"><span class="material-symbols-outlined check" style="color:inherit">search</span>Find in page<span style="margin-left:auto;opacity:.5">Ctrl+F</span></button>
+        <div style="display:flex;align-items:center;gap:4px;padding:2px 4px 2px 10px">
+          <span style="flex:1">Zoom</span>
+          <button data-act="zoom-out" style="width:auto;padding:4px 10px">−</button>
+          <span style="min-width:42px;text-align:center">${zoom}%</span>
+          <button data-act="zoom-in" style="width:auto;padding:4px 10px">+</button>
+        </div>
+        <hr><div class="menu-label">Search engine</div>
+        ${Object.entries(BROWSER_ENGINES).map(([id, e]) =>
+          `<button data-engine="${id}"><span class="material-symbols-outlined check">${id === engine ? 'check' : ''}</span>${e.name}</button>`).join('')}
+        <hr>
+        <button data-act="clear-data"><span class="material-symbols-outlined check" style="color:inherit">delete</span>Clear browsing data</button>`;
+      menu.onclick = async event => {
+        const item = event.target.closest('button');
+        if (!item) return;
+        if (item.dataset.engine) {
+          try { localStorage.setItem('browserSearchEngine', item.dataset.engine); } catch (e) {}
+          toggleBrowserMenu(true);
+          return;
+        }
+        const act = item.dataset.act;
+        if (act === 'zoom-in' || act === 'zoom-out') { browserZoom(act === 'zoom-in' ? 1 : -1); toggleBrowserMenu(true); return; }
+        menu.hidden = true;
+        if (act === 'new-tab') createBrowserTab();
+        if (act === 'find') openBrowserFind();
+        if (act === 'clear-data') {
+          if (!window.mariowOSElectron?.clearBrowserData) { showNotification('Browser', 'Not available in this mode.', '⚠️'); return; }
+          try { await window.mariowOSElectron.clearBrowserData(); showNotification('Browser', 'Cookies, cache and site data cleared.', '🧹'); }
+          catch (error) { showNotification('Browser', error.message || 'Could not clear browsing data.', '⚠️'); }
+        }
+      };
+      menu.hidden = false;
+    }
+
+    function runBrowserShortcut(name) {
+      const tab = getActiveBrowserTab();
+      switch (name) {
+        case 'new-tab': createBrowserTab(); break;
+        case 'close-tab': if (tab) closeBrowserTab(tab.id); break;
+        case 'focus-url': browserEl('browserUrl').focus(); browserEl('browserUrl').select(); break;
+        case 'reload': browserNav('reload'); break;
+        case 'back': browserNav('back'); break;
+        case 'forward': browserNav('fwd'); break;
+        case 'find': openBrowserFind(); break;
+        case 'zoom-in': browserZoom(1); break;
+        case 'zoom-out': browserZoom(-1); break;
+        case 'zoom-reset': browserZoom(0); break;
+        case 'next-tab':
+        case 'prev-tab': {
+          if (browserTabs.length < 2 || !tab) break;
+          const index = browserTabs.indexOf(tab);
+          const step = name === 'next-tab' ? 1 : -1;
+          selectBrowserTab(browserTabs[(index + step + browserTabs.length) % browserTabs.length].id);
+          break;
+        }
+      }
+    }
+
+    (function setupBrowserControls() {
+      const urlInput = browserEl('browserUrl');
+      urlInput.addEventListener('focus', () => setTimeout(() => urlInput.select(), 0));
+      urlInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') navigateBrowser();
+        if (event.key === 'Escape') { urlInput.value = browserDisplayUrl(getActiveBrowserTab()?.url); urlInput.blur(); }
+      });
+      urlInput.addEventListener('blur', () => updateBrowserToolbar());
+      const findInput = browserEl('browserFindInput');
+      findInput.addEventListener('input', () => browserFind(true, false));
+      findInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') browserFind(!event.shiftKey);
+        if (event.key === 'Escape') closeBrowserFind();
+      });
+      document.addEventListener('mousedown', event => {
+        const menu = browserEl('browserMenu');
+        if (!menu.hidden && !menu.contains(event.target) && !event.target.closest('[onclick="toggleBrowserMenu()"]')) menu.hidden = true;
+      });
+      // Shortcuts while focus is on the browser chrome (address bar, tabs)...
+      document.addEventListener('keydown', event => {
+        const popup = document.getElementById('popup2');
+        if (!popup.classList.contains('active') || !popup.classList.contains('focused')) return;
+        const key = event.key.toLowerCase();
+        const ctrl = event.ctrlKey || event.metaKey;
+        let name = null;
+        if (key === 'f5' || (ctrl && key === 'r')) name = 'reload';
+        else if (event.altKey && key === 'arrowleft') name = 'back';
+        else if (event.altKey && key === 'arrowright') name = 'forward';
+        else if (ctrl && key === 'tab') name = event.shiftKey ? 'prev-tab' : 'next-tab';
+        else if (ctrl) name = { t: 'new-tab', w: 'close-tab', l: 'focus-url', f: 'find', '=': 'zoom-in', '+': 'zoom-in', '-': 'zoom-out', '0': 'zoom-reset' }[key] || null;
+        if (!name) return;
+        event.preventDefault();
+        runBrowserShortcut(name);
+      });
+      // Mouse back/forward over the browser chrome (tabs, toolbar) navigates the active tab.
+      // Registered before the shell's blocker, which swallows these buttons everywhere else.
+      window.addEventListener('mouseup', event => {
+        if ((event.button === 3 || event.button === 4) && event.target.closest?.('#popup2')) {
+          browserNav(event.button === 3 ? 'back' : 'fwd');
+        }
+      }, true);
+      // ...and while focus is inside a page (forwarded by the Electron shell).
+      window.mariowOSElectron?.onBrowserShortcut?.(name => {
+        if (document.getElementById('popup2').classList.contains('active')) runBrowserShortcut(name);
+      });
+      window.mariowOSElectron?.onBrowserOpenTab?.(url => {
+        if (/^https?:\/\//i.test(url)) openUrlInBrowserTab(url);
+      });
+    })();
 
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -1978,20 +2386,10 @@ Questions? https://discord.gg/YDVxw6jfbH
     const calDiff = (a, b) => { const A = calParse(a), B = calParse(b); return Math.round((Date.UTC(B.y, B.m, B.d) - Date.UTC(A.y, A.m, A.d)) / 86400000); };
     const calEsc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+    // Shared with the Calendar app (assets/calendar-core.js): intervals, end dates,
+    // skipped occurrences and month ends behave the same in both places.
     function calOccursOn(ev, date) {
-      if (date < ev.date) return false;
-      const span = ev.endDate ? Math.max(0, calDiff(ev.date, ev.endDate)) : 0;
-      for (let back = 0; back <= span; back++) {
-        const start = calAddDays(date, -back);
-        if (start < ev.date) break;
-        if (start === ev.date) return true;
-        const a = calParse(ev.date), b = calParse(start);
-        if (ev.repeat === 'daily') return true;
-        if (ev.repeat === 'weekly' && calDiff(ev.date, start) % 7 === 0) return true;
-        if (ev.repeat === 'monthly' && a.d === b.d) return true;
-        if (ev.repeat === 'yearly' && a.d === b.d && a.m === b.m) return true;
-      }
-      return false;
+      return window.CalendarCore ? CalendarCore.occursOn(ev, date) : false;
     }
     function calEventsOn(date) {
       return calendarEvents.filter(ev => calOccursOn(ev, date))
@@ -2013,7 +2411,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       const alreadyLoaded = iframe.src && !iframe.src.includes('about:blank');
       if (!alreadyLoaded && date) iframe.dataset.defaultSrc = '/desktop/apps/calendar/index.html?date=' + date;
       openPopup('popup11');
-      if (alreadyLoaded && date) iframe.contentWindow.postMessage({ type: 'calendar-goto', date, newEvent: !!newEvent }, '*');
+      if (alreadyLoaded && date) iframe.contentWindow.postMessage({ type: 'calendar-goto', date, newEvent: !!newEvent }, window.location.origin);
     }
 
     function renderCalendarGrid(d) {
@@ -2071,31 +2469,44 @@ Questions? https://discord.gg/YDVxw6jfbH
     })();
 
     // Event reminders → system notifications (uses the same clock as the tray).
-    const calFired = new Set();
+    // Fired reminders are remembered across reloads (so they do not pop up twice).
+    const calFired = (() => { try { return JSON.parse(localStorage.getItem('calendarFired') || '{}'); } catch (e) { return {}; } })();
+    function saveCalFired() {
+      const cutoff = Date.now() - 9 * 86400000;
+      Object.keys(calFired).forEach(k => { if (calFired[k] < cutoff) delete calFired[k]; });
+      try { localStorage.setItem('calendarFired', JSON.stringify(calFired)); } catch (e) {}
+    }
     function checkCalendarReminders() {
+      if (!window.CalendarCore) return;
       const now = new Date(); let ms = now.getTime() - now.getTimezoneOffset() * 60000;
       if (timezoneOffset !== null) ms += timezoneOffset * 3600000; else if (manualTimeEnabled) ms += systemTimeOffset;
       const nowMin = Math.floor(ms / 60000);
       const t = new Date(ms);
       const todayStr = calYmd(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
-      for (const offsetDay of [0, 1]) {
+      // Look ahead far enough for the longest reminder (up to one week).
+      const maxReminder = calendarEvents.reduce((mx, ev) => Math.max(mx, ev.reminder || 0), 0);
+      const lookAhead = Math.min(8, Math.ceil(maxReminder / 1440) + 1);
+      for (let offsetDay = 0; offsetDay <= lookAhead; offsetDay++) {
         const date = calAddDays(todayStr, offsetDay);
-        for (const ev of calEventsOn(date)) {
-          if (ev.allDay || !(ev.reminder >= 0) || !ev.start || (ev.endDate && date !== ev.date && !ev.repeat)) continue;
+        for (const ev of calendarEvents) {
+          // Only the day an occurrence STARTS: multi-day events remind once.
+          if (ev.allDay || !(ev.reminder >= 0) || !ev.start || !CalendarCore.startsOn(ev, date)) continue;
           const p = calParse(date); const [h, m] = ev.start.split(':').map(Number);
           const startMin = Math.floor(Date.UTC(p.y, p.m, p.d, h, m) / 60000);
           const fireAt = startMin - ev.reminder;
           const key = ev.id + '@' + date;
-          if (nowMin >= fireAt && nowMin <= startMin && !calFired.has(key)) {
-            calFired.add(key);
+          if (nowMin >= fireAt && nowMin <= startMin && !calFired[key]) {
+            calFired[key] = Date.now();
+            saveCalFired();
             const mins = startMin - nowMin;
-            showNotification(ev.title, mins <= 0 ? `Starting now${ev.location ? ' · ' + ev.location : ''}` : `Starts in ${mins} min (${ev.start})${ev.location ? ' · ' + ev.location : ''}`, '📅');
+            const when = mins <= 0 ? 'Starting now' : mins < 60 ? `Starts in ${mins} min (${ev.start})` : mins < 1440 ? `Starts in ${Math.round(mins / 60)} h (${ev.start})` : `Starts on ${date} at ${ev.start}`;
+            showNotification(ev.title, `${when}${ev.location ? ' · ' + ev.location : ''}`, '📅');
           }
         }
       }
     }
     setInterval(checkCalendarReminders, 20000);
-    window.addEventListener('message', e => { if (e.data && e.data.type === 'calendar-updated') loadCalendarEvents(); });
+    window.addEventListener('message', e => { if (e.origin === window.location.origin && e.data && e.data.type === 'calendar-updated') loadCalendarEvents(); });
     loadCalendarEvents().then(checkCalendarReminders);
 
     function updateClock() {
@@ -2133,7 +2544,72 @@ Questions? https://discord.gg/YDVxw6jfbH
     wallpaper.style.backgroundSize = 'cover, cover';
     wallpaper.style.backgroundPosition = 'center, center';
     wallpaper.style.backgroundRepeat = 'no-repeat, no-repeat';
+    applyDesktopStyle();
 }
+
+    // --- Personalisation (Settings → Wallpaper & Style), stored in localStorage "desktopStyle" ---
+    const DESKTOP_STYLE_DEFAULTS = {
+      accent: '#0a84ff', wallpaperMode: 'image', wallpaperColor: '#1c2333', gradient: 'aurora', fit: 'cover',
+      brightness: 100, saturation: 100, blur: 0, radius: 16, glass: 75, iconScale: 100, uiFont: 'Poppins'
+    };
+    const DESKTOP_GRADIENTS = {
+      aurora: 'linear-gradient(135deg, #0f2027 0%, #203a43 45%, #2c5364 100%)',
+      sunset: 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #6a3093 100%)',
+      ocean: 'linear-gradient(160deg, #000428 0%, #004e92 100%)',
+      forest: 'linear-gradient(160deg, #0b3d2e 0%, #1d6b4f 55%, #a8e063 100%)',
+      candy: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)',
+      midnight: 'radial-gradient(circle at 30% 20%, #3a3f73 0%, #141629 60%, #07080f 100%)'
+    };
+    function loadDesktopStyle() {
+      try { return { ...DESKTOP_STYLE_DEFAULTS, ...JSON.parse(localStorage.getItem('desktopStyle') || '{}') }; }
+      catch (e) { return { ...DESKTOP_STYLE_DEFAULTS }; }
+    }
+    function applyDesktopStyle() {
+      const st = loadDesktopStyle();
+      const root = document.documentElement;
+      root.style.setProperty('--m3-accent-active', /^#[0-9a-f]{6}$/i.test(st.accent) ? st.accent : DESKTOP_STYLE_DEFAULTS.accent);
+
+      const wallpaper = document.getElementById('desktop-wallpaper');
+      if (st.wallpaperMode === 'color') {
+        wallpaper.style.backgroundImage = 'none';
+        wallpaper.style.backgroundColor = st.wallpaperColor;
+      } else if (st.wallpaperMode === 'gradient') {
+        wallpaper.style.backgroundImage = DESKTOP_GRADIENTS[st.gradient] || DESKTOP_GRADIENTS.aurora;
+        wallpaper.style.backgroundSize = 'cover';
+        wallpaper.style.backgroundRepeat = 'no-repeat';
+      } else {
+        if (!wallpaper.style.backgroundImage.includes('wallpaper.user.png')) {
+          wallpaper.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png"), url("/desktop/assets/wallpaper.factory.png")';
+        }
+        const size = { cover: 'cover', contain: 'contain', center: 'auto', tile: 'auto', stretch: '100% 100%' }[st.fit] || 'cover';
+        const repeat = st.fit === 'tile' ? 'repeat' : 'no-repeat';
+        wallpaper.style.backgroundSize = `${size}, cover`;
+        wallpaper.style.backgroundRepeat = `${repeat}, no-repeat`;
+        wallpaper.style.backgroundColor = '#05070b';
+      }
+      const blur = Math.max(0, Math.min(30, Number(st.blur) || 0));
+      // Dark mode (Functions Lab) dims the wallpaper on top of the user's own adjustments.
+      const dark = document.body.classList.contains('lab-dark-mode');
+      const brightness = Number(st.brightness) * (dark ? 0.6 : 1), saturation = Number(st.saturation) * (dark ? 0.85 : 1);
+      wallpaper.style.filter = `brightness(${brightness}%) saturate(${saturation}%)${blur ? ` blur(${blur}px)` : ''}`;
+      wallpaper.style.transform = blur ? 'scale(1.06)' : '';
+
+      let tag = document.getElementById('mw-desktop-style');
+      if (!tag) { tag = document.createElement('style'); tag.id = 'mw-desktop-style'; document.head.appendChild(tag); }
+      const radius = Math.max(0, Math.min(28, Number(st.radius)));
+      const glass = Math.max(30, Math.min(100, Number(st.glass))) / 100;
+      const scale = Math.max(70, Math.min(150, Number(st.iconScale))) / 100;
+      const font = String(st.uiFont || 'Poppins').replace(/[^a-z0-9 -]/gi, '');
+      tag.textContent = `
+        .popup:not(.maximized) { border-radius: ${radius}px !important; }
+        body:not(.lab-dark-mode):not(.lab-performance) .popup:not(#popup2) { background-color: rgba(18, 22, 32, ${glass}) !important; }
+        #desktop-icons .desktop-item { width: ${Math.round(86 * scale)}px; }
+        #desktop-icons .desktop-item .desktop-item-icon { font-size: ${Math.round(44 * scale)}px; }
+        #desktop-icons .desktop-item .desktop-item-name { font-size: ${(12 * Math.min(scale, 1.2)).toFixed(1)}px; }
+        .desktop-item.selected { background: color-mix(in srgb, var(--m3-accent-active) 25%, transparent) !important; border-color: color-mix(in srgb, var(--m3-accent-active) 50%, transparent) !important; }
+        ${font !== 'Poppins' ? `body, body *:not(.material-symbols-outlined):not(.material-icons) { font-family: ${font === 'system-ui' ? 'system-ui' : `'${font}', sans-serif`} !important; }` : ''}`;
+    }
+    window.addEventListener('storage', e => { if (e.key === 'desktopStyle') applyDesktopStyle(); });
 
     window.addEventListener("message", async (e) => {
       if (e.data.type === 'show-notification') { showNotification(e.data.title, e.data.msg, e.data.icon); }
@@ -2144,6 +2620,7 @@ Questions? https://discord.gg/YDVxw6jfbH
         try { const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; if (data && (data.action === 'newMessage' || data.type === 'message' || data.event === 'notification')) showNotification("Messaging", "New message received", "💬"); } catch(err) {}
       }
 
+      if (e.data.type === 'apply-style') applyDesktopStyle();
       if (e.data.type === 'apply-wallpaper') { applyUserWallpaper(); (async () => { try { const r = await fetch("/get-settings"); if (r.ok) { const cfg = await r.json(); applyLabFlagEffects({ darkMode: cfg.darkMode, performance: cfg.performance, animations: cfg.animations, developer: cfg.developer }); }; } catch (e) {} })(); }
       
       if (e.data.type === 'app-installed-live') {
@@ -2294,7 +2771,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       document.body.style.pointerEvents = 'none'; 
       clearInterval(watchdogInterval); 
 
-      const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://mariowos.github.io/stopcode";
+      const qrUrl = "/desktop/assets/stopcode-qr.png";
 
       kpDiv.innerHTML = `
         <div class="kp-center">
@@ -2331,6 +2808,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       document.body.classList.toggle('lab-performance', !!flags.performance);
       document.body.classList.toggle('lab-animations', !!flags.animations);
       document.body.classList.toggle('lab-developer', !!flags.developer);
+      applyDesktopStyle();
       clearInterval(labDevTimer);
       labDevTimer = null;
       if (flags.developer) startLabDevChip();
@@ -2353,7 +2831,12 @@ Questions? https://discord.gg/YDVxw6jfbH
     async function loadLabFlags() {
       try {
         const r = await fetch('/get-settings', { cache: 'no-store' });
-        if (r.ok) applyLabFlagEffects(await r.json());
+        if (r.ok) {
+          const cfg = await r.json();
+          // config.json is the source of truth for personalisation; localStorage is only a fast cache.
+          if (cfg.desktopStyle) { try { localStorage.setItem('desktopStyle', JSON.stringify(cfg.desktopStyle)); } catch (e) {} }
+          applyLabFlagEffects(cfg);
+        }
       } catch (e) {}
     }
 
@@ -2508,13 +2991,16 @@ Questions? https://discord.gg/YDVxw6jfbH
     function openDesktopItem(item) {
       if (!item) return;
       if (item.type === 'folder') {
-        openPopup('popup10'); // Open Explorer
-        setTimeout(() => {
-          const iframe = document.querySelector('#popup10 iframe');
-          if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage({ type: 'navigate', path: '/home/Desktop/' + item.name }, '*');
-          }
-        }, 300);
+        const folderPath = '/home/Desktop/' + item.name;
+        const iframe = document.querySelector('#popup10 iframe');
+        if (iframe && (!iframe.src || iframe.src.includes('about:blank'))) {
+          // Not open yet: start Files directly in that folder (a message could arrive too early).
+          iframe.dataset.defaultSrc = '/desktop/apps/explorer/index.html?path=' + encodeURIComponent(folderPath);
+          openPopup('popup10');
+        } else {
+          openPopup('popup10');
+          iframe?.contentWindow?.postMessage({ type: 'navigate', path: folderPath }, window.location.origin);
+        }
       } else {
         openFileInNotes('/home/Desktop', item.name);
       }

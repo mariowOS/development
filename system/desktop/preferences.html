@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
     <title>mariowOS Setup</title>
     <style>
         * {
@@ -160,6 +160,7 @@
             .right-section { width: 100%; }
         }
     </style>
+<script src="/desktop/assets/mariowos-dialogs.js"></script>
 </head>
 <body>
 
@@ -174,7 +175,7 @@
         <div class="right-section">
             <div class="info-box">
                 <h2>Help improve mariowOS daily?</h2>
-                <p>Receive daily emails with links to Discord flags and issue updates. Stay updated on the latest problems and features.</p>
+                <p>Receive daily emails with links to Discord flags and issue updates. Stay updated on the latest problems and features. Optional: you can turn it off at any time. <a href="/desktop/privacy.html" style="color:#0a84ff">Privacy notice</a></p>
             </div>
 
             <div class="toggle-container" id="mainToggle">
@@ -210,38 +211,56 @@
         // Logica Toggle Interattivo
         const toggle = document.getElementById('mainToggle');
 
+        let emailVerified = false;
+        let busy = false;
+
         // Load initial state
         fetch('/api/preferences')
             .then(response => response.json())
             .then(data => {
-                if (data.sendReports) {
-                    toggle.classList.add('active');
-                }
+                emailVerified = !!data.verified;
+                if (data.sendReports) toggle.classList.add('active');
             })
             .catch(err => console.error('Error loading preferences:', err));
 
-        toggle.addEventListener('click', () => {
-            const isActive = toggle.classList.toggle('active');
-            // Save preference
-            fetch('/api/preferences', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ sendReports: isActive })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error('Error saving preference:', data.error);
-                    // Revert toggle if the server explicitly rejects it
-                    toggle.classList.toggle('active');
-                }
-            })
-            .catch(err => {
+        // Double opt-in: the digest can only be enabled for a verified address.
+        async function verifyEmail() {
+            const email = await mDialog.prompt("Enter the email address that will receive the daily digest:",
+                { title: "Verify your email", type: "email", placeholder: "name@example.com", okText: "Send code" });
+            if (!email) return false;
+            let res = await fetch('/api/email/send-code', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
+            }).then(r => r.json());
+            if (!res.success) { await mDialog.alert(res.error || "Could not send the code.", { kind: 'error' }); return false; }
+            const code = await mDialog.prompt(`We sent a 6-digit code to ${email}. Enter it here:`,
+                { title: "Verification code", placeholder: "123456", okText: "Verify" });
+            if (!code) return false;
+            res = await fetch('/api/email/verify-code', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: code.trim() })
+            }).then(r => r.json());
+            if (!res.success) { await mDialog.alert(res.error || "Invalid code.", { kind: 'error' }); return false; }
+            emailVerified = true;
+            return true;
+        }
+
+        toggle.addEventListener('click', async () => {
+            if (busy) return;
+            busy = true;
+            try {
+                const enable = !toggle.classList.contains('active');
+                if (enable && !emailVerified && !(await verifyEmail())) return;
+                const data = await fetch('/api/preferences', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sendReports: enable })
+                }).then(r => r.json());
+                if (data.success) toggle.classList.toggle('active', enable);
+                else await mDialog.alert(data.error || "Could not save the preference.", { kind: 'error' });
+            } catch (err) {
                 console.error('Error saving preference:', err);
-                // Keep UI state even if saving fails; user can try again later
-            });
+                await mDialog.alert("Could not save the preference. Try again later.", { kind: 'error' });
+            } finally {
+                busy = false;
+            }
         });
     </script>
 </body>

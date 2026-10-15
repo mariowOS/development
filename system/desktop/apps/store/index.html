@@ -3,265 +3,452 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+  <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
   
   <style>
+    /* Shared mariowOS app language: the same glass sidebar, accent, radii and
+       type scale used by Files and Music, so the Store feels part of the system. */
     :root {
-      --mac-accent: #0a84ff;
-      --mac-sidebar: rgba(28, 28, 30, 0.85);
-      --mac-border: rgba(255, 255, 255, 0.06);
-      --mac-text: #ffffff;
-      --mac-text-secondary: rgba(255, 255, 255, 0.7);
-      --mac-hover: rgba(255, 255, 255, 0.08);
-      --mac-search-bg: rgba(0, 0, 0, 0.4);
-      
-      --bg-main: transparent;
-      --bg-topbar: transparent;
-      --bg-card: rgba(255, 255, 255, 0.05);
-      --bg-card-hover: rgba(255, 255, 255, 0.09);
-      
-      --btn-gray: rgba(255, 255, 255, 0.1);
-      --btn-gray-hover: rgba(255, 255, 255, 0.15);
-      
+      --accent: #0a84ff;
+      --text: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.5);
+      --text-dim: rgba(255, 255, 255, 0.35);
+      --sidebar: rgba(22, 22, 25, 0.65);
+      --hover: rgba(255, 255, 255, 0.08);
+      --surface: rgba(255, 255, 255, 0.05);
+      --surface-hover: rgba(255, 255, 255, 0.09);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --field-bg: rgba(0, 0, 0, 0.25);
+      --spring: cubic-bezier(0.16, 1, 0.3, 1);
+
       --radius-sm: 8px;
       --radius-md: 10px;
-      --radius-lg: 16px;
-      --radius-xl: 20px;
+      --radius-lg: 14px;
       --squircle: 22%;
     }
 
     * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
     body {
-      margin: 0; padding: 0; display: flex; height: 100vh;
-      background: var(--bg-main); font-family: 'Poppins', sans-serif;
-      color: var(--mac-text); user-select: none; overflow: hidden;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      user-select: none;
+      overflow: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* macOS 15 Sidebar */
+    /* ─────────────── Sidebar ─────────────── */
     .sidebar {
-      width: 240px; 
-      background: var(--mac-sidebar); 
+      width: 250px;
+      flex: 0 0 250px;
+      background: var(--sidebar);
       backdrop-filter: blur(40px);
       -webkit-backdrop-filter: blur(40px);
-      display: flex; flex-direction: column;
-      padding: 16px 0; flex-shrink: 0; z-index: 10; 
-      border-right: 1px solid rgba(0, 0, 0, 0.5);
+      border-right: 1px solid rgba(0, 0, 0, 0.4);
+      box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      padding: 8px 12px 12px;
+      overflow-y: auto;
+      z-index: 10;
     }
 
     .sidebar-header {
-      padding: 8px 20px 16px 20px;
-      font-size: 14px;
+      padding: 12px 8px 10px;
+      font-size: 20px;
       font-weight: 600;
-      color: var(--mac-text);
+      letter-spacing: -0.4px;
     }
 
-    /* Floating Pill Navigation */
+    .sidebar-heading {
+      padding: 12px 10px 4px;
+      color: var(--text-dim);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
     .nav-item {
-      padding: 6px 10px; 
-      border-radius: var(--radius-md); 
-      margin: 2px 12px;
-      cursor: pointer; font-size: 13px; font-weight: 400; color: var(--mac-text);
-      display: flex; align-items: center; gap: 12px; transition: background 0.1s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 180ms ease;
     }
-    .nav-item:hover:not(.active) { background: var(--mac-hover); }
-    .nav-item.active { background: var(--mac-accent); color: #ffffff; font-weight: 500; }
 
-    /* Colored Icon Badges */
-    .icon-bg { 
-      display: flex; align-items: center; justify-content: center; 
-      width: 28px; height: 28px; border-radius: 8px; 
-      color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-      flex-shrink: 0;
+    .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.1); }
+    .nav-item.active { background: var(--accent); font-weight: 500; }
+
+    .icon-bg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      border-radius: 6px;
+      color: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      /* Before the icon font loads the glyph name renders as text; keep it from
+         spilling across the sidebar. */
+      overflow: hidden;
     }
-    .icon-bg .material-symbols-outlined { font-size: 18px; font-weight: 400; color: #ffffff; }
+    .icon-bg .material-symbols-outlined { font-size: 15px; font-weight: 400; }
 
     .c-discover { background: linear-gradient(180deg, #0a84ff, #007aff); }
-    .c-publish { background: linear-gradient(180deg, #ff9f0a, #d98608); }
+    .c-publish  { background: linear-gradient(180deg, #ff9f0a, #d98608); }
 
-    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-note {
+      margin-top: auto;
+      padding: 10px;
+      color: var(--text-dim);
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    /* ─────────────── Chrome ─────────────── */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
 
     .top-bar {
-      height: 60px; background: var(--bg-topbar); display: flex; align-items: center;
-      padding: 0 24px; gap: 16px; flex-shrink: 0; margin-top: 8px;
+      height: 56px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .nav-arrows { display: flex; gap: 8px; }
+
+    .nav-arrows { display: flex; gap: 4px; }
     .nav-arrow-btn {
-      width: 30px; height: 30px; border-radius: var(--radius-sm); border: none;
-      background: transparent; display: flex; align-items: center; justify-content: center;
-      color: var(--mac-text-secondary); cursor: pointer; transition: background 0.2s, color 0.2s;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.2s;
     }
-    .nav-arrow-btn:hover { background: var(--mac-hover); color: var(--mac-text); }
+    .nav-arrow-btn:hover:not(:disabled) { background: var(--hover); }
+    .nav-arrow-btn:active:not(:disabled) { transform: scale(0.9); }
+    .nav-arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    /* macOS 15 Search Bar */
     .search-bar {
-      flex: 1; max-width: 400px; height: 32px; background: var(--mac-search-bg);
-      border-radius: var(--radius-sm); display: flex; align-items: center; padding: 0 12px; gap: 8px;
-      border: 1px solid transparent; transition: border 0.2s;
+      flex: 1;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.05);
+      transition: border-color 0.2s;
     }
-    .search-bar:focus-within { border: 1px solid var(--mac-accent); }
-    .search-bar .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.5); }
+    .search-bar:focus-within { border-color: var(--accent); }
+    .search-bar .material-symbols-outlined { font-size: 17px; color: var(--text-secondary); }
     .search-bar input {
-      border: none; background: transparent; flex: 1;
-      font-family: inherit; font-size: 13px; color: var(--mac-text);
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
     }
-    .search-bar input::placeholder { color: rgba(255,255,255,0.4); }
+    .search-bar input::placeholder { color: var(--text-dim); }
 
-    .main { flex: 1; overflow-y: auto; position: relative; background: transparent; }
-    .main::-webkit-scrollbar { width: 6px; }
-    .main::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+    .main { flex: 1; overflow-y: auto; background: transparent; }
 
-    .view { display: none; padding: 12px 24px 40px 24px; }
-    .view.active { display: block; animation: viewIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-    @keyframes viewIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .view { display: none; padding: 24px 28px 40px; }
+    .view.active { display: block; animation: viewIn 0.3s var(--spring) both; }
+    @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .hero-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin-bottom: 32px; }
+    /* ─────────────── Discover ─────────────── */
+    .hero-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-bottom: 28px; }
+
     .hero-card {
-      background: var(--bg-card); border-radius: var(--radius-xl); padding: 24px;
-      display: flex; flex-direction: column; justify-content: space-between; height: 140px;
-      position: relative; overflow: hidden; cursor: pointer; border: 1px solid var(--mac-border);
+      position: relative;
+      height: 132px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s var(--spring);
     }
-    .hero-card:nth-child(1) { background: linear-gradient(135deg, rgba(28, 133, 255, 0.2) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
-    .hero-card:nth-child(2) { background: linear-gradient(135deg, rgba(255, 159, 10, 0.15) 0%, rgba(0, 0, 0, 0) 100%), var(--bg-card); }
-    .hero-card h1 { margin: 0; font-size: 18px; font-weight: 600; z-index: 2; color: #FFF; letter-spacing: -0.3px; }
-    .hero-card p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.75; z-index: 2; color: #FFF; line-height: 1.4; max-width: 85%; }
-    .hero-emoji { font-size: 56px; position: absolute; right: 16px; bottom: -8px; opacity: 0.9; }
+    .hero-card:hover { background: var(--surface-hover); transform: translateY(-2px); }
+    .hero-card:nth-child(1) { background: linear-gradient(135deg, rgba(10, 132, 255, 0.22), transparent 70%), var(--surface); }
+    .hero-card:nth-child(2) { background: linear-gradient(135deg, rgba(255, 159, 10, 0.18), transparent 70%), var(--surface); }
+    .hero-card h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.3px; z-index: 2; }
+    .hero-card p { margin: 6px 0 0; max-width: 85%; font-size: 12.5px; line-height: 1.45; color: var(--text-secondary); z-index: 2; }
+    .hero-emoji { position: absolute; right: 14px; bottom: -6px; font-size: 52px; opacity: 0.85; }
 
-    .section-title { font-size: 18px; font-weight: 600; margin: 0 0 16px 0; color: var(--mac-text); letter-spacing: -0.2px; }
+    .section-title { margin: 0 0 14px; font-size: 17px; font-weight: 600; letter-spacing: -0.2px; }
 
-    .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+
     .app-card {
-      display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg-card);
-      border-radius: var(--radius-lg); cursor: pointer; border: 1px solid transparent;
-      transition: background 0.2s ease, border 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s var(--spring);
     }
-    .app-card:hover { background: var(--bg-card-hover); border: 1px solid var(--mac-border); }
-    
+    .app-card:hover { background: var(--surface-hover); border-color: var(--glass-border); transform: translateY(-2px); }
+
     .card-icon {
-      width: 52px; height: 52px; background: var(--mac-search-bg); border-radius: var(--squircle);
-      display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0;
-      border: 1px solid var(--mac-border); overflow: hidden;
+      width: 50px;
+      height: 50px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--squircle);
+      background: var(--field-bg);
+      font-size: 26px;
     }
-    .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-    .card-title { font-size: 14px; font-weight: 500; margin: 0; color: var(--mac-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.2px; }
-    .card-desc { font-size: 12px; color: var(--mac-text-secondary); margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .card-info { flex: 1; min-width: 0; }
+    .card-title { margin: 0; font-size: 13.5px; font-weight: 500; letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { margin: 2px 0 0; font-size: 11.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .btn-get {
-      background: var(--btn-gray); color: var(--mac-accent); border: none; padding: 6px 16px;
-      font-size: 12px; font-weight: 600; border-radius: 100px; cursor: pointer; font-family: inherit;
-      transition: background 0.2s, transform 0.1s; flex-shrink: 0; letter-spacing: 0.3px;
+      flex-shrink: 0;
+      padding: 6px 16px;
+      border: none;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--accent);
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
     }
-    .btn-get:hover { background: var(--btn-gray-hover); }
+    .btn-get:hover { background: rgba(255, 255, 255, 0.16); }
     .btn-get:active { transform: scale(0.95); }
-    .btn-get.installed { background: var(--btn-gray); color: var(--mac-text); }
+    .btn-get.installed { color: var(--text); }
 
-    .lp-header {
-      display: flex; gap: 24px; margin-bottom: 32px; align-items: center;
-      background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
-      border: 1px solid var(--mac-border);
-    }
-    .lp-icon {
-      width: 96px; height: 96px; background: var(--mac-search-bg); border-radius: var(--squircle);
-      display: flex; align-items: center; justify-content: center; font-size: 48px; flex-shrink: 0;
-      border: 1px solid var(--mac-border); overflow: hidden;
-    }
-    .lp-info { flex: 1; }
-    .lp-title { font-size: 28px; font-weight: 600; margin: 0 0 6px 0; color: var(--mac-text); letter-spacing: -0.4px; }
-    .lp-dev { font-size: 14px; color: var(--mac-accent); margin: 0 0 20px 0; font-weight: 500; }
-    .lp-actions { display: flex; align-items: center; gap: 12px; }
-    
-    .btn-action {
-      border: none; padding: 10px 32px; font-size: 13px; font-weight: 600; border-radius: 100px;
-      cursor: pointer; font-family: inherit; transition: all 0.2s;
-    }
-    .btn-action:active { transform: scale(0.96); }
-    .btn-action.primary { background: var(--mac-accent); color: #FFF; }
-    .btn-action.primary:hover { background: #007aff; }
-    .btn-action.primary:disabled { background: var(--btn-gray); color: var(--mac-text-secondary); cursor: not-allowed; }
-
-    .btn-uninstall {
-      background: transparent; border: 1px solid var(--mac-border); color: #FF453A;
-      font-size: 13px; font-weight: 500; cursor: pointer; border-radius: 100px; padding: 9px 24px;
-    }
-    .btn-uninstall:hover { background: rgba(255, 69, 58, 0.1); border-color: transparent; }
-    .lp-error { color: #FF453A; font-size: 13px; margin-top: 12px; }
-    
-    .lp-desc-container {
-      background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
-      border: 1px solid var(--mac-border);
-    }
-    .lp-desc-title { font-size: 16px; font-weight: 600; margin: 0 0 16px 0; color: var(--mac-text); }
-    .lp-desc { color: var(--mac-text-secondary); line-height: 1.6; font-size: 13px; margin: 0; }
-
+    /* ─────────────── App page ─────────────── */
     .btn-back {
-      display: none; align-items: center; gap: 4px; background: transparent; border: none;
-      color: var(--mac-text-secondary); padding: 0 0 20px 0; cursor: pointer; font-family: inherit;
-      font-size: 13px; font-weight: 500; transition: color 0.2s;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 18px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
     }
-    .btn-back:hover { color: var(--mac-text); }
+    .btn-back:hover { color: var(--text); }
     .btn-back .material-symbols-outlined { font-size: 18px; }
 
-    .pub-card {
-      background: var(--bg-card); padding: 32px; border-radius: var(--radius-xl);
-      border: 1px solid var(--mac-border); max-width: 600px;
+    .lp-header {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 16px;
+      padding: 26px;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
     }
-    .pub-input {
-      width: 100%; padding: 10px 14px; margin-bottom: 16px; background: var(--mac-search-bg);
-      border: 1px solid transparent; color: var(--mac-text); border-radius: var(--radius-sm);
-      font-family: inherit; font-size: 13px; transition: border 0.2s;
-    }
-    .pub-input:focus { border-color: var(--mac-accent); }
-    .pub-input::placeholder { color: rgba(255,255,255,0.4); }
-    textarea.pub-input { resize: vertical; min-height: 100px; }
-    .publish-status { font-size: 13px; margin-top: 16px; font-weight: 500; text-align: center; }
-    .loading-text { color: var(--mac-text-secondary); font-size: 13px; text-align: center; padding: 40px 0; grid-column: 1 / -1; }
 
-    /* STORE EULA OVERLAY */
+    .lp-icon {
+      width: 92px;
+      height: 92px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--squircle);
+      background: var(--field-bg);
+      font-size: 46px;
+    }
+
+    .lp-info { flex: 1; min-width: 0; }
+    .lp-title { margin: 0 0 4px; font-size: 25px; font-weight: 600; letter-spacing: -0.4px; }
+    .lp-dev { margin: 0 0 18px; color: var(--accent); font-size: 13px; font-weight: 500; }
+    .lp-actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn-action {
+      padding: 9px 28px;
+      border: none;
+      border-radius: 100px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-action:active { transform: scale(0.96); }
+    .btn-action.primary { background: var(--accent); color: #fff; }
+    .btn-action.primary:hover { background: #007aff; }
+    .btn-action.primary:disabled { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); cursor: not-allowed; }
+
+    .btn-uninstall {
+      padding: 8px 22px;
+      border: 1px solid rgba(255, 69, 58, 0.4);
+      border-radius: 100px;
+      background: transparent;
+      color: #ff453a;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-uninstall:hover { background: rgba(255, 69, 58, 0.12); }
+
+    .lp-error { margin-top: 10px; color: #ff453a; font-size: 12.5px; }
+
+    .lp-desc-container {
+      padding: 26px;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+    }
+    .lp-desc-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+    .lp-desc { margin: 0; color: var(--text-secondary); font-size: 12.5px; line-height: 1.65; }
+
+    /* ─────────────── Publish ─────────────── */
+    .pub-card {
+      max-width: 620px;
+      padding: 26px;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+    }
+
+    .pub-input {
+      width: 100%;
+      min-height: 40px;
+      margin-bottom: 14px;
+      padding: 9px 12px;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      background: var(--field-bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+    .pub-input:focus { border-color: var(--accent); }
+    .pub-input::placeholder { color: var(--text-dim); }
+    textarea.pub-input { resize: vertical; min-height: 96px; }
+
+    .publish-status { margin-top: 14px; font-size: 12.5px; font-weight: 500; text-align: center; }
+    .loading-text { grid-column: 1 / -1; padding: 40px 0; color: var(--text-secondary); font-size: 13px; text-align: center; }
+
+    /* ─────────────── EULA ─────────────── */
     #store-eula-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); z-index: 9999;
-      align-items: center; justify-content: center;
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
     }
+
     .store-eula-modal {
-      background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      color: var(--mac-text); padding: 24px; border-radius: var(--radius-lg); width: 400px; max-width: 90%; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: inherit;
-      border: 1px solid var(--mac-border);
+      width: 420px;
+      max-width: 90%;
+      padding: 22px;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      background: rgba(24, 25, 28, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      font-family: inherit;
+      animation: viewIn 0.25s var(--spring) both;
     }
-    .store-eula-modal h2 { margin-top: 0; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .store-eula-modal h2 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+
     .store-eula-box {
-      background: var(--mac-search-bg); padding: 12px; border-radius: var(--radius-sm); font-family: monospace;
-      font-size: 11px; margin: 16px 0; height: 100px; overflow-y: auto; color: var(--mac-text-secondary);
-      border: 1px solid transparent; white-space: pre-wrap;
+      height: 110px;
+      margin: 14px 0;
+      padding: 12px;
+      overflow-y: auto;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      background: var(--field-bg);
+      color: var(--text-secondary);
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      user-select: text;
     }
-    .store-eula-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+    .store-eula-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
     * { scrollbar-width: none; }
     *::-webkit-scrollbar { display: none; }
   </style>
 </head>
 <body>
 
-  <div class="sidebar">
-    <div class="sidebar-header">App Store</div>
+  <aside class="sidebar">
+    <div class="sidebar-header">Store</div>
+
+    <div class="sidebar-heading">Browse</div>
     <div class="nav-item active" id="nav-discover" onclick="switchView('home')">
       <div class="icon-bg c-discover"><span class="material-symbols-outlined">explore</span></div>
       <span class="title">Discover</span>
     </div>
     <div class="nav-item" id="nav-publish" onclick="switchView('publish')">
       <div class="icon-bg c-publish"><span class="material-symbols-outlined">developer_mode</span></div>
-      <span class="title">Submit App</span>
+      <span class="title">Submit an app</span>
     </div>
-  </div>
+
+    <div class="sidebar-note">Apps are installed from their public source repository.</div>
+  </aside>
 
   <div class="main-wrapper">
     <div class="top-bar">
       <div class="nav-arrows">
-        <button class="nav-arrow-btn" onclick="switchView('home')"><span class="material-symbols-outlined">chevron_left</span></button>
-        <button class="nav-arrow-btn"><span class="material-symbols-outlined">chevron_right</span></button>
+        <button class="nav-arrow-btn" id="navBack" onclick="switchView('home')" title="Back to Discover"><span class="material-symbols-outlined">chevron_left</span></button>
+        <!-- Forward has nowhere to go in a two-level store, so it stays disabled. -->
+        <button class="nav-arrow-btn" disabled title="Forward"><span class="material-symbols-outlined">chevron_right</span></button>
       </div>
       <div class="search-bar">
         <span class="material-symbols-outlined">search</span>
@@ -273,17 +460,17 @@
       <!-- Discover View -->
       <div id="view-home" class="view active">
         <div class="hero-grid" id="heroSection">
-          <div class="hero-card">
+          <div class="hero-card" onclick="switchView('publish')">
             <div>
-              <h1>Store Beta test</h1>
-              <p>Discover new optimized applications tailored for your environment.</p>
+              <h1>Build for mariowOS</h1>
+              <p>Publish your own app to the Store straight from a GitHub repository.</p>
             </div>
             <div class="hero-emoji">✨</div>
           </div>
-          <div class="hero-card">
+          <div class="hero-card" onclick="document.getElementById('searchInput').focus()">
             <div>
-              <h1>Editor's Choice</h1>
-              <p>Must-have utilities for your device.</p>
+              <h1>Find something new</h1>
+              <p>Search the catalog for utilities built for your device.</p>
             </div>
             <div class="hero-emoji">🏆</div>
           </div>
@@ -327,7 +514,7 @@
           
           <div style="display: flex; gap: 12px; margin-bottom: 16px;">
             <input type="text" id="pubIconText" class="pub-input" placeholder="Emoji (Leave empty to fetch from GitHub)" style="margin-bottom: 0; flex: 1;">
-            <div style="display: flex; align-items: center; color: var(--mac-text-secondary); font-size: 13px;">OR</div>
+            <div style="display: flex; align-items: center; color: var(--text-secondary); font-size: 13px;">OR</div>
             <input type="file" id="pubIconFile" class="pub-input" accept="image/png, image/jpeg" style="margin-bottom: 0; flex: 2; padding: 6px 10px;">
           </div>
           
@@ -346,12 +533,12 @@
   <div id="store-eula-overlay">
     <div class="store-eula-modal">
       <h2>License Agreement</h2>
-      <p style="font-size: 13px; color: var(--mac-text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--mac-text);"></strong> by <span id="eula-app-dev" style="color: var(--mac-accent);"></span>.</p>
+      <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--text);"></strong> by <span id="eula-app-dev" style="color: var(--accent);"></span>.</p>
       <div class="store-eula-box">
         <!-- EULA dynamic text will be injected here -->
       </div>
       <div class="store-eula-actions">
-        <button class="btn-action" style="background: var(--btn-gray); color: var(--mac-text);" onclick="declineEula()">Decline</button>
+        <button class="btn-action" style="background: rgba(255, 255, 255, 0.1); color: var(--text);" onclick="declineEula()">Decline</button>
         <button class="btn-action primary" onclick="acceptEula()">I Agree</button>
       </div>
     </div>
@@ -393,6 +580,7 @@
       document.querySelectorAll('.nav-item').forEach(v => v.classList.remove('active'));
       const btnBack = document.getElementById('btnBack');
       btnBack.style.display = viewName === 'landpage' ? 'inline-flex' : 'none';
+      document.getElementById('navBack').disabled = viewName === 'home';
 
       if (viewName === 'home') {
         document.getElementById('view-home').classList.add('active');
@@ -453,7 +641,7 @@
             <h3 class="card-title">${app.title}</h3>
             <p class="card-desc">${app.desc}</p>
           </div>
-          <button class="btn-get ${isInst ? 'installed' : ''}" onclick="event.stopPropagation(); ${isInst ? `openInstalledApp('${app.id}')` : `openLandpage('${app.id}')`}">${isInst ? 'OPEN' : 'GET'}</button>
+          <button class="btn-get ${isInst ? 'installed' : ''}" onclick="event.stopPropagation(); ${isInst ? `openInstalledApp('${app.id}')` : `openLandpage('${app.id}')`}">${isInst ? 'Open' : 'Get'}</button>
         `;
         grid.appendChild(card);
       });
@@ -478,15 +666,10 @@
       const btnU = document.getElementById('btnUninstall');
       const isInst = installedAppsList.includes(currentAppOpen.id);
 
-      btnI.textContent = isInst ? 'OPEN' : 'GET';
+      btnI.textContent = isInst ? 'Open' : 'Get';
       btnI.className = `btn-action primary ${isInst ? 'installed' : ''}`;
-      if (isInst) {
-        btnI.style.background = 'var(--btn-gray)';
-        btnI.style.color = 'var(--mac-text)';
-      } else {
-        btnI.style.background = '';
-        btnI.style.color = '';
-      }
+      btnI.style.background = isInst ? 'rgba(255, 255, 255, 0.1)' : '';
+      btnI.style.color = isInst ? 'var(--text)' : '';
       
       btnI.disabled = false;
       
@@ -521,7 +704,7 @@
 
       const btn = document.getElementById('btnInstall');
       const origText = btn.textContent;
-      btn.textContent = 'CHECKING...';
+      btn.textContent = 'Checking…';
       btn.disabled = true;
 
       try {
@@ -559,7 +742,7 @@
       const origText = btn.textContent;
       const origBg = btn.style.background;
 
-      btn.textContent = 'WAIT...';
+      btn.textContent = 'Working…';
       btn.disabled = true;
       document.getElementById('installError').textContent = '';
 
@@ -603,7 +786,7 @@
 
     async function submitApp() {
       const status = document.getElementById('publishStatus');
-      status.style.color = 'var(--mac-text-secondary)';
+      status.style.color = 'var(--text-secondary)';
       status.textContent = 'Publishing...';
 
       const idVal = document.getElementById('pubId').value.trim();

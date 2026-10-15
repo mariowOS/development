@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 <style>
   html, body { background: transparent; }
   body {
@@ -142,7 +140,7 @@
   const pfpFile = document.getElementById("pfpUpload").files[0];
 
   if (username) localStorage.setItem("username", username);
-  if (password) localStorage.setItem("password", password);
+  if (password) changePassword(username || localStorage.getItem("username"), password);
 
   if (pfpFile) {
     const reader = new FileReader();
@@ -158,11 +156,10 @@
 
 function loadProfileEditor() {
   const savedUsername = localStorage.getItem("username");
-  const savedPassword = localStorage.getItem("password");
+  localStorage.removeItem("password"); // never keep passwords in the browser
   const savedAvatar = localStorage.getItem("avatar");
 
   if (savedUsername) document.getElementById("usernameInput").value = savedUsername;
-  if (savedPassword) document.getElementById("passwordInput").value = savedPassword;
   if (savedAvatar) document.getElementById("pfpPreview").src = savedAvatar;
 }
 
@@ -176,9 +173,19 @@ function saveFromSettings() {
   }
 
   localStorage.setItem("username", newUser);
-  localStorage.setItem("password", newPass);
+  changePassword(newUser, newPass);
+}
 
-  alert("Credentials updated.");
+// Passwords are stored only server-side (bcrypt) via /set-password.
+async function changePassword(username, newPassword) {
+  const currentPassword = prompt("Current password:");
+  if (currentPassword === null) return;
+  const res = await fetch("/set-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, newPassword, currentPassword })
+  });
+  alert(res.ok ? "Credentials updated." : await res.text());
 }
 
 
