@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
   <meta charset="UTF-8">
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 <style>
@@ -74,27 +76,27 @@
 </head>
 <body>
   <div class="sidebar">
-    <h1>Settings</h1>
+    <h1 data-i18n="common.settings">Settings</h1>
     <div class="search">
-      <input type="text" placeholder="Search…">
+      <input type="text" placeholder="Search…" data-i18n-placeholder="fallback.settings.search">
     </div>
     <div class="menu">
       <div class="menu-item" onclick="loadPage('system', this)">
-        <div class="title">System</div>
-        <div class="subtitle">Rules, backup, time, reset</div>
+        <div class="title" data-i18n="fallback.settings.system">System</div>
+        <div class="subtitle" data-i18n="fallback.settings.system-subtitle">Rules, backup, time, reset</div>
       </div>
     </div>
   </div>
 
   <div class="content" id="content">
-    <h3>Did you break something?</h3>
+    <h3 data-i18n="fallback.settings.intro">Did you break something?</h3>
   </div>
 
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <script>
   const pages = {
     system: `
-      <h2>System</h2>
+      <h2 data-i18n="fallback.settings.system">System</h2>
       <iframe src="assets/systemsettings.html" class="popup-frame"></iframe>
     `
   };
@@ -151,7 +153,7 @@
     reader.readAsDataURL(pfpFile);
   }
 
-  alert("Profile saved.");
+  alert(mariowOSI18n.t("fallback.settings.profile-saved", "Profile saved."));
 }
 
 function loadProfileEditor() {
@@ -168,7 +170,7 @@ function saveFromSettings() {
   const newPass = document.getElementById("settingsPassword").value.trim();
 
   if (!newUser || !newPass) {
-    alert("Fields cannot be empty.");
+    alert(mariowOSI18n.t("fallback.settings.fields-empty", "Fields cannot be empty."));
     return;
   }
 
@@ -178,14 +180,14 @@ function saveFromSettings() {
 
 // Passwords are stored only server-side (bcrypt) via /set-password.
 async function changePassword(username, newPassword) {
-  const currentPassword = prompt("Current password:");
+  const currentPassword = prompt(mariowOSI18n.t("fallback.settings.current-password", "Current password:"));
   if (currentPassword === null) return;
   const res = await fetch("/set-password", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, newPassword, currentPassword })
   });
-  alert(res.ok ? "Credentials updated." : await res.text());
+  alert(res.ok ? mariowOSI18n.t("fallback.settings.credentials-updated", "Credentials updated.") : await res.text());
 }
 
 

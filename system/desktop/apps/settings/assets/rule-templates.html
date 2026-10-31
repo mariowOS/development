@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -119,59 +122,57 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Rule Templates</h1>
+    <h1 data-i18n="settings.rule-templates.title">Rule Templates</h1>
   </div>
 
   <div class="banner">
-    <div class="title">Predefined Rule Templates</div>
-    <div class="desc">
-      Choose from common automation templates to get started quickly.
-    </div>
+    <div class="title" data-i18n="settings.rule-templates.banner">Predefined Rule Templates</div>
+    <div class="desc" data-i18n="settings.rule-templates.banner-desc">Choose from common automation templates to get started quickly.</div>
   </div>
 
   <div class="panel template-list">
   <div class="template-item">
     <div class="icon-badge"><span class="material-symbols-outlined">backup</span></div>
     <div class="text-group">
-      <div class="template-title">Daily Backup Reminder</div>
-      <div class="template-desc">Shows a daily reminder at your chosen time.</div>
-      <label>Reminder time<input type="time" data-field="time" value="18:00" required></label>
+      <div class="template-title" data-i18n="settings.rule-templates.backup">Daily Backup Reminder</div>
+      <div class="template-desc" data-i18n="settings.rule-templates.backup-desc">Shows a daily reminder at your chosen time.</div>
+      <label><span data-i18n="settings.rule-templates.reminder-time">Reminder time</span><input type="time" data-field="time" value="18:00" required></label>
     </div>
-    <button class="btn" data-template="backup">Use Template</button>
+    <button class="btn" data-template="backup" data-i18n="settings.rule-templates.use">Use Template</button>
   </div>
 
   <div class="template-item">
     <div class="icon-badge"><span class="material-symbols-outlined">battery_alert</span></div>
     <div class="text-group">
-      <div class="template-title">Low Battery Alert</div>
-      <div class="template-desc">Notifies once when battery crosses below your threshold.</div>
-      <label>Battery threshold (%)<input type="number" data-field="threshold" min="5" max="80" step="5" value="20" required></label>
+      <div class="template-title" data-i18n="settings.rule-templates.battery">Low Battery Alert</div>
+      <div class="template-desc" data-i18n="settings.rule-templates.battery-desc">Notifies once when battery crosses below your threshold.</div>
+      <label><span data-i18n="settings.rule-templates.threshold">Battery threshold (%)</span><input type="number" data-field="threshold" min="5" max="80" step="5" value="20" required></label>
     </div>
-    <button class="btn" data-template="battery">Use Template</button>
+    <button class="btn" data-template="battery" data-i18n="settings.rule-templates.use">Use Template</button>
   </div>
 
   <div class="template-item">
     <div class="icon-badge"><span class="material-symbols-outlined">power_settings_new</span></div>
     <div class="text-group">
-      <div class="template-title">Auto Shutdown</div>
-      <div class="template-desc">Schedules a shutdown one minute after your chosen time.</div>
-      <label>Shutdown time<input type="time" data-field="time" value="00:00" required></label>
-      <label><input type="checkbox" data-field="confirmShutdown" required> I understand this powers off the computer.</label>
+      <div class="template-title" data-i18n="settings.rule-templates.shutdown">Auto Shutdown</div>
+      <div class="template-desc" data-i18n="settings.rule-templates.shutdown-desc">Schedules a shutdown one minute after your chosen time.</div>
+      <label><span data-i18n="settings.rule-templates.shutdown-time">Shutdown time</span><input type="time" data-field="time" value="00:00" required></label>
+      <label><input type="checkbox" data-field="confirmShutdown" required> <span data-i18n="settings.rule-templates.shutdown-confirm">I understand this powers off the computer.</span></label>
     </div>
-    <button class="btn" data-template="shutdown">Use Template</button>
+    <button class="btn" data-template="shutdown" data-i18n="settings.rule-templates.use">Use Template</button>
   </div>
 
   <div class="template-item">
     <div class="icon-badge"><span class="material-symbols-outlined">rocket_launch</span></div>
     <div class="text-group">
-      <div class="template-title">App Launch on Startup</div>
-      <div class="template-desc">Opens one installed app when the desktop starts.</div>
-      <label>Installed app<select data-field="appId" required><option value="">Loading installed apps...</option></select></label>
+      <div class="template-title" data-i18n="settings.rule-templates.startup">App Launch on Startup</div>
+      <div class="template-desc" data-i18n="settings.rule-templates.startup-desc">Opens one installed app when the desktop starts.</div>
+      <label><span data-i18n="settings.rule-templates.installed-app">Installed app</span><select data-field="appId" required><option value="" data-i18n="settings.rule-templates.loading-apps">Loading installed apps...</option></select></label>
     </div>
-    <button class="btn" data-template="startup">Use Template</button>
+    <button class="btn" data-template="startup" data-i18n="settings.rule-templates.use">Use Template</button>
   </div>
   </div>
 </div>
@@ -179,36 +180,36 @@ html::-webkit-scrollbar {
 <script>
 const templates = {
   backup: {
-    name: 'Daily Backup Reminder', trigger: 'time', action: 'notify',
-    actionParams: { title: 'Backup reminder', message: 'Remember to back up your files.', icon: 'backup' }
+    name: mariowOSI18n.t('settings.rule-templates.backup', 'Daily Backup Reminder'), trigger: 'time', action: 'notify',
+    actionParams: { title: mariowOSI18n.t('settings.rule-templates.backup-notify-title', 'Backup reminder'), message: mariowOSI18n.t('settings.rule-templates.backup-notify-message', 'Remember to back up your files.'), icon: 'backup' }
   },
   battery: {
-    name: 'Low Battery Alert', trigger: 'battery', action: 'notify',
-    actionParams: { title: 'Low battery', message: 'Battery is below your selected threshold.', icon: 'battery_alert' }
+    name: mariowOSI18n.t('settings.rule-templates.battery', 'Low Battery Alert'), trigger: 'battery', action: 'notify',
+    actionParams: { title: mariowOSI18n.t('settings.rule-templates.battery-notify-title', 'Low battery'), message: mariowOSI18n.t('settings.rule-templates.battery-notify-message', 'Battery is below your selected threshold.'), icon: 'battery_alert' }
   },
-  shutdown: { name: 'Auto Shutdown', trigger: 'time', action: 'shutdown', actionParams: {} },
-  startup: { name: 'App Launch on Startup', trigger: 'startup', action: 'launch-app', actionParams: {} }
+  shutdown: { name: mariowOSI18n.t('settings.rule-templates.shutdown', 'Auto Shutdown'), trigger: 'time', action: 'shutdown', actionParams: {} },
+  startup: { name: mariowOSI18n.t('settings.rule-templates.startup', 'App Launch on Startup'), trigger: 'startup', action: 'launch-app', actionParams: {} }
 };
 
 async function loadInstalledApps() {
   const select = document.querySelector('[data-template="startup"]').closest('.template-item').querySelector('[data-field="appId"]');
   try {
     const response = await fetch('/get-settings');
-    if (!response.ok) throw new Error('Unable to load installed apps');
+    if (!response.ok) throw new Error(mariowOSI18n.t('settings.rule-templates.apps-failed', 'Could not load installed apps'));
     const settings = await response.json();
     const apps = Array.isArray(settings.installedApps) ? settings.installedApps : [];
-    select.replaceChildren(new Option(apps.length ? 'Select an app' : 'No installed apps', ''));
+    select.replaceChildren(new Option(apps.length ? mariowOSI18n.t('settings.rule-templates.select-app', 'Select an app') : mariowOSI18n.t('settings.rule-templates.no-apps', 'No installed apps'), ''));
     apps.forEach(app => select.add(new Option(app.title, app.appId)));
     select.disabled = apps.length === 0;
   } catch (error) {
-    select.replaceChildren(new Option('Could not load installed apps', ''));
+    select.replaceChildren(new Option(mariowOSI18n.t('settings.rule-templates.apps-failed', 'Could not load installed apps'), ''));
     select.disabled = true;
   }
 }
 
 async function saveRule(rule) {
   const response = await fetch('/api/rules');
-  if (!response.ok) throw new Error('Could not load saved rules');
+  if (!response.ok) throw new Error(mariowOSI18n.t('settings.rule-templates.load-failed', 'Could not load saved rules'));
   const rules = await response.json();
   rules.push(rule);
   const saveResponse = await fetch('/api/rules/save', {
@@ -216,7 +217,7 @@ async function saveRule(rule) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rules })
   });
-  if (!saveResponse.ok) throw new Error('Could not save this rule');
+  if (!saveResponse.ok) throw new Error(mariowOSI18n.t('settings.rule-templates.save-failed', 'Could not save this rule'));
 
   const localRules = JSON.parse(localStorage.getItem('rules')) || [];
   localRules.push(rule);
@@ -233,23 +234,23 @@ async function useTemplate(templateKey, button) {
   const appId = card.querySelector('[data-field="appId"]')?.value;
 
   if ((templateKey === 'backup' || templateKey === 'shutdown') && !time) {
-    await mDialog.alert('Choose a time for this rule.');
+    await mDialog.alert(mariowOSI18n.t('settings.rule-templates.choose-time', 'Choose a time for this rule.'));
     return;
   }
   if (templateKey === 'battery' && (!Number.isInteger(threshold) || threshold < 5 || threshold > 80)) {
-    await mDialog.alert('Choose a battery threshold from 5% to 80%.');
+    await mDialog.alert(mariowOSI18n.t('settings.rule-templates.choose-threshold', 'Choose a battery threshold from 5% to 80%.'));
     return;
   }
   if (templateKey === 'battery' && typeof navigator.getBattery !== 'function') {
-    await mDialog.alert('Battery monitoring is not supported on this device.');
+    await mDialog.alert(mariowOSI18n.t('settings.rule-templates.no-battery', 'Battery monitoring is not supported on this device.'));
     return;
   }
   if (templateKey === 'shutdown' && !card.querySelector('[data-field="confirmShutdown"]').checked) {
-    await mDialog.alert('Confirm that you want this rule to shut down the computer.');
+    await mDialog.alert(mariowOSI18n.t('settings.rule-templates.confirm-shutdown', 'Confirm that you want this rule to shut down the computer.'));
     return;
   }
   if (templateKey === 'startup' && !appId) {
-    await mDialog.alert('Select an installed app to launch.');
+    await mDialog.alert(mariowOSI18n.t('settings.rule-templates.select-app-alert', 'Select an installed app to launch.'));
     return;
   }
 
@@ -276,10 +277,10 @@ async function useTemplate(templateKey, button) {
     history.push({ id: rule.id, ruleName: template.name, action: 'Created from template', timestamp: rule.created });
     localStorage.setItem('ruleHistory', JSON.stringify(history));
 
-    await mDialog.alert(`"${template.name}" was saved and enabled.`);
+    await mDialog.alert(mariowOSI18n.t('settings.rule-templates.saved', '"{name}" was saved and enabled.', { name: template.name }));
     window.location.replace('/desktop/apps/settings/assets/rules.html');
   } catch (error) {
-    await mDialog.alert(error.message || 'Could not save this rule.');
+    await mDialog.alert(error.message || mariowOSI18n.t('settings.rule-templates.save-failed-dot', 'Could not save this rule.'));
     button.disabled = false;
   }
 }

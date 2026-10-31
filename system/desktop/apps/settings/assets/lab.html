@@ -3,10 +3,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Functions Lab</title>
+  <title data-i18n="settings.nav.functions">Functions Lab</title>
   
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
@@ -91,7 +94,7 @@
       outline: none; transition: background 0.2s;
     }
     .boot-logo-actions button:hover { background: rgba(255,255,255,.15); }
-    .boot-logo-actions button:focus-visible { box-shadow: 0 0 0 2px rgba(10,132,255,.4); }
+    .boot-logo-actions button:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
     .boot-logo-actions button:disabled { opacity: .5; cursor: default; background: rgba(255,255,255,.08); }
     #bootLogoInput { display: none; }
     .boot-logo-status { min-height: 18px; margin-top: 7px; color: rgba(255,255,255,.5); font-size: 11px; }
@@ -125,8 +128,8 @@
       <div class="item-left">
         <div class="icon-badge" style="background: linear-gradient(180deg, #ff9f0a, #ffb340);"><span class="material-symbols-outlined">warning</span></div>
         <div>
-          <div class="item-title" style="color: #ff9f0a;">Experimental Features</div>
-          <div class="item-subtitle" style="color: rgba(255, 159, 10, 0.8);">These features are unstable and may cause unexpected behavior. Use at your own risk.</div>
+          <div class="item-title" style="color: #ff9f0a;" data-i18n="settings.lab.warning">Experimental Features</div>
+          <div class="item-subtitle" style="color: rgba(255, 159, 10, 0.8);" data-i18n="settings.lab.warning.subtitle">These features are unstable and may cause unexpected behavior. Use at your own risk.</div>
         </div>
       </div>
     </div>
@@ -137,11 +140,11 @@
       <div class="item-left">
         <img class="boot-logo-preview" id="bootLogoPreview" src="/desktop/assets/icons/stars.png" alt="Current boot logo">
         <div>
-          <div class="item-title">Boot Logo</div>
-          <div class="item-subtitle">Choose the image shown in the center of the black startup screen. PNG or JPEG, up to 5 MB. Changes apply on the next startup.</div>
+          <div class="item-title" data-i18n="settings.lab.boot-logo">Boot Logo</div>
+          <div class="item-subtitle" data-i18n="settings.lab.boot-logo.subtitle">Choose the image shown in the center of the black startup screen. PNG or JPEG, up to 5 MB. Changes apply on the next startup.</div>
           <div class="boot-logo-actions">
-            <button type="button" id="uploadBootLogoButton">Upload boot logo…</button>
-            <button type="button" id="resetBootLogoButton">Restore default…</button>
+            <button type="button" id="uploadBootLogoButton" data-i18n="settings.lab.boot-logo.upload">Upload boot logo…</button>
+            <button type="button" id="resetBootLogoButton" data-i18n="settings.lab.boot-logo.reset">Restore default…</button>
             <input type="file" id="bootLogoInput" accept="image/png,image/jpeg">
           </div>
           <div class="boot-logo-status" id="bootLogoStatus" role="status" aria-live="polite"></div>
@@ -155,8 +158,8 @@
       <div class="item-left">
         <div class="icon-badge bg-dark"><span class="material-symbols-outlined">dark_mode</span></div>
         <div>
-          <div class="item-title">Dark Mode Experiments</div>
-          <div class="item-subtitle">Test new dark mode variations</div>
+          <div class="item-title" data-i18n="settings.lab.dark-mode">Dark Mode Experiments</div>
+          <div class="item-subtitle" data-i18n="settings.lab.dark-mode.subtitle">Test new dark mode variations</div>
         </div>
       </div>
       <label class="switch" onclick="event.stopPropagation()">
@@ -169,8 +172,8 @@
       <div class="item-left">
         <div class="icon-badge bg-perf"><span class="material-symbols-outlined">speed</span></div>
         <div>
-          <div class="item-title">Performance Tuning</div>
-          <div class="item-subtitle">Advanced optimization settings</div>
+          <div class="item-title" data-i18n="settings.lab.performance">Performance Tuning</div>
+          <div class="item-subtitle" data-i18n="settings.lab.performance.subtitle">Advanced optimization settings</div>
         </div>
       </div>
       <label class="switch" onclick="event.stopPropagation()">
@@ -183,8 +186,8 @@
       <div class="item-left">
         <div class="icon-badge bg-anim"><span class="material-symbols-outlined">motion_photos_on</span></div>
         <div>
-          <div class="item-title">New Animations</div>
-          <div class="item-subtitle">Preview experimental animation effects</div>
+          <div class="item-title" data-i18n="settings.lab.animations">New Animations</div>
+          <div class="item-subtitle" data-i18n="settings.lab.animations.subtitle">Preview experimental animation effects</div>
         </div>
       </div>
       <label class="switch" onclick="event.stopPropagation()">
@@ -197,8 +200,8 @@
       <div class="item-left">
         <div class="icon-badge bg-dev"><span class="material-symbols-outlined">code</span></div>
         <div>
-          <div class="item-title">Developer Options</div>
-          <div class="item-subtitle">Enable advanced debugging features</div>
+          <div class="item-title" data-i18n="settings.lab.developer">Developer Options</div>
+          <div class="item-subtitle" data-i18n="settings.lab.developer.subtitle">Enable advanced debugging features</div>
         </div>
       </div>
       <label class="switch" onclick="event.stopPropagation()">
@@ -211,8 +214,8 @@
       <div class="item-left">
         <div class="icon-badge bg-flash"><span class="material-symbols-outlined">terminal</span></div>
         <div>
-          <div class="item-title">Allow Flashing</div>
-          <div class="item-subtitle">Permit file overwriting and shell commands in Recovery Mode.</div>
+          <div class="item-title" data-i18n="settings.lab.allow-flashing">Allow Flashing</div>
+          <div class="item-subtitle" data-i18n="settings.lab.allow-flashing.subtitle">Permit file overwriting and shell commands in Recovery Mode.</div>
         </div>
       </div>
       <label class="switch" onclick="event.stopPropagation()">
@@ -277,20 +280,29 @@ function toggleLab(key, inputEl) {
         body: JSON.stringify({ [key]: desiredState })
       });
       const data = await res.json();
-      if (!data.success) throw new Error(data.error || 'Save failed');
+      if (!data.success) throw new Error(data.error || mariowOSI18n.t("settings.lab.save-error", "Save failed"));
     } catch (e) {
-      await mDialog.alert('Could not save this option: ' + e.message);
+      await mDialog.alert(mariowOSI18n.t("settings.lab.save-failed", "Could not save this option: {message}", { message: e.message }));
       return;
     }
     inputEl.checked = desiredState;
     localStorage.setItem('lab-' + key, desiredState);
     try { window.top.postMessage({ type: 'apply-lab-flags' }, '*'); } catch (e) {}
 
-    const name = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+    const names = {
+      darkMode: mariowOSI18n.t("settings.lab.dark-mode", "Dark Mode Experiments"),
+      performance: mariowOSI18n.t("settings.lab.performance", "Performance Tuning"),
+      animations: mariowOSI18n.t("settings.lab.animations", "New Animations"),
+      developer: mariowOSI18n.t("settings.lab.developer", "Developer Options"),
+      allowFlashing: mariowOSI18n.t("settings.lab.allow-flashing", "Allow Flashing")
+    };
+    const name = names[key] || key;
     window.parent.postMessage({
       type: 'show-notification',
-      title: 'Lab',
-      msg: `${name}: ${desiredState ? 'Enabled' : 'Disabled'}`,
+      title: mariowOSI18n.t("settings.lab.notification-title", "Lab"),
+      msg: desiredState
+        ? mariowOSI18n.t("settings.lab.enabled", "{name}: Enabled", { name })
+        : mariowOSI18n.t("settings.lab.disabled", "{name}: Disabled", { name }),
       icon: '🧪'
     }, '*');
   }, () => {
@@ -308,7 +320,7 @@ async function refreshBootLogoPreview() {
   const response = await fetch('/api/system/boot-assets', { cache: 'no-store' });
   const assets = await response.json();
   if (!response.ok || typeof assets.bootLogo !== 'string') {
-    throw new Error(assets.error || 'Could not load the current boot logo');
+    throw new Error(assets.error || mariowOSI18n.t("settings.lab.boot-logo.current-failed", "Could not load the current boot logo"));
   }
 
   const previewUrl = new URL(assets.bootLogo, location.origin);
@@ -324,9 +336,9 @@ bootLogoInput.addEventListener('change', async () => {
 
   uploadBootLogoButton.disabled = true;
   resetBootLogoButton.disabled = true;
-  bootLogoStatus.textContent = 'Uploading boot logo…';
+  bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.uploading", "Uploading boot logo…");
   try {
-    if (file.size > 5 * 1024 * 1024) throw new Error('Choose an image smaller than 5 MB');
+    if (file.size > 5 * 1024 * 1024) throw new Error(mariowOSI18n.t("settings.lab.boot-logo.too-big", "Choose an image smaller than 5 MB"));
     const localPreview = new Image();
     const localPreviewUrl = URL.createObjectURL(file);
     try {
@@ -340,15 +352,15 @@ bootLogoInput.addEventListener('change', async () => {
     formData.append('bootLogo', file);
     const response = await fetch('/api/system/boot-logo', { method: 'POST', body: formData });
     const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.error || 'Boot logo upload failed');
-    bootLogoStatus.textContent = `${result.message} Restart mariowOS to see it.`;
+    if (!response.ok || !result.success) throw new Error(result.error || mariowOSI18n.t("settings.lab.boot-logo.upload-error", "Boot logo upload failed"));
+    bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.restart", "{message} Restart mariowOS to see it.", { message: result.message });
     try {
       await refreshBootLogoPreview();
     } catch (error) {
-      bootLogoStatus.textContent += ` Preview could not be refreshed: ${error.message}`;
+      bootLogoStatus.textContent += ' ' + mariowOSI18n.t("settings.lab.boot-logo.preview-failed", "Preview could not be refreshed: {message}", { message: error.message });
     }
   } catch (error) {
-    bootLogoStatus.textContent = `Could not upload boot logo: ${error.message}`;
+    bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.upload-failed", "Could not upload boot logo: {message}", { message: error.message });
   } finally {
     bootLogoInput.value = '';
     uploadBootLogoButton.disabled = false;
@@ -357,23 +369,23 @@ bootLogoInput.addEventListener('change', async () => {
 });
 
 resetBootLogoButton.addEventListener('click', async () => {
-  if (!await mDialog.confirm('Restore the default mariowOS boot logo?')) return;
+  if (!await mDialog.confirm(mariowOSI18n.t("settings.lab.boot-logo.reset-confirm", "Restore the default mariowOS boot logo?"))) return;
 
   uploadBootLogoButton.disabled = true;
   resetBootLogoButton.disabled = true;
-  bootLogoStatus.textContent = 'Restoring default boot logo…';
+  bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.restoring", "Restoring default boot logo…");
   try {
     const response = await fetch('/api/system/boot-logo', { method: 'DELETE' });
     const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.error || 'Could not restore the default boot logo');
-    bootLogoStatus.textContent = `${result.message} Restart mariowOS to see it.`;
+    if (!response.ok || !result.success) throw new Error(result.error || mariowOSI18n.t("settings.lab.boot-logo.reset-error", "Could not restore the default boot logo"));
+    bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.restart", "{message} Restart mariowOS to see it.", { message: result.message });
     try {
       await refreshBootLogoPreview();
     } catch (error) {
-      bootLogoStatus.textContent += ` Preview could not be refreshed: ${error.message}`;
+      bootLogoStatus.textContent += ' ' + mariowOSI18n.t("settings.lab.boot-logo.preview-failed", "Preview could not be refreshed: {message}", { message: error.message });
     }
   } catch (error) {
-    bootLogoStatus.textContent = `Could not restore boot logo: ${error.message}`;
+    bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.reset-failed", "Could not restore boot logo: {message}", { message: error.message });
   } finally {
     uploadBootLogoButton.disabled = false;
     resetBootLogoButton.disabled = false;
@@ -381,7 +393,7 @@ resetBootLogoButton.addEventListener('click', async () => {
 });
 
 refreshBootLogoPreview().catch(error => {
-  bootLogoStatus.textContent = `Could not load boot logo preview: ${error.message}`;
+  bootLogoStatus.textContent = mariowOSI18n.t("settings.lab.boot-logo.load-failed", "Could not load boot logo preview: {message}", { message: error.message });
 });
 </script>
 </body>

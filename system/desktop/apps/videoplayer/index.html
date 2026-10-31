@@ -1,0 +1,337 @@
+<!--
+mariowOS Video Player - (C) 2026 mariowstech and the mariowOS team
+Licensed under the Apache License, Version 2.0
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="video.title">Video Player</title>
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+<style>
+  :root {
+    --accent: var(--sys-accent);
+    --text: #ffffff;
+    --muted: rgba(255,255,255,.5);
+    --dim: rgba(255,255,255,.35);
+    --hover: rgba(255,255,255,.08);
+    --border: rgba(255,255,255,.1);
+    --sidebar: rgba(22,22,25,.65);
+    --spring: cubic-bezier(0.16,1,0.3,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100vh; overflow: hidden; }
+  body { display: flex; font-family: 'Poppins', sans-serif; color: var(--text); background: transparent;
+    -webkit-font-smoothing: antialiased; user-select: none; }
+  button { font-family: inherit; color: inherit; }
+  .material-symbols-outlined { font-variation-settings: 'wght' 400; }
+
+  .sidebar { width: 220px; flex: 0 0 220px; display: flex; flex-direction: column; padding: 8px; background: var(--sidebar);
+    border-right: 1px solid rgba(0,0,0,.35); box-shadow: inset -1px 0 0 rgba(255,255,255,.05); min-height: 0; }
+  .sidebar-title { font-size: 20px; font-weight: 600; letter-spacing: -.4px; padding: 12px 8px 10px; }
+  .sidebar-heading { padding: 12px 10px 4px; color: var(--dim); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+  .sidebar-list { flex: 0 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-hint { padding: 6px 10px; color: var(--dim); font-size: 12px; line-height: 1.5; }
+  .list-item { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; padding: 6px 8px; border-radius: 10px; font-size: 13px; cursor: pointer; min-width: 0; transition: background 180ms ease; }
+  .list-item:hover:not(.active) { background: rgba(255,255,255,.1); }
+  .list-item.active { background: var(--accent); color: var(--sys-accent-on); }
+  .list-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .import { flex: 0 0 auto; margin-top: auto; padding: 10px; border: 1px dashed rgba(255,255,255,.16); border-radius: 12px; background: transparent; color: rgba(255,255,255,.75);
+    font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background .18s ease, color .18s ease; }
+  .import:hover { background: var(--hover); color: #fff; }
+  .import .material-symbols-outlined { font-size: 17px; }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .stage { flex: 1; min-height: 0; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+  .bar { flex: 0 0 auto; display: flex; align-items: center; gap: 20px; padding: 12px 20px; background: rgba(18,18,21,.72); border-top: 1px solid rgba(255,255,255,.07); min-height: 72px; }
+  .now { display: flex; align-items: center; gap: 12px; width: 230px; flex-shrink: 0; min-width: 0; }
+  .now-art { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 12px; background: linear-gradient(145deg, var(--art-a), var(--art-b)); background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+  .now-art .material-symbols-outlined { font-size: 22px; }
+  .now-art.has-image .material-symbols-outlined { display: none; }
+  .now-text { min-width: 0; }
+  .now-title { font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .now-sub { margin-top: 1px; color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .spacer { flex: 1; min-width: 0; }
+  .ib { width: 36px; height: 36px; flex: 0 0 36px; border: 0; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center; transition: color .2s, background .2s, transform .15s ease; }
+  .ib:hover:not(:disabled) { color: #fff; background: var(--hover); transform: scale(1.08); }
+  .ib:active:not(:disabled) { transform: scale(.92); }
+  .ib:disabled { opacity: .3; cursor: default; }
+  .ib .material-symbols-outlined { font-size: 22px; }
+
+  .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); text-align: center; padding: 24px; }
+  .empty-icon { width: 72px; height: 72px; border-radius: 20px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(180deg, var(--art-a), var(--art-b)); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+  .empty-icon .material-symbols-outlined { font-size: 38px; }
+  .empty h2 { font-size: 19px; font-weight: 600; letter-spacing: -.3px; color: #fff; }
+  .empty p { font-size: 13px; max-width: 340px; line-height: 1.5; }
+  .open-btn { margin-top: 8px; display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: 0; border-radius: 999px; background: var(--accent); color: var(--sys-accent-on);
+    font: 600 13px 'Poppins', sans-serif; cursor: pointer; transition: transform .15s ease, filter .15s ease; }
+  .open-btn:hover { transform: scale(1.04); filter: brightness(1.08); }
+  .open-btn .material-symbols-outlined { font-size: 18px; }
+
+  .drophint { position: absolute; inset: 12px; border: 2px dashed var(--sys-accent-text); border-radius: 16px; display: none; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 600; color: var(--sys-accent-text); background: color-mix(in srgb, var(--sys-accent) 12%, transparent); z-index: 5; pointer-events: none; }
+  body.dragging .drophint { display: flex; }
+  @media (max-width: 720px) { .sidebar { display: none; } .now { width: auto; flex: 1; } .bar { gap: 8px; } }
+  :root { --art-a: #bf5af2; --art-b: #af52de; }
+  .stage { margin: 12px 12px 12px; border-radius: 14px; background: rgba(0,0,0,.28); }
+  .stage.has-video { background: #000; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .stage:fullscreen { margin: 0; border-radius: 0; background: #000; }
+  video { width: 100%; height: 100%; object-fit: contain; outline: none; }
+  .center-play { position: absolute; width: 68px; height: 68px; border: 0; border-radius: 50%; background: var(--accent); color: var(--sys-accent-on); cursor: pointer; display: none;
+    align-items: center; justify-content: center; z-index: 2; box-shadow: 0 8px 26px color-mix(in srgb, var(--sys-accent) 40%, rgba(0,0,0,.4)); transition: transform .15s ease; }
+  .center-play:hover { transform: scale(1.06); }
+  .center-play.show { display: flex; }
+  .center-play .material-symbols-outlined { font-size: 38px; font-variation-settings: 'FILL' 1; }
+  .list-icon { width: 24px; height: 24px; flex: 0 0 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(180deg, var(--art-a), var(--art-b)); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .list-icon .material-symbols-outlined { font-size: 15px; }
+
+  .bar:not(.show) { opacity: .5; pointer-events: none; }
+  .transport { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .buttons { display: flex; align-items: center; gap: 8px; }
+  .btn-play { width: 42px; height: 42px; flex-basis: 42px; background: var(--accent); color: var(--sys-accent-on); box-shadow: 0 4px 14px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
+  .ib.btn-play:hover:not(:disabled) { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
+  .btn-play .material-symbols-outlined { font-size: 26px; font-variation-settings: 'FILL' 1; }
+  .seek-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 520px; }
+  .stamp { color: var(--dim); font-size: 11px; font-variant-numeric: tabular-nums; width: 38px; }
+  .stamp.right { text-align: right; }
+  input[type=range] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 4px; outline: none; cursor: pointer; flex: 1; min-width: 0; --fill: 0%;
+    background: linear-gradient(to right, var(--sys-accent-text) var(--fill), rgba(255,255,255,.18) var(--fill)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 11px; border-radius: 50%; background: #fff; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  .side { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+  .vol { display: flex; align-items: center; gap: 2px; width: 118px; }
+  .rate { height: 28px; padding: 0 10px; border: 0; border-radius: 999px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.85); font: 600 12px 'Poppins', sans-serif; cursor: pointer; transition: background .15s; }
+  .rate:hover { background: rgba(255,255,255,.16); }
+  @media (max-width: 860px) { .vol input { display: none; } .vol { width: auto; } .now { width: 150px; } }
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-title" data-i18n="video.title">Video Player</div>
+    <div class="sidebar-heading" data-i18n="video.queue">Queue</div>
+    <div class="sidebar-list" id="queue"></div>
+    <div class="sidebar-hint" id="listHint" data-i18n="video.queue-empty">Videos you open appear here.</div>
+    <button class="import" id="btnOpen" title="Open video(s)" data-i18n-title="video.open-videos"><span class="material-symbols-outlined">add</span><span data-i18n="video.open-videos">Open videos</span></button>
+  </aside>
+
+  <div class="main">
+    <div class="stage" id="stage">
+      <video id="video" playsinline></video>
+      <button class="center-play" id="centerPlay"><span class="material-symbols-outlined">play_arrow</span></button>
+      <div class="empty" id="empty">
+        <div class="empty-icon"><span class="material-symbols-outlined">movie</span></div>
+        <h2 data-i18n="video.empty.title">No video open</h2>
+        <p data-i18n="video.empty.text">Open a video to play it, or drag a video file anywhere into this window.</p>
+        <button class="open-btn" id="emptyOpen"><span class="material-symbols-outlined">folder_open</span> <span data-i18n="video.empty.open">Open video</span></button>
+      </div>
+      <div class="drophint" data-i18n="video.drop">Drop to play</div>
+    </div>
+
+    <div class="bar" id="controls">
+      <div class="now">
+        <div class="now-art" id="nowArt"><span class="material-symbols-outlined">movie</span></div>
+        <div class="now-text"><div class="now-title" id="title"></div><div class="now-sub" id="subtitle"></div></div>
+      </div>
+      <div class="transport">
+        <div class="buttons">
+          <button class="ib" id="btnPrev" title="Previous" data-i18n-title="video.previous"><span class="material-symbols-outlined">skip_previous</span></button>
+          <button class="ib btn-play" id="btnPlay" title="Play/Pause (Space)" data-i18n-title="video.play-pause"><span class="material-symbols-outlined">play_arrow</span></button>
+          <button class="ib" id="btnNext" title="Next" data-i18n-title="video.next"><span class="material-symbols-outlined">skip_next</span></button>
+        </div>
+        <div class="seek-row">
+          <span class="stamp" id="timeNow">0:00</span>
+          <input type="range" id="seek" min="0" max="1000" value="0" step="1">
+          <span class="stamp right" id="timeTotal">0:00</span>
+        </div>
+      </div>
+      <div class="side">
+        <div class="vol">
+          <button class="ib" id="btnMute" title="Mute (M)" data-i18n-title="video.mute"><span class="material-symbols-outlined">volume_up</span></button>
+          <input type="range" id="vol" min="0" max="1" step="0.01" value="1">
+        </div>
+        <button class="rate" id="btnRate" title="Playback speed" data-i18n-title="video.speed">1x</button>
+        <button class="ib" id="btnPip" title="Picture in picture" data-i18n-title="video.pip"><span class="material-symbols-outlined">picture_in_picture_alt</span></button>
+        <button class="ib" id="btnFull" title="Fullscreen (F)" data-i18n-title="video.fullscreen"><span class="material-symbols-outlined">fullscreen</span></button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept="video/*" multiple hidden>
+
+<script>
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const video = $('video'), stage = $('stage'), empty = $('empty'), controls = $('controls'),
+        centerPlay = $('centerPlay'), fileInput = $('fileInput');
+  $('title').textContent = mariowOSI18n.t("video.empty.title", "No video open");
+  const paintRange = input => input.style.setProperty('--fill', (input.value - input.min) / (input.max - input.min) * 100 + '%');
+  paintRange($('vol'));
+  let items = [];     // { url, name }
+  let index = -1;
+  const RATES = [0.5, 1, 1.25, 1.5, 2];
+  let rateIdx = 1;
+
+  const fmt = s => {
+    if (!isFinite(s)) return '0:00';
+    s = Math.floor(s); const m = Math.floor(s / 60), sec = s % 60;
+    const h = Math.floor(m / 60);
+    return (h > 0 ? h + ':' + String(m % 60).padStart(2, '0') : m) + ':' + String(sec).padStart(2, '0');
+  };
+
+  function revokeAll() { items.forEach(it => { try { URL.revokeObjectURL(it.url); } catch (e) {} }); }
+
+  function loadFiles(fileList) {
+    const files = [...fileList].filter(f => f.type.startsWith('video/'));
+    if (!files.length) return;
+    revokeAll();
+    items = files.map(f => ({ url: URL.createObjectURL(f), name: f.name }));
+    play(0);
+  }
+
+  function play(i) {
+    if (i < 0 || i >= items.length) return;
+    index = i;
+    empty.style.display = 'none';
+    controls.classList.add('show');
+    video.src = items[i].url;
+    video.playbackRate = RATES[rateIdx];
+    video.play().catch(() => {});
+    const it = items[i];
+    $('title').textContent = it.name;
+    $('subtitle').textContent = items.length > 1 ? mariowOSI18n.t("video.position", "{current} of {total}", { current: i + 1, total: items.length }) : '';
+    $('stage').classList.add('has-video');
+    renderQueue();
+    $('btnPrev').style.display = items.length > 1 ? '' : 'none';
+    $('btnNext').style.display = items.length > 1 ? '' : 'none';
+  }
+
+  function renderQueue() {
+    $('listHint').hidden = items.length > 0;
+    $('queue').replaceChildren(...items.map((it, i) => {
+      const row = document.createElement('div');
+      row.className = 'list-item' + (i === index ? ' active' : '');
+      const badge = document.createElement('div'); badge.className = 'list-icon';
+      const glyph = document.createElement('span'); glyph.className = 'material-symbols-outlined'; glyph.textContent = i === index ? 'play_arrow' : 'movie';
+      badge.appendChild(glyph);
+      const name = document.createElement('span'); name.className = 'list-name'; name.textContent = it.name;
+      row.append(badge, name);
+      row.addEventListener('click', () => play(i));
+      return row;
+    }));
+  }
+
+  function togglePlay() { if (!video.src) return; if (video.paused) video.play().catch(() => {}); else video.pause(); }
+
+  // Mini player: what is playing, with a real frame of the video as its thumbnail.
+  let thumbnail = '';
+  function notifyDesktop() {
+    if (window.parent === window) return;
+    const it = items[index];
+    window.parent.postMessage({ type: 'media-update', title: it ? it.name : '', art: thumbnail, isPlaying: !video.paused, hasMedia: Boolean(it), canSkip: items.length > 1 }, '*');
+  }
+  function captureThumbnail() {
+    if (!video.videoWidth) return;
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 160; canvas.height = Math.round(160 * video.videoHeight / video.videoWidth);
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      thumbnail = canvas.toDataURL('image/jpeg', 0.7);
+      $('nowArt').style.backgroundImage = `url("${thumbnail}")`;
+      $('nowArt').classList.add('has-image');
+      notifyDesktop();
+    } catch (e) {}
+  }
+  video.addEventListener('play', notifyDesktop);
+  video.addEventListener('pause', notifyDesktop);
+  video.addEventListener('loadeddata', () => { thumbnail = ''; $('nowArt').style.backgroundImage = ''; $('nowArt').classList.remove('has-image'); notifyDesktop(); setTimeout(captureThumbnail, 900); });
+  window.addEventListener('message', event => {
+    if (event.source !== window.parent || !event.data || event.data.type !== 'media-command') return;
+    if (event.data.command === 'toggle') togglePlay();
+    else if (event.data.command === 'next') play((index + 1) % items.length);
+    else if (event.data.command === 'prev') play((index - 1 + items.length) % items.length);
+    else if (event.data.command === 'seek' && Number.isFinite(video.duration)) video.currentTime = event.data.percent * video.duration;
+  });
+
+  // Video events
+  video.addEventListener('play', () => { setIcon('btnPlay', 'pause'); centerPlay.classList.remove('show'); });
+  video.addEventListener('pause', () => { setIcon('btnPlay', 'play_arrow'); if (video.src) { centerPlay.firstElementChild.textContent = 'play_arrow'; centerPlay.classList.add('show'); } });
+  video.addEventListener('timeupdate', () => {
+    if (!video.duration) return;
+    $('seek').value = String(Math.round(video.currentTime / video.duration * 1000));
+    paintRange($('seek'));
+    $('timeNow').textContent = fmt(video.currentTime);
+    $('timeTotal').textContent = fmt(video.duration);
+  });
+  video.addEventListener('loadedmetadata', () => { $('timeNow').textContent = fmt(0); $('timeTotal').textContent = fmt(video.duration); });
+  video.addEventListener('ended', () => { if (items.length > 1 && index < items.length - 1) play(index + 1); });
+
+  function setIcon(btnId, name) { $(btnId).firstElementChild.textContent = name; }
+
+  // Controls
+  $('btnPlay').addEventListener('click', togglePlay);
+  centerPlay.addEventListener('click', togglePlay);
+  stage.addEventListener('click', e => { if (e.target === video) togglePlay(); });
+  $('seek').addEventListener('input', e => { paintRange(e.target); if (video.duration) video.currentTime = e.target.value / 1000 * video.duration; });
+  $('vol').addEventListener('input', e => { paintRange(e.target); video.volume = parseFloat(e.target.value); video.muted = video.volume === 0; updateVolIcon(); });
+  $('btnMute').addEventListener('click', () => { video.muted = !video.muted; updateVolIcon(); });
+  function updateVolIcon() { setIcon('btnMute', (video.muted || video.volume === 0) ? 'volume_off' : (video.volume < 0.5 ? 'volume_down' : 'volume_up')); }
+  $('btnRate').addEventListener('click', () => { rateIdx = (rateIdx + 1) % RATES.length; video.playbackRate = RATES[rateIdx]; $('btnRate').textContent = RATES[rateIdx] + 'x'; });
+  $('btnFull').addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen(); else stage.requestFullscreen().catch(() => {}); });
+  $('btnPip').addEventListener('click', async () => { try { if (document.pictureInPictureElement) await document.exitPictureInPicture(); else await video.requestPictureInPicture(); } catch (e) {} });
+  $('btnOpen').addEventListener('click', () => fileInput.click());
+  $('emptyOpen').addEventListener('click', () => fileInput.click());
+  $('btnPrev').addEventListener('click', () => play((index - 1 + items.length) % items.length));
+  $('btnNext').addEventListener('click', () => play((index + 1) % items.length));
+  fileInput.addEventListener('change', e => { loadFiles(e.target.files); fileInput.value = ''; });
+
+  // Keyboard
+  window.addEventListener('keydown', e => {
+    if (!video.src) return;
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key === 'ArrowRight') video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
+    else if (e.key === 'ArrowLeft') video.currentTime = Math.max(0, video.currentTime - 5);
+    else if (e.key === 'ArrowUp') { e.preventDefault(); video.volume = Math.min(1, video.volume + 0.1); video.muted = false; $('vol').value = video.volume; paintRange($('vol')); updateVolIcon(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); video.volume = Math.max(0, video.volume - 0.1); $('vol').value = video.volume; paintRange($('vol')); updateVolIcon(); }
+    else if (e.key === 'f' || e.key === 'F') $('btnFull').click();
+    else if (e.key === 'm' || e.key === 'M') $('btnMute').click();
+  });
+
+  // Drag & drop
+  let dragDepth = 0;
+  window.addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; document.body.classList.add('dragging'); });
+  window.addEventListener('dragover', e => e.preventDefault());
+  window.addEventListener('dragleave', e => { e.preventDefault(); if (--dragDepth <= 0) document.body.classList.remove('dragging'); });
+  window.addEventListener('drop', e => {
+    e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging');
+    if (e.dataTransfer && e.dataTransfer.files.length) loadFiles(e.dataTransfer.files);
+  });
+
+  window.addEventListener('beforeunload', revokeAll);
+
+  // Open a file handed over by the desktop shell (from the Files app), streamed from the
+  // backend via /api/system/files/raw (range requests → seeking works). Same-origin only.
+  function loadFromBackend(path, name) {
+    revokeAll();
+    const url = `/api/system/files/raw?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+    items = [{ url, name }];
+    play(0);
+  }
+  window.addEventListener('message', (e) => {
+    if (e.origin !== location.origin) return;
+    const d = e.data || {};
+    if (d.type === 'open-file-in-video' && typeof d.path === 'string' && typeof d.name === 'string') {
+      loadFromBackend(d.path, d.name);
+    }
+  });
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'video-ready' }, location.origin);
+  }
+</script>
+</body>
+</html>

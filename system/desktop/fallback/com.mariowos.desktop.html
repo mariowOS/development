@@ -13,6 +13,8 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
@@ -96,7 +98,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
   <div class="status-bar">
     <div class="status-left">
       <div class="btn-wrapper">
-        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button>
+        <button class="status-btn" id="actionsBtn" title="Menu" data-i18n-title="fallback.menu" data-i18n="fallback.activities">Activities</button>
 <div class="dropdown" id="actionsDropdown">
   <a onclick="openPopup('popup2')">
     <div class="dropdown-item">
@@ -104,12 +106,12 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     </div>
   </a>
   <a onclick="openPopup('popup1')">
-    <div class="dropdown-item">
+    <div class="dropdown-item" data-i18n="common.settings">
       Settings
     </div>
   </a>
     <a onclick="openPopup('popup3')">
-    <div class="dropdown-item">
+    <div class="dropdown-item" data-i18n="fallback.whats-this">
       What's this?
     </div>
   </a>
@@ -120,9 +122,9 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       <button class="status-btn" title="Finder">···</button>
 
       <div class="btn-wrapper">
-        <button class="status-btn" id="activitiesBtn" title="Activities">Finder</button>
+        <button class="status-btn" id="activitiesBtn" title="Activities" data-i18n-title="fallback.activities">Finder</button>
         <div class="dropdown activities" id="activitiesDropdown">
-          <a href="http://localhost:3000"><div class="dropdown-item">Exit Fallback mode</div></a>
+          <a href="http://localhost:3000"><div class="dropdown-item" data-i18n="fallback.exit">Exit Fallback mode</div></a>
         </div>
       </div>
     </div>
@@ -131,14 +133,14 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
     <div class="status-right">
   <div class="btn-wrapper">
-    <button class="notification" id="notificationsBtn" title="Notifications">
+    <button class="notification" id="notificationsBtn" title="Notifications" data-i18n-title="fallback.notifications">
       <svg viewBox="0 0 24 24">
         <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7A1 1 0 006 20h12a1 1 0 00.7-1.7L18 16z"/>
       </svg>
     </button>
     <div class="dropdown" id="notificationsDropdown">
-      <div class="dropdown-item">No new notifications</div>
-      <a onclick="openPopup('popup2')"><div class="dropdown-item">Browser is active in the background</div></a>
+      <div class="dropdown-item" data-i18n="fallback.no-notifications">No new notifications</div>
+      <a onclick="openPopup('popup2')"><div class="dropdown-item" data-i18n="fallback.browser-background">Browser is active in the background</div></a>
 
       
     </div>
@@ -147,7 +149,7 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
   <div id="popup1" class="popup">
     <div class="popup-header">
-      <span>Settings</span>
+      <span data-i18n="common.settings">Settings</span>
       <span class="altf4" onclick="closePopup('popup1')">✖</span>
     </div>
     <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
@@ -159,17 +161,17 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
       <span class="altf4" onclick="closePopup('popup2')">✖</span> 
     </div>
     <div style="padding: 8px 10px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.05);">
-      <button onclick="goBack()" style="margin-right: 5px; padding: 5px 12px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;">← Back</button>
+      <button onclick="goBack()" style="margin-right: 5px; padding: 5px 12px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;" data-i18n="fallback.browser.back">← Back</button>
       <button onclick="goHome()" style="margin-right: 10px; padding: 5px 12px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;">Home</button>
-      <button onclick="reloadIframe()" style="margin-right: 10px; padding: 5px 12px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;">⟳ Reload</button>
-      <button onclick="loadURL()" style="margin-left: 5px; padding: 5px 12px; background: #0a84ff; color: #fff; border: none; border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;">Go</button>
+      <button onclick="reloadIframe()" style="margin-right: 10px; padding: 5px 12px; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;" data-i18n="fallback.browser.reload">⟳ Reload</button>
+      <button onclick="loadURL()" style="margin-left: 5px; padding: 5px 12px; background: #0a84ff; color: #fff; border: none; border-radius: 8px; cursor: pointer; font: 500 13px Poppins, sans-serif;" data-i18n="fallback.browser.go">Go</button>
     </div>
     <iframe id="browserFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-downloads" class="popup-frame" onload="onIframeLoad()" onerror="onIframeError()"></iframe>
   </div>
 
   <div id="popup3" class="popup">
     <div class="popup-header">
-      <span>Help</span>
+      <span data-i18n="fallback.help">Help</span>
       <span class="altf4" onclick="closePopup('popup3')">✖</span>
     </div>
     <iframe src="apps/feedback/index.html" class="popup-frame"></iframe>
@@ -315,6 +317,12 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
     // clock 
     function updateClock(){
       const now = new Date();
+      if (mariowOSI18n.locale) {
+        // Other languages: the language's own day/month names and time format.
+        document.getElementById("center-clock").textContent = now.toLocaleString(mariowOSI18n.locale,
+          { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" });
+        return;
+      }
       const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
       const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
       let h = now.getHours(), m = now.getMinutes();

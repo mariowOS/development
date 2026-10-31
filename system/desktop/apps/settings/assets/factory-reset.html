@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +19,7 @@
   --md-sys-color-background: transparent;
   --md-sys-color-surface-container: rgba(255,255,255,0.06);
   --md-sys-color-surface-container-high: rgba(255,255,255,0.1);
-  --md-sys-color-secondary-container: rgba(10,132,255,0.18);
+  --md-sys-color-secondary-container: color-mix(in srgb, var(--sys-accent) 18%, transparent);
   --md-sys-color-on-secondary-container: #ffffff;
   --md-sys-color-on-surface: #ffffff;
   --md-sys-color-on-surface-variant: rgba(255,255,255,0.5);
@@ -125,7 +128,8 @@ body {
   color: var(--md-sys-color-on-surface);
 }
 
-.setting-card input[type="text"] {
+.setting-card input[type="text"],
+.setting-card input[type="password"] {
   width: 100%;
   padding: 9px 12px;
   background: rgba(0,0,0,0.2);
@@ -139,11 +143,13 @@ body {
   transition: all 0.2s ease;
 }
 
-.setting-card input[type="text"]:focus {
+.setting-card input[type="text"]:focus,
+.setting-card input[type="password"]:focus {
   border-color: var(--md-sys-color-error);
 }
 
-.setting-card input[type="text"]::placeholder {
+.setting-card input[type="text"]::placeholder,
+.setting-card input[type="password"]::placeholder {
   color: var(--md-sys-color-outline);
 }
 
@@ -214,40 +220,40 @@ html::-webkit-scrollbar {
     <div class="warning-banner">
       <h3>
         <span class="material-symbols-outlined">warning</span>
-        Warning
+        <span data-i18n="settings.factory-reset.warning">Warning</span>
       </h3>
-      <p>Factory reset is an <strong>irreversible action</strong> that will erase <strong>ALL settings, preferences, and customizations</strong>.</p>
+      <p><span data-i18n="settings.factory-reset.intro-1">Factory reset is an</span> <strong data-i18n="settings.factory-reset.intro-2">irreversible action</strong> <span data-i18n="settings.factory-reset.intro-3">that will erase</span> <strong data-i18n="settings.factory-reset.intro-4">ALL settings, preferences, and customizations</strong>.</p>
     </div>
 
     <div class="setting-card">
-      <label>What will be removed:</label>
+      <label data-i18n="settings.factory-reset.removed">What will be removed:</label>
       <div class="checkbox-list">
         <div class="checkbox-group">
           <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
-          <label>Time zone settings</label>
+          <label data-i18n="settings.factory-reset.item-timezone">Time zone settings</label>
         </div>
         <div class="checkbox-group">
           <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
-          <label>Manual time offsets</label>
+          <label data-i18n="settings.factory-reset.item-offsets">Manual time offsets</label>
         </div>
         <div class="checkbox-group">
           <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
-          <label>User preferences</label>
+          <label data-i18n="settings.factory-reset.item-prefs">User preferences</label>
         </div>
         <div class="checkbox-group">
           <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
-          <label>Wallpaper, profile picture, boot logo and themes</label>
+          <label data-i18n="settings.factory-reset.item-look">Wallpaper, profile picture, boot logo and themes</label>
         </div>
         <div class="checkbox-group">
           <span class="material-symbols-outlined" style="font-size:18px;color:var(--md-sys-color-error, #ff453a);">remove_circle</span>
-          <label>All IndexedDB data</label>
+          <label data-i18n="settings.factory-reset.item-idb">All IndexedDB data</label>
         </div>
       </div>
     </div>
 
     <div class="button-row">
-      <button class="btn-secondary" onclick="goBack()">Cancel</button>
-      <button class="btn-danger" onclick="showStage2()">I Understand, Continue</button>
+      <button class="btn-secondary" onclick="goBack()" data-i18n="common.cancel">Cancel</button>
+      <button class="btn-danger" onclick="showStage2()" data-i18n="settings.factory-reset.understand">I Understand, Continue</button>
     </div>
   </div>
 
@@ -256,23 +262,27 @@ html::-webkit-scrollbar {
     <div class="warning-banner">
       <h3>
         <span class="material-symbols-outlined">report</span>
-        Final Confirmation
+        <span data-i18n="settings.factory-reset.final">Final Confirmation</span>
       </h3>
-      <p>Type "FACTORY RESET" below to continue.</p>
+      <p data-i18n="settings.factory-reset.type-phrase">Type "FACTORY RESET" below to continue.</p>
     </div>
 
     <div class="setting-card">
-      <label for="confirmInput">Confirmation Required</label>
-      <input type="text" id="confirmInput" placeholder="Type: FACTORY RESET" onkeyup="checkConfirmation()">
+      <label for="confirmInput" data-i18n="settings.factory-reset.confirm-required">Confirmation Required</label>
+      <input type="text" id="confirmInput" placeholder="Type: FACTORY RESET" data-i18n-placeholder="settings.factory-reset.confirm-placeholder" oninput="checkConfirmation()">
     </div>
 
-    <div class="confirmation-card">
-      Remember that everything will be erased and all settings will be restored to factory defaults. This action cannot be undone.
+    <div class="setting-card" id="passwordCard" style="display:none">
+      <label for="passwordInput" data-i18n="settings.factory-reset.password">Account Password</label>
+      <input type="password" id="passwordInput" placeholder="Enter your password" data-i18n-placeholder="settings.factory-reset.password-placeholder" autocomplete="current-password" oninput="checkConfirmation()">
+      <div id="passwordHint" style="font-size:12px;color:var(--md-sys-color-on-surface-variant);margin-top:8px;">Your password is required to erase this device.</div>
     </div>
+
+    <div class="confirmation-card" data-i18n="settings.factory-reset.remember">Remember that everything will be erased and all settings will be restored to factory defaults. This action cannot be undone.</div>
 
     <div class="button-row">
-      <button class="btn-secondary" onclick="goBackToStage1()">Cancel</button>
-      <button class="btn-danger" id="resetBtn" disabled onclick="executeFactoryReset()">Reset System</button>
+      <button class="btn-secondary" onclick="goBackToStage1()" data-i18n="common.cancel">Cancel</button>
+      <button class="btn-danger" id="resetBtn" disabled onclick="executeFactoryReset()" data-i18n="settings.factory-reset.reset">Reset System</button>
     </div>
   </div>
 </div>
@@ -283,33 +293,48 @@ function goBack() {
   window.history.back();
 }
 
-function showStage2() {
+// true / false, or null when the kernel is too old to tell (then the field is optional).
+let needsPassword = null;
+
+async function showStage2() {
   document.querySelector('.stage-1').classList.remove('active');
   document.querySelector('.stage-2').classList.add('active');
+  needsPassword = await factoryResetNeedsPassword();
+  document.getElementById('passwordCard').style.display = needsPassword === false ? 'none' : '';
+  document.getElementById('passwordHint').textContent = mariowOSI18n.t('settings.factory-reset.password-hint', 'Your password is required to erase this device.');
+  if (needsPassword === null) {
+    document.getElementById('passwordHint').textContent = mariowOSI18n.t('settings.factory-reset.password-hint-none', 'Leave it empty if you never set a password.');
+  }
   document.getElementById('confirmInput').focus();
+  checkConfirmation();
 }
 
 function goBackToStage1() {
   document.querySelector('.stage-2').classList.remove('active');
   document.querySelector('.stage-1').classList.add('active');
   document.getElementById('confirmInput').value = '';
+  document.getElementById('passwordInput').value = '';
   document.getElementById('resetBtn').disabled = true;
 }
 
 function checkConfirmation() {
   const input = document.getElementById('confirmInput').value;
   const btn = document.getElementById('resetBtn');
-  btn.disabled = (input !== 'FACTORY RESET');
+  const password = document.getElementById('passwordInput').value;
+  btn.disabled = (input !== 'FACTORY RESET') || (needsPassword === true && !password);
 }
 
 async function executeFactoryReset() {
   const btn = document.getElementById('resetBtn');
   if (btn) btn.disabled = true;
   try {
-    await runFactoryReset();
+    await runFactoryReset(needsPassword === false ? '' : document.getElementById('passwordInput').value);
   } catch (err) {
-    await mDialog.alert('Factory reset failed: ' + err.message);
-    if (btn) btn.disabled = false;
+    await mDialog.alert(mariowOSI18n.t('settings.factory-reset.failed', 'Factory reset failed: {error}', { error: err.message }));
+    const pwd = document.getElementById('passwordInput');
+    pwd.value = '';
+    if (needsPassword !== false) pwd.focus();
+    checkConfirmation();
   }
 }
 

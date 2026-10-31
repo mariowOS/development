@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,7 +65,7 @@
       transition: border-color 0.2s;
     }
     
-    .panel input[type="time"]:focus { border-color: #0a84ff; }
+    .panel input[type="time"]:focus { border-color: var(--sys-accent-text); }
     
     ::-webkit-calendar-picker-indicator {
       filter: invert(1);
@@ -77,15 +80,15 @@
       padding: 14px; 
       border-radius: 8px; 
       border: none; 
-      background: #0a84ff; 
-      color: white; 
+      background: var(--sys-accent); 
+      color: var(--sys-accent-on); 
       font-weight: 500; 
       font-size: 14px;
       cursor: pointer; 
       font-family: inherit; 
       transition: background 0.2s; 
     }
-    .btn:hover { background: #007aff; }
+    .btn:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
 
     html::-webkit-scrollbar { display: none; }
   </style>
@@ -101,15 +104,15 @@
       padding: 7px 14px;
       border: none;
       border-radius: 8px;
-      background: #0a84ff;
-      color: #fff;
+      background: var(--sys-accent);
+      color: var(--sys-accent-on);
       font: 500 13px 'Poppins', sans-serif;
     }
-    .container > .btn:hover { background: #007aff; border-color: transparent; }
-    .container > .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+    .container > .btn:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); border-color: transparent; color: var(--sys-accent-on); }
+    .container > .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
     .container > .btn:active { transform: scale(0.99); }
     input:not([type='checkbox']):not([type='radio']), select { border-radius: 8px; cursor: pointer; color-scheme: dark; }
-    input:focus, select:focus { box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+    input:focus, select:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
     
   </style>
 </head>
@@ -117,17 +120,17 @@
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Set Time Manually</h1>
+    <h1 data-i18n="settings.set-time-manually.title">Set Time Manually</h1>
   </div>
   <div class="panel form-panel">
-    <label for="timeInput">Select System Time</label>
+    <label for="timeInput" data-i18n="settings.set-time-manually.select">Select System Time</label>
     <input type="time" id="timeInput">
   </div>
 
-  <button class="btn" onclick="setTime()">Save changes</button>
+  <button class="btn" onclick="setTime()" data-i18n="settings.set-time-manually.save">Save changes</button>
 </div>
 
 <script>
@@ -143,7 +146,7 @@ async function setTime() {
   const timeInput = document.getElementById('timeInput');
   
   if (!timeInput.value) {
-    await mDialog.alert('Please select a time.');
+    await mDialog.alert(mariowOSI18n.t('settings.set-time-manually.select-alert', 'Please select a time.'));
     return;
   }
 
@@ -158,7 +161,7 @@ async function setTime() {
   localStorage.setItem('manualTimeEnabled', 'true');
   localStorage.removeItem('timezoneOffset');
 
-  await mDialog.alert(`System time set to ${hours}:${minutes}.`);
+  await mDialog.alert(mariowOSI18n.t('settings.set-time-manually.set', 'System time set to {time}.', { time: `${hours}:${minutes}` }));
   
   setTimeout(function() {
     window.history.back();

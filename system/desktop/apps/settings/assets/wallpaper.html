@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,8 +50,8 @@ body {
   cursor: pointer;
   background: rgba(0, 0, 0, 0.15);
 }
-.upload-area:hover { border-color: #0a84ff; background: rgba(10, 132, 255, 0.05); }
-.upload-area.dragover { border-color: #0a84ff; background: rgba(10, 132, 255, 0.1); }
+.upload-area:hover { border-color: var(--sys-accent-text); background: color-mix(in srgb, var(--sys-accent) 5%, transparent); }
+.upload-area.dragover { border-color: var(--sys-accent-text); background: color-mix(in srgb, var(--sys-accent) 10%, transparent); }
 .upload-icon { font-size: 36px; margin-bottom: 8px; }
 .upload-text { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
 .upload-hint { font-size: 12px; color: rgba(255, 255, 255, 0.5); }
@@ -57,8 +60,8 @@ body {
 .btn {
   width: 100%;
   padding: 12px;
-  background: #0a84ff;
-  color: white;
+  background: var(--sys-accent);
+  color: var(--sys-accent-on);
   border: none;
   border-radius: 8px;
   font-family: inherit;
@@ -67,7 +70,7 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn:hover { background: #007aff; }
+.btn:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
 .btn:active { transform: scale(0.99); }
 .btn:disabled { opacity: 0.5; cursor: default; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
 
@@ -91,14 +94,15 @@ body {
 }
 
 /* --- Controls, themed with the user's accent color (--accent) --- */
-:root { --accent: #0a84ff; }
+:root { --accent: var(--sys-accent); }
 .seg { position: relative; display: flex; padding: 4px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; }
 .seg-pill { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: 9px; background: var(--accent);
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 45%, transparent); transition: transform .35s cubic-bezier(.2,1.2,.4,1), width .35s ease; }
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 45%, transparent); transition: transform .35s cubic-bezier(.2,1.2,.4,1), width .35s ease; color: var(--sys-accent-on); }
 .seg button { position: relative; z-index: 1; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 4px;
   border: 0; border-radius: 9px; background: transparent; color: rgba(255,255,255,0.65); font: 500 12.5px 'Poppins', sans-serif; cursor: pointer; transition: color .2s; }
 .seg button .material-symbols-outlined { font-size: 17px; }
-.seg button:hover, .seg button.on { color: #fff; }
+.seg button:hover { color: #fff; }
+.seg button.on { color: var(--sys-accent-on); }
 .row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; align-items: center; gap: 16px; min-height: 34px; }
 .row select { grid-column: 2 / -1; justify-self: end; }
 .row label { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 500; white-space: nowrap; }
@@ -134,7 +138,7 @@ select { min-width: 160px; padding: 8px 34px 8px 12px; border: 1px solid rgba(25
   color: #fff; font: 13px 'Poppins', sans-serif; -webkit-appearance: none; appearance: none;
   background: rgba(0,0,0,0.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff99' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 10px center; }
 select:hover { border-color: rgba(255,255,255,0.25); }
-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+select:focus { border-color: var(--sys-accent-text); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 select option { background: #1c1e24; }
 .saved { font-size: 11.5px; color: rgba(255,255,255,0.45); text-align: right; min-height: 16px; margin: -12px 4px 0 0; }
 .mode-panel[hidden] { display: none; }
@@ -145,66 +149,66 @@ html::-webkit-scrollbar { display: none; }
 <body>
 <div class="container">
   
-  <div class="section-title">Upload Custom Wallpaper</div>
+  <div class="section-title" data-i18n="settings.wallpaper.upload-title">Upload Custom Wallpaper</div>
   <div class="panel">
     <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()">
       <div class="upload-icon"><span class="material-symbols-outlined" style="font-size: 36px;">add_photo_alternate</span></div>
-      <div class="upload-text">Click or drop image here</div>
-      <div class="upload-hint">PNG or JPEG recommended</div>
+      <div class="upload-text" data-i18n="settings.wallpaper.drop">Click or drop image here</div>
+      <div class="upload-hint" data-i18n="settings.wallpaper.drop-hint">PNG or JPEG recommended</div>
       <input type="file" id="fileInput" class="file-input" accept="image/png,image/jpeg" onchange="previewFile(event)">
     </div>
 
     <div class="preview-area" id="previewArea">
-      <img id="previewImg" src="" alt="Preview">
+      <img id="previewImg" src="" alt="Preview" data-i18n-aria-label="settings.wallpaper.preview" aria-label="Preview">
     </div>
 
-    <button class="btn" id="applyBtn" onclick="applyWallpaper()" disabled>Apply wallpaper</button>
+    <button class="btn" id="applyBtn" onclick="applyWallpaper()" disabled data-i18n="settings.wallpaper.apply">Apply wallpaper</button>
     <div id="status" class="status"></div>
   </div>
 
-  <div class="section-title">Background</div>
+  <div class="section-title" data-i18n="settings.wallpaper.background">Background</div>
   <div class="panel">
     <div class="seg" id="modeSeg">
-      <span class="seg-pill" id="segPill"></span><button data-mode="image"><span class="material-symbols-outlined">image</span>Picture</button><button data-mode="color"><span class="material-symbols-outlined">format_color_fill</span>Solid color</button><button data-mode="gradient"><span class="material-symbols-outlined">gradient</span>Gradient</button>
+      <span class="seg-pill" id="segPill"></span><button data-mode="image"><span class="material-symbols-outlined">image</span><span data-i18n="settings.wallpaper.mode-picture">Picture</span></button><button data-mode="color"><span class="material-symbols-outlined">format_color_fill</span><span data-i18n="settings.wallpaper.mode-color">Solid color</span></button><button data-mode="gradient"><span class="material-symbols-outlined">gradient</span><span data-i18n="settings.wallpaper.mode-gradient">Gradient</span></button>
     </div>
     <div class="mode-panel" data-for="image">
-      <div class="row"><label for="fit"><span class="material-symbols-outlined">fit_screen</span>Fit</label>
-        <select id="fit"><option value="cover">Fill</option><option value="contain">Fit</option><option value="stretch">Stretch</option><option value="center">Center</option><option value="tile">Tile</option></select>
+      <div class="row"><label for="fit"><span class="material-symbols-outlined">fit_screen</span><span data-i18n="settings.wallpaper.fit-label">Fit</span></label>
+        <select id="fit"><option value="cover" data-i18n="settings.wallpaper.fit-fill">Fill</option><option value="contain" data-i18n="settings.wallpaper.fit-fit">Fit</option><option value="stretch" data-i18n="settings.wallpaper.fit-stretch">Stretch</option><option value="center" data-i18n="settings.wallpaper.fit-center">Center</option><option value="tile" data-i18n="settings.wallpaper.fit-tile">Tile</option></select>
       </div>
     </div>
     <div class="mode-panel" data-for="color"><div class="swatches" id="bgColors"></div></div>
     <div class="mode-panel" data-for="gradient"><div class="gradients" id="gradients"></div></div>
-    <div class="row"><label for="brightness"><span class="material-symbols-outlined">light_mode</span>Brightness</label><input type="range" id="brightness" min="30" max="130"><output data-for="brightness"></output></div>
-    <div class="row"><label for="saturation"><span class="material-symbols-outlined">palette</span>Saturation</label><input type="range" id="saturation" min="0" max="200"><output data-for="saturation"></output></div>
-    <div class="row"><label for="blur"><span class="material-symbols-outlined">blur_on</span>Blur</label><input type="range" id="blur" min="0" max="30"><output data-for="blur"></output></div>
+    <div class="row"><label for="brightness"><span class="material-symbols-outlined">light_mode</span><span data-i18n="settings.wallpaper.brightness">Brightness</span></label><input type="range" id="brightness" min="30" max="130"><output data-for="brightness"></output></div>
+    <div class="row"><label for="saturation"><span class="material-symbols-outlined">palette</span><span data-i18n="settings.wallpaper.saturation">Saturation</span></label><input type="range" id="saturation" min="0" max="200"><output data-for="saturation"></output></div>
+    <div class="row"><label for="blur"><span class="material-symbols-outlined">blur_on</span><span data-i18n="settings.wallpaper.blur">Blur</span></label><input type="range" id="blur" min="0" max="30"><output data-for="blur"></output></div>
   </div>
 
-  <div class="section-title">Accent color</div>
+  <div class="section-title" data-i18n="settings.wallpaper.accent">Accent color</div>
   <div class="panel">
     <div class="swatches" id="accents"></div>
-    <div class="hint">Used for the dock indicator, calendar, highlights and buttons.</div>
+    <div class="hint" data-i18n="settings.wallpaper.accent-hint">Used for the dock indicator, calendar, highlights and buttons.</div>
   </div>
 
-  <div class="section-title">Windows</div>
+  <div class="section-title" data-i18n="settings.wallpaper.windows">Windows</div>
   <div class="panel">
-    <div class="row"><label for="radius"><span class="material-symbols-outlined">rounded_corner</span>Corner radius</label><input type="range" id="radius" min="0" max="28"><output data-for="radius"></output></div>
-    <div class="row"><label for="glass"><span class="material-symbols-outlined">opacity</span>Opacity</label><input type="range" id="glass" min="30" max="100"><output data-for="glass"></output></div>
+    <div class="row"><label for="radius"><span class="material-symbols-outlined">rounded_corner</span><span data-i18n="settings.wallpaper.radius">Corner radius</span></label><input type="range" id="radius" min="0" max="28"><output data-for="radius"></output></div>
+    <div class="row"><label for="glass"><span class="material-symbols-outlined">opacity</span><span data-i18n="settings.wallpaper.opacity">Opacity</span></label><input type="range" id="glass" min="30" max="100"><output data-for="glass"></output></div>
   </div>
 
-  <div class="section-title">Desktop</div>
+  <div class="section-title" data-i18n="settings.wallpaper.desktop">Desktop</div>
   <div class="panel">
-    <div class="row"><label for="iconScale"><span class="material-symbols-outlined">apps</span>Icon size</label><input type="range" id="iconScale" min="70" max="150" step="5"><output data-for="iconScale"></output></div>
-    <div class="row"><label for="uiFont"><span class="material-symbols-outlined">text_fields</span>System font</label>
+    <div class="row"><label for="iconScale"><span class="material-symbols-outlined">apps</span><span data-i18n="settings.wallpaper.icon-size">Icon size</span></label><input type="range" id="iconScale" min="70" max="150" step="5"><output data-for="iconScale"></output></div>
+    <div class="row"><label for="uiFont"><span class="material-symbols-outlined">text_fields</span><span data-i18n="settings.wallpaper.font">System font</span></label>
       <select id="uiFont">
-        <option value="Poppins">Poppins (default)</option><option value="Inter">Inter</option><option value="Nunito">Nunito</option>
+        <option value="Poppins" data-i18n="settings.wallpaper.font-default">Poppins (default)</option><option value="Inter">Inter</option><option value="Nunito">Nunito</option>
         <option value="Roboto Slab">Roboto Slab</option><option value="Lora">Lora</option><option value="JetBrains Mono">JetBrains Mono</option>
-        <option value="system-ui">System</option>
+        <option value="system-ui" data-i18n="settings.wallpaper.font-system">System</option>
       </select>
     </div>
   </div>
 
   <div class="saved" id="savedState"></div>
-  <div class="section-title">Defaults</div>
+  <div class="section-title" data-i18n="settings.wallpaper.defaults">Defaults</div>
   <div class="panel" style="padding: 12px;">
     <div class="list-item" onclick="resetStyle()" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; cursor: pointer; border-radius: 6px; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
       <div style="display: flex; align-items: center; gap: 12px;">
@@ -212,8 +216,8 @@ html::-webkit-scrollbar { display: none; }
           <span class="material-symbols-outlined" style="font-size: 18px; color: #fff;">format_paint</span>
         </div>
         <div>
-          <div style="font-size: 14px; font-weight: 500;">Reset Style</div>
-          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Restore accent, adjustments, windows, icons and font</div>
+          <div style="font-size: 14px; font-weight: 500;" data-i18n="settings.wallpaper.reset-style">Reset Style</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);" data-i18n="settings.wallpaper.reset-style-desc">Restore accent, adjustments, windows, icons and font</div>
         </div>
       </div>
       <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.3);">chevron_right</span>
@@ -224,8 +228,8 @@ html::-webkit-scrollbar { display: none; }
           <span class="material-symbols-outlined" style="font-size: 18px; color: #fff;">wallpaper</span>
         </div>
         <div>
-          <div style="font-size: 14px; font-weight: 500;">Restore Default Wallpaper</div>
-          <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Revert to the factory desktop background</div>
+          <div style="font-size: 14px; font-weight: 500;" data-i18n="settings.wallpaper.restore">Restore Default Wallpaper</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.5);" data-i18n="settings.wallpaper.restore-desc">Revert to the factory desktop background</div>
         </div>
       </div>
       <span class="material-symbols-outlined" style="color: rgba(255,255,255,0.3);">chevron_right</span>
@@ -256,7 +260,7 @@ async function applyWallpaper() {
   const status = document.getElementById('status');
   const btn = document.getElementById('applyBtn');
   btn.disabled = true;
-  status.textContent = 'Uploading…';
+  status.textContent = mariowOSI18n.t('settings.wallpaper.uploading', 'Uploading…');
   status.style.color = 'rgba(255,255,255,0.5)';
 
   const formData = new FormData();
@@ -266,7 +270,7 @@ async function applyWallpaper() {
     const res = await fetch('/upload-wallpaper', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.success) {
-      status.textContent = 'Wallpaper applied successfully!';
+      status.textContent = mariowOSI18n.t('settings.wallpaper.applied', 'Wallpaper applied successfully!');
       saveStyle({ wallpaperMode: 'image' });
       status.style.color = '#34c759';
       window.top.postMessage({ type: 'apply-wallpaper' }, location.origin);
@@ -274,18 +278,18 @@ async function applyWallpaper() {
       throw new Error(data.error);
     }
   } catch (err) {
-    status.textContent = 'Error: ' + err.message;
+    status.textContent = mariowOSI18n.t('settings.wallpaper.error', 'Error: {message}', { message: err.message });
     status.style.color = '#ff453a';
   }
   btn.disabled = false;
 }
 
 async function resetToFactory() {
-  if (await mDialog.confirm("Restore the default factory wallpaper?")) {
+  if (await mDialog.confirm(mariowOSI18n.t("settings.wallpaper.restore-confirm", "Restore the default factory wallpaper?"))) {
     fetch('/api/system/reset-desktop', { method: 'POST' })
       .then(() => {
         saveStyle({ wallpaperMode: 'image' });
-        document.getElementById('status').textContent = 'Factory wallpaper restored';
+        document.getElementById('status').textContent = mariowOSI18n.t('settings.wallpaper.restored', 'Factory wallpaper restored');
         document.getElementById('status').style.color = '#34c759';
         document.getElementById('previewArea').style.display = 'none';
         document.getElementById('applyBtn').disabled = true;
@@ -318,12 +322,12 @@ const STYLE_DEFAULTS = {
 const ACCENTS = ['#0a84ff', '#5e5ce6', '#bf5af2', '#ff375f', '#ff453a', '#ff9f0a', '#ffd60a', '#30d158', '#40c8e0', '#8e8e93'];
 const BG_COLORS = ['#1c2333', '#000000', '#2c2c2e', '#0b3d2e', '#3a1c4a', '#4a1c1c', '#1c3a4a', '#f2f2f7'];
 const GRADIENTS = {
-  aurora: ['Aurora', 'linear-gradient(135deg, #0f2027 0%, #203a43 45%, #2c5364 100%)'],
-  sunset: ['Sunset', 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #6a3093 100%)'],
-  ocean: ['Ocean', 'linear-gradient(160deg, #000428 0%, #004e92 100%)'],
-  forest: ['Forest', 'linear-gradient(160deg, #0b3d2e 0%, #1d6b4f 55%, #a8e063 100%)'],
-  candy: ['Candy', 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)'],
-  midnight: ['Midnight', 'radial-gradient(circle at 30% 20%, #3a3f73 0%, #141629 60%, #07080f 100%)']
+  aurora: [mariowOSI18n.t('settings.wallpaper.gradient-aurora', 'Aurora'), 'linear-gradient(135deg, #0f2027 0%, #203a43 45%, #2c5364 100%)'],
+  sunset: [mariowOSI18n.t('settings.wallpaper.gradient-sunset', 'Sunset'), 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 50%, #6a3093 100%)'],
+  ocean: [mariowOSI18n.t('settings.wallpaper.gradient-ocean', 'Ocean'), 'linear-gradient(160deg, #000428 0%, #004e92 100%)'],
+  forest: [mariowOSI18n.t('settings.wallpaper.gradient-forest', 'Forest'), 'linear-gradient(160deg, #0b3d2e 0%, #1d6b4f 55%, #a8e063 100%)'],
+  candy: [mariowOSI18n.t('settings.wallpaper.gradient-candy', 'Candy'), 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)'],
+  midnight: [mariowOSI18n.t('settings.wallpaper.gradient-midnight', 'Midnight'), 'radial-gradient(circle at 30% 20%, #3a3f73 0%, #141629 60%, #07080f 100%)']
 };
 const UNITS = { brightness: '%', saturation: '%', blur: 'px', radius: 'px', glass: '%', iconScale: '%' };
 
@@ -341,7 +345,7 @@ function saveStyle(patch) {
   window.top.postMessage({ type: 'apply-style' }, location.origin);
   renderStyle();
   clearTimeout(persistTimer);
-  document.getElementById('savedState').textContent = 'Saving…';
+  document.getElementById('savedState').textContent = mariowOSI18n.t('settings.wallpaper.saving', 'Saving…');
   persistTimer = setTimeout(persistStyle, 400);
 }
 async function persistStyle() {
@@ -349,9 +353,9 @@ async function persistStyle() {
   try {
     const res = await fetch('/api/desktop-style', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(style) });
     if (!res.ok) throw new Error();
-    label.textContent = 'Saved';
+    label.textContent = mariowOSI18n.t('settings.wallpaper.saved', 'Saved');
   } catch (e) {
-    label.textContent = 'Could not save to the system: changes last only until restart';
+    label.textContent = mariowOSI18n.t('settings.wallpaper.save-failed', 'Could not save to the system: changes last only until restart');
   }
 }
 function paintRange(input) {
@@ -381,7 +385,7 @@ function swatch(color, active, onPick) {
 function customSwatch(value, active, onPick) {
   const wrap = document.createElement('label');
   wrap.className = 'swatch custom' + (active ? ' on' : '');
-  wrap.title = 'Custom color';
+  wrap.title = mariowOSI18n.t('settings.wallpaper.custom-color', 'Custom color');
   const input = document.createElement('input');
   input.type = 'color';
   input.value = value;
@@ -391,7 +395,7 @@ function customSwatch(value, active, onPick) {
 }
 
 function renderStyle() {
-  document.documentElement.style.setProperty('--accent', style.accent);
+  window.mariowOSAccent.apply();
   document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.mode === style.wallpaperMode));
   document.querySelectorAll('.mode-panel').forEach(p => { p.hidden = p.dataset.for !== style.wallpaperMode; });
   document.getElementById('fit').value = style.fit;
@@ -426,7 +430,7 @@ Object.keys(UNITS).forEach(id => {
 });
 
 async function resetStyle() {
-  if (!(await mDialog.confirm('Reset accent color, adjustments, windows, icon size and font to their defaults?'))) return;
+  if (!(await mDialog.confirm(mariowOSI18n.t('settings.wallpaper.reset-style-confirm', 'Reset accent color, adjustments, windows, icon size and font to their defaults?')))) return;
   style = { ...STYLE_DEFAULTS, wallpaperMode: style.wallpaperMode, wallpaperColor: style.wallpaperColor, gradient: style.gradient, fit: style.fit };
   saveStyle({});
 }

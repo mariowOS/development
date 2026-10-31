@@ -5,14 +5,17 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <meta charset="UTF-8">
-  <title>Settings</title>
+  <title data-i18n="common.settings">Settings</title>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
 
 <style>
 :root {
-    --mac-accent: #0a84ff;
+    --mac-accent: var(--sys-accent);
     --mac-sidebar: rgba(22, 22, 25, 0.65);
     --mac-border: rgba(255, 255, 255, 0.08);
     --mac-text: #ffffff;
@@ -37,6 +40,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 
   .sidebar {
     width: 250px;
+    flex-shrink: 0;
     background: var(--mac-sidebar);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
@@ -57,8 +61,8 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   }
   
   .profile-banner:hover:not(.active) { background: var(--mac-hover); }
-  .profile-banner.active { background: var(--mac-accent); }
-  .profile-banner.active .title, .profile-banner.active .subtitle { color: #ffffff; }
+  .profile-banner.active { background: var(--mac-accent); color: var(--sys-accent-on); }
+  .profile-banner.active .title, .profile-banner.active .subtitle { color: var(--sys-accent-on); }
 
   .profile-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: var(--mac-hover); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
   .profile-banner .title { font-weight: 500; font-size: 13px; color: var(--mac-text); margin-bottom: 2px;}
@@ -80,7 +84,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     transition: all 0.2s ease;
   }
   .search input:focus {
-    border-color: var(--mac-accent);
+    border-color: var(--sys-accent-text);
     box-shadow: 0 0 0 1px var(--mac-accent);
   }
 
@@ -94,7 +98,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   }
   
   .menu-item:hover:not(.active) { background: var(--mac-hover); }
-  .menu-item.active { background: var(--mac-accent); }
+  .menu-item.active { background: var(--mac-accent); color: var(--sys-accent-on); }
 
   .icon-bg { 
     display: flex; align-items: center; justify-content: center; 
@@ -118,7 +122,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 
   .menu-item .text-group { display: flex; flex-direction: column; }
   .menu-item .title { font-weight: 400; font-size: 13px; color: var(--mac-text); }
-  .menu-item.active .title { color: #ffffff; font-weight: 500; }
+  .menu-item.active .title { color: var(--sys-accent-on); font-weight: 500; }
   .menu-item:not(.profile-banner) .subtitle { display: none; }
 
   .content { flex: 1; padding: 40px; overflow: hidden !important; display: flex; flex-direction: column; box-sizing: border-box; position: relative; background: transparent; }
@@ -136,15 +140,15 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     <div class="profile-banner menu-item" onclick="loadPage('you', this)">
       <img src="/desktop/assets/avatar.user.png" class="profile-avatar" id="sidebarAvatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
       <div class="text-group">
-        <div class="title" id="sidebarUsername">mariowOS User</div>
-        <div class="subtitle" id="sidebarEmail">mariowOS Account</div>
+        <div class="title" id="sidebarUsername" data-i18n="settings.you.default-name">mariowOS User</div>
+        <div class="subtitle" id="sidebarEmail" data-i18n="settings.you.default-account">mariowOS Account</div>
       </div>
     </div>
 
     <div class="search">
       <div class="search-wrapper">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" placeholder="Search">
+        <input type="text" placeholder="Search" data-i18n-placeholder="settings.search">
       </div>
     </div>
 
@@ -154,23 +158,23 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
       <div class="menu-item" onclick="loadPage('wifi', this)">
         <div class="icon-bg c-wifi"><span class="material-symbols-outlined">wifi</span></div>
         <div class="text-group">
-          <div class="title">Wi-Fi</div>
-          <div class="subtitle">Wireless networks</div>
+          <div class="title" data-i18n="settings.nav.wifi">Wi-Fi</div>
+          <div class="subtitle" data-i18n="settings.nav.wifi.subtitle">Wireless networks</div>
         </div>
       </div>
       <div class="menu-item" onclick="loadPage('bluetooth', this)">
         <div class="icon-bg c-bt"><span class="material-symbols-outlined">bluetooth</span></div>
         <div class="text-group">
-          <div class="title">Bluetooth</div>
-          <div class="subtitle">Wireless devices</div>
+          <div class="title" data-i18n="settings.nav.bluetooth">Bluetooth</div>
+          <div class="subtitle" data-i18n="settings.nav.bluetooth.subtitle">Wireless devices</div>
         </div>
       </div>
       
       <div class="menu-item" id="ethernetTab" style="display: none;" onclick="loadPage('ethernet', this)">
         <div class="icon-bg c-ethernet"><span class="material-symbols-outlined">settings_ethernet</span></div>
         <div class="text-group">
-          <div class="title">Ethernet</div>
-          <div class="subtitle">Wired network stats</div>
+          <div class="title" data-i18n="settings.nav.ethernet">Ethernet</div>
+          <div class="subtitle" data-i18n="settings.nav.ethernet.subtitle">Wired network stats</div>
         </div>
       </div>
 
@@ -179,40 +183,40 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
       <div class="menu-item" onclick="loadPage('system', this)">
         <div class="icon-bg c-system"><span class="material-symbols-outlined">settings</span></div>
         <div class="text-group">
-          <div class="title">General</div>
-          <div class="subtitle">Rules, time, reset</div>
+          <div class="title" data-i18n="settings.nav.system">General</div>
+          <div class="subtitle" data-i18n="settings.nav.system.subtitle">Rules, time, reset</div>
         </div>
       </div>
       
       <div class="menu-item" onclick="loadPage('apps', this)">
         <div class="icon-bg c-apps"><span class="material-symbols-outlined">grid_view</span></div>
         <div class="text-group">
-          <div class="title">Apps</div>
-          <div class="subtitle">Installed applications</div>
+          <div class="title" data-i18n="settings.nav.apps">Apps</div>
+          <div class="subtitle" data-i18n="settings.nav.apps.subtitle">Installed applications</div>
         </div>
       </div>
       
       <div class="menu-item" onclick="loadPage('security', this)">
         <div class="icon-bg c-security"><span class="material-symbols-outlined">lock</span></div>
         <div class="text-group">
-          <div class="title">Security</div>
-          <div class="subtitle">Passwords & resets</div>
+          <div class="title" data-i18n="settings.nav.security">Security</div>
+          <div class="subtitle" data-i18n="settings.nav.security.subtitle">Passwords & resets</div>
         </div>
       </div>
 
       <div class="menu-item" onclick="loadPage('wallpaper', this)">
         <div class="icon-bg c-wallpaper"><span class="material-symbols-outlined">palette</span></div>
         <div class="text-group">
-          <div class="title">Wallpaper & Style</div>
-          <div class="subtitle">Background, icons, colors</div>
+          <div class="title" data-i18n="settings.nav.wallpaper">Wallpaper & Style</div>
+          <div class="subtitle" data-i18n="settings.nav.wallpaper.subtitle">Background, icons, colors</div>
         </div>
       </div>
 
       <div class="menu-item" onclick="loadPage('lockscreen', this)">
         <div class="icon-bg c-lockscreen"><span class="material-symbols-outlined">screen_lock_portrait</span></div>
         <div class="text-group">
-          <div class="title">Lockscreen</div>
-          <div class="subtitle">Clock style, live wallpaper</div>
+          <div class="title" data-i18n="settings.nav.lockscreen">Lockscreen</div>
+          <div class="subtitle" data-i18n="settings.nav.lockscreen.subtitle">Clock style, live wallpaper</div>
         </div>
       </div>
 
@@ -221,32 +225,32 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
       <div class="menu-item" onclick="loadPage('functions', this)">
         <div class="icon-bg c-functions"><span class="material-symbols-outlined">science</span></div>
         <div class="text-group">
-          <div class="title">Functions Lab</div>
-          <div class="subtitle">Experimental features</div>
+          <div class="title" data-i18n="settings.nav.functions">Functions Lab</div>
+          <div class="subtitle" data-i18n="settings.nav.functions.subtitle">Experimental features</div>
         </div>
       </div>
       
       <div class="menu-item" onclick="loadPage('updater', this)">
         <div class="icon-bg c-updater"><span class="material-symbols-outlined">update</span></div>
         <div class="text-group">
-          <div class="title">Updater</div>
-          <div class="subtitle">Software updates</div>
+          <div class="title" data-i18n="settings.nav.updater">Updater</div>
+          <div class="subtitle" data-i18n="settings.nav.updater.subtitle">Software updates</div>
         </div>
       </div>
 
       <div class="menu-item" onclick="loadPage('backup', this)">
         <div class="icon-bg c-backup"><span class="material-symbols-outlined">cloud_sync</span></div>
         <div class="text-group">
-          <div class="title">Backup & Restore</div>
-          <div class="subtitle">Import or export data</div>
+          <div class="title" data-i18n="settings.nav.backup">Backup & Restore</div>
+          <div class="subtitle" data-i18n="settings.nav.backup.subtitle">Import or export data</div>
         </div>
       </div>
       
       <div class="menu-item" onclick="loadPage('about', this)">
         <div class="icon-bg c-about"><span class="material-symbols-outlined">info</span></div>
         <div class="text-group">
-          <div class="title">About</div>
-          <div class="subtitle">System information</div>
+          <div class="title" data-i18n="settings.nav.about">About</div>
+          <div class="subtitle" data-i18n="settings.nav.about.subtitle">System information</div>
         </div>
       </div>
     </div>
@@ -254,7 +258,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 
   <div class="content" id="content"></div>
 
-<script> 
+<script>
   function censorEmail(email) {
     if (!email || !email.includes('@')) return email;
     const [name, domain] = email.split('@');
@@ -329,7 +333,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
 
   function loadPage(pageKey, el) {
     const contentDiv = document.getElementById("content");
-    const title = pageTitles[pageKey];
+    const title = pageTitles[pageKey] && mariowOSI18n.t(`settings.nav.${pageKey}`, pageTitles[pageKey]);
     const src = pages[pageKey];
 
     if (!el) {
@@ -406,14 +410,14 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:9999;';
     overlay.innerHTML = `
       <div style="background:rgba(30,30,30,0.8);border:1px solid rgba(255,255,255,0.1);padding:24px;border-radius:14px;width:280px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.5);font-family:'Poppins',sans-serif;color:white;">
-        <div style="margin-bottom:12px;"><span class="material-symbols-outlined" style="font-size:32px;color:#0a84ff;">lock</span></div>
-        <h3 style="margin:0 0 8px 0;font-size:16px;font-weight:500;">Authentication Required</h3>
-        <p style="margin:0 0 20px 0;font-size:12px;color:rgba(255,255,255,0.6);">Enter your password to proceed.</p>
-        <input type="password" id="auth-pwd" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:white;margin-bottom:12px;box-sizing:border-box;outline:none;font-family:inherit;" placeholder="Password">
-        <div style="color:#ff453a;font-size:12px;margin-bottom:12px;display:none;" id="auth-err">Incorrect password</div>
+        <div style="margin-bottom:12px;"><span class="material-symbols-outlined" style="font-size:32px;color: var(--sys-accent-text);">lock</span></div>
+        <h3 style="margin:0 0 8px 0;font-size:16px;font-weight:500;">${mariowOSI18n.t("settings.auth.title", "Authentication Required")}</h3>
+        <p style="margin:0 0 20px 0;font-size:12px;color:rgba(255,255,255,0.6);">${mariowOSI18n.t("settings.auth.message", "Enter your password to proceed.")}</p>
+        <input type="password" id="auth-pwd" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:white;margin-bottom:12px;box-sizing:border-box;outline:none;font-family:inherit;" placeholder="${mariowOSI18n.t("settings.auth.password", "Password")}">
+        <div style="color:#ff453a;font-size:12px;margin-bottom:12px;display:none;" id="auth-err">${mariowOSI18n.t("settings.auth.incorrect", "Incorrect password")}</div>
         <div style="display:flex;gap:10px;">
-          <button id="auth-cancel" style="flex:1;padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:white;cursor:pointer;font-family:inherit;">Cancel</button>
-          <button id="auth-ok" style="flex:1;padding:8px;border-radius:8px;border:none;background:#0a84ff;color:white;cursor:pointer;font-family:inherit;">Verify</button>
+          <button id="auth-cancel" style="flex:1;padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.1);color:white;cursor:pointer;font-family:inherit;">${mariowOSI18n.t("common.cancel", "Cancel")}</button>
+          <button id="auth-ok" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--sys-accent);color:var(--sys-accent-on);cursor:pointer;font-family:inherit;">${mariowOSI18n.t("settings.auth.verify", "Verify")}</button>
         </div>
       </div>
     `;
@@ -431,7 +435,10 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ password: input.value })
       }).then(r => r.json()).then(res => {
-        if(res.success) { cleanup(); onSuccess(); } 
+        // Forward the verified password so callers that hit a password-gated backend
+        // route (e.g. /api/system/restore) can re-send it. Callbacks that don't need
+        // it simply ignore the argument.
+        if(res.success) { const pwd = input.value; cleanup(); onSuccess(pwd); }
         else { overlay.querySelector('#auth-err').style.display = 'block'; input.value = ''; input.focus(); }
       });
     };

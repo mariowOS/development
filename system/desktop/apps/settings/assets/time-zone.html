@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -63,7 +66,7 @@
       cursor: pointer;
     }
     
-    .panel select:focus { border-color: #0a84ff; }
+    .panel select:focus { border-color: var(--sys-accent-text); }
     
     .panel select option {
       background: #1e1e1e;
@@ -84,15 +87,15 @@
       padding: 14px; 
       border-radius: 8px; 
       border: none; 
-      background: #0a84ff; 
-      color: white; 
+      background: var(--sys-accent); 
+      color: var(--sys-accent-on); 
       font-weight: 500; 
       font-size: 14px;
       cursor: pointer; 
       font-family: inherit; 
       transition: background 0.2s; 
     }
-    .btn:hover { background: #007aff; }
+    .btn:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
 
     html::-webkit-scrollbar { display: none; }
   </style>
@@ -108,15 +111,15 @@
       padding: 7px 14px;
       border: none;
       border-radius: 8px;
-      background: #0a84ff;
-      color: #fff;
+      background: var(--sys-accent);
+      color: var(--sys-accent-on);
       font: 500 13px 'Poppins', sans-serif;
     }
-    .container > .btn:hover { background: #007aff; border-color: transparent; }
-    .container > .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+    .container > .btn:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); border-color: transparent; color: var(--sys-accent-on); }
+    .container > .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
     .container > .btn:active { transform: scale(0.99); }
     input:not([type='checkbox']):not([type='radio']), select { border-radius: 8px; cursor: pointer; color-scheme: dark; }
-    input:focus, select:focus { box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+    input:focus, select:focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
     .preview-box { font-size: 24px; font-weight: 600; letter-spacing: -0.3px; font-variant-numeric: tabular-nums; }
   </style>
 </head>
@@ -124,50 +127,50 @@
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Time Zone</h1>
+    <h1 data-i18n="settings.time-zone.title">Time Zone</h1>
   </div>
   
   <div class="panel form-panel">
-    <label for="timezoneSelect">Select Time Zone</label>
+    <label for="timezoneSelect" data-i18n="settings.time-zone.select">Select Time Zone</label>
     <select id="timezoneSelect" onchange="updatePreviewClock()">
-      <option value="-12">UTC−12 (International Date Line West)</option>
-      <option value="-11">UTC−11 (Samoa Time)</option>      
-      <option value="-10">UTC−10 (Hawaii Time)</option>
-      <option value="-9">UTC−9 (Alaska Time)</option>
-      <option value="-8">UTC−8 (Pacific Time)</option>
-      <option value="-7">UTC−7 (Mountain Time)</option>
-      <option value="-6">UTC−6 (Central Time)</option>
-      <option value="-5">UTC−5 (Eastern Time)</option>
-      <option value="-4">UTC−4 (Atlantic Time)</option>
-      <option value="-3">UTC−3 (Buenos Aires Time)</option>
-      <option value="-2">UTC−2 (Fernando de Noronha Time)</option>
-      <option value="-1">UTC−1 (Azores Time)</option>
-      <option value="0">UTC±0 (Greenwich Mean Time)</option>
-      <option value="1">UTC+1 (CET – Winter Time)</option>
-      <option value="2">UTC+2 (EET / CEST – Summer Time)</option>
-      <option value="3">UTC+3 (Eastern European Time)</option>
-      <option value="4">UTC+4 (Gulf Standard Time)</option>
-      <option value="5">UTC+5 (Pakistan Standard Time)</option>
-      <option value="5.5">UTC+5:30 (India Standard Time)</option>
-      <option value="6">UTC+6 (Bangladesh Standard Time)</option>
-      <option value="7">UTC+7 (Indochina Time)</option>
-      <option value="8">UTC+8 (China Standard Time)</option>
-      <option value="9">UTC+9 (Japan Standard Time)</option>
-      <option value="10">UTC+10 (Australian Eastern Time)</option>
-      <option value="11">UTC+11 (Solomon Islands Time)</option>
-      <option value="12">UTC+12 (New Zealand Standard Time)</option>
+      <option value="-12" data-i18n="settings.time-zone.zone-m12">UTC−12 (International Date Line West)</option>
+      <option value="-11" data-i18n="settings.time-zone.zone-m11">UTC−11 (Samoa Time)</option>      
+      <option value="-10" data-i18n="settings.time-zone.zone-m10">UTC−10 (Hawaii Time)</option>
+      <option value="-9" data-i18n="settings.time-zone.zone-m9">UTC−9 (Alaska Time)</option>
+      <option value="-8" data-i18n="settings.time-zone.zone-m8">UTC−8 (Pacific Time)</option>
+      <option value="-7" data-i18n="settings.time-zone.zone-m7">UTC−7 (Mountain Time)</option>
+      <option value="-6" data-i18n="settings.time-zone.zone-m6">UTC−6 (Central Time)</option>
+      <option value="-5" data-i18n="settings.time-zone.zone-m5">UTC−5 (Eastern Time)</option>
+      <option value="-4" data-i18n="settings.time-zone.zone-m4">UTC−4 (Atlantic Time)</option>
+      <option value="-3" data-i18n="settings.time-zone.zone-m3">UTC−3 (Buenos Aires Time)</option>
+      <option value="-2" data-i18n="settings.time-zone.zone-m2">UTC−2 (Fernando de Noronha Time)</option>
+      <option value="-1" data-i18n="settings.time-zone.zone-m1">UTC−1 (Azores Time)</option>
+      <option value="0" data-i18n="settings.time-zone.zone-0">UTC±0 (Greenwich Mean Time)</option>
+      <option value="1" data-i18n="settings.time-zone.zone-p1">UTC+1 (CET – Winter Time)</option>
+      <option value="2" data-i18n="settings.time-zone.zone-p2">UTC+2 (EET / CEST – Summer Time)</option>
+      <option value="3" data-i18n="settings.time-zone.zone-p3">UTC+3 (Eastern European Time)</option>
+      <option value="4" data-i18n="settings.time-zone.zone-p4">UTC+4 (Gulf Standard Time)</option>
+      <option value="5" data-i18n="settings.time-zone.zone-p5">UTC+5 (Pakistan Standard Time)</option>
+      <option value="5.5" data-i18n="settings.time-zone.zone-p5-30">UTC+5:30 (India Standard Time)</option>
+      <option value="6" data-i18n="settings.time-zone.zone-p6">UTC+6 (Bangladesh Standard Time)</option>
+      <option value="7" data-i18n="settings.time-zone.zone-p7">UTC+7 (Indochina Time)</option>
+      <option value="8" data-i18n="settings.time-zone.zone-p8">UTC+8 (China Standard Time)</option>
+      <option value="9" data-i18n="settings.time-zone.zone-p9">UTC+9 (Japan Standard Time)</option>
+      <option value="10" data-i18n="settings.time-zone.zone-p10">UTC+10 (Australian Eastern Time)</option>
+      <option value="11" data-i18n="settings.time-zone.zone-p11">UTC+11 (Solomon Islands Time)</option>
+      <option value="12" data-i18n="settings.time-zone.zone-p12">UTC+12 (New Zealand Standard Time)</option>
     </select>
   </div>
 
   <div class="panel form-panel">
-    <label>Preview</label>
+    <label data-i18n="settings.time-zone.preview">Preview</label>
     <div class="preview-box" id="previewClock">--:--</div>
   </div>
 
-  <button class="btn" onclick="setTimeZone()">Apply time zone</button>
+  <button class="btn" onclick="setTimeZone()" data-i18n="settings.time-zone.apply">Apply time zone</button>
 </div>
 
 <script>
@@ -196,7 +199,10 @@ function updatePreviewClock() {
   m = m < 10 ? "0" + m : m;
   s = s < 10 ? "0" + s : s;
   
-  const txt = `${h}:${m}:${s} ${ampm}`;
+  // English keeps the 12-hour clock; other languages use their own time format.
+  const txt = mariowOSI18n.locale
+    ? displayTime.toLocaleTimeString(mariowOSI18n.locale, { timeZone: 'UTC' })
+    : `${h}:${m}:${s} ${ampm}`;
   document.getElementById("previewClock").textContent = txt;
 }
 
@@ -208,7 +214,7 @@ async function setTimeZone() {
   localStorage.setItem('systemTimeOffset', 0);
   localStorage.setItem('manualTimeEnabled', 'false');
   
-  await mDialog.alert(`Time zone set to UTC${offset >= 0 ? '+' : ''}${offset}`);
+  await mDialog.alert(mariowOSI18n.t('settings.time-zone.set', 'Time zone set to {zone}', { zone: `UTC${offset >= 0 ? '+' : ''}${offset}` }));
   
   setTimeout(function() {
     window.history.back();

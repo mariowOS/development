@@ -1,5 +1,5 @@
 :root {
-  --settings-accent: #0a84ff;
+  --settings-accent: var(--sys-accent);
   --settings-surface: rgba(255, 255, 255, 0.06);
   --settings-border: rgba(255, 255, 255, 0.1);
   --settings-divider: rgba(255, 255, 255, 0.05);
@@ -31,7 +31,7 @@ body {
   align-items: center;
   gap: 8px;
   margin: 0 0 20px;
-  color: var(--settings-accent);
+  color: var(--sys-accent-text);
 }
 
 .settings-page-header h1,
@@ -52,7 +52,7 @@ body {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--settings-accent);
+  color: var(--sys-accent-text);
   cursor: pointer;
 }
 
@@ -225,8 +225,8 @@ body {
 }
 
 .btn:hover {
-  border-color: rgba(10, 132, 255, 0.55);
-  background: rgba(10, 132, 255, 0.18);
+  border-color: color-mix(in srgb, var(--sys-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--sys-accent) 18%, transparent);
 }
 
 .btn.edit,
@@ -277,7 +277,7 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--settings-accent);
+  border-color: var(--sys-accent-text);
 }
 
 select option {
@@ -357,7 +357,7 @@ input[type='time']::-webkit-calendar-picker-indicator {
 
 .item:hover .card-arrow {
   background: transparent;
-  color: var(--settings-accent);
+  color: var(--sys-accent-text);
 }
 
 .empty-state {

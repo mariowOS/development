@@ -5,13 +5,16 @@ Licensed under the Apache License, Version 2.0
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculator</title>
+<title data-i18n="calculator.title">Calculator</title>
 <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 <style>
   :root {
-    --accent: #0a84ff;
+    --accent: var(--sys-accent);
     --text: #ffffff;
     --muted: rgba(255, 255, 255, 0.55);
     --dim: rgba(255, 255, 255, 0.35);
@@ -33,10 +36,11 @@ Licensed under the Apache License, Version 2.0
   /* ── Top bar ── */
   .topbar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; flex: 0 0 auto; }
   .tabs { position: relative; display: flex; padding: 3px; border-radius: 11px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); }
-  .tabs-pill { position: absolute; top: 3px; bottom: 3px; left: 3px; border-radius: 8px; background: var(--accent); transition: transform .35s var(--spring), width .35s ease; }
+  .tabs-pill { position: absolute; top: 3px; bottom: 3px; left: 3px; border-radius: 8px; background: var(--accent); transition: transform .35s var(--spring), width .35s ease; color: var(--sys-accent-on); }
   .tab { position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 0; border-radius: 8px;
     background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: color .2s; }
-  .tab.on, .tab:hover { color: #fff; }
+  .tab:hover { color: #fff; }
+  .tab.on { color: var(--sys-accent-on); }
   .tab .material-symbols-outlined { font-size: 17px; }
   .topbar-spacer { flex: 1; }
   .chip { height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--key); color: var(--muted);
@@ -51,7 +55,7 @@ Licensed under the Apache License, Version 2.0
   .calc { flex: 1; display: flex; gap: 14px; padding: 0 14px 14px; min-width: 0; }
   .calc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
   .display { flex: 0 0 auto; padding: 14px 18px; border-radius: 18px; background: var(--panel); border: 1px solid var(--border); }
-  .expr { width: 100%; border: 0; outline: 0; background: transparent; color: var(--muted); font-size: 17px; text-align: right; caret-color: var(--accent); }
+  .expr { width: 100%; border: 0; outline: 0; background: transparent; color: var(--muted); font-size: 17px; text-align: right; caret-color: var(--sys-accent-text); }
   .result { margin-top: 2px; min-height: 52px; font-size: 40px; font-weight: 600; letter-spacing: -1px; text-align: right;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: copy; transition: color .2s; }
   .result.preview { color: var(--dim); }
@@ -73,7 +77,7 @@ Licensed under the Apache License, Version 2.0
   .key:active { transform: scale(.95); }
   .key.fn { font-size: 13.5px; color: rgba(255, 255, 255, 0.85); background: rgba(255, 255, 255, 0.05); }
   .key.op { background: rgba(255, 255, 255, 0.13); font-size: 19px; }
-  .key.eq { background: var(--accent); font-size: 21px; }
+  .key.eq { background: var(--accent); font-size: 21px; color: var(--sys-accent-on); }
   .key.eq:hover { filter: brightness(1.1); }
   .key.danger { color: #ff6961; }
   .key.active { background: color-mix(in srgb, var(--accent) 35%, transparent); color: #fff; }
@@ -147,7 +151,7 @@ Licensed under the Apache License, Version 2.0
   .gbtn { width: 34px; height: 34px; border: 1px solid var(--border); border-radius: 10px; background: rgba(28, 30, 36, 0.88); color: #fff; cursor: pointer;
     display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); transition: background .15s; }
   .gbtn:hover { background: rgba(50, 53, 62, 0.95); }
-  .gbtn.on { background: var(--accent); border-color: transparent; }
+  .gbtn.on { background: var(--accent); border-color: transparent; color: var(--sys-accent-on); }
   .gbtn .material-symbols-outlined { font-size: 19px; }
   .coords { position: absolute; left: 12px; bottom: 10px; padding: 4px 9px; border-radius: 8px; background: rgba(28, 30, 36, 0.85); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; pointer-events: none; }
   .tip { position: absolute; padding: 5px 9px; border-radius: 8px; background: rgba(20, 21, 26, 0.95); border: 1px solid var(--border); font-size: 11.5px; pointer-events: none; white-space: nowrap;
@@ -185,11 +189,11 @@ Licensed under the Apache License, Version 2.0
 <div class="topbar">
   <div class="tabs" id="tabs">
     <span class="tabs-pill" id="tabsPill"></span>
-    <button class="tab on" data-view="calc"><span class="material-symbols-outlined">calculate</span>Calculator</button>
-    <button class="tab" data-view="graph"><span class="material-symbols-outlined">show_chart</span>Graphing</button>
+    <button class="tab on" data-view="calc"><span class="material-symbols-outlined">calculate</span><span data-i18n="calculator.tab.calculator">Calculator</span></button>
+    <button class="tab" data-view="graph"><span class="material-symbols-outlined">show_chart</span><span data-i18n="calculator.tab.graphing">Graphing</span></button>
   </div>
   <div class="topbar-spacer"></div>
-  <button class="chip" id="angleBtn" title="Angle unit for trigonometry">RAD</button>
+  <button class="chip" id="angleBtn" title="Angle unit for trigonometry" data-i18n-title="calculator.angle-unit">RAD</button>
 </div>
 
 <!-- ───────────── Calculator ───────────── -->
@@ -197,11 +201,11 @@ Licensed under the Apache License, Version 2.0
   <div class="calc">
     <div class="calc-main">
       <div class="display">
-        <input class="expr" id="expr" spellcheck="false" autocomplete="off" placeholder="0" aria-label="Expression">
-        <div class="result" id="result" title="Click to copy">0</div>
+        <input class="expr" id="expr" spellcheck="false" autocomplete="off" placeholder="0" aria-label="Expression" data-i18n-aria-label="calculator.expression">
+        <div class="result" id="result" title="Click to copy" data-i18n-title="calculator.click-to-copy">0</div>
         <div class="display-foot">
-          <span class="hint" id="hint">Type or use the keys · Enter = · Esc clears</span>
-          <button class="link-btn" id="plotBtn"><span class="material-symbols-outlined">show_chart</span>Plot this</button>
+          <span class="hint" id="hint" data-i18n="calculator.hint">Type or use the keys · Enter = · Esc clears</span>
+          <button class="link-btn" id="plotBtn"><span class="material-symbols-outlined">show_chart</span><span data-i18n="calculator.plot-this">Plot this</span></button>
         </div>
       </div>
       <div class="pads">
@@ -210,7 +214,7 @@ Licensed under the Apache License, Version 2.0
       </div>
     </div>
     <aside class="history">
-      <div class="history-head"><span>History</span><button id="clearHistory">Clear</button></div>
+      <div class="history-head"><span data-i18n="calculator.history.title">History</span><button id="clearHistory" data-i18n="calculator.history.clear">Clear</button></div>
       <div class="history-list" id="historyList"></div>
     </aside>
   </div>
@@ -222,24 +226,24 @@ Licensed under the Apache License, Version 2.0
     <aside class="algebra">
       <div class="alg-list" id="algList"></div>
       <div class="alg-help">
-        Try <code>f(x) = x^2 - 2</code>, <code>x^2 + y^2 = 9</code>, <code>y &lt; sin(x)</code>, <code>a = 2</code>, <code>A = (1, 2)</code>, <code>f'(x)</code>,
+        <span data-i18n="calculator.graph.try">Try</span> <code>f(x) = x^2 - 2</code>, <code>x^2 + y^2 = 9</code>, <code>y &lt; sin(x)</code>, <code>a = 2</code>, <code>A = (1, 2)</code>, <code>f'(x)</code>,
         <code>(cos(t), sin(t))</code>, <code>Integral(f, 0, 2)</code>, <code>L = {(1,2), (2,4.1), (3,5.9)}</code>, <code>FitLine(L)</code>
       </div>
     </aside>
     <div class="canvas-wrap" id="canvasWrap">
       <canvas id="canvas"></canvas>
       <div class="gtools">
-        <button class="gbtn" id="zoomIn" title="Zoom in"><span class="material-symbols-outlined">add</span></button>
-        <button class="gbtn" id="zoomOut" title="Zoom out"><span class="material-symbols-outlined">remove</span></button>
-        <button class="gbtn" id="homeView" title="Standard view"><span class="material-symbols-outlined">home</span></button>
-        <button class="gbtn on" id="keyPoints" title="Show zeros, extrema and intersections"><span class="material-symbols-outlined">scatter_plot</span></button>
-        <button class="gbtn" id="tableBtn" title="Table of values"><span class="material-symbols-outlined">table_chart</span></button>
-        <button class="gbtn" id="exportPng" title="Save as PNG"><span class="material-symbols-outlined">download</span></button>
+        <button class="gbtn" id="zoomIn" title="Zoom in" data-i18n-title="calculator.graph.zoom-in"><span class="material-symbols-outlined">add</span></button>
+        <button class="gbtn" id="zoomOut" title="Zoom out" data-i18n-title="calculator.graph.zoom-out"><span class="material-symbols-outlined">remove</span></button>
+        <button class="gbtn" id="homeView" title="Standard view" data-i18n-title="calculator.graph.standard-view"><span class="material-symbols-outlined">home</span></button>
+        <button class="gbtn on" id="keyPoints" title="Show zeros, extrema and intersections" data-i18n-title="calculator.graph.key-points"><span class="material-symbols-outlined">scatter_plot</span></button>
+        <button class="gbtn" id="tableBtn" title="Table of values" data-i18n-title="calculator.graph.table"><span class="material-symbols-outlined">table_chart</span></button>
+        <button class="gbtn" id="exportPng" title="Save as PNG" data-i18n-title="calculator.graph.save-png"><span class="material-symbols-outlined">download</span></button>
       </div>
       <div class="table-panel" id="tablePanel">
         <div class="table-head">
-          <div class="row"><select id="tableFn" aria-label="Function"></select></div>
-          <div class="row">from <input id="tableStart" type="number" value="-5" step="any"> step <input id="tableStep" type="number" value="1" step="any" min="0"></div>
+          <div class="row"><select id="tableFn" aria-label="Function" data-i18n-aria-label="calculator.table.function"></select></div>
+          <div class="row"><span data-i18n="calculator.table.from">from</span> <input id="tableStart" type="number" value="-5" step="any"> <span data-i18n="calculator.table.step">step</span> <input id="tableStep" type="number" value="1" step="any" min="0"></div>
         </div>
         <div class="table-scroll"><table class="vtable"><thead><tr><th>x</th><th id="tableFnHead">f(x)</th></tr></thead><tbody id="tableBody"></tbody></table></div>
       </div>
@@ -321,7 +325,7 @@ function tokenize(src) {
     if (c === '√') { tokens.push({ t: 'id', v: 'sqrt', p: 0, root: true }); i++; continue; }
     if (rest.startsWith('<=') || rest.startsWith('>=')) { tokens.push({ t: 'op', v: rest.slice(0, 2) }); i += 2; continue; }
     if ('+-*/^(),!%=<>|'.includes(c)) { tokens.push({ t: 'op', v: c }); i++; continue; }
-    throw new Error(`Unexpected "${c}"`);
+    throw new Error(mariowOSI18n.t("calculator.error.unexpected", 'Unexpected "{token}"', { token: c }));
   }
   return tokens;
 }
@@ -332,7 +336,7 @@ function parse(src, ctx) {
   let pos = 0;
   const peek = () => tokens[pos];
   const isOp = (v, tok = peek()) => tok && tok.t === 'op' && tok.v === v;
-  const expect = v => { if (!isOp(v)) throw new Error(`Missing "${v}"`); pos++; };
+  const expect = v => { if (!isOp(v)) throw new Error(mariowOSI18n.t("calculator.error.missing", 'Missing "{token}"', { token: v })); pos++; };
   const canonical = name => ALIASES[name] || name;
   const isFunc = name => Boolean(FUNCS[canonical(name)]) || ctx.fns.has(name);
   const isVar = name => ctx.vars.has(name) || name in CONSTANTS;
@@ -401,7 +405,7 @@ function parse(src, ctx) {
   }
   function parsePrimary() {
     const tok = peek();
-    if (!tok) throw new Error('Incomplete expression');
+    if (!tok) throw new Error(mariowOSI18n.t("calculator.error.incomplete", "Incomplete expression"));
     if (tok.t === 'num') { pos++; return { t: 'num', v: tok.v }; }
     if (isOp('(')) {
       pos++;
@@ -436,13 +440,13 @@ function parse(src, ctx) {
           }
           expect(')');
         } else {
-          if (!peek()) throw new Error(`"${name}" needs an argument`);
+          if (!peek()) throw new Error(mariowOSI18n.t("calculator.error.needs-argument", '"{name}" needs an argument', { name }));
           args = [parseUnary()];   // sin x, √2
         }
         return { t: 'call', n: fname, args, p: tok.p, user: ctx.fns.has(name) };
       }
       if (isVar(name)) {
-        if (tok.p) throw new Error(`"${name}'" is not a function`);
+        if (tok.p) throw new Error(mariowOSI18n.t("calculator.error.not-function", '"{name}\'" is not a function', { name }));
         pos++;
         return { t: 'var', n: name };
       }
@@ -451,13 +455,13 @@ function parse(src, ctx) {
         tokens.splice(pos, 1, ...parts.map((v, k) => ({ t: 'id', v, p: k === parts.length - 1 ? tok.p : 0 })));
         return parsePrimary();
       }
-      throw new Error(`Unknown "${name}"`);
+      throw Object.assign(new Error(mariowOSI18n.t("calculator.error.unknown", 'Unknown "{name}"', { name })), { unknownName: name });
     }
-    throw new Error(`Unexpected "${tok.v}"`);
+    throw new Error(mariowOSI18n.t("calculator.error.unexpected", 'Unexpected "{token}"', { token: tok.v }));
   }
 
   const ast = parseRelation();
-  if (pos < tokens.length) throw new Error(`Unexpected "${tokens[pos].v}"`);
+  if (pos < tokens.length) throw new Error(mariowOSI18n.t("calculator.error.unexpected", 'Unexpected "{token}"', { token: tokens[pos].v }));
   return ast;
 }
 
@@ -507,7 +511,7 @@ function compile(node, env, locals = new Set(['x', 'y'])) {
       const a = c(node.a);
       return node.op === '!' ? s => factorial(a(s)) : s => a(s) / 100;
     }
-    case 'pair': throw new Error('A point cannot be used here');
+    case 'pair': throw new Error(mariowOSI18n.t("calculator.error.point-not-allowed", "A point cannot be used here"));
     case 'rel': {
       const a = c(node.a), b = c(node.b);
       return { '<': s => a(s) < b(s), '>': s => a(s) > b(s), '<=': s => a(s) <= b(s), '>=': s => a(s) >= b(s) }[node.op];
@@ -528,7 +532,7 @@ function compile(node, env, locals = new Set(['x', 'y'])) {
       const order = node.p || 0;
       if (node.user) {
         const name = node.n;
-        if (args.length !== 1) throw new Error(`${name} takes one argument`);
+        if (args.length !== 1) throw new Error(mariowOSI18n.t("calculator.error.one-argument", "{name} takes one argument", { name }));
         const arg = args[0];
         return s => env.callUser(name, order, arg(s));
       }
@@ -538,7 +542,7 @@ function compile(node, env, locals = new Set(['x', 'y'])) {
       else if (TRIG_OUT.has(node.n)) base = v => { const r = fn(v); return env.deg ? r * 180 / Math.PI : r; };
       else base = fn;
       if (order) {
-        if (args.length !== 1) throw new Error('Derivatives need one argument');
+        if (args.length !== 1) throw new Error(mariowOSI18n.t("calculator.error.derivative-argument", "Derivatives need one argument"));
         const arg = args[0];
         return s => numericDerivative(base, arg(s), order);
       }
@@ -547,11 +551,11 @@ function compile(node, env, locals = new Set(['x', 'y'])) {
       return s => base(...args.map(a => a(s)));
     }
   }
-  throw new Error('Cannot evaluate');
+  throw new Error(mariowOSI18n.t("calculator.error.cannot-evaluate", "Cannot evaluate"));
 }
 
 function formatNumber(v, digits = 12) {
-  if (typeof v !== 'number' || Number.isNaN(v)) return 'Undefined';
+  if (typeof v !== 'number' || Number.isNaN(v)) return mariowOSI18n.t("calculator.undefined", "Undefined");
   if (!Number.isFinite(v)) return v > 0 ? '∞' : '-∞';
   if (Math.abs(v) < 1e-12) return '0';
   const abs = Math.abs(v);
@@ -569,11 +573,6 @@ const store = {
   get(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch (e) { return fallback; } },
   set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
 };
-// Follow the accent color chosen in Settings → Wallpaper & Style.
-try {
-  const accent = JSON.parse(localStorage.getItem('desktopStyle') || '{}').accent;
-  if (/^#[0-9a-f]{6}$/i.test(accent)) document.documentElement.style.setProperty('--accent', accent);
-} catch (e) {}
 
 let currentView = store.get('calc-view', 'calc');
 function placeTabsPill() {
@@ -630,7 +629,7 @@ const calcEnv = {
 };
 function evaluateCalc(text) {
   const ast = parse(text, { vars: new Set(['Ans']), fns: new Set() });
-  if (ast.t === 'rel') throw new Error('Comparisons belong in Graphing');
+  if (ast.t === 'rel') throw new Error(mariowOSI18n.t("calculator.error.comparison", "Comparisons belong in Graphing"));
   return compile(ast, calcEnv, new Set())({});
 }
 function hasX(text) {
@@ -662,7 +661,7 @@ function commit() {
   if (hasX(text)) { plotFromCalculator(); return; }
   try {
     const v = evaluateCalc(text);
-    if (typeof v !== 'number') throw new Error('Not a number');
+    if (typeof v !== 'number') throw new Error(mariowOSI18n.t("calculator.error.not-number", "Not a number"));
     ans = v;
     store.set('calc-ans', ans);
     res.classList.remove('preview', 'error');
@@ -795,20 +794,20 @@ exprInput.addEventListener('keydown', e => {
 $('result').onclick = async () => {
   const text = $('result').textContent;
   if (!text || $('result').classList.contains('error')) return;
-  try { await navigator.clipboard.writeText(text); $('hint').textContent = 'Copied to clipboard'; setTimeout(() => { $('hint').textContent = 'Type or use the keys · Enter = · Esc clears'; }, 1500); } catch (e) {}
+  try { await navigator.clipboard.writeText(text); $('hint').textContent = mariowOSI18n.t("calculator.copied", "Copied to clipboard"); setTimeout(() => { $('hint').textContent = mariowOSI18n.t("calculator.hint", "Type or use the keys · Enter = · Esc clears"); }, 1500); } catch (e) {}
 };
 
 function renderHistory() {
   const list = $('historyList');
   list.replaceChildren();
-  if (!history.length) { list.innerHTML = '<div class="h-empty">Your calculations appear here</div>'; return; }
+  if (!history.length) { list.innerHTML = '<div class="h-empty" data-i18n="calculator.history.empty">Your calculations appear here</div>'; return; }
   history.forEach(h => {
     const item = document.createElement('div');
     item.className = 'h-item';
     const ex = document.createElement('div'); ex.className = 'h-expr'; ex.textContent = h.expr + ' =';
     const re = document.createElement('div'); re.className = 'h-res'; re.textContent = h.res;
     item.append(ex, re);
-    item.title = 'Click to reuse';
+    item.title = mariowOSI18n.t("calculator.history.reuse", "Click to reuse");
     item.onclick = () => { exprInput.value = h.expr; justEvaluated = false; exprInput.focus(); updatePreview(); };
     list.appendChild(item);
   });
@@ -989,7 +988,7 @@ function computeFit(fit, rawPts) {
     const r = linearFit(pts.filter(([x, y]) => x > 0 && y > 0).map(([x, y]) => [Math.log(x), Math.log(y)]));
     if (r) { const a = Math.exp(r.q), k = r.m; ev = x => a * Math.pow(x, k); eq = `${fmtC(a)}·x^${fmtC(k)}`; }
   }
-  if (!ev) { fit.error = 'Not enough valid points for this fit'; return; }
+  if (!ev) { fit.error = mariowOSI18n.t("calculator.error.fit-points", "Not enough valid points for this fit"); return; }
   const mean = pts.reduce((s, [, y]) => s + y, 0) / pts.length;
   let ssRes = 0, ssTot = 0;
   pts.forEach(([x, y]) => { ssRes += (y - ev(x)) ** 2; ssTot += (y - mean) ** 2; });
@@ -1058,7 +1057,7 @@ function buildAll() {
         const body = (d ? rel.rhs : text).trim().slice(1, -1);
         const pointsAst = splitTopLevel(body).map(src => {
           const ast = parse(src, ctx);
-          if (ast.t !== 'pair') throw new Error('A list contains points like (1, 2)');
+          if (ast.t !== 'pair') throw new Error(mariowOSI18n.t("calculator.error.list-points", "A list contains points like (1, 2)"));
           return { fx: compile(ast.a, graphEnv, new Set()), fy: compile(ast.b, graphEnv, new Set()) };
         });
         return { kind: 'list', name: d ? d.name : null, items: pointsAst, points: [] };
@@ -1078,7 +1077,7 @@ function buildAll() {
       if (d?.kind === 'point' || (!rel && isPointLiteral(text))) {
         const src = d ? rel.rhs : text;
         const ast = parse(src, { vars: new Set([...vars, 't']), fns: fnNames });
-        if (ast.t !== 'pair') throw new Error('A point is written (x, y)');
+        if (ast.t !== 'pair') throw new Error(mariowOSI18n.t("calculator.error.point-syntax", "A point is written (x, y)"));
         if (collectVars(ast).has('t') && !vars.has('t')) {
           // (x(t), y(t)) is a parametric curve, t from 0 to 2π by default.
           const locals = new Set(['t']);
@@ -1098,7 +1097,7 @@ function buildAll() {
             const name = autoName(FN_NAMES);
             return { kind: 'function', name, param: 'x', f: x => R({ x, y: 0 }), label: 'y', anon: true };
           }
-          if (!lv.has('x') && !lv.has('y') && !rv.has('x') && !rv.has('y')) throw new Error('Nothing to draw: use x or y');
+          if (!lv.has('x') && !lv.has('y') && !rv.has('x') && !rv.has('y')) throw new Error(mariowOSI18n.t("calculator.error.nothing-to-draw", "Nothing to draw: use x or y"));
           return { kind: 'implicit', F: (x, y) => L({ x, y }) - R({ x, y }) };
         }
         const cmp = compile({ t: 'rel', op: rel.op, a: lhsAst, b: rhsAst }, graphEnv);
@@ -1107,7 +1106,7 @@ function buildAll() {
       }
       const ast = parse(text, ctx);
       const v = collectVars(ast);
-      if (v.has('y')) throw new Error('Add "= …" to draw a curve in x and y');
+      if (v.has('y')) throw new Error(mariowOSI18n.t("calculator.error.add-equals", 'Add "= …" to draw a curve in x and y'));
       if (v.has('x') || usesUserFns(ast).size && v.has('x')) {
         const fn = compile(ast, graphEnv);
         const name = autoName(FN_NAMES);
@@ -1116,7 +1115,7 @@ function buildAll() {
       const fn = compile(ast, graphEnv);
       return { kind: 'value', fn };
     } catch (e) {
-      return { kind: 'error', error: e.message };
+      return { kind: 'error', error: e.message, unknownName: e.unknownName };
     }
   });
 
@@ -1133,7 +1132,7 @@ function buildAll() {
   finishBuild();
   built.forEach(b => { if (b.kind === 'number') numbers.set(b.name, b.fn({})); });
   built.forEach(b => {
-    if (b.kind === 'number' && !Number.isFinite(numbers.get(b.name))) b.warn = 'Undefined (circular or invalid)';
+    if (b.kind === 'number' && !Number.isFinite(numbers.get(b.name))) b.warn = mariowOSI18n.t("calculator.graph.undefined-circular", "Undefined (circular or invalid)");
   });
   if (typeof renderTable === 'function') renderTable();
 }
@@ -1156,25 +1155,25 @@ function buildCommand(cmd, d, ctx, vars, fnNames, autoName) {
   const { name, args } = cmd;
   if (name.startsWith('fit')) {
     const type = name.slice(3);
-    if (!args.length) throw new Error(`${name}(L) needs a list of points`);
+    if (!args.length) throw new Error(mariowOSI18n.t("calculator.error.fit-needs-list", "{name}(L) needs a list of points", { name }));
     const listArg = args[0].trim();
     let inline = null;
     if (isListLiteral(listArg)) {
       inline = splitTopLevel(listArg.slice(1, -1)).map(src => {
         const ast = parse(src, ctx);
-        if (ast.t !== 'pair') throw new Error('A list contains points like (1, 2)');
+        if (ast.t !== 'pair') throw new Error(mariowOSI18n.t("calculator.error.list-points", "A list contains points like (1, 2)"));
         return { fx: compile(ast.a, graphEnv, new Set()), fy: compile(ast.b, graphEnv, new Set()) };
       });
     }
     const fit = { type, ref: inline ? null : listArg, inline, degree: type === 'poly' ? Number(args[1] || 2) : null };
-    if (type === 'poly' && !(fit.degree >= 1 && fit.degree <= 8)) throw new Error('FitPoly(L, n): n from 1 to 8');
+    if (type === 'poly' && !(fit.degree >= 1 && fit.degree <= 8)) throw new Error(mariowOSI18n.t("calculator.error.fitpoly-degree", "FitPoly(L, n): n from 1 to 8"));
     const fname = d ? d.name : autoName(FN_NAMES);
     const f = x => fit.eval ? fit.eval(x) : NaN;
     userFns.set(fname, { param: 'x', body: s => f(s.x) });
     return { kind: 'function', name: fname, param: 'x', f, fit, label: `${fname}(x)`, anon: !d };
   }
   if (name === 'integral') {
-    if (args.length !== 3 && args.length !== 4) throw new Error('Integral(f, a, b) or Integral(f, g, a, b)');
+    if (args.length !== 3 && args.length !== 4) throw new Error(mariowOSI18n.t("calculator.error.integral-syntax", "Integral(f, a, b) or Integral(f, g, a, b)"));
     const f = compileFnArg(args[0], vars, fnNames);
     const g = args.length === 4 ? compileFnArg(args[1], vars, fnNames) : null;
     const fa = compileNumberArg(args[args.length - 2], vars, fnNames), fb = compileNumberArg(args[args.length - 1], vars, fnNames);
@@ -1184,14 +1183,14 @@ function buildCommand(cmd, d, ctx, vars, fnNames, autoName) {
   if (name === 'curve') {
     if (args.length !== 5) throw new Error('Curve(x(t), y(t), t, a, b)');
     const param = args[2].trim();
-    if (!/^[a-z]$/.test(param) || param === 'x' || param === 'y') throw new Error('The parameter must be a single letter, e.g. t');
+    if (!/^[a-z]$/.test(param) || param === 'x' || param === 'y') throw new Error(mariowOSI18n.t("calculator.error.parameter-letter", "The parameter must be a single letter, e.g. t"));
     const pv = new Set([...vars, param]);
     const locals = new Set([param]);
     const fx = compile(parse(args[0], { vars: pv, fns: fnNames }), graphEnv, locals);
     const fy = compile(parse(args[1], { vars: pv, fns: fnNames }), graphEnv, locals);
     return { kind: 'curve', fx, fy, param, fa: compileNumberArg(args[3], vars, fnNames), fb: compileNumberArg(args[4], vars, fnNames) };
   }
-  throw new Error(`Unknown command ${name}`);
+  throw new Error(mariowOSI18n.t("calculator.error.unknown-command", "Unknown command {name}", { name }));
 }
 
 // After numbers are known: list coordinates, fits and integrals.
@@ -1204,7 +1203,7 @@ function finishBuild() {
     if (b.kind !== 'function' || !b.fit) return;
     const fit = b.fit;
     const pts = fit.inline ? fit.inline.map(p => [p.fx({}), p.fy({})]) : lists.get(fit.ref)?.points;
-    if (!pts) { fit.eval = null; fit.error = `Unknown list "${fit.ref}"`; return; }
+    if (!pts) { fit.eval = null; fit.error = mariowOSI18n.t("calculator.error.unknown-list", 'Unknown list "{name}"', { name: fit.ref }); return; }
     computeFit(fit, pts);
   });
   built.forEach(b => {
@@ -1241,7 +1240,7 @@ function buildRow(it, b, index) {
   const dot = document.createElement('button');
   const drawable = b && ['function', 'implicit', 'inequality', 'point', 'list', 'integral', 'curve'].includes(b.kind);
   dot.className = 'alg-dot' + (!it || !drawable ? ' none' : it.visible ? '' : ' off');
-  dot.title = drawable ? (it.visible ? 'Hide' : 'Show') : '';
+  dot.title = drawable ? (it.visible ? mariowOSI18n.t("calculator.graph.hide", "Hide") : mariowOSI18n.t("calculator.graph.show", "Show")) : '';
   dot.onclick = () => { if (!drawable) return; it.visible = !it.visible; saveItems(); renderAlgebra(); requestDraw(); };
 
   const main = document.createElement('div');
@@ -1250,7 +1249,7 @@ function buildRow(it, b, index) {
   input.className = 'alg-input';
   input.spellcheck = false;
   input.autocomplete = 'off';
-  input.placeholder = it ? '' : 'Input…';
+  input.placeholder = it ? '' : mariowOSI18n.t("calculator.graph.input", "Input…");
   input.value = it ? it.text : '';
   input.addEventListener('input', () => {
     if (!it) {
@@ -1285,9 +1284,11 @@ function buildRow(it, b, index) {
   if (b) {
     if (b.kind === 'error') {
       info.classList.add('err');
-      const missing = sliderCandidates(b.error);
+      const missing = sliderCandidates(b.unknownName);
       info.textContent = missing.length
-        ? `${missing.join(', ')} ${missing.length > 1 ? 'are' : 'is'} not defined · press Enter to add ${missing.length > 1 ? 'sliders' : 'a slider'}`
+        ? (missing.length > 1
+          ? mariowOSI18n.t("calculator.graph.missing.other", "{names} are not defined · press Enter to add sliders", { names: missing.join(', ') })
+          : mariowOSI18n.t("calculator.graph.missing.one", "{names} is not defined · press Enter to add a slider", { names: missing.join(', ') }))
         : b.error;
     }
     else if (b.warn) { info.classList.add('err'); info.textContent = b.warn; }
@@ -1295,13 +1296,15 @@ function buildRow(it, b, index) {
     else if (b.kind === 'number' && !b.slider) { info.textContent = '= ' + formatNumber(numbers.get(b.name), 10); }
     else if (b.kind === 'point') {
       const x = b.fx({}), y = b.fy({});
-      info.textContent = `${b.name} = (${formatNumber(x, 5)}, ${formatNumber(y, 5)})${b.free ? ' · drag it on the graph' : ''}`;
+      info.textContent = b.free ? mariowOSI18n.t("calculator.graph.point-drag", "{point} · drag it on the graph", { point: `${b.name} = (${formatNumber(x, 5)}, ${formatNumber(y, 5)})` }) : `${b.name} = (${formatNumber(x, 5)}, ${formatNumber(y, 5)})`;
     }
     else if (b.kind === 'function' && b.anon) info.textContent = `${b.name}(x)`;
-    else if (b.kind === 'inequality') info.textContent = 'Shaded region';
-    else if (b.kind === 'list') info.textContent = `${b.name ? b.name + ': ' : ''}${b.points.length} points`;
-    else if (b.kind === 'integral') info.textContent = `${b.name ? b.name + ' ' : ''}= ${formatNumber(b.value, 8)}  (area from ${formatNumber(b.a, 4)} to ${formatNumber(b.b, 4)})`;
-    else if (b.kind === 'curve') info.textContent = `Parametric curve, ${b.param} from ${formatNumber(b.a, 4)} to ${formatNumber(b.b, 4)}${b.defaultRange ? ' · Curve(x, y, t, a, b) to change' : ''}`;
+    else if (b.kind === 'inequality') info.textContent = mariowOSI18n.t("calculator.graph.shaded-region", "Shaded region");
+    else if (b.kind === 'list') info.textContent = mariowOSI18n.t("calculator.graph.list-points", "{prefix}{count} points", { prefix: b.name ? b.name + ': ' : '', count: b.points.length });
+    else if (b.kind === 'integral') info.textContent = mariowOSI18n.t("calculator.graph.integral", "{prefix}= {value}  (area from {a} to {b})", { prefix: b.name ? b.name + ' ' : '', value: formatNumber(b.value, 8), a: formatNumber(b.a, 4), b: formatNumber(b.b, 4) });
+    else if (b.kind === 'curve') info.textContent = b.defaultRange
+        ? mariowOSI18n.t("calculator.graph.curve-default", "Parametric curve, {param} from {a} to {b} · Curve(x, y, t, a, b) to change", { param: b.param, a: formatNumber(b.a, 4), b: formatNumber(b.b, 4) })
+        : mariowOSI18n.t("calculator.graph.curve", "Parametric curve, {param} from {a} to {b}", { param: b.param, a: formatNumber(b.a, 4), b: formatNumber(b.b, 4) });
     if (b.kind === 'function' && b.fit) {
       if (b.fit.error) { info.classList.add('err'); info.textContent = b.fit.error; }
       else info.textContent = `${b.name}(x) = ${b.fit.eq} · R² = ${formatNumber(b.fit.r2, 5)}`;
@@ -1314,7 +1317,7 @@ function buildRow(it, b, index) {
   if (it) {
     const del = document.createElement('button');
     del.className = 'alg-del';
-    del.title = 'Delete';
+    del.title = mariowOSI18n.t("common.delete", "Delete");
     del.innerHTML = '<span class="material-symbols-outlined">close</span>';
     del.onclick = () => removeItem(it);
     row.appendChild(del);
@@ -1331,7 +1334,7 @@ function buildSlider(it, b) {
   wrap.className = 'slider';
   const play = document.createElement('button');
   play.className = 'play';
-  play.title = 'Animate';
+  play.title = mariowOSI18n.t("calculator.graph.animate", "Animate");
   play.innerHTML = `<span class="material-symbols-outlined">${playing.has(it.id) ? 'pause' : 'play_arrow'}</span>`;
   const range = document.createElement('input');
   range.type = 'range';
@@ -1385,10 +1388,10 @@ function updateRowInfos() {
     if (b.kind !== 'point' && b.kind !== 'value' && b.kind !== 'integral' && !(b.kind === 'number' && !b.slider)) return;
     const info = rows[i]?.querySelector('.alg-info');
     if (!info) return;
-    if (b.kind === 'integral') { info.textContent = `${b.name ? b.name + ' ' : ''}= ${formatNumber(b.value, 8)}  (area from ${formatNumber(b.a, 4)} to ${formatNumber(b.b, 4)})`; return; }
+    if (b.kind === 'integral') { info.textContent = mariowOSI18n.t("calculator.graph.integral", "{prefix}= {value}  (area from {a} to {b})", { prefix: b.name ? b.name + ' ' : '', value: formatNumber(b.value, 8), a: formatNumber(b.a, 4), b: formatNumber(b.b, 4) }); return; }
     if (b.kind === 'value') info.textContent = '= ' + formatNumber(b.fn({}), 10);
     else if (b.kind === 'number') info.textContent = '= ' + formatNumber(numbers.get(b.name), 10);
-    else info.textContent = `${b.name} = (${formatNumber(b.fx({}), 5)}, ${formatNumber(b.fy({}), 5)})${b.free ? ' · drag it on the graph' : ''}`;
+    else info.textContent = b.free ? mariowOSI18n.t("calculator.graph.point-drag", "{point} · drag it on the graph", { point: `${b.name} = (${formatNumber(b.fx({}), 5)}, ${formatNumber(b.fy({}), 5)})` }) : `${b.name} = (${formatNumber(b.fx({}), 5)}, ${formatNumber(b.fy({}), 5)})`;
   });
 }
 
@@ -1404,8 +1407,8 @@ function addGraphItem(text, { silent = false } = {}) {
 // Coefficients like a, b, k used before being defined become sliders (Desmos/GeoGebra style).
 // Only on commit (Enter or clicking elsewhere), so half-typed words never create sliders.
 const AUTO_SLIDER_LETTERS = new Set('abcdkmnpqrsuvw'.split(''));
-function sliderCandidates(error) {
-  const m = /^Unknown "([A-Za-z]+)"$/.exec(error || '');
+function sliderCandidates(unknownName) {
+  const m = /^([A-Za-z]+)$/.exec(unknownName || '');
   if (!m) return [];
   const defined = new Set(built.map(b => b.name).filter(Boolean));
   const letters = [...new Set(m[1].split(''))];
@@ -1420,7 +1423,7 @@ function addMissingSliders(it) {
   for (let round = 0; round < 6; round++) {
     buildAll();
     const b = built[items.indexOf(it)];
-    const missing = b?.kind === 'error' ? sliderCandidates(b.error) : [];
+    const missing = b?.kind === 'error' ? sliderCandidates(b.unknownName) : [];
     if (!missing.length) break;
     missing.forEach(ch => {
       const used = new Set(items.map(i => i.color));
@@ -1702,7 +1705,7 @@ function computeKeyPoints() {
   const fns = built.map((b, i) => ({ b, it: items[i] })).filter(o => o.b.kind === 'function' && o.it.visible);
   for (const { b, it } of fns) {
     const f = b.f;
-    findRoots(f, x0, x1).forEach(x => pts.push({ x, y: 0, color: it.color, label: `Zero of ${b.name}` }));
+    findRoots(f, x0, x1).forEach(x => pts.push({ x, y: 0, color: it.color, label: mariowOSI18n.t("calculator.graph.zero-of", "Zero of {name}", { name: b.name }) }));
     // extrema: sign change of the slope
     const n = 400;
     let prev = f(x0), prevSlope = null;
@@ -1714,7 +1717,7 @@ function computeKeyPoints() {
         const maximize = prevSlope > 0;
         const xe = goldenExtremum(f, xa - (x1 - x0) / n, x, maximize);
         const ye = f(xe);
-        if (Number.isFinite(ye)) pts.push({ x: xe, y: ye, color: it.color, label: `${maximize ? 'Maximum' : 'Minimum'} of ${b.name}` });
+        if (Number.isFinite(ye)) pts.push({ x: xe, y: ye, color: it.color, label: maximize ? mariowOSI18n.t("calculator.graph.maximum-of", "Maximum of {name}", { name: b.name }) : mariowOSI18n.t("calculator.graph.minimum-of", "Minimum of {name}", { name: b.name }) });
       }
       if (slope !== 0) prevSlope = slope;
       prev = y;
@@ -1726,7 +1729,7 @@ function computeKeyPoints() {
   for (let i = 0; i < fns.length; i++) {
     for (let j = i + 1; j < fns.length; j++) {
       const f = fns[i].b.f, g = fns[j].b.f;
-      findRoots(x => f(x) - g(x), x0, x1).forEach(x => pts.push({ x, y: f(x), color: '#ffffff', label: `Intersection ${fns[i].b.name} ∩ ${fns[j].b.name}` }));
+      findRoots(x => f(x) - g(x), x0, x1).forEach(x => pts.push({ x, y: f(x), color: '#ffffff', label: mariowOSI18n.t("calculator.graph.intersection", "Intersection {a} ∩ {b}", { a: fns[i].b.name, b: fns[j].b.name }) }));
     }
   }
   return pts.filter(p => Number.isFinite(p.y));
@@ -1991,7 +1994,7 @@ function renderTable() {
   select.replaceChildren(...fns.map(b => {
     const o = document.createElement('option');
     o.value = b.name;
-    o.textContent = `${b.name}(x)${b.fit ? ' · fit' : ''}`;
+    o.textContent = b.fit ? mariowOSI18n.t("calculator.table.fit-option", "{name}(x) · fit", { name: b.name }) : `${b.name}(x)`;
     return o;
   }));
   const body = $('tableBody');
@@ -1999,7 +2002,7 @@ function renderTable() {
   if (!fns.length) {
     $('tableFnHead').textContent = 'f(x)';
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="2" style="text-align:center;color:rgba(255,255,255,.4)">Add a function first</td>';
+    tr.innerHTML = '<td colspan="2" style="text-align:center;color:rgba(255,255,255,.4)" data-i18n="calculator.table.empty">Add a function first</td>';
     body.appendChild(tr);
     return;
   }

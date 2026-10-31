@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>About mariowOS</title>
+  <title data-i18n="settings.about.title">About mariowOS</title>
 
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 
   <style>
+    #systemVersion { user-select: text; }
     html, body {
       margin: 0 !important;
       padding: 0 !important;
@@ -123,29 +127,29 @@
 
   <div class="info-box">
     <div class="info-row">
-      <span class="label">System version:</span>
+      <span class="label" data-i18n="settings.about.version">System version:</span>
       <span class="value" id="systemVersion">1.3.0</span>
     </div>
     <div class="info-row">
-      <span class="label">Kernel:</span>
+      <span class="label" data-i18n="settings.about.kernel">Kernel:</span>
       <span class="value">1.0-wuhuaguo-mst (node)</span>
     </div>
     <div class="info-row">
-      <span class="label">Engine:</span>
+      <span class="label" data-i18n="settings.about.engine">Engine:</span>
       <span class="value">Lillium Engine</span> <!-- lily ti amo -->
     </div>
     <div class="info-row">
-      <span class="label">Build Date:</span>
+      <span class="label" data-i18n="settings.about.build-date">Build Date:</span>
       <span class="value" id="buildDate">2 October 2026 22:06</span>
     </div>
   </div>
 
   <div class="info-box">
-    <div class="title">Credits</div>
+    <div class="title" data-i18n="settings.about.credits">Credits</div>
     <div class="content">
-      <strong>main owner:</strong> mariowstech<br>
-      <strong>developers:</strong> kianish, davidjone16, ertyplax<br>
-      <strong>contributors:</strong> kevadesu
+      <strong data-i18n="settings.about.main-owner">main owner:</strong> mariowstech<br>
+      <strong data-i18n="settings.about.developers">developers:</strong> kianish, davidjone16, ertyplax<br>
+      <strong data-i18n="settings.about.contributors">contributors:</strong> kevadesu
     </div>
   </div>
 
@@ -161,6 +165,10 @@
     const d = new Date(iso);
     if (isNaN(d)) return null;
     const pad = n => String(n).padStart(2, '0');
+    if (mariowOSI18n.locale) {
+      const day = d.toLocaleDateString(mariowOSI18n.locale, { day: 'numeric', month: 'long', year: 'numeric' });
+      return `${day} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
     return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 

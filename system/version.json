@@ -1,5 +1,5 @@
 {
-  "version": "1.3.3",
-  "changelog": "enables channel switching",
+  "version": "2.0.0_DEVPREVIEW1",
+  "changelog": "Updated store framework with support for other channels and an integrated button for updating the local repository.",
   "_comment": "obb."
 }

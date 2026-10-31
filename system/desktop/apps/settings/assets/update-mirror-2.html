@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css">
 <style>
 :root {
-  --accent: #0a84ff;
+  --accent: var(--sys-accent);
   --menu: rgba(26, 28, 34, 0.96);
   --spring: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -59,10 +62,11 @@ body {
 .progress-fill {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, #0a84ff, #0a84ff);
+  background: var(--sys-accent);
   border-radius: 4px;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(10,132,255,0.4);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sys-accent) 40%, transparent);
+  color: var(--sys-accent-on);
 }
 
 .progress-fill.complete {
@@ -72,8 +76,8 @@ body {
 
 /* ── Button ── */
 .btn {
-  background: #0a84ff;
-  color: #fff;
+  background: var(--sys-accent);
+  color: var(--sys-accent-on);
   border: none;
   padding: 14px 32px;
   font-size: 15px;
@@ -85,13 +89,14 @@ body {
   display: none;
   margin: 0 auto;
   width: 100%;
-  box-shadow: 0 4px 20px rgba(10,132,255, 0.3);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--sys-accent) 30%, transparent);
 }
 
 .btn:hover {
-  background: #007aff;
+  background: color-mix(in srgb, var(--sys-accent) 85%, black);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(10,132,255, 0.4);
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--sys-accent) 40%, transparent);
+  color: var(--sys-accent-on);
 }
 .btn:active { transform: scale(0.97); }
 
@@ -103,7 +108,7 @@ body {
 }
 
 .links a {
-  color: #0a84ff;
+  color: var(--sys-accent-text);
   text-decoration: none;
   font-size: 13px;
   transition: color 0.2s;
@@ -235,9 +240,10 @@ body {
 
 .update-action.primary {
   border-color: transparent;
-  background: #0a84ff;
+  background: var(--sys-accent);
+  color: var(--sys-accent-on);
 }
-.update-action.primary:hover { background: #007aff; }
+.update-action.primary:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
 
 .apps-footer {
   display: flex;
@@ -273,8 +279,9 @@ body {
 
 .progress-fill {
   border-radius: inherit;
-  background: #0a84ff;
+  background: var(--sys-accent);
   box-shadow: none;
+  color: var(--sys-accent-on);
 }
 .progress-fill.complete { background: #34c759; box-shadow: none; }
 
@@ -345,15 +352,15 @@ body {
 <body>
 <main class="card" id="app">
   <section class="update-section" aria-labelledby="systemLabel">
-    <h2 class="section-label" id="systemLabel">System</h2>
+    <h2 class="section-label" id="systemLabel" data-i18n="settings.updater.system">System</h2>
     <div class="update-panel" aria-live="polite">
       <div class="update-row">
         <div class="update-icon system" aria-hidden="true">
           <img src="/desktop/assets/icons/stars.png" alt="">
         </div>
         <div class="update-copy">
-          <div class="update-title" id="systemTitle">Checking for updates…</div>
-          <div class="update-subtitle" id="systemSubtitle">Connecting to the update service</div>
+          <div class="update-title" id="systemTitle" data-i18n="settings.updater.checking">Checking for updates…</div>
+          <div class="update-subtitle" id="systemSubtitle" data-i18n="settings.updater.connecting">Connecting to the update service</div>
         </div>
         <button class="update-action primary" id="systemAction" type="button" hidden></button>
       </div>
@@ -366,13 +373,13 @@ body {
   </section>
 
   <section class="update-section" aria-labelledby="appsLabel">
-    <h2 class="section-label" id="appsLabel">Apps</h2>
+    <h2 class="section-label" id="appsLabel" data-i18n="settings.nav.apps">Apps</h2>
     <div class="update-panel" id="appsPanel" aria-live="polite">
       <div class="update-row">
         <div class="update-icon" aria-hidden="true"><span class="material-symbols-outlined">sync</span></div>
         <div class="update-copy">
-          <div class="update-title">Checking installed apps…</div>
-          <div class="update-subtitle">Looking for component updates</div>
+          <div class="update-title" data-i18n="settings.updater.checking-apps">Checking installed apps…</div>
+          <div class="update-subtitle" data-i18n="settings.updater.looking-components">Looking for component updates</div>
         </div>
       </div>
     </div>
@@ -380,36 +387,37 @@ body {
   </section>
 
   <div class="channel-footer">
-    <span class="channel-label">Update Channel</span>
-    <button class="tb style-btn" id="channelBtn" title="Change update channel" disabled>
+    <span class="channel-label" data-i18n="settings.updater.channel">Update Channel</span>
+    <button class="tb style-btn" id="channelBtn" title="Change update channel" data-i18n-title="settings.updater.change-channel" disabled>
       <span id="channelName">Loading...</span>
       <span class="ms" style="font-size: 18px;">expand_more</span>
     </button>
   </div>
 
-  <nav class="links" aria-label="Update resources">
-    <a href="https://mariowstech.github.io/mariowOS-landpages/roadmap/index.html">Roadmap</a>
+  <nav class="links" aria-label="Update resources" data-i18n-aria-label="settings.updater.resources">
+    <a href="https://mariowstech.github.io/mariowOS-landpages/roadmap/index.html" data-i18n="settings.updater.roadmap">Roadmap</a>
   </nav>
 </main>
 
 <div class="menu" id="channelMenu">
-  <button data-channel="stable"><span class="ms">verified</span>Stable</button>
+  <button data-channel="stable"><span class="ms">verified</span><span data-i18n="settings.updater.channel.stable">Stable</span></button>
   <button data-channel="beta"><span class="ms">science</span>Beta</button>
   <button data-channel="insiders"><span class="ms">bug_report</span>Insiders</button>
 </div>
 
 <script>
+document.getElementById('channelName').textContent = mariowOSI18n.t("common.loading", "Loading...");
 const appNames = {
-  calculator: ['Calculator', 'calculator.png', 'calculate'],
-  desktop: ['Desktop', 'stars.png', 'desktop_windows'],
-  explorer: ['Explorer', 'files.png', 'folder_open'],
-  feedback: ['Feedback', 'feedback.png', 'feedback'],
-  help: ['Help', 'stars.png', 'help'],
-  music: ['Music', 'music.png', 'music_note'],
-  notes: ['Notes', 'notes.png', 'edit_note'],
-  settings: ['Settings', 'settings.png', 'settings'],
-  store: ['Store', 'store.png', 'storefront'],
-  terminal: ['Terminal', 'terminal.png', 'terminal']
+  calculator: [mariowOSI18n.t("settings.updater.app.calculator", "Calculator"), 'calculator.png', 'calculate'],
+  desktop: [mariowOSI18n.t("settings.updater.app.desktop", "Desktop"), 'stars.png', 'desktop_windows'],
+  explorer: [mariowOSI18n.t("settings.updater.app.explorer", "Explorer"), 'files.png', 'folder_open'],
+  feedback: [mariowOSI18n.t("settings.updater.app.feedback", "Feedback"), 'feedback.png', 'feedback'],
+  help: [mariowOSI18n.t("settings.updater.app.help", "Help"), 'stars.png', 'help'],
+  music: [mariowOSI18n.t("settings.updater.app.music", "Music"), 'music.png', 'music_note'],
+  notes: [mariowOSI18n.t("settings.updater.app.notes", "Notes"), 'notes.png', 'edit_note'],
+  settings: [mariowOSI18n.t("common.settings", "Settings"), 'settings.png', 'settings'],
+  store: [mariowOSI18n.t("settings.updater.app.store", "Store"), 'store.png', 'storefront'],
+  terminal: [mariowOSI18n.t("settings.updater.app.terminal", "Terminal"), 'terminal.png', 'terminal']
 };
 
 let activeUpdate = null;
@@ -464,18 +472,18 @@ async function checkSystemUpdates() {
   try {
     const response = await fetch('/api/system/check-update', { cache: 'no-store' });
     const data = await response.json();
-    if (!response.ok || data.error) throw new Error(data.error || 'Update check failed');
+    if (!response.ok || data.error) throw new Error(data.error || mariowOSI18n.t("settings.updater.check-failed", "Update check failed"));
 
     if (data.updateAvailable) {
       setSystemStatus('auto_awesome', `mariowOS v${data.latest}`,
-        data.changelog || `System update available · v${data.current} → v${data.latest}`);
-      setAction(action, 'Install & restart', startSystemUpdate);
+        data.changelog || mariowOSI18n.t("settings.updater.system-available", "System update available · v{current} → v{latest}", { current: data.current, latest: data.latest }));
+      setAction(action, mariowOSI18n.t("settings.updater.install-restart", "Install & restart"), startSystemUpdate);
     } else {
-      setSystemStatus('check', 'mariowOS is up to date', `Version ${data.current}`, true);
+      setSystemStatus('check', mariowOSI18n.t("settings.updater.up-to-date", "mariowOS is up to date"), mariowOSI18n.t("settings.updater.version", "Version {version}", { version: data.current }), true);
     }
   } catch (error) {
-    setSystemStatus('cloud_off', 'System update unavailable', 'Could not reach the update service');
-    setAction(action, 'Try again', checkSystemUpdates);
+    setSystemStatus('cloud_off', mariowOSI18n.t("settings.updater.unavailable", "System update unavailable"), mariowOSI18n.t("settings.updater.unreachable", "Could not reach the update service"));
+    setAction(action, mariowOSI18n.t("common.retry", "Try again"), checkSystemUpdates);
     setNotice('systemNotice', error.message, true);
     console.error('System update check failed:', error);
   }
@@ -515,8 +523,8 @@ function makeAppRow(name, update) {
   const subtitle = document.createElement('div');
   subtitle.className = 'update-subtitle';
   subtitle.textContent = update
-    ? `Update available · ${update.current} → ${update.latest}`
-    : 'All apps are up to date';
+    ? mariowOSI18n.t("settings.updater.app-available", "Update available · {current} → {latest}", { current: update.current, latest: update.latest })
+    : mariowOSI18n.t("settings.updater.apps-up-to-date", "All apps are up to date");
   copy.append(title, subtitle);
   row.append(icon, copy);
   return row;
@@ -541,7 +549,7 @@ function renderApps(updates) {
     copy.className = 'update-copy';
     const title = document.createElement('div');
     title.className = 'update-title';
-    title.textContent = 'All apps are up to date';
+    title.textContent = mariowOSI18n.t("settings.updater.apps-up-to-date", "All apps are up to date");
     copy.appendChild(title);
     row.append(icon, copy);
     panel.appendChild(row);
@@ -554,7 +562,7 @@ function renderApps(updates) {
   const action = document.createElement('button');
   action.className = 'update-action primary';
   action.type = 'button';
-  action.textContent = `Update ${updates.length === 1 ? 'app' : 'apps'}`;
+  action.textContent = updates.length === 1 ? mariowOSI18n.t("settings.updater.update-app.one", "Update app") : mariowOSI18n.t("settings.updater.update-app.other", "Update apps");
   action.addEventListener('click', startSotaUpdate);
   footer.appendChild(action);
   panel.appendChild(footer);
@@ -565,13 +573,13 @@ async function checkAppUpdates() {
   try {
     const response = await fetch('/api/system/check-sota-update', { cache: 'no-store' });
     const data = await response.json();
-    if (!response.ok || !data.success) throw new Error(data.error || 'SOTA update check failed');
+    if (!response.ok || !data.success) throw new Error(data.error || mariowOSI18n.t("settings.updater.apps-check-error", "SOTA update check failed"));
     renderApps(data.updates || []);
   } catch (error) {
     const panel = document.getElementById('appsPanel');
     panel.replaceChildren(makeAppRow('apps', null));
-    panel.firstElementChild.querySelector('.update-title').textContent = 'Could not check apps';
-    panel.firstElementChild.querySelector('.update-subtitle').textContent = 'The update service could not be reached';
+    panel.firstElementChild.querySelector('.update-title').textContent = mariowOSI18n.t("settings.updater.apps-check-failed", "Could not check apps");
+    panel.firstElementChild.querySelector('.update-subtitle').textContent = mariowOSI18n.t("settings.updater.service-unreachable", "The update service could not be reached");
     setNotice('appsNotice', error.message, true);
     console.error('SOTA update check failed:', error);
   }
@@ -581,7 +589,7 @@ function updateProgress(kind, percent, status) {
   const progress = document.getElementById(`${kind}Progress`);
   const fill = document.getElementById(`${kind}ProgressFill`);
   progress.hidden = false;
-  document.getElementById(`${kind}ProgressStatus`).textContent = status || 'Updating…';
+  document.getElementById(`${kind}ProgressStatus`).textContent = status || mariowOSI18n.t("settings.updater.updating", "Updating…");
   document.getElementById(`${kind}ProgressPercent`).textContent = `${Math.round(percent)}%`;
   fill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
   fill.classList.toggle('complete', percent >= 100);
@@ -622,18 +630,18 @@ function startProgressStream(kind, url) {
       data = JSON.parse(event.data);
     } catch (error) {
       eventSource.close();
-      finishUpdate(kind, false, 'The update service returned an invalid response.');
+      finishUpdate(kind, false, mariowOSI18n.t("settings.updater.invalid-response", "The update service returned an invalid response."));
       console.error('Could not parse update progress:', error);
       return;
     }
     updateProgress(kind, data.percent, data.status);
     if (!data.finished) return;
     eventSource.close();
-    finishUpdate(kind, data.percent >= 100, data.status || 'Update finished.');
+    finishUpdate(kind, data.percent >= 100, data.status || mariowOSI18n.t("settings.updater.finished", "Update finished."));
   };
   eventSource.onerror = () => {
     eventSource.close();
-    finishUpdate(kind, false, 'Connection to the update service was lost.');
+    finishUpdate(kind, false, mariowOSI18n.t("settings.updater.connection-lost", "Connection to the update service was lost."));
   };
 }
 
@@ -643,11 +651,11 @@ function finishUpdate(kind, succeeded, message) {
   if (kind === 'system') {
     const action = document.getElementById('systemAction');
     if (succeeded) {
-      setSystemStatus('check', 'System update installed', 'Restart mariowOS to finish applying it.', true);
-      setAction(action, 'Restart', () => window.parent.location.reload());
+      setSystemStatus('check', mariowOSI18n.t("settings.updater.installed", "System update installed"), mariowOSI18n.t("settings.updater.restart-to-finish", "Restart mariowOS to finish applying it."), true);
+      setAction(action, mariowOSI18n.t("settings.updater.restart", "Restart"), () => window.parent.location.reload());
     } else {
-      setSystemStatus('error', 'System update failed', 'Your system was not updated.');
-      setAction(action, 'Try again', startSystemUpdate);
+      setSystemStatus('error', mariowOSI18n.t("settings.updater.failed", "System update failed"), mariowOSI18n.t("settings.updater.not-updated", "Your system was not updated."));
+      setAction(action, mariowOSI18n.t("common.retry", "Try again"), startSystemUpdate);
       setNotice('systemNotice', message, true);
     }
     return;
@@ -714,7 +722,7 @@ channelBtn.onclick = () => {
 };
 
 function updateChannelUI(channel) {
-  const names = { stable: 'Stable', beta: 'Beta', insiders: 'Insiders' };
+  const names = { stable: mariowOSI18n.t("settings.updater.channel.stable", "Stable"), beta: 'Beta', insiders: 'Insiders' };
   channelName.textContent = names[channel] || channel;
   channelMenu.querySelectorAll('button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.channel === channel);
@@ -738,8 +746,8 @@ async function initChannelSelector() {
 
         channelBtn.disabled = true;
         setBusy(true);
-        const names = { stable: 'Stable', beta: 'Beta', insiders: 'Insiders' };
-        setNotice('systemNotice', `Switching to ${names[newChannel] || newChannel}...`);
+        const names = { stable: mariowOSI18n.t("settings.updater.channel.stable", "Stable"), beta: 'Beta', insiders: 'Insiders' };
+        setNotice('systemNotice', mariowOSI18n.t("settings.updater.switching", "Switching to {channel}...", { channel: names[newChannel] || newChannel }));
         
         try {
           const reqRes = await fetch('/api/system/update-channel', {
@@ -750,7 +758,7 @@ async function initChannelSelector() {
           const reqData = await reqRes.json();
           
           if (!reqRes.ok || !reqData.success) {
-            throw new Error(reqData.error || 'Failed to change update channel.');
+            throw new Error(reqData.error || mariowOSI18n.t("settings.updater.channel-failed", "Failed to change update channel."));
           }
           
           current = newChannel;

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
   
@@ -10,7 +13,7 @@
     /* Shared mariowOS app language: the same glass sidebar, accent, radii and
        type scale used by Files and Music, so the Store feels part of the system. */
     :root {
-      --accent: #0a84ff;
+      --accent: var(--sys-accent);
       --text: #ffffff;
       --text-secondary: rgba(255, 255, 255, 0.5);
       --text-dim: rgba(255, 255, 255, 0.35);
@@ -89,7 +92,7 @@
     }
 
     .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.1); }
-    .nav-item.active { background: var(--accent); font-weight: 500; }
+    .nav-item.active { background: var(--accent); font-weight: 500; color: var(--sys-accent-on); }
 
     .icon-bg {
       display: flex;
@@ -101,8 +104,6 @@
       border-radius: 6px;
       color: #fff;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      /* Before the icon font loads the glyph name renders as text; keep it from
-         spilling across the sidebar. */
       overflow: hidden;
     }
     .icon-bg .material-symbols-outlined { font-size: 15px; font-weight: 400; }
@@ -163,7 +164,7 @@
       background: rgba(255, 255, 255, 0.05);
       transition: border-color 0.2s;
     }
-    .search-bar:focus-within { border-color: var(--accent); }
+    .search-bar:focus-within { border-color: var(--sys-accent-text); }
     .search-bar .material-symbols-outlined { font-size: 17px; color: var(--text-secondary); }
     .search-bar input {
       flex: 1;
@@ -200,7 +201,7 @@
       transition: background 0.2s, transform 0.2s var(--spring);
     }
     .hero-card:hover { background: var(--surface-hover); transform: translateY(-2px); }
-    .hero-card:nth-child(1) { background: linear-gradient(135deg, rgba(10, 132, 255, 0.22), transparent 70%), var(--surface); }
+    .hero-card:nth-child(1) { background: linear-gradient(135deg, color-mix(in srgb, var(--sys-accent) 22%, transparent), transparent 70%), var(--surface); }
     .hero-card:nth-child(2) { background: linear-gradient(135deg, rgba(255, 159, 10, 0.18), transparent 70%), var(--surface); }
     .hero-card h1 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.3px; z-index: 2; }
     .hero-card p { margin: 6px 0 0; max-width: 85%; font-size: 12.5px; line-height: 1.45; color: var(--text-secondary); z-index: 2; }
@@ -247,7 +248,7 @@
       border: none;
       border-radius: 100px;
       background: rgba(255, 255, 255, 0.1);
-      color: var(--accent);
+      color: var(--sys-accent-text);
       font-family: inherit;
       font-size: 11.5px;
       font-weight: 600;
@@ -305,7 +306,7 @@
 
     .lp-info { flex: 1; min-width: 0; }
     .lp-title { margin: 0 0 4px; font-size: 25px; font-weight: 600; letter-spacing: -0.4px; }
-    .lp-dev { margin: 0 0 18px; color: var(--accent); font-size: 13px; font-weight: 500; }
+    .lp-dev { margin: 0 0 18px; color: var(--sys-accent-text); font-size: 13px; font-weight: 500; }
     .lp-actions { display: flex; align-items: center; gap: 10px; }
 
     .btn-action {
@@ -319,8 +320,8 @@
       transition: background 0.2s, transform 0.1s;
     }
     .btn-action:active { transform: scale(0.96); }
-    .btn-action.primary { background: var(--accent); color: #fff; }
-    .btn-action.primary:hover { background: #007aff; }
+    .btn-action.primary { background: var(--accent); color: var(--sys-accent-on); }
+    .btn-action.primary:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
     .btn-action.primary:disabled { background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); cursor: not-allowed; }
 
     .btn-uninstall {
@@ -370,7 +371,7 @@
       font-size: 13px;
       transition: border-color 0.2s;
     }
-    .pub-input:focus { border-color: var(--accent); }
+    .pub-input:focus { border-color: var(--sys-accent-text); }
     .pub-input::placeholder { color: var(--text-dim); }
     textarea.pub-input { resize: vertical; min-height: 96px; }
 
@@ -430,29 +431,36 @@
   <aside class="sidebar">
     <div class="sidebar-header">Store</div>
 
-    <div class="sidebar-heading">Browse</div>
+    <div class="sidebar-heading" data-i18n="store.nav.browse">Browse</div>
     <div class="nav-item active" id="nav-discover" onclick="switchView('home')">
       <div class="icon-bg c-discover"><span class="material-symbols-outlined">explore</span></div>
-      <span class="title">Discover</span>
+      <span class="title" data-i18n="store.nav.discover">Discover</span>
     </div>
     <div class="nav-item" id="nav-publish" onclick="switchView('publish')">
       <div class="icon-bg c-publish"><span class="material-symbols-outlined">developer_mode</span></div>
-      <span class="title">Submit an app</span>
+      <span class="title" data-i18n="store.nav.submit">Submit an app</span>
     </div>
 
-    <div class="sidebar-note">Apps are installed from their public source repository.</div>
+    <!-- Nuova Sezione Settings -->
+    <div class="sidebar-heading" data-i18n="store.nav.system">System</div>
+    <div class="nav-item" id="nav-settings" onclick="switchView('settings')">
+      <div class="icon-bg" style="background: linear-gradient(180deg, #8e8e93, #636366);"><span class="material-symbols-outlined">settings</span></div>
+      <span class="title" data-i18n="common.settings">Settings</span>
+    </div>
+
+    <div class="sidebar-note" data-i18n="store.nav.note">Apps are installed from their public source repository.</div>
   </aside>
 
   <div class="main-wrapper">
     <div class="top-bar">
       <div class="nav-arrows">
-        <button class="nav-arrow-btn" id="navBack" onclick="switchView('home')" title="Back to Discover"><span class="material-symbols-outlined">chevron_left</span></button>
+        <button class="nav-arrow-btn" id="navBack" onclick="switchView('home')" title="Back to Discover" data-i18n-title="store.nav.back-to-discover"><span class="material-symbols-outlined">chevron_left</span></button>
         <!-- Forward has nowhere to go in a two-level store, so it stays disabled. -->
-        <button class="nav-arrow-btn" disabled title="Forward"><span class="material-symbols-outlined">chevron_right</span></button>
+        <button class="nav-arrow-btn" disabled title="Forward" data-i18n-title="store.nav.forward"><span class="material-symbols-outlined">chevron_right</span></button>
       </div>
       <div class="search-bar">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" id="searchInput" placeholder="Search apps and games...">
+        <input type="text" id="searchInput" placeholder="Search apps and games..." data-i18n-placeholder="store.search">
       </div>
     </div>
 
@@ -462,29 +470,29 @@
         <div class="hero-grid" id="heroSection">
           <div class="hero-card" onclick="switchView('publish')">
             <div>
-              <h1>Build for mariowOS</h1>
-              <p>Publish your own app to the Store straight from a GitHub repository.</p>
+              <h1 data-i18n="store.hero.build.title">Build for mariowOS</h1>
+              <p data-i18n="store.hero.build.text">Publish your own app to the Store straight from a GitHub repository.</p>
             </div>
             <div class="hero-emoji">✨</div>
           </div>
           <div class="hero-card" onclick="document.getElementById('searchInput').focus()">
             <div>
-              <h1>Find something new</h1>
-              <p>Search the catalog for utilities built for your device.</p>
+              <h1 data-i18n="store.hero.find.title">Find something new</h1>
+              <p data-i18n="store.hero.find.text">Search the catalog for utilities built for your device.</p>
             </div>
             <div class="hero-emoji">🏆</div>
           </div>
         </div>
         <h2 class="section-title" id="gridTitle">New & Updated</h2>
         <div class="app-grid" id="appGrid">
-          <div class="loading-text">Loading catalog...</div>
+          <div class="loading-text" data-i18n="store.loading">Loading catalog...</div>
         </div>
       </div>
 
       <!-- App Landpage View -->
       <div id="view-landpage" class="view">
         <button class="btn-back" id="btnBack" onclick="switchView('home')">
-          <span class="material-symbols-outlined">arrow_back</span> Back
+          <span class="material-symbols-outlined">arrow_back</span> <span data-i18n="common.back">Back</span>
         </button>
         <div class="lp-header">
           <div class="lp-icon" id="lpIcon"></div>
@@ -499,47 +507,79 @@
           </div>
         </div>
         <div class="lp-desc-container">
-          <h3 class="lp-desc-title">Description</h3>
+          <h3 class="lp-desc-title" data-i18n="store.detail.description">Description</h3>
           <p id="lpDesc" class="lp-desc"></p>
         </div>
       </div>
 
       <!-- Publish View -->
       <div id="view-publish" class="view">
-        <h2 class="section-title">Submit to App Store</h2>
+        <h2 class="section-title" data-i18n="store.publish.title">Submit to App Store</h2>
         <div class="pub-card">
-          <input type="text" id="pubId" class="pub-input" placeholder="Bundle ID (e.g., com.mariowos.calc)">
-          <input type="text" id="pubTitle" class="pub-input" placeholder="App Name">
-          <input type="text" id="pubDev" class="pub-input" placeholder="Developer Name">
+          <input type="text" id="pubId" class="pub-input" placeholder="Bundle ID (e.g., com.mariowos.calc)" data-i18n-placeholder="store.publish.bundle-id">
+          <input type="text" id="pubTitle" class="pub-input" placeholder="App Name" data-i18n-placeholder="store.publish.app-name">
+          <input type="text" id="pubDev" class="pub-input" placeholder="Developer Name" data-i18n-placeholder="store.publish.developer">
           
           <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-            <input type="text" id="pubIconText" class="pub-input" placeholder="Emoji (Leave empty to fetch from GitHub)" style="margin-bottom: 0; flex: 1;">
-            <div style="display: flex; align-items: center; color: var(--text-secondary); font-size: 13px;">OR</div>
+            <input type="text" id="pubIconText" class="pub-input" placeholder="Emoji (Leave empty to fetch from GitHub)" data-i18n-placeholder="store.publish.emoji" style="margin-bottom: 0; flex: 1;">
+            <div style="display: flex; align-items: center; color: var(--text-secondary); font-size: 13px;" data-i18n="store.publish.or">OR</div>
             <input type="file" id="pubIconFile" class="pub-input" accept="image/png, image/jpeg" style="margin-bottom: 0; flex: 2; padding: 6px 10px;">
           </div>
           
-          <textarea id="pubDesc" class="pub-input" placeholder="Description" rows="4"></textarea>
-          <textarea id="pubEula" class="pub-input" placeholder="Custom EULA / License Agreement (Optional - Leave empty to auto-fetch from GitHub repo)" rows="3"></textarea>
-          <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)">
+          <textarea id="pubDesc" class="pub-input" placeholder="Description" data-i18n-placeholder="store.detail.description" rows="4"></textarea>
+          <textarea id="pubEula" class="pub-input" placeholder="Custom EULA / License Agreement (Optional - Leave empty to auto-fetch from GitHub repo)" data-i18n-placeholder="store.publish.eula" rows="3"></textarea>
+          <input type="text" id="pubRepo" class="pub-input" placeholder="GitHub Repository URL (.git)" data-i18n-placeholder="store.publish.repo">
           
-          <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 8px;">Submit for Review</button>
+          <button class="btn-action primary" onclick="submitApp()" style="width: 100%; margin-top: 8px;" data-i18n="store.publish.submit">Submit for Review</button>
           <div id="publishStatus" class="publish-status"></div>
         </div>
       </div>
+
+      <!-- Settings View -->
+      <div id="view-settings" class="view">
+        <h2 class="section-title" data-i18n="store.settings.title">Store Settings</h2>
+        
+        <div class="pub-card" style="margin-bottom: 24px;">
+          <h3 class="lp-desc-title" data-i18n="store.settings.channel">Update Channel</h3>
+          <p class="lp-desc" style="margin-bottom: 12px;"><span data-i18n="store.settings.channel-text">Choose your preferred mariowOS update channel.</span> <strong data-i18n="store.settings.channel-email">Requires a verified email.</strong></p>
+          <select id="updateChannelSelect" class="pub-input" onchange="changeUpdateChannel()" style="cursor: pointer;">
+            <option value="stable" data-i18n="store.settings.channel.stable">Stable (Recommended)</option>
+            <option value="beta" data-i18n="store.settings.channel.beta">Beta (Early Access)</option>
+            <option value="insiders" data-i18n="store.settings.channel.insiders">Insiders (Experimental)</option>
+          </select>
+          <div id="channelStatus" class="lp-error" style="margin-top: 8px;"></div>
+        </div>
+
+        <div class="pub-card">
+          <h3 class="lp-desc-title" data-i18n="store.settings.catalog">Repository Catalog</h3>
+          <p class="lp-desc" style="margin-bottom: 14px;" data-i18n="store.settings.catalog-text">Manually fetch the latest apps and updates from the remote GitHub catalog.</p>
+          <button class="btn-action primary" onclick="updateCatalog()" id="btnUpdateCatalog">Update Catalog</button>
+          <div id="catalogStatus" class="publish-status"></div>
+        </div>
+        
+        <!-- About Footer -->
+        <div style="margin-top: 40px; text-align: center; color: var(--text-dim); font-size: 11.5px; line-height: 1.6;">
+          <img src="/desktop/assets/icons/stars.png" style="width: 32px; height: 32px; opacity: 0.5; margin-bottom: 8px; border-radius: 8px;"><br>
+          <strong>mariowOS Store</strong><br>
+          <span data-i18n="store.about.version">Version</span> 1.0.0<br>
+          <span data-i18n="store.about.copyright">© 2026 mariowstech and contributors.</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <!-- EULA Overlay -->
   <div id="store-eula-overlay">
     <div class="store-eula-modal">
-      <h2>License Agreement</h2>
-      <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--text);"></strong> by <span id="eula-app-dev" style="color: var(--accent);"></span>.</p>
+      <h2 data-i18n="store.eula.title">License Agreement</h2>
+      <p id="eula-intro" style="font-size: 12.5px; color: var(--text-secondary); margin: 0;">Please review the terms for <strong id="eula-app-title" style="color: var(--text);"></strong> by <span id="eula-app-dev" style="color: var(--sys-accent-text);"></span>.</p>
       <div class="store-eula-box">
         <!-- EULA dynamic text will be injected here -->
       </div>
       <div class="store-eula-actions">
-        <button class="btn-action" style="background: rgba(255, 255, 255, 0.1); color: var(--text);" onclick="declineEula()">Decline</button>
-        <button class="btn-action primary" onclick="acceptEula()">I Agree</button>
+        <button class="btn-action" style="background: rgba(255, 255, 255, 0.1); color: var(--text);" onclick="declineEula()" data-i18n="store.eula.decline">Decline</button>
+        <button class="btn-action primary" onclick="acceptEula()" data-i18n="store.eula.accept">I Agree</button>
       </div>
     </div>
   </div>
@@ -549,6 +589,10 @@
     let installedAppsList = [];
     let currentAppOpen = null;
     let searchTimeout = null;
+
+    // Texts that the scripts below change at runtime start translated too.
+    document.getElementById('gridTitle').textContent = mariowOSI18n.t("store.grid.new", "New & Updated");
+    document.getElementById('btnUpdateCatalog').textContent = mariowOSI18n.t("store.settings.update-catalog", "Update Catalog");
 
     const renderIcon = (iconStr) => {
       if (!iconStr) return '📦';
@@ -591,6 +635,10 @@
         document.getElementById('view-publish').classList.add('active');
         document.getElementById('nav-publish').classList.add('active');
         document.getElementById('publishStatus').textContent = '';
+      } else if (viewName === 'settings') {
+        document.getElementById('view-settings').classList.add('active');
+        document.getElementById('nav-settings').classList.add('active');
+        fetchUpdateChannel(); // Fetch the current channel when opening settings
       } else if (viewName === 'landpage') {
         document.getElementById('view-landpage').classList.add('active');
       }
@@ -608,11 +656,11 @@
       
       if (q === '') {
         heroSec.style.display = 'grid';
-        gridTitle.textContent = 'New & Updated';
+        gridTitle.textContent = mariowOSI18n.t("store.grid.new", "New & Updated");
         renderGrid(storeCatalog);
       } else {
         heroSec.style.display = 'none';
-        gridTitle.textContent = 'Search Results';
+        gridTitle.textContent = mariowOSI18n.t("store.grid.results", "Search Results");
         const filtered = storeCatalog.filter(app => 
           app.title.toLowerCase().includes(q) || 
           app.developer.toLowerCase().includes(q) || 
@@ -625,7 +673,7 @@
     function renderGrid(catalogArray) {
       const grid = document.getElementById('appGrid');
       if (catalogArray.length === 0) {
-        grid.innerHTML = '<div class="loading-text">No apps found.</div>';
+        grid.innerHTML = '<div class="loading-text" data-i18n="store.grid.empty">No apps found.</div>';
         return;
       }
       grid.innerHTML = '';
@@ -641,7 +689,7 @@
             <h3 class="card-title">${app.title}</h3>
             <p class="card-desc">${app.desc}</p>
           </div>
-          <button class="btn-get ${isInst ? 'installed' : ''}" onclick="event.stopPropagation(); ${isInst ? `openInstalledApp('${app.id}')` : `openLandpage('${app.id}')`}">${isInst ? 'Open' : 'Get'}</button>
+          <button class="btn-get ${isInst ? 'installed' : ''}" onclick="event.stopPropagation(); ${isInst ? `openInstalledApp('${app.id}')` : `openLandpage('${app.id}')`}">${isInst ? mariowOSI18n.t("common.open", "Open") : mariowOSI18n.t("store.get", "Get")}</button>
         `;
         grid.appendChild(card);
       });
@@ -666,7 +714,7 @@
       const btnU = document.getElementById('btnUninstall');
       const isInst = installedAppsList.includes(currentAppOpen.id);
 
-      btnI.textContent = isInst ? 'Open' : 'Get';
+      btnI.textContent = isInst ? mariowOSI18n.t("common.open", "Open") : mariowOSI18n.t("store.get", "Get");
       btnI.className = `btn-action primary ${isInst ? 'installed' : ''}`;
       btnI.style.background = isInst ? 'rgba(255, 255, 255, 0.1)' : '';
       btnI.style.color = isInst ? 'var(--text)' : '';
@@ -678,7 +726,7 @@
         : () => promptEula();
 
       btnU.style.display = isInst ? 'inline-block' : 'none';
-      btnU.textContent = 'Uninstall';
+      btnU.textContent = mariowOSI18n.t("store.uninstall", "Uninstall");
       btnU.onclick = () => actOnApp('uninstall');
     }
 
@@ -688,8 +736,14 @@
     
     // --- EULA LOGIC ---
     function showEulaModal(eulaText) {
-      document.getElementById("eula-app-title").innerText = currentAppOpen.title;
-      document.getElementById("eula-app-dev").innerText = currentAppOpen.developer || "Unknown Developer";
+      // "Please review the terms for {app} by {developer}.": keep the styled name elements.
+      const intro = document.getElementById("eula-intro");
+      const appEl = document.getElementById("eula-app-title");
+      const devEl = document.getElementById("eula-app-dev");
+      intro.replaceChildren(...mariowOSI18n.t("store.eula.intro", "Please review the terms for {app} by {developer}.")
+        .split(/(\{app\}|\{developer\})/).map(part => part === "{app}" ? appEl : part === "{developer}" ? devEl : document.createTextNode(part)));
+      appEl.innerText = currentAppOpen.title;
+      devEl.innerText = currentAppOpen.developer || mariowOSI18n.t("store.eula.unknown-developer", "Unknown Developer");
       document.querySelector(".store-eula-box").innerText = eulaText;
       document.getElementById("store-eula-overlay").style.display = "flex";
     }
@@ -704,7 +758,7 @@
 
       const btn = document.getElementById('btnInstall');
       const origText = btn.textContent;
-      btn.textContent = 'Checking…';
+      btn.textContent = mariowOSI18n.t("store.checking", "Checking…");
       btn.disabled = true;
 
       try {
@@ -742,7 +796,7 @@
       const origText = btn.textContent;
       const origBg = btn.style.background;
 
-      btn.textContent = 'Working…';
+      btn.textContent = mariowOSI18n.t("store.working", "Working…");
       btn.disabled = true;
       document.getElementById('installError').textContent = '';
 
@@ -777,7 +831,7 @@
         updateInstallBtn();
         handleSearch(document.getElementById('searchInput').value);
       } catch (err) {
-        document.getElementById('installError').textContent = 'Error: ' + err.message;
+        document.getElementById('installError').textContent = mariowOSI18n.t("store.error", "Error: {error}", { error: err.message });
         btn.textContent = origText;
         btn.style.background = origBg;
         btn.disabled = false;
@@ -787,7 +841,7 @@
     async function submitApp() {
       const status = document.getElementById('publishStatus');
       status.style.color = 'var(--text-secondary)';
-      status.textContent = 'Publishing...';
+      status.textContent = mariowOSI18n.t("store.publish.publishing", "Publishing...");
 
       const idVal = document.getElementById('pubId').value.trim();
       const titleVal = document.getElementById('pubTitle').value.trim();
@@ -800,7 +854,7 @@
 
       if (!idVal || !titleVal || !devVal || !descVal || !repoVal) {
         status.style.color = '#FF453A';
-        status.textContent = 'All fields are required.';
+        status.textContent = mariowOSI18n.t("store.publish.required", "All fields are required.");
         return;
       }
 
@@ -831,7 +885,7 @@
         if (!r.success) throw new Error(r.error);
 
         status.style.color = '#32d74b';
-        status.textContent = 'Success! Your app is now available on Discover.';
+        status.textContent = mariowOSI18n.t("store.publish.success", "Success! Your app is now available on Discover.");
         
         document.getElementById('pubId').value = '';
         document.getElementById('pubTitle').value = '';
@@ -845,7 +899,81 @@
         setTimeout(() => { initStore(); switchView('home'); }, 1500);
       } catch (err) {
         status.style.color = '#FF453A';
-        status.textContent = 'Error: ' + err.message;
+        status.textContent = mariowOSI18n.t("store.error", "Error: {error}", { error: err.message });
+      }
+    }
+
+    // --- LOGICHE SETTINGS STORE ---
+    async function fetchUpdateChannel() {
+      try {
+        const res = await fetch('/api/system/update-channel');
+        const data = await res.json();
+        if (data.channel) {
+          document.getElementById('updateChannelSelect').value = data.channel;
+        }
+      } catch (e) {
+        console.warn('Failed to fetch update channel:', e);
+      }
+    }
+
+    async function changeUpdateChannel() {
+      const select = document.getElementById('updateChannelSelect');
+      const status = document.getElementById('channelStatus');
+      const channel = select.value;
+      
+      status.textContent = mariowOSI18n.t("store.settings.saving", "Saving...");
+      status.style.color = 'var(--text-secondary)';
+      
+      try {
+        const res = await fetch('/api/system/update-channel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ channel })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          status.textContent = mariowOSI18n.t("store.settings.channel-changed", "Update channel changed successfully.");
+          status.style.color = '#32d74b'; // Verde successo
+          setTimeout(() => status.textContent = '', 2500);
+        } else {
+          status.textContent = data.error || mariowOSI18n.t("store.settings.channel-failed", "Failed to change channel.");
+          status.style.color = '#ff453a'; // Rosso errore
+          fetchUpdateChannel(); // Ripristina il valore vecchio in caso di errore (es: no mail verificata)
+        }
+      } catch (e) {
+        status.textContent = mariowOSI18n.t("store.network-error", "Network error.");
+        status.style.color = '#ff453a';
+        fetchUpdateChannel();
+      }
+    }
+
+    async function updateCatalog() {
+      const btn = document.getElementById('btnUpdateCatalog');
+      const status = document.getElementById('catalogStatus');
+      
+      btn.disabled = true;
+      btn.textContent = mariowOSI18n.t("store.settings.updating", "Updating...");
+      status.textContent = '';
+      status.style.color = 'var(--text-secondary)';
+      
+      try {
+        const res = await fetch('/api/store/update');
+        const data = await res.json();
+        if (data.success) {
+          status.style.color = '#32d74b';
+          status.textContent = mariowOSI18n.t("store.settings.catalog-updated", "Catalog updated! Added {count} new apps.", { count: data.addedCount });
+          initStore(); // Ricarica la griglia con i nuovi dati per mostrare le nuove app
+        } else {
+          status.style.color = '#ff453a';
+          status.textContent = data.error || mariowOSI18n.t("store.settings.catalog-failed", "Failed to update catalog.");
+        }
+      } catch (e) {
+        status.style.color = '#ff453a';
+        status.textContent = mariowOSI18n.t("store.settings.catalog-network-error", "Network error while updating catalog.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = mariowOSI18n.t("store.settings.update-catalog", "Update Catalog");
       }
     }
 

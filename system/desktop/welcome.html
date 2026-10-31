@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="/desktop/assets/mariowos-dialogs.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Including Poppins from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;800&display=swap" rel="stylesheet">
     <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+    <title>mariowOS Setup</title>
     <style>
         * {
             margin: 0;
@@ -23,147 +21,215 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .anim-container {
             position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* 
-         * CINEMATIC SCREENS
-         * Moved up to top: 32% to leave breathing room for text
-         */
-        .screen-back {
+        /* Contenitore delle 3 stelle separate */
+        #stars-container {
             position: absolute;
-            top: 32%; 
-            left: 50%;
-            width: 60%;
-            max-width: 850px;
-            z-index: 2;
-            opacity: 0;
-            border-radius: 12px;
-            /* 4s duration to handle entrance, pause, and exit */
-            animation: backScreenSequence 4s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
-        }
-
-        .screen-front {
-            position: absolute;
-            top: 32%;
-            left: 50%;
-            width: 70%;
-            max-width: 1000px;
-            z-index: 3;
-            opacity: 0;
-            border-radius: 12px;
-            pointer-events: none;
-            /* Starts exactly when the back screen starts shrinking (2.9s total delay) */
-            animation: frontScreenIn 2s cubic-bezier(0.16, 1, 0.3, 1) forwards 2.9s;
-        }
-
-        /* Ultra-fluid Sequence: Enters blurred, sharpens, stays, pushes back to extreme blur */
-        @keyframes backScreenSequence {
-            0% { opacity: 0; transform: translate(-50%, 60px) scale(0.9); filter: blur(25px); }
-            15% { opacity: 1; transform: translate(-50%, 0) scale(1); filter: blur(0px) brightness(1); }
-            65% { opacity: 1; transform: translate(-50%, 0) scale(1); filter: blur(0px) brightness(1); }
-            100% { opacity: 0.25; transform: translate(-50%, -60px) scale(0.75); filter: blur(20px) brightness(0.3); }
-        }
-
-        /* Enters with heavy blur and drop shadow, resolving to sharp */
-        @keyframes frontScreenIn {
-            0% { 
-                opacity: 0; 
-                transform: translate(-50%, 120px) scale(0.9); 
-                filter: blur(20px) drop-shadow(0 20px 30px rgba(0,0,0,0.2)); 
-            }
-            100% { 
-                opacity: 1; 
-                transform: translate(-50%, 0) scale(1); 
-                filter: blur(0px) drop-shadow(0 60px 100px rgba(0,0,0,0.95)); 
-            }
-        }
-
-        /* 
-         * TEXT ANIMATIONS
-         * Positioned at the bottom
-         */
-        .hero-text-container {
-            position: absolute;
-            bottom: 18%; 
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            text-align: center;
+            width: min(24vw, 144px);
+            height: min(24vw, 144px);
             z-index: 5;
         }
 
-        /* "The desktop you know and love..." */
-        .text-part1 {
+        /* I singoli pezzi della stella */
+        .star-layer {
             position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 3rem;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* L'animazione in cui il pezzo grande si "frantuma" */
+        .dissolve {
+            transform: scale(1.1) !important;
+            opacity: 0 !important;
+            filter: blur(8px);
+        }
+
+        /* Contenitore Yin-Yang particellare */
+        #yin-yang-wrapper {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 2;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #yin-yang-rotator {
+            position: absolute;
+            width: 0; 
+            height: 0;
+        }
+
+        .rotating {
+            animation: spin 9s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Particelle stelline */
+        .particle-star {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            margin-top: -7.5px;
+            margin-left: -7.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease-in;
+        }
+        
+        .particle-star svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Screenshot di OS */
+        .screenshot {
+            position: absolute;
+            width: 640px;
+            height: 360px;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(255,255,255,0.15);
+            opacity: 0;
+            transform: scale(0.6);
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .screenshot.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .screenshot.compress {
+            transform: scale(0.85);
+            filter: brightness(0.6);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screenshot.hide {
+            opacity: 0;
+            transform: scale(1.3) translateY(-20px);
+            transition: all 0.5s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        /* Testi Overlays (riportati in basso e allineati perfettamente sullo stesso livello) */
+        .text-overlay {
+            position: absolute;
+            bottom: 12%; 
+            left: 0;
+            width: 100%;
+            height: 80px; /* Contenitore di altezza fissa per centrare tutto esattamente sullo stesso asse */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 2rem;
             font-weight: 500;
-            letter-spacing: -1px;
-            white-space: nowrap;
+            letter-spacing: 1px;
             opacity: 0;
-            /* Syncs with the back screen */
-            animation: text1Anim 3s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
+            transform: translateY(20px); /* Arrivano dal basso verso l'alto */
+            transition: opacity 1s ease, transform 1s ease;
+            z-index: 15;
         }
-        .text-part1 span { color: rgba(255, 255, 255, 0.4); }
 
-        /* "Reimagined." */
-        .text-part2 {
+        .text-overlay.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Effetto Warp / Copia-Incolla ultra smooth per le lingue */
+        .text-word {
             position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%) translateY(40px) scale(0.8);
-            font-size: 5.5rem;
+            width: 100%;
+            left: 0;
+            top: 50%; /* Insieme al translateY(-50%) centra perfettamente questo testo di 4rem nel blocco di 80px */
+            font-size: 4rem;
             font-weight: 800;
-            letter-spacing: -2px;
-            white-space: nowrap;
-            opacity: 0;
-            
-            /* Gradient exactly as requested */
-            background: linear-gradient(90deg, #38bdf8, #818cf8, #e879f9, #38bdf8);
+            text-transform: uppercase;
+            background: linear-gradient(270deg, #ff007f, #7f00ff, #00d4ff, #7f00ff, #ff007f);
             background-size: 200% auto;
+            color: transparent;
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shine 3s linear infinite;
             
-            /* Enters perfectly synchronized with the new screen */
-            animation: text2Anim 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 2.9s, gradientShine 4s linear infinite 4.7s;
+            /* Animazione per l'effetto Warp (Morphing testuale) */
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                        filter 0.6s ease,
+                        letter-spacing 0.7s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes text1Anim {
-            0% { opacity: 0; transform: translateX(-50%) translateY(30px); filter: blur(15px); }
-            15% { opacity: 1; transform: translateX(-50%) translateY(0); filter: blur(0px); }
-            85% { opacity: 1; transform: translateX(-50%) translateY(0); filter: blur(0px); } 
-            100% { opacity: 0; transform: translateX(-50%) translateY(-40px); filter: blur(15px); } 
+        /* Stato in entrata: parola sfocata, compressa */
+        .word-enter {
+            transform: translateY(-50%) scale(0.9);
+            opacity: 0;
+            filter: blur(12px);
+            letter-spacing: 0px;
         }
 
-        @keyframes text2Anim {
-            0% { opacity: 0; transform: translateX(-50%) translateY(50px) scale(0.85); filter: blur(20px); }
-            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); filter: blur(0px); }
+        /* Stato visibile perfetto (centrato) */
+        .word-active {
+            transform: translateY(-50%) scale(1);
+            opacity: 1;
+            filter: blur(0px);
+            letter-spacing: 4px;
         }
 
-        @keyframes gradientShine {
+        /* Stato in uscita: la parola si allarga e si sfoca perdendo opacità */
+        .word-leave {
+            transform: translateY(-50%) scale(1.1);
+            opacity: 0;
+            filter: blur(12px);
+            letter-spacing: 8px;
+        }
+
+        @keyframes shine {
             to { background-position: 200% center; }
         }
 
-        /* 
-         * UI CONTROLS 
-         * Smoothly fade in after all animations conclude
-         */
+        /* Bottoni inferiori */
         .btn-link, .btn-restore {
             opacity: 0;
-            z-index: 10;
-            animation: uiFadeIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards 4.5s;
+            pointer-events: none;
+            transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 20;
+            transform: translateY(15px);
         }
 
-        /* Forward Arrow */
+        .show-btn {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+            pointer-events: all !important;
+        }
+
         .btn-link {
             position: fixed;
             bottom: 40px;
             right: 40px;
             text-decoration: none;
-            transform: translateY(20px);
         }
 
         .arrow-button {
@@ -174,84 +240,74 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+            transition: transform 0.3s;
         }
+        .arrow-button:hover { transform: scale(1.1); }
+        .arrow-button svg { width: 35px; height: 35px; fill: black; }
 
-        .arrow-button:hover { 
-            transform: scale(1.1); 
-            box-shadow: 0 10px 25px rgba(255,255,255,0.2);
-        }
-        .arrow-button svg { width: 35px; height: 35px; fill: black; transition: transform 0.3s; }
-        .arrow-button:hover svg { transform: translateX(3px); }
-
-        /* Restore Backup */
         .btn-restore {
             position: fixed;
             bottom: 40px;
             left: 40px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 14px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
             border-radius: 30px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             cursor: pointer;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            transform: translateY(20px);
+            backdrop-filter: blur(10px);
+            transition: all 0.2s;
         }
-
-        .btn-restore:hover { 
-            background: rgba(255, 255, 255, 0.15); 
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px); 
-        }
+        .btn-restore:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
         .btn-restore svg { width: 20px; height: 20px; fill: white; }
-
-        @keyframes uiFadeIn { 
-            to { opacity: 1; transform: translateY(0); filter: blur(0px); } 
-            0% { filter: blur(10px); opacity: 0; }
-        }
-
-        /* Responsive Breakpoints */
-        @media (max-width: 900px) {
-            .text-part1 { font-size: 2.2rem; }
-            .text-part2 { font-size: 3.5rem; }
-            .screen-back { width: 85%; }
-            .screen-front { width: 95%; }
-            .hero-text-container { bottom: 12%; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Background Screen (Old version) -->
-    <!-- Positioned higher and handles blur/shrink dynamically -->
-    <img class="screen-back" src="/desktop/assets/screen-old.png" alt="mariowOS Previous" onerror="this.src='https://placehold.co/850x450/222222/555555?text=Old+mariowOS+Screen'">
-    
-    <!-- Foreground Screen (New version) -->
-    <!-- Slides in with sharp drop-shadow just as the old screen fades out -->
-    <img class="screen-front" src="/desktop/assets/setup-hero.png" alt="mariowOS New" onerror="this.src='https://placehold.co/1000x550/111111/FFFFFF?text=New+mariowOS+Hero'">
+    <div class="anim-container">
+        <!-- I 3 pezzi divisi in 3 layer che si decomporranno -->
+        <div id="stars-container">
+            <svg id="star-1" class="star-layer" viewBox="0 0 459 449" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M72.9748 4.25183C75.5281 -1.41728 83.4575 -1.41728 86.0108 4.25183L106.728 50.2512C107.428 51.806 108.645 53.061 110.165 53.796L154.899 75.4297C160.347 78.0649 160.347 85.9423 154.899 88.5774L110.165 110.211C108.645 110.946 107.428 112.201 106.728 113.757L86.0108 159.756C83.4575 165.425 75.5281 165.425 72.9748 159.756L52.2574 113.757C51.5571 112.201 50.3404 110.946 48.8206 110.211L4.08662 88.5774C-1.36221 85.9423 -1.36221 78.0649 4.08662 75.4297L48.8206 53.796C50.3404 53.061 51.5571 51.806 52.2574 50.2512L72.9748 4.25183Z" fill="white"/>
+            </svg>
+            <svg id="star-2" class="star-layer" viewBox="0 0 459 449" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M98.1534 300.321C100.782 294.908 108.382 294.908 111.01 300.321L131.75 343.038C132.494 344.569 133.744 345.788 135.283 346.477L178.735 365.97C184.431 368.526 184.431 376.736 178.735 379.292L135.283 398.785C133.744 399.474 132.494 400.692 131.75 402.224L111.01 444.94C108.382 450.354 100.782 450.354 98.1534 444.94L77.4139 402.224C76.67 400.692 75.4196 399.474 73.8812 398.785L30.4288 379.292C24.7327 376.736 24.7328 368.526 30.4288 365.97L73.8812 346.477C75.4196 345.788 76.67 344.569 77.4139 343.038L98.1534 300.321Z" fill="white"/>
+            </svg>
+            <svg id="star-3" class="star-layer" viewBox="0 0 459 449" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M269.613 33.8688C275.108 21.4695 292.44 21.4695 297.935 33.8688L343.608 136.923C345.105 140.3 347.723 143.035 351.005 144.648L450.201 193.399C461.889 199.144 461.889 216.055 450.201 221.799L351.005 270.55C347.723 272.163 345.105 274.898 343.608 278.275L297.935 381.329C292.44 393.729 275.108 393.729 269.613 381.329L223.94 278.275C222.443 274.898 219.825 272.163 216.543 270.55L117.347 221.799C105.659 216.055 105.659 199.144 117.347 193.399L216.543 144.648C219.825 143.035 222.443 140.3 223.94 136.923L269.613 33.8688Z" fill="white"/>
+            </svg>
+        </div>
 
-    <!-- Text Container positioned securely at the bottom -->
-    <div class="hero-text-container">
-        <div class="text-part1">The desktop you know and love<span>...</span></div>
-        <div class="text-part2">Reimagined.</div>
+        <!-- Yin Yang in stelline (formato dai cloni dei 3 pezzi) -->
+        <div id="yin-yang-wrapper">
+            <div id="yin-yang-rotator"></div>
+        </div>
+
+        <!-- Screenshots -->
+        <img id="old-os" class="screenshot" src="/desktop/assets/oldmwos.png" alt="mariowOS Old">
+        <img id="new-os" class="screenshot" src="/desktop/assets/newmwos.png" alt="mariowOS New">
+
+        <!-- Testi animati posizionati in basso sullo stesso esatto asse -->
+        <div id="text-old" class="text-overlay">The desktop you know and love</div>
+        
+        <div id="text-new-container" class="text-overlay">
+            <div class="text-word word-active">reimagined</div>
+        </div>
     </div>
 
-    <!-- Restore Backup Button & Hidden Input -->
+    <!-- Restore Backup -->
     <button class="btn-restore" onclick="document.getElementById('backup-upload').click()">
         <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
         Restore Backup
     </button>
     <input type="file" id="backup-upload" accept=".json" style="display: none;" onchange="importBackup(event)">
 
-    <!-- Next / Continue Button -->
+    <!-- Next Button -->
     <a href="/desktop/license.html" class="btn-link">
         <div class="arrow-button">
             <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
@@ -259,8 +315,156 @@
     </a>
 
     <script>
-        // No Parallax applied - completely clean CSS animations only.
+        document.addEventListener("DOMContentLoaded", () => {
+            const rotator = document.getElementById('yin-yang-rotator');
+            const numStars = 750; 
+            const R = 320; 
 
+            // Rotazione attiva fin da subito per l'effetto spirale vorticosa
+            rotator.classList.add('rotating');
+
+            const starPaths = [
+                "M72.9748 4.25183C75.5281 -1.41728 83.4575 -1.41728 86.0108 4.25183L106.728 50.2512C107.428 51.806 108.645 53.061 110.165 53.796L154.899 75.4297C160.347 78.0649 160.347 85.9423 154.899 88.5774L110.165 110.211C108.645 110.946 107.428 112.201 106.728 113.757L86.0108 159.756C83.4575 165.425 75.5281 165.425 72.9748 159.756L52.2574 113.757C51.5571 112.201 50.3404 110.946 48.8206 110.211L4.08662 88.5774C-1.36221 85.9423 -1.36221 78.0649 4.08662 75.4297L48.8206 53.796C50.3404 53.061 51.5571 51.806 52.2574 50.2512L72.9748 4.25183Z",
+                "M98.1534 300.321C100.782 294.908 108.382 294.908 111.01 300.321L131.75 343.038C132.494 344.569 133.744 345.788 135.283 346.477L178.735 365.97C184.431 368.526 184.431 376.736 178.735 379.292L135.283 398.785C133.744 399.474 132.494 400.692 131.75 402.224L111.01 444.94C108.382 450.354 100.782 450.354 98.1534 444.94L77.4139 402.224C76.67 400.692 75.4196 399.474 73.8812 398.785L30.4288 379.292C24.7327 376.736 24.7328 368.526 30.4288 365.97L73.8812 346.477C75.4196 345.788 76.67 344.569 77.4139 343.038L98.1534 300.321Z",
+                "M269.613 33.8688C275.108 21.4695 292.44 21.4695 297.935 33.8688L343.608 136.923C345.105 140.3 347.723 143.035 351.005 144.648L450.201 193.399C461.889 199.144 461.889 216.055 450.201 221.799L351.005 270.55C347.723 272.163 345.105 274.898 343.608 278.275L297.935 381.329C292.44 393.729 275.108 393.729 269.613 381.329L223.94 278.275C222.443 274.898 219.825 272.163 216.543 270.55L117.347 221.799C105.659 216.055 105.659 199.144 117.347 193.399L216.543 144.648C219.825 143.035 222.443 140.3 223.94 136.923L269.613 33.8688Z"
+            ];
+
+            const startOffsets = [
+                { x: -30, y: -30 }, 
+                { x: -15, y: 35 },  
+                { x: 35, y: -5 }    
+            ];
+
+            for (let i = 0; i < numStars; i++) {
+                let x, y, r2;
+                do {
+                    x = (Math.random() * 2 - 1);
+                    y = (Math.random() * 2 - 1);
+                    r2 = x * x + y * y;
+                } while (r2 > 1);
+
+                let dTop2 = x * x + (y + 0.5) * (y + 0.5);
+                let dBot2 = x * x + (y - 0.5) * (y - 0.5);
+
+                let isWhite = false;
+                if (dTop2 <= 0.025) isWhite = true; 
+                else if (dBot2 <= 0.025) isWhite = false; 
+                else if (dTop2 <= 0.25) isWhite = false; 
+                else if (dBot2 <= 0.25) isWhite = true; 
+                else if (x <= 0) isWhite = true; 
+                else isWhite = false; 
+
+                const groupIndex = i % 3;
+                const star = document.createElement('div');
+                star.className = 'particle-star';
+                star.dataset.group = groupIndex;
+                
+                star.style.transform = `translate(${startOffsets[groupIndex].x}px, ${startOffsets[groupIndex].y}px) scale(0.2)`;
+                
+                const fillColor = isWhite ? '#ffffff' : 'rgba(255, 255, 255, 0.25)';
+                const piecePath = starPaths[groupIndex]; 
+                star.innerHTML = `<svg viewBox="0 0 459 449"><path fill="${fillColor}" d="${piecePath}"/></svg>`;
+                
+                star.dataset.tx = x * R;
+                star.dataset.ty = y * R;
+                
+                rotator.appendChild(star);
+            }
+
+            function shatterStar(groupIndex) {
+                document.getElementById(`star-${groupIndex + 1}`).classList.add('dissolve');
+                
+                const particles = document.querySelectorAll(`.particle-star[data-group="${groupIndex}"]`);
+                particles.forEach(p => {
+                    const delay = (Math.random() * 0.3).toFixed(2); 
+                    p.style.transitionDelay = `${delay}s, 0s`; 
+                    p.style.opacity = '1';
+                    p.style.transform = `translate(${p.dataset.tx}px, ${p.dataset.ty}px) scale(1)`;
+                });
+            }
+
+            // --- TIMELINE DELL'ANIMAZIONE ---
+
+            setTimeout(() => shatterStar(0), 500);  
+            setTimeout(() => shatterStar(1), 1100); 
+            setTimeout(() => shatterStar(2), 1700); 
+
+            setTimeout(() => {
+                document.getElementById('old-os').classList.add('show');
+                document.getElementById('text-old').classList.add('show');
+            }, 4500);
+
+            setTimeout(() => {
+                document.getElementById('old-os').classList.add('compress');
+                document.getElementById('yin-yang-wrapper').style.transform = 'scale(0.85)';
+                
+                const textOld = document.getElementById('text-old');
+                textOld.style.transition = 'all 0.5s ease';
+                textOld.style.opacity = '0';
+                textOld.style.transform = 'translateY(20px)'; // Scivola e sparisce verso il basso
+            }, 7500);
+
+            setTimeout(() => {
+                document.getElementById('old-os').classList.add('hide');
+                
+                const particles = document.querySelectorAll('.particle-star');
+                particles.forEach(p => {
+                    const exX = p.dataset.tx * (4 + Math.random() * 2);
+                    const exY = p.dataset.ty * (4 + Math.random() * 2);
+                    p.style.transition = 'transform 1.2s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.8s ease-out';
+                    p.style.transitionDelay = '0s'; 
+                    p.style.transform = `translate(${exX}px, ${exY}px) scale(3)`;
+                    p.style.opacity = '0';
+                });
+
+                setTimeout(() => {
+                    document.getElementById('new-os').classList.add('show');
+                    document.getElementById('text-new-container').classList.add('show');
+                }, 300);
+            }, 8200);
+
+            setTimeout(() => {
+                document.querySelector('.btn-restore').classList.add('show-btn');
+                document.querySelector('.btn-link').classList.add('show-btn');
+            }, 9500);
+
+            // FASE 6: Animazione del testo Warp (Copy/Paste Smooth Replace)
+            setTimeout(() => {
+                const greetings = ["Hello", "Ciao", "Buna", "你好", "Hola", "Bonjour", "こんにちは", "Привет"];
+                let greetingIndex = 0;
+                const textContainer = document.getElementById('text-new-container');
+                
+                setInterval(() => {
+                    const currentWord = textContainer.querySelector('.word-active');
+                    
+                    // Creiamo la nuova parola in stato "enter"
+                    const newWord = document.createElement('div');
+                    newWord.className = 'text-word word-enter';
+                    newWord.innerText = greetings[greetingIndex];
+                    textContainer.appendChild(newWord);
+                    
+                    // Forza il reflow affinché il CSS applichi lo stato "enter" prima della transizione
+                    void newWord.offsetWidth;
+                    
+                    // La vecchia parola fa un Warp out (si allarga e sfuma all'infuori)
+                    if (currentWord) {
+                        currentWord.classList.remove('word-active');
+                        currentWord.classList.add('word-leave');
+                        
+                        // Pulizia dal DOM quando l'animazione termina
+                        setTimeout(() => currentWord.remove(), 800);
+                    }
+                    
+                    // La nuova parola fa un Warp in (si stringe e mette a fuoco al centro)
+                    newWord.classList.remove('word-enter');
+                    newWord.classList.add('word-active');
+                    
+                    greetingIndex = (greetingIndex + 1) % greetings.length;
+                }, 2500); 
+            }, 11000); 
+        });
+
+        // Logica Restore
         function importBackup(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -270,23 +474,13 @@
             fetch('/api/system/restore', { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(res => {
-                    if(res.success) { 
+                    if(res.success) {
                         window.location.href = '/'; 
-                    } else { 
-                        if (typeof mDialog !== 'undefined') {
-                            mDialog.alert("Restore failed: " + res.error); 
-                        } else {
-                            console.error("Restore failed: " + res.error);
-                        }
+                    } else {
+                        mDialog.alert("Restore failed: " + res.error);
                     }
                 })
-                .catch(err => {
-                    if (typeof mDialog !== 'undefined') {
-                        mDialog.alert("Error restoring backup.");
-                    } else {
-                        console.error("Error restoring backup.", err);
-                    }
-                });
+                .catch(err => mDialog.alert("Error restoring backup."));
         }
     </script>
 </body>

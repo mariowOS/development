@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,7 +101,7 @@
       transition: border-color 0.2s;
     }
     
-    .edit-panel input:focus { border-color: #0a84ff; }
+    .edit-panel input:focus { border-color: var(--sys-accent-text); }
 
     .btn-row {
       display: flex;
@@ -111,15 +114,15 @@
       padding: 8px 16px; 
       border-radius: 6px; 
       border: none; 
-      background: #0a84ff; 
-      color: white; 
+      background: var(--sys-accent); 
+      color: var(--sys-accent-on); 
       font-weight: 500; 
       font-size: 13px;
       cursor: pointer; 
       font-family: inherit; 
       transition: background 0.2s; 
     }
-    .btn:hover { background: #007aff; }
+    .btn:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
 
     html::-webkit-scrollbar { display: none; }
   </style>
@@ -134,8 +137,8 @@
       <div class="item-left">
         <div class="icon-badge bg-gray"><span class="material-symbols-outlined">password</span></div>
         <div>
-          <div class="item-title">Set or Change Password</div>
-          <div class="item-subtitle">Update your login credentials</div>
+          <div class="item-title" data-i18n="settings.security.password">Set or Change Password</div>
+          <div class="item-subtitle" data-i18n="settings.security.password-desc">Update your login credentials</div>
         </div>
       </div>
       <div class="item-right"><span class="material-symbols-outlined" id="pwdIcon">expand_more</span></div>
@@ -143,11 +146,11 @@
     
     <!-- Hidden Form -->
     <div class="edit-panel" id="pwdDrop">
-      <input type="text" id="secUser" placeholder="Username">
-      <input type="password" id="secCurrent" placeholder="Current Password (leave empty if none)">
-      <input type="password" id="secPass" placeholder="New Password">
+      <input type="text" id="secUser" placeholder="Username" data-i18n-placeholder="settings.security.username">
+      <input type="password" id="secCurrent" placeholder="Current Password (leave empty if none)" data-i18n-placeholder="settings.security.current-password">
+      <input type="password" id="secPass" placeholder="New Password" data-i18n-placeholder="settings.security.new-password">
       <div class="btn-row">
-        <button class="btn" onclick="savePassword()">Update Security Info</button>
+        <button class="btn" onclick="savePassword()" data-i18n="settings.security.update">Update Security Info</button>
       </div>
     </div>
 
@@ -156,8 +159,8 @@
       <div class="item-left">
         <div class="icon-badge bg-gray"><span class="material-symbols-outlined">lock_open</span></div>
         <div>
-          <div class="item-title">Clear Password</div>
-          <div class="item-subtitle">Allow logging in without a password</div>
+          <div class="item-title" data-i18n="settings.security.clear">Clear Password</div>
+          <div class="item-subtitle" data-i18n="settings.security.clear-desc">Allow logging in without a password</div>
         </div>
       </div>
       <div class="item-right"></div>
@@ -170,8 +173,8 @@
       <div class="item-left">
         <div class="icon-badge bg-danger"><span class="material-symbols-outlined">wallpaper</span></div>
         <div>
-          <div class="item-title">Reset Desktop Layout</div>
-          <div class="item-subtitle">Clears active wallpaper and avatar</div>
+          <div class="item-title" data-i18n="settings.security.reset-desktop">Reset Desktop Layout</div>
+          <div class="item-subtitle" data-i18n="settings.security.reset-desktop-desc">Clears active wallpaper and avatar</div>
         </div>
       </div>
       <div class="item-right"></div>
@@ -182,8 +185,8 @@
       <div class="item-left">
         <div class="icon-badge bg-danger"><span class="material-symbols-outlined">warning</span></div>
         <div>
-          <div class="item-title">Factory Reset System</div>
-          <div class="item-subtitle">Erase network configs and user data</div>
+          <div class="item-title" data-i18n="settings.security.factory">Factory Reset System</div>
+          <div class="item-subtitle" data-i18n="settings.security.factory-desc">Erase network configs and user data</div>
         </div>
       </div>
       <div class="item-right"></div>
@@ -222,7 +225,7 @@
     const newPassword = document.getElementById('secPass').value;
 
     if (!username || !newPassword) {
-      await mDialog.alert("Both fields are required.");
+      await mDialog.alert(mariowOSI18n.t("settings.security.fields-required", "Both fields are required."));
       return;
     }
 
@@ -234,19 +237,19 @@
         body: JSON.stringify({ username, newPassword, currentPassword })
       });
       const text = await res.text();
-      if (!res.ok) { await mDialog.alert("Could not update password: " + text); return; }
-      await mDialog.alert("Password updated successfully.");
+      if (!res.ok) { await mDialog.alert(mariowOSI18n.t("settings.security.update-failed", "Could not update password: {error}", { error: text })); return; }
+      await mDialog.alert(mariowOSI18n.t("settings.security.updated", "Password updated successfully."));
       document.getElementById('secPass').value = '';
       document.getElementById('secCurrent').value = '';
       toggleDropdown('pwdDrop');
     } catch (e) {
-      await mDialog.alert("Network error: " + e.message);
+      await mDialog.alert(mariowOSI18n.t("settings.security.network-error", "Network error: {error}", { error: e.message }));
     }
   }
 
   async function removePassword() {
-    if (await mDialog.confirm("Are you sure you want to remove your password? Anyone will be able to log in without it.", { danger: true, okText: "Remove" })) {
-      const currentPassword = await mDialog.prompt("Enter your current password to confirm:", { type: "password", title: "Confirm password" });
+    if (await mDialog.confirm(mariowOSI18n.t("settings.security.clear-confirm", "Are you sure you want to remove your password? Anyone will be able to log in without it."), { danger: true, okText: mariowOSI18n.t("common.remove", "Remove") })) {
+      const currentPassword = await mDialog.prompt(mariowOSI18n.t("settings.security.clear-prompt", "Enter your current password to confirm:"), { type: "password", title: mariowOSI18n.t("settings.security.confirm-password", "Confirm password") });
       if (currentPassword === null) return;
       try {
         const res = await fetch('/clear-password', {
@@ -255,29 +258,31 @@
           body: JSON.stringify({ currentPassword })
         });
         const text = await res.text();
-        await mDialog.alert(res.ok ? "Password cleared." : "Could not clear password: " + text);
+        await mDialog.alert(res.ok ? mariowOSI18n.t("settings.security.cleared", "Password cleared.") : mariowOSI18n.t("settings.security.clear-failed", "Could not clear password: {error}", { error: text }));
       } catch (e) {
-        await mDialog.alert("Network error: " + e.message);
+        await mDialog.alert(mariowOSI18n.t("settings.security.network-error", "Network error: {error}", { error: e.message }));
       }
     }
   }
 
   async function resetDesktop() {
-    if (await mDialog.confirm("Reset desktop wallpaper and avatar to default?", { danger: true, okText: "Reset" })) {
+    if (await mDialog.confirm(mariowOSI18n.t("settings.security.reset-desktop-confirm", "Reset desktop wallpaper and avatar to default?"), { danger: true, okText: mariowOSI18n.t("settings.security.reset", "Reset") })) {
       const res = await fetch('/api/system/reset-desktop', { method: 'POST' });
-      if (!res.ok) { await mDialog.alert("Desktop reset failed."); return; }
+      if (!res.ok) { await mDialog.alert(mariowOSI18n.t("settings.security.reset-desktop-failed", "Desktop reset failed.")); return; }
       try { localStorage.removeItem('wallpaper'); } catch (e) {}
-      await mDialog.alert("Desktop reset. Reloading system...");
+      await mDialog.alert(mariowOSI18n.t("settings.security.reset-desktop-done", "Desktop reset. Reloading system..."));
       window.top.location.reload();
     }
   }
 
   async function factoryReset() {
-    if (await mDialog.confirm("This will erase all system preferences, apps and data. Continue?", { danger: true, okText: "Erase everything", title: "Factory reset" })) {
+    if (await mDialog.confirm(mariowOSI18n.t("settings.security.factory-confirm", "This will erase all system preferences, apps and data. Continue?"), { danger: true, okText: mariowOSI18n.t("settings.security.erase-everything", "Erase everything"), title: mariowOSI18n.t("settings.security.factory-title", "Factory reset") })) {
+      const password = await askFactoryResetPassword();
+      if (password === null) return;
       try {
-        await runFactoryReset();
+        await runFactoryReset(password);
       } catch (e) {
-        await mDialog.alert("Factory reset failed: " + e.message);
+        await mDialog.alert(mariowOSI18n.t("settings.security.factory-failed", "Factory reset failed: {error}", { error: e.message }));
       }
     }
   }

@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <meta charset="UTF-8">
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
@@ -19,7 +22,7 @@
 </head>
 <body>
   <div class="panel" id="ethPanel">
-    <div class="row"><div class="subtitle">Checking physical connections…</div></div>
+    <div class="row"><div class="subtitle" data-i18n="settings.ethernet.checking">Checking physical connections…</div></div>
   </div>
 
   <script>
@@ -58,7 +61,7 @@
           <div class="row">
             <div class="left">
               <span class="material-symbols-outlined" style="opacity:0.5">cable</span>
-              <div class="title" style="opacity:0.5">Cable unplugged</div>
+              <div class="title" style="opacity:0.5">${mariowOSI18n.t("settings.ethernet.unplugged", "Cable unplugged")}</div>
             </div>
           </div>
         `;

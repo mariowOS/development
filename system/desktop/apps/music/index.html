@@ -8,12 +8,15 @@ Licensed under the Apache License, Version 2.0
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
-  <title>mariowOS Music</title>
+  <title data-i18n="music.window-title">mariowOS Music</title>
   <style>
     :root {
-      --accent: #0a84ff;
+      --accent: var(--sys-accent);
       --text: #ffffff;
       --text-muted: rgba(255, 255, 255, 0.5);
       --text-dim: rgba(255, 255, 255, 0.35);
@@ -85,7 +88,7 @@ Licensed under the Apache License, Version 2.0
     }
 
     .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.1); }
-    .nav-item.active { background: var(--accent); }
+    .nav-item.active { background: var(--accent); color: var(--sys-accent-on); }
 
     .nav-count {
       margin-left: auto;
@@ -129,7 +132,7 @@ Licensed under the Apache License, Version 2.0
       padding: 0 14px; height: 38px; border-radius: 999px; background: rgba(0, 0, 0, 0.3);
       border: 1px solid var(--glass-border);
     }
-    .svc-search:focus-within { border-color: var(--accent); }
+    .svc-search:focus-within { border-color: var(--sys-accent-text); }
     .svc-search .material-symbols-outlined { font-size: 18px; color: var(--text-muted); }
     .svc-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font: 13px 'Poppins', sans-serif; user-select: text; }
     .svc-chip {
@@ -156,8 +159,9 @@ Licensed under the Apache License, Version 2.0
       width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
       background: rgba(255, 255, 255, 0.1); color: #fff; transition: transform 0.15s;
     }
+    .pc-controls button { flex: 0 0 40px; padding: 0; }
     .pc-controls button:hover { transform: scale(1.08); }
-    .pc-controls button.main { background: var(--accent); }
+    .pc-controls button.main { background: var(--accent); color: var(--sys-accent-on); }
     .pc-controls .material-symbols-outlined { font-size: 22px; font-variation-settings: 'FILL' 1; }
 
     /* ─────────────── Spotify ─────────────── */
@@ -196,6 +200,9 @@ Licensed under the Apache License, Version 2.0
     .sp-badge.warn { background: rgba(255, 159, 10, 0.18); color: #ff9f0a; }
     .sp-account .sp-btn { margin-left: auto; padding: 6px 14px; font-size: 12px; }
     .sp-now { display: flex; align-items: center; gap: 22px; }
+    .sp-now > .sp-now-art { flex-shrink: 0; }
+    .sp-now > div:not(.sp-now-art) { flex: 1; min-width: 0; }
+    .sp-now-title, .sp-now-artist { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sp-now-art {
       width: 132px; height: 132px; flex: 0 0 132px; border-radius: 14px; object-fit: cover;
       background: linear-gradient(145deg, #1ed760, #0f5f2c); box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
@@ -248,8 +255,8 @@ Licensed under the Apache License, Version 2.0
     }
 
     .sidebar-upload:hover {
-      background: rgba(10, 132, 255, 0.16);
-      border-color: var(--accent);
+      background: color-mix(in srgb, var(--sys-accent) 16%, transparent);
+      border-color: var(--sys-accent-text);
       color: var(--text);
     }
 
@@ -305,7 +312,7 @@ Licensed under the Apache License, Version 2.0
     @keyframes rowIn { to { opacity: 1; } }
 
     .track-row:hover { background: var(--hover); }
-    .track-row.active { background: rgba(10, 132, 255, 0.16); }
+    .track-row.active { background: color-mix(in srgb, var(--sys-accent) 16%, transparent); }
 
     .track-index {
       color: var(--text-dim);
@@ -314,7 +321,7 @@ Licensed under the Apache License, Version 2.0
       font-variant-numeric: tabular-nums;
     }
 
-    .track-row.active .track-index { color: var(--accent); }
+    .track-row.active .track-index { color: var(--sys-accent-text); }
 
     /* The equaliser replaces the row number while that row is the one playing. */
     .equaliser { display: none; justify-content: flex-end; align-items: flex-end; gap: 2px; height: 13px; }
@@ -325,6 +332,7 @@ Licensed under the Apache License, Version 2.0
       background: var(--accent);
       border-radius: 1px;
       animation: bounce 0.9s ease-in-out infinite;
+  color: var(--sys-accent-on);
     }
     .equaliser span:nth-child(1) { height: 50%; animation-delay: -0.5s; }
     .equaliser span:nth-child(2) { height: 100%; animation-delay: -0.2s; }
@@ -351,7 +359,7 @@ Licensed under the Apache License, Version 2.0
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .track-row.active .track-name { color: var(--accent); }
+    .track-row.active .track-name { color: var(--sys-accent-text); }
     .track-artist {
       margin-top: 1px;
       color: var(--text-muted);
@@ -461,17 +469,17 @@ Licensed under the Apache License, Version 2.0
     .deck-btn:hover:not(:disabled) { color: #fff; transform: scale(1.1); }
     .deck-btn:active:not(:disabled) { transform: scale(0.92); }
     .deck-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .deck-btn.active { color: var(--accent); }
+    .deck-btn.active { color: var(--sys-accent-text); }
     .deck-btn .material-symbols-outlined { font-size: 22px; }
 
     .btn-play {
       width: 42px;
       height: 42px;
       background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(10, 132, 255, 0.4);
+      color: var(--sys-accent-on);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--sys-accent) 40%, transparent);
     }
-    .btn-play:hover:not(:disabled) { background: #007aff; color: #fff; }
+    .btn-play:hover:not(:disabled) { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
     .btn-play .material-symbols-outlined { font-size: 26px; font-variation-settings: 'FILL' 1; }
 
     .seek-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 520px; }
@@ -495,6 +503,7 @@ Licensed under the Apache License, Version 2.0
       border-radius: 4px;
       background: var(--accent);
       transition: width 0.1s linear;
+  color: var(--sys-accent-on);
     }
     .seek-thumb {
       position: absolute;
@@ -555,26 +564,26 @@ Licensed under the Apache License, Version 2.0
 
 <div class="app">
   <aside class="sidebar">
-    <div class="sidebar-title">Music</div>
+    <div class="sidebar-title" data-i18n="music.title">Music</div>
 
-    <div class="sidebar-heading">Sources</div>
+    <div class="sidebar-heading" data-i18n="music.sidebar.sources">Sources</div>
     <div class="nav-item active" data-source="radio" onclick="selectSource('radio')">
       <div class="icon-bg c-radio"><span class="material-symbols-outlined">radio</span></div>
-      Radio
+      <span data-i18n="music.source.radio">Radio</span>
       <span class="nav-count" id="count-radio">0</span>
     </div>
     <div class="nav-item" data-source="home" onclick="selectSource('home')">
       <div class="icon-bg c-home"><span class="material-symbols-outlined">folder</span></div>
-      Home folder
+      <span data-i18n="music.source.home">Home folder</span>
       <span class="nav-count" id="count-home">0</span>
     </div>
     <div class="nav-item" data-source="library" onclick="selectSource('library')">
       <div class="icon-bg c-library"><span class="material-symbols-outlined">library_music</span></div>
-      My library
+      <span data-i18n="music.source.library">My library</span>
       <span class="nav-count" id="count-library">0</span>
     </div>
 
-    <div class="sidebar-heading">Online services</div>
+    <div class="sidebar-heading" data-i18n="music.sidebar.online">Online services</div>
     <div class="nav-item" data-source="spotify" onclick="selectSource('spotify')">
       <div class="icon-bg c-spotify"><span class="material-symbols-outlined">graphic_eq</span></div>
       Spotify
@@ -587,7 +596,7 @@ Licensed under the Apache License, Version 2.0
     </div>
     <div class="nav-item" data-source="worldradio" onclick="selectSource('worldradio')">
       <div class="icon-bg c-world"><span class="material-symbols-outlined">public</span></div>
-      World Radio
+      <span data-i18n="music.source.worldradio">World Radio</span>
       <span class="nav-count" id="count-worldradio">0</span>
     </div>
     <div class="nav-item" data-source="audius" onclick="selectSource('audius')">
@@ -597,10 +606,10 @@ Licensed under the Apache License, Version 2.0
     </div>
     <div class="nav-item" data-source="webplayers" onclick="selectSource('webplayers')">
       <div class="icon-bg c-web"><span class="material-symbols-outlined">language</span></div>
-      Web players
+      <span data-i18n="music.source.webplayers">Web players</span>
     </div>
 
-    <div class="sidebar-upload" onclick="document.getElementById('file-input').click()">+ Import audio files</div>
+    <div class="sidebar-upload" onclick="document.getElementById('file-input').click()" data-i18n="music.sidebar.import">+ Import audio files</div>
   </aside>
 
   <main class="main">
@@ -626,10 +635,10 @@ Licensed under the Apache License, Version 2.0
 
       <div class="transport">
         <div class="buttons">
-          <button class="deck-btn" id="shuffle-btn" title="Shuffle"><span class="material-symbols-outlined">shuffle</span></button>
-          <button class="deck-btn" id="prev-btn" title="Previous"><span class="material-symbols-outlined">skip_previous</span></button>
+          <button class="deck-btn" id="shuffle-btn" title="Shuffle" data-i18n-title="music.player.shuffle"><span class="material-symbols-outlined">shuffle</span></button>
+          <button class="deck-btn" id="prev-btn" title="Previous" data-i18n-title="music.player.previous"><span class="material-symbols-outlined">skip_previous</span></button>
           <button class="deck-btn btn-play" id="play-btn" title="Play"><span class="material-symbols-outlined">play_arrow</span></button>
-          <button class="deck-btn" id="next-btn" title="Next"><span class="material-symbols-outlined">skip_next</span></button>
+          <button class="deck-btn" id="next-btn" title="Next" data-i18n-title="common.next"><span class="material-symbols-outlined">skip_next</span></button>
           <button class="deck-btn" id="repeat-btn" title="Repeat off"><span class="material-symbols-outlined">repeat</span></button>
         </div>
         <div class="seek-row">
@@ -662,25 +671,25 @@ Licensed under the Apache License, Version 2.0
      public players, so the app has something to listen to the moment it opens,
      before the user has imported anything of their own. */
   const STATIONS = [
-    { title: 'Groove Salad',     artist: 'SomaFM · chilled downtempo',    url: 'https://ice1.somafm.com/groovesalad-128-mp3',  hue: 205 },
-    { title: 'Drone Zone',       artist: 'SomaFM · ambient space music',  url: 'https://ice1.somafm.com/dronezone-128-mp3',    hue: 265 },
-    { title: 'Indie Pop Rocks!', artist: 'SomaFM · indie pop',            url: 'https://ice1.somafm.com/indiepop-128-mp3',     hue: 330 },
-    { title: 'Lush',             artist: 'SomaFM · vocals, mostly female', url: 'https://ice1.somafm.com/lush-128-mp3',        hue: 10  },
-    { title: 'Secret Agent',     artist: 'SomaFM · spy jazz and lounge',  url: 'https://ice1.somafm.com/secretagent-128-mp3',  hue: 35  },
-    { title: 'Beat Blender',     artist: 'SomaFM · deep house and downtempo', url: 'https://ice1.somafm.com/beatblender-128-mp3', hue: 160 },
-    { title: 'Boot Liquor',      artist: 'SomaFM · americana roots',      url: 'https://ice1.somafm.com/bootliquor-128-mp3',   hue: 25  },
-    { title: 'Fluid',            artist: 'SomaFM · instrumental hip hop', url: 'https://ice1.somafm.com/fluid-128-mp3',        hue: 285 }
+    { title: 'Groove Salad',     artist: mariowOSI18n.t('music.station.groove-salad', 'SomaFM · chilled downtempo'),    url: 'https://ice1.somafm.com/groovesalad-128-mp3',  hue: 205 },
+    { title: 'Drone Zone',       artist: mariowOSI18n.t('music.station.drone-zone', 'SomaFM · ambient space music'),  url: 'https://ice1.somafm.com/dronezone-128-mp3',    hue: 265 },
+    { title: 'Indie Pop Rocks!', artist: mariowOSI18n.t('music.station.indie-pop', 'SomaFM · indie pop'),            url: 'https://ice1.somafm.com/indiepop-128-mp3',     hue: 330 },
+    { title: 'Lush',             artist: mariowOSI18n.t('music.station.lush', 'SomaFM · vocals, mostly female'), url: 'https://ice1.somafm.com/lush-128-mp3',        hue: 10  },
+    { title: 'Secret Agent',     artist: mariowOSI18n.t('music.station.secret-agent', 'SomaFM · spy jazz and lounge'),  url: 'https://ice1.somafm.com/secretagent-128-mp3',  hue: 35  },
+    { title: 'Beat Blender',     artist: mariowOSI18n.t('music.station.beat-blender', 'SomaFM · deep house and downtempo'), url: 'https://ice1.somafm.com/beatblender-128-mp3', hue: 160 },
+    { title: 'Boot Liquor',      artist: mariowOSI18n.t('music.station.boot-liquor', 'SomaFM · americana roots'),      url: 'https://ice1.somafm.com/bootliquor-128-mp3',   hue: 25  },
+    { title: 'Fluid',            artist: mariowOSI18n.t('music.station.fluid', 'SomaFM · instrumental hip hop'), url: 'https://ice1.somafm.com/fluid-128-mp3',        hue: 285 }
   ].map((station, index) => ({ ...station, id: `radio-${index}`, source: 'radio', live: true }));
 
   const SOURCE_LABELS = {
-    radio:   { title: 'Radio',       sub: 'Stations that are ready to play right now' },
-    home:    { title: 'Home folder', sub: 'Audio files found in your Home/Music folder' },
-    library: { title: 'My library',  sub: 'Everything you have imported into Music' },
-    spotify: { title: 'Spotify',     sub: 'Control what is playing on your Spotify devices' },
-    lastfm:  { title: 'Last.fm',     sub: 'What you are listening to on any device, from your scrobbles' },
-    worldradio: { title: 'World Radio', sub: 'Thousands of free stations from radio-browser.info' },
-    audius:  { title: 'Audius',      sub: 'Free, full-length tracks from independent artists' },
-    webplayers: { title: 'Web players', sub: 'Streaming sites that work in the mariowOS browser' }
+    radio:   { title: mariowOSI18n.t('music.source.radio', 'Radio'), sub: mariowOSI18n.t('music.source.radio.sub', 'Stations that are ready to play right now') },
+    home:    { title: mariowOSI18n.t('music.source.home', 'Home folder'), sub: mariowOSI18n.t('music.source.home.sub', 'Audio files found in your Home/Music folder') },
+    library: { title: mariowOSI18n.t('music.source.library', 'My library'), sub: mariowOSI18n.t('music.source.library.sub', 'Everything you have imported into Music') },
+    spotify: { title: 'Spotify',     sub: mariowOSI18n.t('music.source.spotify.sub', 'Control what is playing on your Spotify devices') },
+    lastfm:  { title: 'Last.fm',     sub: mariowOSI18n.t('music.source.lastfm.sub', 'What you are listening to on any device, from your scrobbles') },
+    worldradio: { title: mariowOSI18n.t('music.source.worldradio', 'World Radio'), sub: mariowOSI18n.t('music.source.worldradio.sub', 'Thousands of free stations from radio-browser.info') },
+    audius:  { title: 'Audius',      sub: mariowOSI18n.t('music.source.audius.sub', 'Free, full-length tracks from independent artists') },
+    webplayers: { title: mariowOSI18n.t('music.source.webplayers', 'Web players'), sub: mariowOSI18n.t('music.source.webplayers.sub', 'Streaming sites that work in the mariowOS browser') }
   };
 
   const sources = { radio: STATIONS, home: [], library: [], worldradio: [], audius: [] };
@@ -722,7 +731,13 @@ Licensed under the Apache License, Version 2.0
         return { title: parts.slice(1).join(separator).trim(), artist: parts[0].trim() };
       }
     }
-    return { title: base, artist: 'Unknown artist' };
+    return { title: base, artist: mariowOSI18n.t('music.track.unknown-artist', 'Unknown artist') };
+  }
+
+  // Puts DOM nodes into a translated sentence: "Go to {site} and log in." with { site: node }.
+  function withNodes(text, nodes) {
+    return String(text).split(/(\{\w+\})/).filter(part => part !== '')
+      .map(part => { const match = part.match(/^\{(\w+)\}$/); return match && nodes[match[1]] ? nodes[match[1]] : part; });
   }
 
   // A stable hue per title, so a track keeps the same artwork colour every session.
@@ -776,10 +791,10 @@ Licensed under the Apache License, Version 2.0
       icon.textContent = { home: 'folder_open', worldradio: 'public', audius: 'album' }[currentSource] || 'library_music';
       const text = document.createElement('div');
       text.textContent = {
-        home: 'Drop audio files into Home/Music and they will show up here.',
-        worldradio: serviceState.worldradio.loading ? 'Looking for stations…' : 'No stations found. Try another search.',
-        audius: serviceState.audius.loading ? 'Loading tracks…' : 'No tracks found. Try another search.'
-      }[currentSource] || 'Import audio files to build your library.';
+        home: mariowOSI18n.t('music.empty.home', 'Drop audio files into Home/Music and they will show up here.'),
+        worldradio: serviceState.worldradio.loading ? mariowOSI18n.t('music.empty.worldradio.loading', 'Looking for stations…') : mariowOSI18n.t('music.empty.worldradio', 'No stations found. Try another search.'),
+        audius: serviceState.audius.loading ? mariowOSI18n.t('music.empty.audius.loading', 'Loading tracks…') : mariowOSI18n.t('music.empty.audius', 'No tracks found. Try another search.')
+      }[currentSource] || mariowOSI18n.t('music.empty.library', 'Import audio files to build your library.');
       empty.append(icon, text);
       table.appendChild(empty);
       return;
@@ -834,11 +849,11 @@ Licensed under the Apache License, Version 2.0
 
       const meta = document.createElement('div');
       meta.className = 'track-meta';
-      meta.textContent = track.live ? 'LIVE' : (track.sizeLabel || (track.duration ? formatTime(track.duration) : ''));
+      meta.textContent = track.live ? mariowOSI18n.t('music.track.live', 'LIVE') : (track.sizeLabel || (track.duration ? formatTime(track.duration) : ''));
 
       const action = document.createElement('button');
       action.className = 'row-action';
-      action.title = 'Remove from library';
+      action.title = mariowOSI18n.t('music.track.remove', 'Remove from library');
       action.innerHTML = '<span class="material-symbols-outlined">delete</span>';
       action.onclick = () => removeFromLibrary(track);
       // Only the user's own imports can be removed; stations and Home files cannot.
@@ -852,7 +867,7 @@ Licensed under the Apache License, Version 2.0
   /* ────────────────────────── Playback ────────────────────────── */
 
   async function playTrack(track, sourceName) {
-    const consent = track.consent || (/^https?:/.test(track.url) ? ['somafm', 'SomaFM radio (somafm.com)'] : null);
+    const consent = track.consent || (/^https?:/.test(track.url) ? ['somafm', mariowOSI18n.t('music.consent.somafm', 'SomaFM radio (somafm.com)')] : null);
     if (consent && !(await mwExternalConsent(consent[0], consent[1]))) return;
     setSpotifyActive(false);
     currentTrack = track;
@@ -873,8 +888,8 @@ Licensed under the Apache License, Version 2.0
     }
 
     if (track.live) {
-      el('time-total').textContent = 'LIVE';
-      toast(`Tuning in to ${track.title}…`);
+      el('time-total').textContent = mariowOSI18n.t('music.track.live', 'LIVE');
+      toast(mariowOSI18n.t('music.toast.tuning', 'Tuning in to {title}…', { title: track.title }));
     }
     play();
   }
@@ -888,8 +903,8 @@ Licensed under the Apache License, Version 2.0
       isPlaying = false;
       syncPlayState();
       toast(currentTrack && currentTrack.live
-        ? 'Could not reach that station. Check your connection.'
-        : 'This track could not be played.');
+        ? mariowOSI18n.t('music.toast.station-error', 'Could not reach that station. Check your connection.')
+        : mariowOSI18n.t('music.toast.track-error', 'This track could not be played.'));
       console.error('Playback failed:', error);
     });
   }
@@ -902,7 +917,7 @@ Licensed under the Apache License, Version 2.0
 
   function syncPlayState() {
     el('play-btn').querySelector('.material-symbols-outlined').textContent = isPlaying ? 'pause' : 'play_arrow';
-    el('play-btn').title = isPlaying ? 'Pause' : 'Play';
+    el('play-btn').title = isPlaying ? mariowOSI18n.t('music.player.pause', 'Pause') : mariowOSI18n.t('music.player.play', 'Play');
     el('now-art').classList.toggle('playing', isPlaying);
     renderTracks();
     notifyDesktop();
@@ -936,7 +951,7 @@ Licensed under the Apache License, Version 2.0
     if (spotify.active) { spotifyCommand('shuffle', { value: !spotify.player?.shuffle }); return; }
     isShuffled = !isShuffled;
     el('shuffle-btn').classList.toggle('active', isShuffled);
-    toast(isShuffled ? 'Shuffle on' : 'Shuffle off');
+    toast(isShuffled ? mariowOSI18n.t('music.toast.shuffle-on', 'Shuffle on') : mariowOSI18n.t('music.toast.shuffle-off', 'Shuffle off'));
   };
 
   el('repeat-btn').onclick = () => {
@@ -949,9 +964,13 @@ Licensed under the Apache License, Version 2.0
     const button = el('repeat-btn');
     button.classList.toggle('active', repeatMode > 0);
     button.querySelector('.material-symbols-outlined').textContent = repeatMode === 2 ? 'repeat_one' : 'repeat';
-    button.title = ['Repeat off', 'Repeat all', 'Repeat one'][repeatMode];
+    button.title = repeatTitle();
     toast(button.title);
   };
+
+  function repeatTitle() {
+    return [mariowOSI18n.t('music.player.repeat-off', 'Repeat off'), mariowOSI18n.t('music.player.repeat-all', 'Repeat all'), mariowOSI18n.t('music.player.repeat-one', 'Repeat one')][repeatMode];
+  }
 
   audio.addEventListener('ended', () => {
     if (repeatMode === 2) { audio.currentTime = 0; play(); return; }
@@ -1026,7 +1045,7 @@ Licensed under the Apache License, Version 2.0
     if (!db.objectStoreNames.contains('songs')) db.createObjectStore('songs', { keyPath: 'id', autoIncrement: true });
   };
   request.onsuccess = event => { db = event.target.result; loadLibrary(); };
-  request.onerror = () => toast('Your library could not be opened.');
+  request.onerror = () => toast(mariowOSI18n.t('music.toast.library-error', 'Your library could not be opened.'));
 
   function loadLibrary() {
     const store = db.transaction('songs', 'readonly').objectStore('songs');
@@ -1059,7 +1078,9 @@ Licensed under the Apache License, Version 2.0
           if (++stored === files.length) {
             loadLibrary();
             selectSource('library');
-            toast(`Added ${stored} ${stored === 1 ? 'track' : 'tracks'} to your library`);
+            toast(stored === 1
+              ? mariowOSI18n.t('music.toast.added.one', 'Added {count} track to your library', { count: stored })
+              : mariowOSI18n.t('music.toast.added.other', 'Added {count} tracks to your library', { count: stored }));
           }
         };
       };
@@ -1073,7 +1094,7 @@ Licensed under the Apache License, Version 2.0
     db.transaction('songs', 'readwrite').objectStore('songs').delete(track.recordId).onsuccess = () => {
       if (currentTrack && currentTrack.id === track.id) pause();
       loadLibrary();
-      toast('Removed from your library');
+      toast(mariowOSI18n.t('music.toast.removed', 'Removed from your library'));
     };
   }
 
@@ -1120,8 +1141,9 @@ Licensed under the Apache License, Version 2.0
       type: 'media-update',
       title: el('now-title').textContent,
       artist: el('now-artist').textContent,
-      art: spotify.active ? (spotify.player?.track?.image || '') : '',
-      isPlaying: spotify.active ? Boolean(spotify.player?.isPlaying) : isPlaying
+      art: spotify.active ? (spotify.player?.track?.image || '') : (el('now-art').querySelector('img')?.src || ''),
+      isPlaying: spotify.active ? Boolean(spotify.player?.isPlaying) : isPlaying,
+      hasMedia: spotify.active || Boolean(currentTrack)
     }, '*');
   }
 
@@ -1194,7 +1216,7 @@ Licensed under the Apache License, Version 2.0
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || data.success === false) {
-      const error = new Error(data.error || 'Spotify request failed.');
+      const error = new Error(data.error || mariowOSI18n.t('music.spotify.request-failed', 'Spotify request failed.'));
       error.status = response.status;
       throw error;
     }
@@ -1233,8 +1255,8 @@ Licensed under the Apache License, Version 2.0
       el('repeat-btn').querySelector('.material-symbols-outlined').textContent = repeatMode === 2 ? 'repeat_one' : 'repeat';
       ['shuffle-btn', 'repeat-btn'].forEach(id => { el(id).style.opacity = ''; });
       el('now-art').innerHTML = '<span class="material-symbols-outlined">music_note</span>';
-      el('now-title').textContent = currentTrack ? currentTrack.title : 'Nothing playing';
-      el('now-artist').textContent = currentTrack ? currentTrack.artist : 'Pick a station or a track';
+      el('now-title').textContent = currentTrack ? currentTrack.title : mariowOSI18n.t('music.player.nothing', 'Nothing playing');
+      el('now-artist').textContent = currentTrack ? currentTrack.artist : mariowOSI18n.t('music.player.pick', 'Pick a station or a track');
       setVolume(audio.volume);
     }
   }
@@ -1288,7 +1310,7 @@ Licensed under the Apache License, Version 2.0
         progressMs: session.positionMs || 0,
         durationMs: session.durationMs || 0,
         canSeek: session.canSeek,
-        device: { name: 'Spotify on this PC', type: 'Computer', volume: null },
+        device: { name: mariowOSI18n.t('music.spotify.this-pc', 'Spotify on this PC'), type: 'Computer', volume: null },
         track: { title: session.title, artist: session.artist || '', album: session.album || '', image: session.image || null }
       };
     } catch (error) {
@@ -1304,7 +1326,7 @@ Licensed under the Apache License, Version 2.0
 
   async function spotifyCommand(action, extra = {}) {
     if (spotify.player?.readOnly) {
-      toast('Playing on another device: without Spotify Premium it can only be shown, not controlled');
+      toast(mariowOSI18n.t('music.spotify.read-only', 'Playing on another device: without Spotify Premium it can only be shown, not controlled'));
       return;
     }
     setSpotifyActive(true);
@@ -1320,13 +1342,13 @@ Licensed under the Apache License, Version 2.0
     try {
       if (spotify.player?.local && action !== 'play-context') {
         if (!['play', 'pause', 'next', 'previous', 'seek'].includes(action)) {
-          toast('Shuffle, repeat and volume need the Spotify app itself (or Premium)');
+          toast(mariowOSI18n.t('music.spotify.local-limits', 'Shuffle, repeat and volume need the Spotify app itself (or Premium)'));
           return;
         }
         await spotifyFetch('/api/media/control', { method: 'POST', body: JSON.stringify({ action, ...extra }) });
       } else {
         await spotifyFetch('/api/spotify/control', { method: 'POST', body: JSON.stringify({ action, ...extra }) });
-        if (action === 'play-context') toast('Playing on Spotify');
+        if (action === 'play-context') toast(mariowOSI18n.t('music.spotify.playing', 'Playing on Spotify'));
       }
     } catch (error) {
       toast(error.message);
@@ -1355,8 +1377,8 @@ Licensed under the Apache License, Version 2.0
   function updateSpotifyTransport() {
     const p = spotify.player;
     const track = p?.track;
-    el('now-title').textContent = track ? track.title : 'Nothing playing on Spotify';
-    el('now-artist').textContent = track ? track.artist : 'Start playback in the Spotify app';
+    el('now-title').textContent = track ? track.title : mariowOSI18n.t('music.spotify.nothing', 'Nothing playing on Spotify');
+    el('now-artist').textContent = track ? track.artist : mariowOSI18n.t('music.spotify.start-in-app', 'Start playback in the Spotify app');
     const art = el('now-art');
     if (track?.image) {
       if (art.querySelector('img')?.src !== track.image) art.replaceChildren(h('img', { src: track.image, alt: '' }));
@@ -1366,7 +1388,7 @@ Licensed under the Apache License, Version 2.0
     art.style.background = 'linear-gradient(145deg, #1ed760, #0f5f2c)';
     art.classList.toggle('playing', Boolean(p?.isPlaying));
     el('play-btn').querySelector('.material-symbols-outlined').textContent = p?.isPlaying ? 'pause' : 'play_arrow';
-    el('play-btn').title = p?.isPlaying ? 'Pause' : 'Play';
+    el('play-btn').title = p?.isPlaying ? mariowOSI18n.t('music.player.pause', 'Pause') : mariowOSI18n.t('music.player.play', 'Play');
     ['shuffle-btn', 'repeat-btn'].forEach(id => { el(id).style.opacity = p?.local ? '0.35' : ''; });
     el('shuffle-btn').classList.toggle('active', Boolean(p?.shuffle));
     el('repeat-btn').classList.toggle('active', p?.repeat && p.repeat !== 'off');
@@ -1387,12 +1409,12 @@ Licensed under the Apache License, Version 2.0
     const track = p?.track;
     const art = track?.image ? h('img', { class: 'sp-now-art', src: track.image, alt: '' }) : h('div', { class: 'sp-now-art' }, icon('graphic_eq'));
     const info = h('div', {},
-      h('div', { class: 'sp-now-label', text: p?.isPlaying ? 'Now playing' : (track ? 'Paused' : 'Nothing playing') }),
-      h('div', { class: 'sp-now-title', text: track ? track.title : 'Start something on Spotify' }),
-      h('div', { class: 'sp-now-artist', text: track ? [track.artist, track.album].filter(Boolean).join(' · ') : 'Open Spotify on your PC, phone or speaker, then control it from here.' }),
-      p?.device ? h('div', { class: 'sp-device' }, icon(p.device.type === 'Smartphone' ? 'smartphone' : p.device.type === 'Speaker' ? 'speaker' : 'computer'), `Playing on ${p.device.name}`) : null,
+      h('div', { class: 'sp-now-label', text: p?.isPlaying ? mariowOSI18n.t('music.spotify.now-playing', 'Now playing') : (track ? mariowOSI18n.t('music.spotify.paused', 'Paused') : mariowOSI18n.t('music.player.nothing', 'Nothing playing')) }),
+      h('div', { class: 'sp-now-title', text: track ? track.title : mariowOSI18n.t('music.spotify.start-something', 'Start something on Spotify') }),
+      h('div', { class: 'sp-now-artist', text: track ? [track.artist, track.album].filter(Boolean).join(' · ') : mariowOSI18n.t('music.spotify.start-hint', 'Open Spotify on your PC, phone or speaker, then control it from here.') }),
+      p?.device ? h('div', { class: 'sp-device' }, icon(p.device.type === 'Smartphone' ? 'smartphone' : p.device.type === 'Speaker' ? 'speaker' : 'computer'), mariowOSI18n.t('music.spotify.playing-on', 'Playing on {device}', { device: p.device.name })) : null,
       p?.local && spotify.apiBlocked ? h('div', { class: 'sp-device', style: 'color:#ff9f0a;display:flex;margin-top:6px' }, icon('info'),
-        'Spotify\'s online service is blocked (Premium required): showing the app on this PC.') : null,
+        mariowOSI18n.t('music.spotify.api-blocked', "Spotify's online service is blocked (Premium required): showing the app on this PC.")) : null,
       !p && spotify.error ? h('div', { class: 'sp-device', style: 'color:#ff9f0a' }, spotify.error) : null
     );
     return h('div', { class: 'sp-card sp-now', id: 'sp-now' }, art, info);
@@ -1402,12 +1424,12 @@ Licensed under the Apache License, Version 2.0
     const table = el('track-table');
     const st = spotify.status;
     if (!st) {
-      table.replaceChildren(h('div', { class: 'empty' }, icon('graphic_eq'), h('div', { text: 'Connecting to Spotify…' })));
+      table.replaceChildren(h('div', { class: 'empty' }, icon('graphic_eq'), h('div', { text: mariowOSI18n.t('music.spotify.connecting', 'Connecting to Spotify…') })));
       return;
     }
 
     if (!st.configured) {
-      const input = h('input', { class: 'sp-input', placeholder: 'Paste your Client ID', spellcheck: 'false', autocomplete: 'off' });
+      const input = h('input', { class: 'sp-input', placeholder: mariowOSI18n.t('music.spotify.client-id', 'Paste your Client ID'), spellcheck: 'false', autocomplete: 'off' });
       const save = async () => {
         try {
           await spotifyFetch('/api/spotify/client-id', { method: 'POST', body: JSON.stringify({ clientId: input.value }) });
@@ -1417,29 +1439,28 @@ Licensed under the Apache License, Version 2.0
       };
       input.addEventListener('keydown', event => { if (event.key === 'Enter') save(); });
       table.replaceChildren(spotify.player ? buildSpotifyNowCard() : '', h('div', { class: 'sp-card' },
-        h('h3', { text: 'Set up Spotify' }),
-        h('p', { text: 'Already works: if the Spotify app is open on this PC, mariowOS shows and controls it. For playlists and your other devices, connect a Spotify developer app (created once, its owner needs Premium):' }),
+        h('h3', { text: mariowOSI18n.t('music.spotify.setup.title', 'Set up Spotify') }),
+        h('p', { text: mariowOSI18n.t('music.spotify.setup.intro', 'Already works: if the Spotify app is open on this PC, mariowOS shows and controls it. For playlists and your other devices, connect a Spotify developer app (created once, its owner needs Premium):') }),
         h('ol', {},
-          h('li', {}, 'Go to ', h('code', { text: 'developer.spotify.com/dashboard' }), ' and log in.'),
-          h('li', { text: 'Create an app (any name), and tick "Web API".' }),
-          h('li', {}, 'As Redirect URI add exactly ', h('code', { text: st.redirectUri || 'http://127.0.0.1:3000/api/spotify/callback' })),
-          h('li', { text: 'Save, open the app settings and copy the Client ID here.' })
+          h('li', {}, withNodes(mariowOSI18n.t('music.spotify.setup.step1', 'Go to {site} and log in.'), { site: h('code', { text: 'developer.spotify.com/dashboard' }) })),
+          h('li', { text: mariowOSI18n.t('music.spotify.setup.step2', 'Create an app (any name), and tick "Web API".') }),
+          h('li', {}, withNodes(mariowOSI18n.t('music.spotify.setup.step3', 'As Redirect URI add exactly {uri}'), { uri: h('code', { text: st.redirectUri || 'http://127.0.0.1:3000/api/spotify/callback' }) })),
+          h('li', { text: mariowOSI18n.t('music.spotify.setup.step4', 'Save, open the app settings and copy the Client ID here.') })
         ),
-        h('p', { style: 'margin-bottom:14px' }, 'Listening on your phone without Premium? Set up ',
-          h('a', { href: '#', onclick: event => { event.preventDefault(); selectSource('lastfm'); }, text: 'Last.fm' }),
-          ' and the song will show up here too.'),
-        h('div', { class: 'sp-row' }, input, h('button', { class: 'sp-btn', onclick: save }, icon('check'), 'Save'))
+        h('p', { style: 'margin-bottom:14px' }, withNodes(mariowOSI18n.t('music.spotify.setup.lastfm', 'Listening on your phone without Premium? Set up {lastfm} and the song will show up here too.'), {
+          lastfm: h('a', { href: '#', onclick: event => { event.preventDefault(); selectSource('lastfm'); }, text: 'Last.fm' }) })),
+        h('div', { class: 'sp-row' }, input, h('button', { class: 'sp-btn', onclick: save }, icon('check'), mariowOSI18n.t('common.save', 'Save')))
       ));
       return;
     }
 
     if (!st.connected) {
       table.replaceChildren(spotify.player ? buildSpotifyNowCard() : '', h('div', { class: 'sp-card' },
-        h('h3', { text: 'Connect your Spotify account' }),
-        h('p', { text: 'You will log in on Spotify\'s own page, in a browser tab. Your password is never seen by mariowOS. Controlling playback requires Spotify Premium.' }),
+        h('h3', { text: mariowOSI18n.t('music.spotify.connect.title', 'Connect your Spotify account') }),
+        h('p', { text: mariowOSI18n.t('music.spotify.connect.text', "You will log in on Spotify's own page, in a browser tab. Your password is never seen by mariowOS. Controlling playback requires Spotify Premium.") }),
         h('div', { class: 'sp-row', style: 'margin-top:14px' },
-          h('button', { class: 'sp-btn', onclick: connectSpotify }, icon('login'), 'Connect Spotify'),
-          h('button', { class: 'sp-btn ghost', onclick: async () => { await refreshSpotifyStatus(); openSpotifyView(); } }, icon('refresh'), 'I have connected')
+          h('button', { class: 'sp-btn', onclick: connectSpotify }, icon('login'), mariowOSI18n.t('music.spotify.connect.button', 'Connect Spotify')),
+          h('button', { class: 'sp-btn ghost', onclick: async () => { await refreshSpotifyStatus(); openSpotifyView(); } }, icon('refresh'), mariowOSI18n.t('music.spotify.connect.done', 'I have connected'))
         )
       ));
       return;
@@ -1449,15 +1470,15 @@ Licensed under the Apache License, Version 2.0
     // While the Web API is blocked the product is unknown: do not claim "Free".
     const account = h('div', { class: 'sp-account' },
       icon('account_circle'),
-      h('span', {}, 'Connected as ', h('strong', { text: st.user?.name || 'Spotify user' })),
-      st.user?.product ? h('span', { class: premium ? 'sp-badge' : 'sp-badge warn', text: premium ? 'Premium' : 'Free: view only' }) : null,
-      h('button', { class: 'sp-btn ghost', onclick: disconnectSpotify }, icon('logout'), 'Disconnect')
+      h('span', {}, withNodes(mariowOSI18n.t('music.spotify.connected-as', 'Connected as {name}'), { name: h('strong', { text: st.user?.name || mariowOSI18n.t('music.spotify.user', 'Spotify user') }) })),
+      st.user?.product ? h('span', { class: premium ? 'sp-badge' : 'sp-badge warn', text: premium ? 'Premium' : mariowOSI18n.t('music.spotify.free', 'Free: view only') }) : null,
+      h('button', { class: 'sp-btn ghost', onclick: disconnectSpotify }, icon('logout'), mariowOSI18n.t('music.disconnect', 'Disconnect'))
     );
 
     const grid = h('div', { class: 'sp-grid' });
-    if (spotify.apiBlocked) grid.append(h('div', { class: 'sp-tile-sub', style: 'grid-column:1/-1;white-space:normal', text: 'Playlists are unavailable until the Spotify developer app\'s owner has Premium.' }));
-    else if (spotify.playlists === null) grid.append(h('div', { class: 'sp-tile-sub', text: 'Loading playlists…' }));
-    else if (!spotify.playlists.length) grid.append(h('div', { class: 'sp-tile-sub', text: 'No playlists found.' }));
+    if (spotify.apiBlocked) grid.append(h('div', { class: 'sp-tile-sub', style: 'grid-column:1/-1;white-space:normal', text: mariowOSI18n.t('music.spotify.playlists-blocked', "Playlists are unavailable until the Spotify developer app's owner has Premium.") }));
+    else if (spotify.playlists === null) grid.append(h('div', { class: 'sp-tile-sub', text: mariowOSI18n.t('music.spotify.playlists-loading', 'Loading playlists…') }));
+    else if (!spotify.playlists.length) grid.append(h('div', { class: 'sp-tile-sub', text: mariowOSI18n.t('music.spotify.playlists-none', 'No playlists found.') }));
     else spotify.playlists.forEach((pl, index) => {
       const art = h('div', { class: 'sp-tile-art' },
         pl.image ? h('img', { src: pl.image, alt: '', loading: 'lazy' }) : icon('queue_music'),
@@ -1465,12 +1486,12 @@ Licensed under the Apache License, Version 2.0
       const tile = h('div', { class: 'sp-tile', title: pl.name, onclick: () => spotifyCommand('play-context', { uri: pl.uri }) },
         art,
         h('div', { class: 'sp-tile-name', text: pl.name }),
-        h('div', { class: 'sp-tile-sub', text: [pl.owner, pl.tracks != null ? `${pl.tracks} tracks` : ''].filter(Boolean).join(' · ') }));
+        h('div', { class: 'sp-tile-sub', text: [pl.owner, pl.tracks != null ? (pl.tracks === 1 ? mariowOSI18n.t('music.spotify.tracks.one', '{count} track', { count: pl.tracks }) : mariowOSI18n.t('music.spotify.tracks.other', '{count} tracks', { count: pl.tracks })) : ''].filter(Boolean).join(' · ') }));
       tile.style.animationDelay = `${Math.min(index, 14) * 0.025}s`;
       grid.append(tile);
     });
 
-    table.replaceChildren(account, buildSpotifyNowCard(), h('div', { class: 'sp-section', text: 'Your playlists' }), grid);
+    table.replaceChildren(account, buildSpotifyNowCard(), h('div', { class: 'sp-section', text: mariowOSI18n.t('music.spotify.your-playlists', 'Your playlists') }), grid);
   }
 
   function connectSpotify() {
@@ -1478,7 +1499,7 @@ Licensed under the Apache License, Version 2.0
     // Spotify's login page cannot be framed, so it opens as a tab in the mariowOS browser.
     if (window.top !== window && typeof window.top.openUrlInBrowserTab === 'function') window.top.openUrlInBrowserTab(url);
     else window.open(url, '_blank');
-    toast('Log in to Spotify in the browser tab, then come back here');
+    toast(mariowOSI18n.t('music.spotify.login-toast', 'Log in to Spotify in the browser tab, then come back here'));
     // Pick up the new connection automatically for a couple of minutes.
     let tries = 0;
     const wait = setInterval(async () => {
@@ -1492,7 +1513,7 @@ Licensed under the Apache License, Version 2.0
   }
 
   async function disconnectSpotify() {
-    if (!(await mDialog.confirm('Disconnect your Spotify account from mariowOS?'))) return;
+    if (!(await mDialog.confirm(mariowOSI18n.t('music.spotify.disconnect-confirm', 'Disconnect your Spotify account from mariowOS?')))) return;
     try { await spotifyFetch('/api/spotify/logout', { method: 'POST' }); } catch (error) { toast(error.message); }
     setSpotifyActive(false);
     spotify.player = null;
@@ -1513,7 +1534,7 @@ Licensed under the Apache License, Version 2.0
 
   const SERVICE_CONSENT = {
     lastfm: ['lastfm', 'Last.fm (last.fm)'],
-    worldradio: ['radiobrowser', 'World Radio (radio-browser.info and the stations\' own servers)'],
+    worldradio: ['radiobrowser', mariowOSI18n.t('music.consent.worldradio', "World Radio (radio-browser.info and the stations' own servers)")],
     audius: ['audius', 'Audius (audius.co)']
   };
   const serviceState = {
@@ -1548,7 +1569,7 @@ Licensed under the Apache License, Version 2.0
   async function getJson(url, options) {
     const response = await fetch(url, options);
     const data = await response.json().catch(() => null);
-    if (!response.ok) throw new Error(data?.error || `Request failed (${response.status})`);
+    if (!response.ok) throw new Error(data?.error || mariowOSI18n.t('music.request-failed', 'Request failed ({status})', { status: response.status }));
     return data;
   }
 
@@ -1594,7 +1615,7 @@ Licensed under the Apache License, Version 2.0
       if (!now) return null;
       return {
         readOnly: true, isPlaying: true, progressMs: 0, durationMs: 0,
-        device: { name: 'Another device (via Last.fm)', type: 'Smartphone', volume: null },
+        device: { name: mariowOSI18n.t('music.lastfm.other-device', 'Another device (via Last.fm)'), type: 'Smartphone', volume: null },
         track: { title: now.title, artist: now.artist, album: now.album, image: now.image }
       };
     } catch (error) { return null; }
@@ -1603,29 +1624,29 @@ Licensed under the Apache License, Version 2.0
   function renderLastfm() {
     const table = el('track-table');
     const st = serviceState.lastfm.status;
-    if (!st) { table.replaceChildren(h('div', { class: 'empty' }, icon('podcasts'), h('div', { text: 'Loading…' }))); return; }
+    if (!st) { table.replaceChildren(h('div', { class: 'empty' }, icon('podcasts'), h('div', { text: mariowOSI18n.t('music.loading', 'Loading…') }))); return; }
 
     if (!st.configured) {
-      const user = h('input', { class: 'sp-input', placeholder: 'Last.fm username', spellcheck: 'false', autocomplete: 'off' });
-      const key = h('input', { class: 'sp-input', placeholder: 'API key (32 characters)', spellcheck: 'false', autocomplete: 'off' });
+      const user = h('input', { class: 'sp-input', placeholder: mariowOSI18n.t('music.lastfm.username', 'Last.fm username'), spellcheck: 'false', autocomplete: 'off' });
+      const key = h('input', { class: 'sp-input', placeholder: mariowOSI18n.t('music.lastfm.api-key', 'API key (32 characters)'), spellcheck: 'false', autocomplete: 'off' });
       const save = async () => {
         try {
           await getJson('/api/lastfm/config', { method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: user.value, apiKey: key.value }) });
-          toast('Last.fm connected');
+          toast(mariowOSI18n.t('music.lastfm.connected', 'Last.fm connected'));
           openLastfm();
         } catch (error) { toast(error.message); }
       };
       table.replaceChildren(h('div', { class: 'sp-card' },
-        h('h3', { text: 'See what you play anywhere' }),
-        h('p', { text: 'Last.fm records ("scrobbles") every song you play, on any device: Spotify Free on your phone included. mariowOS reads it to show what is playing now. It can only show, not control.' }),
+        h('h3', { text: mariowOSI18n.t('music.lastfm.setup.title', 'See what you play anywhere') }),
+        h('p', { text: mariowOSI18n.t('music.lastfm.setup.intro', 'Last.fm records ("scrobbles") every song you play, on any device: Spotify Free on your phone included. mariowOS reads it to show what is playing now. It can only show, not control.') }),
         h('ol', {},
-          h('li', {}, 'Create a free account on ', h('code', { text: 'last.fm' }), '.'),
-          h('li', { text: 'In Spotify (phone or PC): Settings → Apps / Social → connect Last.fm. Other players have Last.fm plug-ins too.' }),
-          h('li', {}, 'Get a free API key at ', h('code', { text: 'last.fm/api/account/create' }), ' (any app name; callback can be left empty).'),
-          h('li', { text: 'Enter your username and the API key below.' })
+          h('li', {}, withNodes(mariowOSI18n.t('music.lastfm.setup.step1', 'Create a free account on {site}.'), { site: h('code', { text: 'last.fm' }) })),
+          h('li', { text: mariowOSI18n.t('music.lastfm.setup.step2', 'In Spotify (phone or PC): Settings → Apps / Social → connect Last.fm. Other players have Last.fm plug-ins too.') }),
+          h('li', {}, withNodes(mariowOSI18n.t('music.lastfm.setup.step3', 'Get a free API key at {site} (any app name; callback can be left empty).'), { site: h('code', { text: 'last.fm/api/account/create' }) })),
+          h('li', { text: mariowOSI18n.t('music.lastfm.setup.step4', 'Enter your username and the API key below.') })
         ),
-        h('div', { class: 'sp-row' }, user, key, h('button', { class: 'sp-btn', style: 'background:#e31b23;color:#fff', onclick: save }, icon('check'), 'Save'))
+        h('div', { class: 'sp-row' }, user, key, h('button', { class: 'sp-btn', style: 'background:#e31b23;color:#fff', onclick: save }, icon('check'), mariowOSI18n.t('common.save', 'Save')))
       ));
       return;
     }
@@ -1633,19 +1654,19 @@ Licensed under the Apache License, Version 2.0
     const tracks = serviceState.lastfm.tracks;
     const now = tracks?.find(t => t.nowPlaying);
     const header = h('div', { class: 'sp-account' }, icon('account_circle'),
-      h('span', {}, 'Scrobbles of ', h('strong', { text: st.username })),
+      h('span', {}, withNodes(mariowOSI18n.t('music.lastfm.scrobbles-of', 'Scrobbles of {user}'), { user: h('strong', { text: st.username }) })),
       h('button', { class: 'sp-btn ghost', onclick: async () => {
-        if (!(await mDialog.confirm('Disconnect Last.fm from mariowOS?'))) return;
+        if (!(await mDialog.confirm(mariowOSI18n.t('music.lastfm.disconnect-confirm', 'Disconnect Last.fm from mariowOS?')))) return;
         await getJson('/api/lastfm/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).catch(() => {});
         serviceState.lastfm.tracks = null;
         openLastfm();
-      } }, icon('logout'), 'Disconnect'));
+      } }, icon('logout'), mariowOSI18n.t('music.disconnect', 'Disconnect')));
 
     const art = now?.image ? h('img', { class: 'sp-now-art', src: now.image, alt: '' }) : h('div', { class: 'sp-now-art', style: 'background:linear-gradient(145deg,#e31b23,#6b0000)' }, icon('podcasts'));
     const card = h('div', { class: 'sp-card sp-now' }, art, h('div', {},
-      h('div', { class: 'sp-now-label', style: 'color:#ff4d55', text: now ? 'Listening now' : 'Nothing playing right now' }),
-      h('div', { class: 'sp-now-title', text: now ? now.title : (tracks === null ? 'Loading…' : 'Play something on any device') }),
-      h('div', { class: 'sp-now-artist', text: now ? [now.artist, now.album].filter(Boolean).join(' · ') : 'It shows up here a few seconds after it starts.' }),
+      h('div', { class: 'sp-now-label', style: 'color:#ff4d55', text: now ? mariowOSI18n.t('music.lastfm.listening', 'Listening now') : mariowOSI18n.t('music.lastfm.nothing', 'Nothing playing right now') }),
+      h('div', { class: 'sp-now-title', text: now ? now.title : (tracks === null ? mariowOSI18n.t('music.loading', 'Loading…') : mariowOSI18n.t('music.lastfm.play-something', 'Play something on any device')) }),
+      h('div', { class: 'sp-now-artist', text: now ? [now.artist, now.album].filter(Boolean).join(' · ') : mariowOSI18n.t('music.lastfm.shows-up', 'It shows up here a few seconds after it starts.') }),
       serviceState.lastfm.error ? h('div', { class: 'sp-device', style: 'color:#ff9f0a' }, serviceState.lastfm.error) : null));
 
     const list = h('div', { class: 'svc-recent' });
@@ -1654,11 +1675,11 @@ Licensed under the Apache License, Version 2.0
         t.image ? h('img', { src: t.image, alt: '', loading: 'lazy' }) : icon('music_note'));
       const row = h('div', { class: 'track-row' }, thumb,
         h('div', { class: 'track-text' }, h('div', { class: 'track-name', text: t.title }), h('div', { class: 'track-artist', text: t.artist })),
-        h('div', { class: 'track-meta', text: t.playedAt ? new Date(t.playedAt).toLocaleString([], { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : '' }));
+        h('div', { class: 'track-meta', text: t.playedAt ? new Date(t.playedAt).toLocaleString(mariowOSI18n.locale, { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' }) : '' }));
       row.style.animationDelay = `${Math.min(index, 14) * 0.025}s`;
       list.append(row);
     });
-    table.replaceChildren(header, card, h('div', { class: 'sp-section', text: 'Recently played' }), list);
+    table.replaceChildren(header, card, h('div', { class: 'sp-section', text: mariowOSI18n.t('music.lastfm.recent', 'Recently played') }), list);
   }
 
   /* ── World Radio (radio-browser.info) ── */
@@ -1680,9 +1701,9 @@ Licensed under the Apache License, Version 2.0
     const st = serviceState.worldradio;
     const country = (navigator.language.split('-')[1] || 'IT').toUpperCase();
     el('view-tools').replaceChildren(
-      searchBox('Search stations, genres or cities', st.query, query => loadWorldRadio('search', query)),
-      chip(`Popular in ${country}`, st.mode === 'local' && !st.query, () => loadWorldRadio('local', '')),
-      chip('Top worldwide', st.mode === 'top' && !st.query, () => loadWorldRadio('top', '')));
+      searchBox(mariowOSI18n.t('music.worldradio.search', 'Search stations, genres or cities'), st.query, query => loadWorldRadio('search', query)),
+      chip(mariowOSI18n.t('music.worldradio.popular', 'Popular in {country}', { country }), st.mode === 'local' && !st.query, () => loadWorldRadio('local', '')),
+      chip(mariowOSI18n.t('music.worldradio.top', 'Top worldwide'), st.mode === 'top' && !st.query, () => loadWorldRadio('top', '')));
   }
 
   async function loadWorldRadio(mode, query) {
@@ -1704,7 +1725,7 @@ Licensed under the Apache License, Version 2.0
         .map(station => ({
           id: `wr-${station.stationuuid}`,
           source: 'worldradio',
-          title: station.name.trim() || 'Unnamed station',
+          title: station.name.trim() || mariowOSI18n.t('music.worldradio.unnamed', 'Unnamed station'),
           artist: [station.country, (station.tags || '').split(',').filter(Boolean).slice(0, 2).join(', ')].filter(Boolean).join(' · '),
           url: station.url_resolved || station.url,
           image: /^https:\/\//.test(station.favicon || '') ? station.favicon : null,
@@ -1713,7 +1734,7 @@ Licensed under the Apache License, Version 2.0
         }));
     } catch (error) {
       sources.worldradio = [];
-      toast('Could not reach the radio directory');
+      toast(mariowOSI18n.t('music.worldradio.error', 'Could not reach the radio directory'));
     }
     st.loading = false;
     st.loaded = true;
@@ -1734,8 +1755,8 @@ Licensed under the Apache License, Version 2.0
   function renderAudiusTools() {
     const st = serviceState.audius;
     el('view-tools').replaceChildren(
-      searchBox('Search artists or tracks on Audius', st.query, query => loadAudius(query)),
-      chip('Trending', !st.query, () => loadAudius('')));
+      searchBox(mariowOSI18n.t('music.audius.search', 'Search artists or tracks on Audius'), st.query, query => loadAudius(query)),
+      chip(mariowOSI18n.t('music.audius.trending', 'Trending'), !st.query, () => loadAudius('')));
   }
 
   async function loadAudius(query) {
@@ -1753,7 +1774,7 @@ Licensed under the Apache License, Version 2.0
           id: `au-${track.id}`,
           source: 'audius',
           title: track.title,
-          artist: track.user?.name || 'Unknown artist',
+          artist: track.user?.name || mariowOSI18n.t('music.track.unknown-artist', 'Unknown artist'),
           url: `${AUDIUS_API}/tracks/${encodeURIComponent(track.id)}/stream?${AUDIUS_APP}`,
           image: track.artwork?.['150x150'] || null,
           bigImage: track.artwork?.['480x480'] || null,
@@ -1762,7 +1783,7 @@ Licensed under the Apache License, Version 2.0
         }));
     } catch (error) {
       sources.audius = [];
-      toast('Could not reach Audius');
+      toast(mariowOSI18n.t('music.audius.error', 'Could not reach Audius'));
     }
     st.loading = false;
     st.loaded = true;
@@ -1780,12 +1801,12 @@ Licensed under the Apache License, Version 2.0
   // Only sites that play without DRM: Electron has no Widevine, so Apple Music, Deezer,
   // Tidal and Amazon Music cannot play here.
   const WEB_PLAYERS = [
-    { name: 'YouTube Music', url: 'https://music.youtube.com', color: '#ff0000', logo: '▶', sub: 'Free with ads, huge catalogue' },
-    { name: 'SoundCloud', url: 'https://soundcloud.com', color: '#ff5500', logo: 'SC', sub: 'Independent artists, mixes and remixes' },
-    { name: 'Bandcamp', url: 'https://bandcamp.com', color: '#1da0c3', logo: 'bc', sub: 'Listen to and support artists directly' },
-    { name: 'Mixcloud', url: 'https://www.mixcloud.com', color: '#5000ff', logo: 'M', sub: 'DJ sets, radio shows and podcasts' },
-    { name: 'Audiomack', url: 'https://audiomack.com', color: '#ffa200', logo: 'A', sub: 'Free hip-hop, afrobeats and more' },
-    { name: 'Jamendo', url: 'https://www.jamendo.com', color: '#ec6c2b', logo: 'J', sub: 'Free, Creative Commons music' }
+    { name: 'YouTube Music', url: 'https://music.youtube.com', color: '#ff0000', logo: '▶', sub: mariowOSI18n.t('music.web.youtube-music', 'Free with ads, huge catalogue') },
+    { name: 'SoundCloud', url: 'https://soundcloud.com', color: '#ff5500', logo: 'SC', sub: mariowOSI18n.t('music.web.soundcloud', 'Independent artists, mixes and remixes') },
+    { name: 'Bandcamp', url: 'https://bandcamp.com', color: '#1da0c3', logo: 'bc', sub: mariowOSI18n.t('music.web.bandcamp', 'Listen to and support artists directly') },
+    { name: 'Mixcloud', url: 'https://www.mixcloud.com', color: '#5000ff', logo: 'M', sub: mariowOSI18n.t('music.web.mixcloud', 'DJ sets, radio shows and podcasts') },
+    { name: 'Audiomack', url: 'https://audiomack.com', color: '#ffa200', logo: 'A', sub: mariowOSI18n.t('music.web.audiomack', 'Free hip-hop, afrobeats and more') },
+    { name: 'Jamendo', url: 'https://www.jamendo.com', color: '#ec6c2b', logo: 'J', sub: mariowOSI18n.t('music.web.jamendo', 'Free, Creative Commons music') }
   ];
 
   function openInBrowser(url) {
@@ -1814,13 +1835,13 @@ Licensed under the Apache License, Version 2.0
     const app = (ses?.app || '').replace(/\.exe$/i, '').replace(/^.*[!\\]/, '');
     const art = ses?.image ? h('img', { class: 'sp-now-art', src: ses.image, alt: '' }) : h('div', { class: 'sp-now-art', style: 'background:linear-gradient(145deg,#636366,#2c2c2e)' }, icon('computer'));
     return h('div', { class: 'sp-card sp-now', id: 'pc-card' }, art, h('div', {},
-      h('div', { class: 'sp-now-label', style: 'color:var(--accent)', text: ses ? (ses.isPlaying ? 'Playing on this PC' : 'Paused on this PC') : 'Nothing playing on this PC' }),
-      h('div', { class: 'sp-now-title', text: ses?.title || 'Open a web player below' }),
-      h('div', { class: 'sp-now-artist', text: ses ? [ses.artist, app].filter(Boolean).join(' · ') : 'Whatever plays here, in a browser tab or another app, can be controlled from this card.' }),
+      h('div', { class: 'sp-now-label', style: 'color: var(--sys-accent-text)', text: ses ? (ses.isPlaying ? mariowOSI18n.t('music.pc.playing', 'Playing on this PC') : mariowOSI18n.t('music.pc.paused', 'Paused on this PC')) : mariowOSI18n.t('music.pc.nothing', 'Nothing playing on this PC') }),
+      h('div', { class: 'sp-now-title', text: ses?.title || mariowOSI18n.t('music.pc.open-player', 'Open a web player below') }),
+      h('div', { class: 'sp-now-artist', text: ses ? [ses.artist, app].filter(Boolean).join(' · ') : mariowOSI18n.t('music.pc.hint', 'Whatever plays here, in a browser tab or another app, can be controlled from this card.') }),
       ses ? h('div', { class: 'pc-controls' },
-        h('button', { title: 'Previous', onclick: () => pcCommand('previous') }, icon('skip_previous')),
-        h('button', { class: 'main', title: 'Play/Pause', onclick: () => pcCommand('toggle') }, icon(ses.isPlaying ? 'pause' : 'play_arrow')),
-        h('button', { title: 'Next', onclick: () => pcCommand('next') }, icon('skip_next'))) : null));
+        h('button', { title: mariowOSI18n.t('music.player.previous', 'Previous'), onclick: () => pcCommand('previous') }, icon('skip_previous')),
+        h('button', { class: 'main', title: mariowOSI18n.t('music.player.play-pause', 'Play/Pause'), onclick: () => pcCommand('toggle') }, icon(ses.isPlaying ? 'pause' : 'play_arrow')),
+        h('button', { title: mariowOSI18n.t('common.next', 'Next'), onclick: () => pcCommand('next') }, icon('skip_next'))) : null));
   }
 
   function renderWebPlayers() {
@@ -1835,9 +1856,9 @@ Licensed under the Apache License, Version 2.0
     });
     el('track-table').replaceChildren(
       buildPcCard(),
-      h('div', { class: 'sp-section', text: 'Open in the mariowOS browser' }),
+      h('div', { class: 'sp-section', text: mariowOSI18n.t('music.web.open-in-browser', 'Open in the mariowOS browser') }),
       grid,
-      h('p', { class: 'web-sub', style: 'margin-top:16px', text: 'Apple Music, Deezer, Tidal and Amazon Music use DRM protection that the mariowOS browser does not include, so they are not listed.' }));
+      h('p', { class: 'web-sub', style: 'margin-top:16px', text: mariowOSI18n.t('music.web.drm-note', 'Apple Music, Deezer, Tidal and Amazon Music use DRM protection that the mariowOS browser does not include, so they are not listed.') }));
   }
 
   function openWebPlayers() {
@@ -1853,6 +1874,10 @@ Licensed under the Apache License, Version 2.0
   /* ────────────────────────── Boot ────────────────────────── */
 
   setVolume(0.7);
+  el('play-btn').title = mariowOSI18n.t('music.player.play', 'Play');
+  el('repeat-btn').title = repeatTitle();
+  el('now-title').textContent = mariowOSI18n.t('music.player.nothing', 'Nothing playing');
+  el('now-artist').textContent = mariowOSI18n.t('music.player.pick', 'Pick a station or a track');
   applyAccent(STATIONS[0].hue);
   selectSource('radio');
   updateCounts();

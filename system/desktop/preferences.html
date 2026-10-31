@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/desktop/assets/i18n-data.js"></script>
+    <script src="/desktop/assets/i18n.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
-    <title>mariowOS Setup</title>
+    <title data-i18n="setup.title">mariowOS Setup</title>
     <style>
         * {
             margin: 0;
@@ -174,12 +176,12 @@
 
         <div class="right-section">
             <div class="info-box">
-                <h2>Help improve mariowOS daily?</h2>
-                <p>Receive daily emails with links to Discord flags and issue updates. Stay updated on the latest problems and features. Optional: you can turn it off at any time. <a href="/desktop/privacy.html" style="color:#0a84ff">Privacy notice</a></p>
+                <h2 data-i18n="setup.preferences.heading">Help improve mariowOS daily?</h2>
+                <p><span data-i18n="setup.preferences.description">Receive daily emails with links to Discord flags and issue updates. Stay updated on the latest problems and features. Optional: you can turn it off at any time.</span> <a href="/desktop/privacy.html" style="color:#0a84ff" data-i18n="setup.privacy-notice">Privacy notice</a></p>
             </div>
 
             <div class="toggle-container" id="mainToggle">
-                <span class="toggle-label">Send daily Discord flags emails</span>
+                <span class="toggle-label" data-i18n="setup.preferences.toggle">Send daily Discord flags emails</span>
                 <div class="switch">
                     <div class="circle"></div>
                 </div>
@@ -225,20 +227,20 @@
 
         // Double opt-in: the digest can only be enabled for a verified address.
         async function verifyEmail() {
-            const email = await mDialog.prompt("Enter the email address that will receive the daily digest:",
-                { title: "Verify your email", type: "email", placeholder: "name@example.com", okText: "Send code" });
+            const email = await mDialog.prompt(mariowOSI18n.t("setup.preferences.email-prompt", "Enter the email address that will receive the daily digest:"),
+                { title: mariowOSI18n.t("setup.preferences.email-title", "Verify your email"), type: "email", placeholder: mariowOSI18n.t("setup.preferences.email-placeholder", "name@example.com"), okText: mariowOSI18n.t("setup.preferences.send-code", "Send code") });
             if (!email) return false;
             let res = await fetch('/api/email/send-code', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
             }).then(r => r.json());
-            if (!res.success) { await mDialog.alert(res.error || "Could not send the code.", { kind: 'error' }); return false; }
-            const code = await mDialog.prompt(`We sent a 6-digit code to ${email}. Enter it here:`,
-                { title: "Verification code", placeholder: "123456", okText: "Verify" });
+            if (!res.success) { await mDialog.alert(res.error || mariowOSI18n.t("setup.preferences.send-code-failed", "Could not send the code."), { kind: 'error' }); return false; }
+            const code = await mDialog.prompt(mariowOSI18n.t("setup.preferences.code-prompt", "We sent a 6-digit code to {email}. Enter it here:", { email }),
+                { title: mariowOSI18n.t("setup.preferences.code-title", "Verification code"), placeholder: "123456", okText: mariowOSI18n.t("setup.preferences.verify", "Verify") });
             if (!code) return false;
             res = await fetch('/api/email/verify-code', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: code.trim() })
             }).then(r => r.json());
-            if (!res.success) { await mDialog.alert(res.error || "Invalid code.", { kind: 'error' }); return false; }
+            if (!res.success) { await mDialog.alert(res.error || mariowOSI18n.t("setup.preferences.invalid-code", "Invalid code."), { kind: 'error' }); return false; }
             emailVerified = true;
             return true;
         }
@@ -254,10 +256,10 @@
                     body: JSON.stringify({ sendReports: enable })
                 }).then(r => r.json());
                 if (data.success) toggle.classList.toggle('active', enable);
-                else await mDialog.alert(data.error || "Could not save the preference.", { kind: 'error' });
+                else await mDialog.alert(data.error || mariowOSI18n.t("setup.preferences.save-failed", "Could not save the preference."), { kind: 'error' });
             } catch (err) {
                 console.error('Error saving preference:', err);
-                await mDialog.alert("Could not save the preference. Try again later.", { kind: 'error' });
+                await mDialog.alert(mariowOSI18n.t("setup.preferences.save-failed-later", "Could not save the preference. Try again later."), { kind: 'error' });
             } finally {
                 busy = false;
             }

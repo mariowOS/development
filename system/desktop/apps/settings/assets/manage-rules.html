@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -112,7 +115,8 @@ body {
 }
 
 .btn.edit {
-  background: #0a84ff;
+  background: var(--sys-accent);
+  color: var(--sys-accent-on);
 }
 
 .btn.delete {
@@ -130,17 +134,15 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Manage Rules</h1>
+    <h1 data-i18n="settings.manage-rules.title">Manage Rules</h1>
   </div>
 
   <div class="banner">
-    <div class="title">Manage Existing Rules</div>
-    <div class="desc">
-      View, edit, or delete your automation rules.
-    </div>
+    <div class="title" data-i18n="settings.manage-rules.banner">Manage Existing Rules</div>
+    <div class="desc" data-i18n="settings.manage-rules.banner-desc">View, edit, or delete your automation rules.</div>
   </div>
 
   <div class="panel" id="rulesContainer">
@@ -164,7 +166,7 @@ async function loadRules() {
   rulesContainer.innerHTML = '';
 
   if (rules.length === 0) {
-    rulesContainer.innerHTML = '<p class="empty-state">No rules found. Create a new rule first.</p>';
+    rulesContainer.innerHTML = '<p class="empty-state" data-i18n="settings.manage-rules.empty">No rules found. Create a new rule first.</p>';
     return;
   }
 
@@ -177,8 +179,8 @@ async function loadRules() {
         <div class="rule-desc">${describeRule(rule)}</div>
       </div>
       <div class="rule-actions">
-        <button class="btn edit" data-id="${rule.id}">Edit</button>
-        <button class="btn delete" data-id="${rule.id}">Delete</button>
+        <button class="btn edit" data-id="${rule.id}" data-i18n="common.edit">Edit</button>
+        <button class="btn delete" data-id="${rule.id}" data-i18n="common.delete">Delete</button>
       </div>
     `;
     rulesContainer.appendChild(ruleItem);
@@ -201,10 +203,10 @@ async function loadRules() {
 }
 
 function describeRule(rule) {
-  if (rule.trigger === 'time') return `Daily at ${rule.triggerValue || 'unscheduled'} · ${rule.action}`;
-  if (rule.trigger === 'battery') return `Battery at or below ${rule.triggerValue}% · ${rule.action}`;
-  if (rule.trigger === 'startup') return `At desktop startup · ${rule.actionParams?.appId || 'app not selected'}`;
-  return `Trigger: ${rule.trigger} | Action: ${rule.action}`;
+  if (rule.trigger === 'time') return mariowOSI18n.t('settings.manage-rules.desc-time', 'Daily at {time} · {action}', { time: rule.triggerValue || mariowOSI18n.t('settings.manage-rules.unscheduled', 'unscheduled'), action: rule.action });
+  if (rule.trigger === 'battery') return mariowOSI18n.t('settings.manage-rules.desc-battery', 'Battery at or below {level}% · {action}', { level: rule.triggerValue, action: rule.action });
+  if (rule.trigger === 'startup') return mariowOSI18n.t('settings.manage-rules.desc-startup', 'At desktop startup · {app}', { app: rule.actionParams?.appId || mariowOSI18n.t('settings.manage-rules.no-app', 'app not selected') });
+  return mariowOSI18n.t('settings.manage-rules.desc-other', 'Trigger: {trigger} | Action: {action}', { trigger: rule.trigger, action: rule.action });
 }
 
 function editRule(ruleId) {
@@ -217,9 +219,9 @@ function editRule(ruleId) {
 }
 
 async function deleteRule(ruleId) {
-  if (await mDialog.confirm('Are you sure you want to delete this rule?', { danger: true, okText: 'Delete' })) {
+  if (await mDialog.confirm(mariowOSI18n.t('settings.manage-rules.delete-confirm', 'Are you sure you want to delete this rule?'), { danger: true, okText: mariowOSI18n.t('common.delete', 'Delete') })) {
     const localRules = JSON.parse(localStorage.getItem('rules')) || [];
-    const ruleName = localRules.find(r => r.id === ruleId)?.name || 'Unknown';
+    const ruleName = localRules.find(r => r.id === ruleId)?.name || mariowOSI18n.t('settings.manage-rules.unknown', 'Unknown');
     try {
       const response = await fetch('/api/rules');
       if (response.ok) {
@@ -229,10 +231,10 @@ async function deleteRule(ruleId) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rules: serverRules.filter(rule => Number(rule.id) !== ruleId) })
         });
-        if (!saveResponse.ok) throw new Error('Could not delete the saved rule.');
+        if (!saveResponse.ok) throw new Error(mariowOSI18n.t('settings.manage-rules.delete-failed', 'Could not delete the saved rule.'));
       }
     } catch (error) {
-      await mDialog.alert(error.message || 'Could not delete the saved rule.');
+      await mDialog.alert(error.message || mariowOSI18n.t('settings.manage-rules.delete-failed', 'Could not delete the saved rule.'));
       return;
     }
     localStorage.setItem('rules', JSON.stringify(localRules.filter(rule => Number(rule.id) !== ruleId)));

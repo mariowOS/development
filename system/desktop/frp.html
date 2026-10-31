@@ -3,8 +3,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
   <meta charset="UTF-8">
-  <title>Factory Reset Protection</title>
+  <title data-i18n="setup.frp.title">Factory Reset Protection</title>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <style>
     body { color-scheme: dark; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 30%, #1b2233, #0b0d12 70%); color: #fff; -webkit-font-smoothing: antialiased; font-family: 'Poppins', sans-serif; }
@@ -23,17 +25,17 @@
 </head>
 <body>
   <div class="card">
-    <h2>Device Protected</h2>
-    <p>This OS was reset through recovery. To continue setup, enter the previous password or import a valid config.</p>
+    <h2 data-i18n="setup.frp.heading">Device Protected</h2>
+    <p data-i18n="setup.frp.description">This OS was reset through recovery. To continue setup, enter the previous password or import a valid config.</p>
     
     <div class="error" id="err-msg"></div>
     
-    <input type="password" id="frp-pass" placeholder="Previous Password">
-    <button class="btn" onclick="verifyFRP()">Verify Password</button>
+    <input type="password" id="frp-pass" placeholder="Previous Password" data-i18n-placeholder="setup.frp.password-placeholder">
+    <button class="btn" onclick="verifyFRP()" data-i18n="setup.frp.verify">Verify Password</button>
     
-    <div style="margin: 20px 0; color: rgba(255,255,255,0.5); font-size: 12px;">OR</div>
+    <div style="margin: 20px 0; color: rgba(255,255,255,0.5); font-size: 12px;" data-i18n="setup.frp.or">OR</div>
     
-    <button class="btn btn-secondary" onclick="document.getElementById('file-upload').click()">Import credentials.json</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('file-upload').click()" data-i18n="setup.frp.import">Import credentials.json</button>
     <input type="file" id="file-upload" accept=".json" style="display: none;" onchange="importFRP(event)">
   </div>
 

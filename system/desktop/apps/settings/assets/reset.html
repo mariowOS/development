@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reset Options</title>
@@ -16,7 +19,7 @@
   --md-sys-color-surface-container: rgba(255,255,255,0.06);
   --md-sys-color-surface-container-high: rgba(255,255,255,0.1);
   --md-sys-color-surface-container-highest: rgba(255,255,255,0.08);
-  --md-sys-color-primary-container: rgba(10,132,255,0.18);
+  --md-sys-color-primary-container: color-mix(in srgb, var(--sys-accent) 18%, transparent);
   --md-sys-color-on-primary-container: #ffffff;
   --md-sys-color-on-surface: #ffffff;
   --md-sys-color-on-surface-variant: rgba(255,255,255,0.5);
@@ -167,41 +170,41 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="sub-header">
-    <button class="back-btn" id="goBack">
+    <button class="back-btn" id="goBack" aria-label="Back" data-i18n-aria-label="common.back">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
-    <h2 class="sub-title">Reset Options</h2>
+    <h2 class="sub-title" data-i18n="settings.reset.title">Reset Options</h2>
   </div>
 
   <div class="card-list">
     <div class="item" style="cursor:pointer" onclick="location.href='reset-settings.html'">
       <div class="text-group">
-        <div class="text-title">Reset settings</div>
-        <div class="text-desc">Only resets settings to default options</div>
+        <div class="text-title" data-i18n="settings.reset.settings">Reset settings</div>
+        <div class="text-desc" data-i18n="settings.reset.settings-desc">Only resets settings to default options</div>
       </div>
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
 
     <div class="item" style="cursor:pointer" onclick="location.href='reset-desktop.html'">
       <div class="text-group">
-        <div class="text-title">Reset desktop (refresh)</div>
-        <div class="text-desc">Clears every customization option, doesn't clear data</div>
+        <div class="text-title" data-i18n="settings.reset.desktop">Reset desktop (refresh)</div>
+        <div class="text-desc" data-i18n="settings.reset.desktop-desc">Clears every customization option, doesn't clear data</div>
       </div>
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
 
     <div class="item dangerous" style="cursor:pointer" onclick="location.href='factory-reset.html'">
       <div class="text-group">
-        <div class="text-title">Factory reset</div>
-        <div class="text-desc">Clears all data and everything, starts fresh - cannot be undone</div>
+        <div class="text-title" data-i18n="settings.reset.factory">Factory reset</div>
+        <div class="text-desc" data-i18n="settings.reset.factory-desc">Clears all data and everything, starts fresh - cannot be undone</div>
       </div>
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
 
     <div class="item dangerous" style="cursor:pointer" onclick="location.href='factory-reset.html'">
       <div class="text-group">
-        <div class="text-title">Full system wipe</div>
-        <div class="text-desc">Complete data destruction and system reset - requires confirmation</div>
+        <div class="text-title" data-i18n="settings.reset.wipe">Full system wipe</div>
+        <div class="text-desc" data-i18n="settings.reset.wipe-desc">Complete data destruction and system reset - requires confirmation</div>
       </div>
       <div class="card-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>

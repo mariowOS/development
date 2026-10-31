@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-app endpoint permissions. Transparent on purpose: readable, not obfuscated. Set enforced=true only after the desktop shell mints per-app tokens (POST /api/app/token) and apps send them as the X-App-Token header. Paths not listed here stay open to every app.",
+  "_comment": "Per-app endpoint ACCOUNTABILITY (not isolation). Apps are same-origin iframes, so any app can mint any app's token via POST /api/app/token; enforced=true gives least-privilege-by-convention and logging, NOT a security boundary against a malicious app. Real safety for dangerous endpoints comes from the account PASSWORD at the route itself (remote/exec, recovery/debug, factory-reset, restore, clear-password), never from this file. Paths not listed here stay open to every app.",
   "enforced": false,
   "rules": [
     { "prefix": "/api/remote/exec", "apps": ["terminal"] },

@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/desktop/assets/i18n-data.js"></script>
+    <script src="/desktop/assets/i18n.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
@@ -79,21 +81,31 @@
 </head>
 <body>
     <div class="sidebar">
-        <h3>Topics</h3>
-        <a href="#overview">Overview</a>
-        <a href="#getting-started">Getting Started</a>
-        <a href="#contact">Contact</a>
+        <h3 data-i18n="fallback.help.topics">Topics</h3>
+        <a href="#overview" data-i18n="fallback.help.overview">Overview</a>
+        <a href="#getting-started" data-i18n="fallback.help.getting-started">Getting Started</a>
+        <a href="#contact" data-i18n="fallback.help.contact">Contact</a>
         <a href="#faq">FAQ</a>
     </div>
     <div class="content">
         <div class="main">
-            <h1 id="overview">What's This?</h1>
-            <p>This mode helps you recover from a broken desktop or corrupted configuration files.<br>
-            You can access settings to reset your configuration or you can use the browser to access the repository and download the latest desktop.<br>
-            Or, you can access the <a href="https://github.com/mariowOS/archive">archive</a> and download a full update package.</p>
+            <h1 id="overview" data-i18n="fallback.help.title">What's This?</h1>
+            <p><span data-i18n="fallback.help.intro">This mode helps you recover from a broken desktop or corrupted configuration files.</span><br>
+            <span data-i18n="fallback.help.options">You can access settings to reset your configuration or you can use the browser to access the repository and download the latest desktop.</span><br>
+            <span id="archive-line">Or, you can access the <a href="https://github.com/mariowOS/archive">archive</a> and download a full update package.</span></p>
             <p>&nbsp;</p>
-            <p>You can exit this mode at any time by clicking the "Exit Fallback Mode" option in the Finder menu.</p>
+            <p data-i18n="fallback.help.exit">You can exit this mode at any time by clicking the "Exit Fallback Mode" option in the Finder menu.</p>
         </div>
     </div>
+<script>
+    // One sentence with a link inside: translated as a whole, with the link as {link}.
+    if (mariowOSI18n.locale) {
+        const link = document.createElement("a");
+        link.href = "https://github.com/mariowOS/archive";
+        link.textContent = mariowOSI18n.t("fallback.help.archive-link", "archive");
+        const [before, after = ""] = mariowOSI18n.t("fallback.help.archive", "Or, you can access the {link} and download a full update package.").split("{link}");
+        document.getElementById("archive-line").replaceChildren(before, link, after);
+    }
+</script>
 </body>
 </html>

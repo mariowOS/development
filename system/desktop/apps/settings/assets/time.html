@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Time & Date</title>
@@ -22,7 +25,7 @@ body {
 .time-display .clock { font-variant-numeric: tabular-nums; }
 .card-list { margin: 0 0 20px; }
 .item { gap: 14px; }
-.item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px rgba(10, 132, 255, 0.4); }
+.item:focus-visible { outline: none; box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
 .text-group { flex: 1; min-width: 0; }
 .text-title { font-size: 14px; font-weight: 500; }
 .bg-blue { background: linear-gradient(180deg, #0a84ff, #007aff); }
@@ -37,10 +40,10 @@ html::-webkit-scrollbar { display: none; }
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back to settings" onclick="goBackToSettings()">
+    <button class="settings-page-back" type="button" aria-label="Back to settings" data-i18n-aria-label="settings.time.back" onclick="goBackToSettings()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Time &amp; Date</h1>
+    <h1 data-i18n="settings.time.title">Time &amp; Date</h1>
   </div>
 
   <div class="time-display">
@@ -49,18 +52,16 @@ html::-webkit-scrollbar { display: none; }
   </div>
 
   <div class="banner">
-    <div class="title">Date &amp; Time Settings</div>
-    <div class="desc">
-      Adjust your system clock and time zone.
-    </div>
+    <div class="title" data-i18n="settings.time.banner">Date &amp; Time Settings</div>
+    <div class="desc" data-i18n="settings.time.banner-desc">Adjust your system clock and time zone.</div>
   </div>
 
   <div class="card-list">
     <div class="item" role="link" tabindex="0" onclick="navigateToFile('set-time-manually.html')" onkeydown="if(event.key==='Enter'||event.key===' ')navigateToFile('set-time-manually.html')">
       <div class="icon-badge bg-blue"><span class="material-symbols-outlined">edit</span></div>
       <div class="text-group">
-        <div class="text-title">Set Time Manually</div>
-        <div class="text-desc">Set the system clock yourself</div>
+        <div class="text-title" data-i18n="settings.time.manual">Set Time Manually</div>
+        <div class="text-desc" data-i18n="settings.time.manual-desc">Set the system clock yourself</div>
       </div>
       <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
@@ -68,8 +69,8 @@ html::-webkit-scrollbar { display: none; }
     <div class="item" role="link" tabindex="0" onclick="navigateToFile('time-zone.html')" onkeydown="if(event.key==='Enter'||event.key===' ')navigateToFile('time-zone.html')">
       <div class="icon-badge bg-cyan"><span class="material-symbols-outlined">public</span></div>
       <div class="text-group">
-        <div class="text-title">Time Zone</div>
-        <div class="text-desc">Choose your UTC offset</div>
+        <div class="text-title" data-i18n="settings.time.zone">Time Zone</div>
+        <div class="text-desc" data-i18n="settings.time.zone-desc">Choose your UTC offset</div>
       </div>
       <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
     </div>
@@ -104,8 +105,11 @@ function updateTime() {
   const minutes = now.getMinutes().toString().padStart(2, "0");
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12 || 12;
-  document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
-  document.getElementById('date').textContent = now.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  // English keeps the 12-hour clock; other languages use their own time format.
+  document.getElementById('clock').textContent = mariowOSI18n.locale
+    ? now.toLocaleTimeString(mariowOSI18n.locale, { hour: "numeric", minute: "2-digit" })
+    : `${hours}:${minutes} ${ampm}`;
+  document.getElementById('date').textContent = now.toLocaleDateString(mariowOSI18n.locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 }
 
 updateTime();

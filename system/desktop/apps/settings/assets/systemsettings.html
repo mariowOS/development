@@ -4,8 +4,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Settings</title>
+  <title data-i18n="settings.system.title">System Settings</title>
   
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
@@ -59,7 +62,7 @@
       gap: 8px;
       margin-bottom: 20px;
       cursor: pointer;
-      color: #0a84ff;
+      color: var(--sys-accent-text);
       transition: opacity 0.2s;
     }
     .sub-header:hover { opacity: 0.8; }
@@ -104,6 +107,11 @@
     .bg-reset { background: linear-gradient(180deg, #8e8e93, #636366); }
     .bg-danger { background: linear-gradient(180deg, #ff3b30, #ff453a); }
     .bg-gray { background: linear-gradient(180deg, #8e8e93, #636366); }
+    .bg-lang { background: linear-gradient(180deg, #30b0c7, #32ade6); }
+    .language-item { cursor: default; }
+    .language-select { background: rgba(255, 255, 255, 0.08); color: inherit; border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; }
+    .language-select option { background: #1c1c1e; }
 
     .item-title { font-size: 14px; font-weight: 500; }
     .item-subtitle { font-size: 12px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
@@ -126,8 +134,8 @@
         <div class="item-left">
           <div class="icon-badge bg-rules"><span class="material-symbols-outlined">rule_folder</span></div>
           <div>
-            <div class="item-title">Rules</div>
-            <div class="item-subtitle">Create actions for specific events</div>
+            <div class="item-title" data-i18n="general.rules">Rules</div>
+            <div class="item-subtitle" data-i18n="general.rules.subtitle">Create actions for specific events</div>
           </div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -137,19 +145,33 @@
         <div class="item-left">
           <div class="icon-badge bg-time"><span class="material-symbols-outlined">schedule</span></div>
           <div>
-            <div class="item-title">Time & Date</div>
-            <div class="item-subtitle">Clock and date settings</div>
+            <div class="item-title" data-i18n="general.time">Time & Date</div>
+            <div class="item-subtitle" data-i18n="general.time.subtitle">Clock and date settings</div>
           </div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
+      </div>
+
+      <div class="list-item language-item">
+        <div class="item-left">
+          <div class="icon-badge bg-lang"><span class="material-symbols-outlined">translate</span></div>
+          <div>
+            <div class="item-title" data-i18n="general.language">Language</div>
+            <div class="item-subtitle" data-i18n="general.language.subtitle">Language of the system apps</div>
+          </div>
+        </div>
+        <select id="languageSelect" class="language-select" aria-label="Language" data-i18n-aria-label="general.language" data-i18n-title="general.language">
+          <option value="auto" data-i18n="general.language.auto">Automatic</option>
+          <option value="en">English</option>
+        </select>
       </div>
 
       <div class="list-item" onclick="navigateToPage('reset')">
         <div class="item-left">
           <div class="icon-badge bg-reset"><span class="material-symbols-outlined">settings_backup_restore</span></div>
           <div>
-            <div class="item-title">Reset Options</div>
-            <div class="item-subtitle">Data reset, desktop reset, factory reset</div>
+            <div class="item-title" data-i18n="general.reset">Reset Options</div>
+            <div class="item-subtitle" data-i18n="general.reset.subtitle">Data reset, desktop reset, factory reset</div>
           </div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -158,24 +180,24 @@
   </div>
 
   <div class="page hidden" id="rulesPage" style="transform: translateX(40%);">
-    <iframe class="hub-frame" src="rules.html" title="Rules settings"></iframe>
+    <iframe class="hub-frame" src="rules.html" title="Rules settings" data-i18n-title="settings.system.rules-frame"></iframe>
   </div>
 
   <div class="page hidden" id="timePage" style="transform: translateX(40%);">
-    <iframe class="hub-frame" src="time.html" title="Time and date settings"></iframe>
+    <iframe class="hub-frame" src="time.html" title="Time and date settings" data-i18n-title="settings.system.time-frame"></iframe>
   </div>
 
   <div class="page hidden" id="resetPage" style="transform: translateX(40%);">
     <div class="sub-header" onclick="goBackToMain('reset')">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
-      <h2>Reset Options</h2>
+      <h2 data-i18n="general.reset">Reset Options</h2>
     </div>
     
     <div class="panel">
       <div class="list-item" onclick="navigateToFile('reset-settings.html')">
         <div class="item-left">
           <div class="icon-badge bg-gray"><span class="material-symbols-outlined">settings_backup_restore</span></div>
-          <div class="item-title">Reset Settings</div>
+          <div class="item-title" data-i18n="settings.system.reset-settings">Reset Settings</div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
       </div>
@@ -186,8 +208,8 @@
         <div class="item-left">
           <div class="icon-badge bg-danger"><span class="material-symbols-outlined">wallpaper</span></div>
           <div>
-            <div class="item-title">Reset Desktop Layout</div>
-            <div class="item-subtitle">Clears active wallpaper and avatar</div>
+            <div class="item-title" data-i18n="settings.system.reset-desktop">Reset Desktop Layout</div>
+            <div class="item-subtitle" data-i18n="settings.system.reset-desktop.subtitle">Clears active wallpaper and avatar</div>
           </div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -196,8 +218,8 @@
         <div class="item-left">
           <div class="icon-badge bg-danger"><span class="material-symbols-outlined">warning</span></div>
           <div>
-            <div class="item-title">Factory Reset System</div>
-            <div class="item-subtitle">Erase network configs and user data</div>
+            <div class="item-title" data-i18n="settings.system.factory-reset">Factory Reset System</div>
+            <div class="item-subtitle" data-i18n="settings.system.factory-reset.subtitle">Erase network configs and user data</div>
           </div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -210,8 +232,8 @@
         <div class="item-left">
           <div class="icon-badge bg-gray"><span class="material-symbols-outlined">build</span></div>
           <div>
-            <div class="item-title">Enter Recovery Mode</div>
-            <div class="item-subtitle">Reboot to advanced recovery options</div>
+            <div class="item-title" data-i18n="general.recovery">Enter Recovery Mode</div>
+            <div class="item-subtitle" data-i18n="general.recovery.subtitle">Reboot to advanced recovery options</div>
           </div>
         </div>
         <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -222,6 +244,29 @@
 </div>
 
 <script>
+// Language: the choices come from /desktop/assets/locales/languages.json; the pick is
+// saved in the system settings, then Settings reloads in the new language.
+const languageSelect = document.getElementById('languageSelect');
+mariowOSI18n.ready.then(async () => {
+  Object.entries(mariowOSI18n.languages).forEach(([code, name]) => {
+    if (code === 'en') return;
+    languageSelect.add(new Option(name, code));
+  });
+  try { languageSelect.value = (await (await fetch('/get-settings')).json()).language || 'en'; } catch (e) {}
+});
+languageSelect.addEventListener('change', async () => {
+  try {
+    const response = await fetch('/save-settings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ language: languageSelect.value })
+    });
+    if (!response.ok) throw new Error(response.status);
+    (window.parent || window).location.reload();
+  } catch (e) {
+    languageSelect.value = mariowOSI18n.language;
+  }
+});
+
 function requirePassword(onSuccess, onCancel) {
   if (window.parent && window.parent.requirePassword) {
     window.parent.requirePassword(onSuccess, onCancel);

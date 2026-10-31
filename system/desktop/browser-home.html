@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
-  <title>New Tab</title>
+  <title data-i18n="browser.title">New Tab</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
@@ -34,14 +36,14 @@
   </div>
   <form id="search">
     <span class="material-symbols-outlined">search</span>
-    <input id="q" placeholder="Search the web or enter an address" autocomplete="off" spellcheck="false" autofocus>
+    <input id="q" placeholder="Search the web or enter an address" data-i18n-placeholder="browser.search.placeholder" autocomplete="off" spellcheck="false" autofocus>
     <span class="engine" id="engine"></span>
   </form>
   <nav class="shortcuts">
     <a href="https://www.wikipedia.org"><span class="icon">W</span>Wikipedia</a>
     <a href="https://www.youtube.com"><span class="icon">▶</span>YouTube</a>
     <a href="https://github.com/mariowOS"><span class="icon">GH</span>mariowOS</a>
-    <a href="https://www.openstreetmap.org"><span class="icon">M</span>Maps</a>
+    <a href="https://www.openstreetmap.org"><span class="icon">M</span><span data-i18n="browser.shortcut.maps">Maps</span></a>
   </nav>
   <script>
     const ENGINES = {
@@ -56,8 +58,8 @@
 
     const tick = () => {
       const now = new Date();
-      document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('date').textContent = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+      document.getElementById('clock').textContent = now.toLocaleTimeString(mariowOSI18n.locale, { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('date').textContent = now.toLocaleDateString(mariowOSI18n.locale, { weekday: 'long', day: 'numeric', month: 'long' });
     };
     tick(); setInterval(tick, 10000);
 

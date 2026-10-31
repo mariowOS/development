@@ -17,21 +17,34 @@ Questions? https://discord.gg/YDVxw6jfbH
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
-  <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
+  <script src="/desktop/assets/mariowos-dialogs.js"></script>
+  <script src="/desktop/assets/external-consent.js"></script>
 
   
   <style>
     :root {
-      --m3-accent-active: #0a84ff;
-      --m3-accent-on-active: #ffffff;
+      /* The system's accent, in the color names this desktop was written against. */
+      --md-sys-color-primary: var(--sys-accent);
+      --md-sys-color-on-primary: var(--sys-accent-on);
+      --md-sys-color-surface: #141218;
+      --md-sys-color-surface-container: rgba(29,27,32,0.65);
+      --md-sys-color-surface-container-high: rgba(30,30,35,0.85);
+      --md-sys-color-on-surface: #e6e0e9;
+      --md-sys-color-on-surface-variant: #cac4d0;
+      --md-sys-color-outline-variant: rgba(255, 255, 255, 0.12);
+      --m3-accent-active: var(--md-sys-color-primary, #c2f3eb);
+      --m3-accent-on-active: var(--md-sys-color-on-primary, #05211e);
       --m3-tile-inactive: var(--md-sys-color-surface-container-high, rgba(30,30,35,0.85));
       --m3-tile-on-inactive: var(--md-sys-color-on-surface-variant, #cac4d0);
       /* Frosted Glass Palette */
       --m3-dropdown-bg: var(--md-sys-color-surface-container, rgba(29,27,32,0.65));
       --m3-item-hover: var(--md-sys-color-surface-container-high, rgba(255,255,255,0.12));
       --m3-item-active-bg: color-mix(in srgb, var(--md-sys-color-primary) 18%, transparent);
-      --m3-text-color: #ffffff;
+      --m3-text-color: var(--md-sys-color-on-surface, #e6e0e9);
       --m3-glass-border: var(--md-sys-color-outline-variant, rgba(255, 255, 255, 0.12));
       --m3-glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
     }
@@ -115,9 +128,16 @@ body.power-saver .qs-subpanel-header {
       overflow: hidden;
       box-shadow: 0 6px 20px rgba(0, 0, 0, .5);
       z-index: 50;
-      will-change: transform, opacity;
       transform: translate3d(0, 0, 0);
     }
+
+    /* App frames swallow the pointer: while a window moves they must not see it. */
+    body.window-dragging iframe { pointer-events: none !important; }
+    body.window-dragging { user-select: none; cursor: grabbing; }
+    .popup-header { touch-action: none; }
+    .popup.tile-drop { box-shadow: 0 0 0 2px var(--sys-accent-text), 0 6px 20px rgba(0, 0, 0, .5); }
+    #tileGutter { position: fixed; display: none; z-index: 40; cursor: ew-resize; touch-action: none; }
+    body.tiling #tileGutter.show { display: block; }
 
     .popup.active {
       display: block;
@@ -141,6 +161,8 @@ body.power-saver .qs-subpanel-header {
       font-weight: 500;
       user-select: none;
     }
+
+    .window-actions { display: flex; align-items: center; flex-shrink: 0; }
 
     .popup-header .altf4 {
       cursor: pointer;
@@ -606,7 +628,7 @@ body.power-saver .qs-subpanel-header {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      color: #ffffff;
+      color: #e6e0e9;
       line-height: 1.2;
     }
 
@@ -623,7 +645,7 @@ body.power-saver .qs-subpanel-header {
     .media-btn {
       background: transparent;
       border: none;
-      color: #ffffff;
+      color: #e6e0e9;
       cursor: pointer;
       display: flex;
       width: 36px;
@@ -646,7 +668,7 @@ body.power-saver .qs-subpanel-header {
       flex-shrink: 0;
     }
 
-    .media-btn.play-pause-btn:hover { background: #007aff; }
+    .media-btn.play-pause-btn:hover { background: #eaddff; }
 
     .media-timeline-wrapper {
       position: relative;
@@ -682,7 +704,7 @@ body.power-saver .qs-subpanel-header {
     .media-timeline-fill.playing {
       height: 14px;
       background-color: transparent;
-      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='14' viewBox='0 0 24 14'><path d='M0,7 C6,1 6,13 12,7 C18,1 18,13 24,7' fill='none' stroke='%230a84ff' stroke-width='2.5' stroke-linecap='round'/></svg>");
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='14' viewBox='0 0 24 14'><path d='M0,7 C6,1 6,13 12,7 C18,1 18,13 24,7' fill='none' stroke='%23c2f3eb' stroke-width='2.5' stroke-linecap='round'/></svg>");
       background-size: 24px 14px;
       background-repeat: repeat-x;
       animation: wave 1.2s linear infinite;
@@ -784,8 +806,6 @@ body.power-saver .qs-subpanel-header {
     .toast-title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
     .toast-msg { font-size: 11px; color: #aaa; line-height: 1.3; }
   </style>
-<script src="/desktop/assets/mariowos-dialogs.js"></script>
-<script src="/desktop/assets/external-consent.js"></script>
 </head>
 
 <body>
@@ -793,34 +813,46 @@ body.power-saver .qs-subpanel-header {
     <div class="status-left">
 
       <div class="btn-wrapper">
-        <button class="status-btn" id="actionsBtn" title="Menu">Activities</button>
+        <button class="status-btn" id="actionsBtn" title="Menu" data-i18n-title="twm.bar.menu" data-i18n="twm.bar.activities">Activities</button>
         <div class="dropdown" id="actionsDropdown">
+          <a onclick="openPopup('popup10')">
+            <div class="dropdown-item" data-popup="popup10"><img src="assets/icons/files.png" class="menu-icon"> <span data-i18n="desktop.app.files">Files</span></div>
+          </a>
+          <a onclick="openPopup('popup11')">
+            <div class="dropdown-item" data-popup="popup11"><img src="assets/icons/calendar.png" class="menu-icon"> <span data-i18n="desktop.app.calendar">Calendar</span></div>
+          </a>
           <a onclick="openPopup('popup6')">
-            <div class="dropdown-item" data-popup="popup6"><img src="assets/icons/messaging.png" class="menu-icon"> <span>Messaging</span></div>
+            <div class="dropdown-item" data-popup="popup6"><img src="assets/icons/messaging.png" class="menu-icon"> <span data-i18n="twm.app.messaging">Messaging</span></div>
           </a>
           <a onclick="openPopup('popup2')">
-            <div class="dropdown-item" data-popup="popup2"><img src="assets/icons/browser.png" class="menu-icon"> <span>Browser</span></div>
+            <div class="dropdown-item" data-popup="popup2"><img src="assets/icons/browser.png" class="menu-icon"> <span data-i18n="twm.app.browser">Browser</span></div>
           </a>
           <a onclick="openPopup('popup1')">
-            <div class="dropdown-item" data-popup="popup1"><img src="assets/icons/settings.png" class="menu-icon"> <span>Settings</span></div>
+            <div class="dropdown-item" data-popup="popup1"><img src="assets/icons/settings.png" class="menu-icon"> <span data-i18n="twm.app.settings">Settings</span></div>
           </a>
           <a onclick="openPopup('popup4')">
-            <div class="dropdown-item" data-popup="popup4"><img src="assets/icons/music.png" class="menu-icon"> <span>Music</span></div>
+            <div class="dropdown-item" data-popup="popup4"><img src="assets/icons/music.png" class="menu-icon"> <span data-i18n="twm.app.music">Music</span></div>
           </a>
           <a onclick="openPopup('popup7')">
-            <div class="dropdown-item" data-popup="popup7"><img src="assets/icons/store.png" class="menu-icon"> <span>Store</span></div>
+            <div class="dropdown-item" data-popup="popup7"><img src="assets/icons/store.png" class="menu-icon"> <span data-i18n="twm.app.store">Store</span></div>
           </a>
           <a onclick="openPopup('popup3')">
-            <div class="dropdown-item" data-popup="popup3"><img src="assets/icons/feedback.png" class="menu-icon"> <span>Help</span></div>
+            <div class="dropdown-item" data-popup="popup3"><img src="assets/icons/feedback.png" class="menu-icon"> <span data-i18n="twm.app.help">Help</span></div>
           </a>
           <a onclick="openPopup('popup5')">
-            <div class="dropdown-item" data-popup="popup5"><img src="assets/icons/notes.png" class="menu-icon"> <span>Notes</span></div>
+            <div class="dropdown-item" data-popup="popup5"><img src="assets/icons/notes.png" class="menu-icon"> <span data-i18n="twm.app.notes">Notes</span></div>
           </a>
           <a onclick="openPopup('popup8')">
-            <div class="dropdown-item" data-popup="popup8"><img src="assets/icons/terminal.png" class="menu-icon"> <span>Terminal</span></div>
+            <div class="dropdown-item" data-popup="popup8"><img src="assets/icons/terminal.png" class="menu-icon"> <span data-i18n="twm.app.terminal">Terminal</span></div>
           </a>
           <a onclick="openPopup('popup9')">
-            <div class="dropdown-item" data-popup="popup9"><img src="assets/icons/calculator.png" class="menu-icon"> <span>Calculator</span></div>
+            <div class="dropdown-item" data-popup="popup9"><img src="assets/icons/calculator.png" class="menu-icon"> <span data-i18n="twm.app.calculator">Calculator</span></div>
+          </a>
+          <a onclick="openPopup('popup12')">
+            <div class="dropdown-item" data-popup="popup12"><img src="assets/icons/pictures.png" class="menu-icon"> <span data-i18n="twm.app.pictures">Pictures</span></div>
+          </a>
+          <a onclick="openPopup('popup13')">
+            <div class="dropdown-item" data-popup="popup13"><img src="assets/icons/videos.png" class="menu-icon"> <span data-i18n="twm.app.video-player">Video Player</span></div>
           </a>
         </div>
       </div>
@@ -829,19 +861,22 @@ body.power-saver .qs-subpanel-header {
         <button class="status-btn" id="contextBtn">···</button>
         <div class="dropdown" id="contextDropdown">
           <a href="com.mariowos.desktop.html">
-            <div class="dropdown-item"><span>Refresh desktop</span></div>
+            <div class="dropdown-item"><span data-i18n="twm.menu.refresh-desktop">Refresh desktop</span></div>
           </a>
         </div>
       </div>
 
       <div class="btn-wrapper">
-        <button class="status-btn" id="activitiesBtn" title="System Finder">Finder</button>
+        <button class="status-btn" id="activitiesBtn" title="System Finder" data-i18n-title="twm.bar.finder-title">Finder</button>
         <div class="dropdown activities" id="activitiesDropdown">
           <a href="com.mariowos.desktop.html">
-            <div class="dropdown-item"><span>Refresh desktop</span></div>
+            <div class="dropdown-item"><span data-i18n="twm.menu.refresh-desktop">Refresh desktop</span></div>
           </a>
           <a href="/loginui/com.mariowos.loginui.html">
-            <div class="dropdown-item"><span>Lock Screen</span></div>
+            <div class="dropdown-item"><span data-i18n="twm.menu.lock-screen">Lock Screen</span></div>
+          </a>
+          <a onclick="toggleTiling()">
+            <div class="dropdown-item"><span id="tilingMenuLabel" data-i18n="twm.menu.tiling-off">Turn off tiling</span></div>
           </a>
         </div>
       </div>
@@ -852,7 +887,7 @@ body.power-saver .qs-subpanel-header {
     <div class="status-right">
       <span id="devChip" style="display:none;font-size:10px;background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary);border-radius:6px;padding:1px 6px;font-weight:600;">DEV</span>
       <div class="btn-wrapper">
-        <button class="notification" id="notificationsBtn" title="Notifications">
+        <button class="notification" id="notificationsBtn" title="Notifications" data-i18n-title="twm.bar.notifications">
           <svg viewBox="0 0 24 24">
             <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.63 5.36 6 7.92 6 11v5l-1.7 1.7A1 1 0 006 20h12a1 1 0 00.7-1.7L18 16z" />
           </svg>
@@ -874,7 +909,7 @@ body.power-saver .qs-subpanel-header {
             </div>
             <div class="qs-tile inactive" id="tileDnd" onclick="toggleQS('dnd')">
               <span class="material-symbols-outlined" id="iconDnd">do_not_disturb_on</span>
-              <span class="tile-title" id="titleDnd">Do Not Disturb</span>
+              <span class="tile-title" id="titleDnd" data-i18n="twm.qs.dnd">Do Not Disturb</span>
             </div>
             <div class="qs-tile active" id="tilePower" onclick="cyclePowerMode()">
               <span class="material-symbols-outlined" id="iconPower">battery_charging_full</span>
@@ -885,22 +920,22 @@ body.power-saver .qs-subpanel-header {
           <!-- Sub-panel Espandibile per Reti Wi-Fi -->
           <div class="qs-subpanel" id="panelWifi">
             <div class="qs-subpanel-header">
-              <span>Wi-Fi Networks</span>
+              <span data-i18n="twm.qs.wifi-networks">Wi-Fi Networks</span>
               <span class="material-symbols-outlined" onclick="toggleQS('wifi')" style="cursor:pointer; font-size:16px;">power_settings_new</span>
             </div>
             <div class="qs-subpanel-list" id="wifiList">
-              <div style="font-size:11px; color:#aaa; text-align:center;">Scanning networks...</div>
+              <div style="font-size:11px; color:#aaa; text-align:center;" data-i18n="twm.qs.scanning">Scanning networks...</div>
             </div>
           </div>
 
           <!-- Sub-panel Espandibile per Dispositivi Bluetooth -->
           <div class="qs-subpanel" id="panelBt">
             <div class="qs-subpanel-header">
-              <span>Bluetooth Devices</span>
+              <span data-i18n="twm.qs.bt-devices">Bluetooth Devices</span>
               <span class="material-symbols-outlined" onclick="toggleQS('bluetooth')" style="cursor:pointer; font-size:16px;">power_settings_new</span>
             </div>
             <div class="qs-subpanel-list" id="btList">
-              <div style="font-size:11px; color:#aaa; text-align:center;">Searching devices...</div>
+              <div style="font-size:11px; color:#aaa; text-align:center;" data-i18n="twm.qs.searching">Searching devices...</div>
             </div>
           </div>
 
@@ -912,7 +947,7 @@ body.power-saver .qs-subpanel-header {
               </div>
               <div class="device-chip">
                 <span class="material-symbols-outlined">smartphone</span>
-                <span>This phone</span>
+                <span data-i18n="twm.media.this-phone">This phone</span>
               </div>
             </div>
 
@@ -949,12 +984,12 @@ body.power-saver .qs-subpanel-header {
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 11px; font-weight: 600; color: #888;">
-            <span>NOTIFICATIONS</span>
-            <span onclick="clearNotifications()" style="color: #3584e4; cursor: pointer;">Clear</span>
+            <span data-i18n="twm.notif.header">NOTIFICATIONS</span>
+            <span onclick="clearNotifications()" style="color: #3584e4; cursor: pointer;" data-i18n="twm.notif.clear">Clear</span>
           </div>
 
           <div id="notificationsList">
-            <div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;">No new notifications</div>
+            <div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;" data-i18n="twm.notif.empty">No new notifications</div>
           </div>
         </div>
       </div>
@@ -962,100 +997,182 @@ body.power-saver .qs-subpanel-header {
   </div>
 
   <div id="toast-container"></div>
+  <div id="tileGutter"></div>
 
   <div id="popup1" class="popup">
-    <div class="popup-header"><span>Settings</span><span class="altf4" onclick="closePopup('popup1')">✖</span></div>
-    <iframe src="apps/settings/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.settings">Settings</span><span class="altf4" onclick="closePopup('popup1')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/settings/index.html" class="popup-frame"></iframe>
   </div>
 
   <div id="popup2" class="popup">
     <div class="popup-header" style="gap: 8px;">
-      <span style="white-space: nowrap; font-size: 12px; flex-shrink: 0;">Browser</span>
+      <span style="white-space: nowrap; font-size: 12px; flex-shrink: 0;" data-i18n="twm.app.browser">Browser</span>
       <div style="display: flex; align-items: center; gap: 5px; flex: 1;">
-        <button class="browser-nav-btn" onclick="browserNav('back')" title="Back">‹</button>
-        <button class="browser-nav-btn" onclick="browserNav('fwd')" title="Forward">›</button>
-        <button class="browser-nav-btn" onclick="browserNav('reload')" title="Reload">↺</button>
-        <input id="browserUrl" type="text" placeholder="Search with Google or enter a URL..." onkeydown="if(event.key==='Enter') openAdvancedSearch(this.value)" />
-        <button class="browser-nav-btn" onclick="openAdvancedSearch(document.getElementById('browserUrl').value)" title="Advanced Search">⚙</button>
+        <button class="browser-nav-btn" onclick="browserNav('back')" title="Back" data-i18n-title="common.back">‹</button>
+        <button class="browser-nav-btn" onclick="browserNav('fwd')" title="Forward" data-i18n-title="twm.browser.forward">›</button>
+        <button class="browser-nav-btn" onclick="browserNav('reload')" title="Reload" data-i18n-title="twm.browser.reload">↺</button>
+        <input id="browserUrl" type="text" placeholder="Search with Google or enter a URL..." data-i18n-placeholder="twm.browser.url-placeholder" onkeydown="if(event.key==='Enter') openAdvancedSearch(this.value)" />
+        <button class="browser-nav-btn" onclick="openAdvancedSearch(document.getElementById('browserUrl').value)" title="Advanced Search" data-i18n-title="twm.browser.advanced-search">⚙</button>
       </div>
       <span class="altf4" onclick="closePopup('popup2')" style="flex-shrink: 0;">✖</span>
     </div>
-    <iframe id="browserFrame" src="https://mariowotech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
+    <iframe id="browserFrame" src="about:blank" data-default-src="https://mariowotech.github.io/mariowOS-landpages/browser-homepage/" class="popup-frame"></iframe>
   </div>
 
   <div id="popupAdvancedSearch" class="popup" style="width: 600px; height: auto; max-height: 500px;">
-    <div class="popup-header"><span>Where to next?</span><span class="altf4" onclick="closePopup('popupAdvancedSearch')">✖</span></div>
+    <div class="popup-header"><span data-i18n="twm.search.title">Where to next?</span><span class="altf4" onclick="closePopup('popupAdvancedSearch')">✖</span></div>
     <div class="popup-content" style="padding: 20px;">
       <form id="advancedSearchForm" onsubmit="performAdvancedSearch(event)">
         <div style="margin-bottom: 20px;">
-          <label for="advSearchQuery" style="display: block; margin-bottom: 8px; font-weight: 500;">Where to next?</label>
-          <input type="text" id="advSearchQuery" placeholder="Enter search term..." style="width: 100%; padding: 10px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; font-family: 'Poppins'; box-sizing: border-box;" />
+          <label for="advSearchQuery" style="display: block; margin-bottom: 8px; font-weight: 500;" data-i18n="twm.search.title">Where to next?</label>
+          <input type="text" id="advSearchQuery" placeholder="Enter search term..." data-i18n-placeholder="twm.search.placeholder" style="width: 100%; padding: 10px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; font-family: 'Poppins'; box-sizing: border-box;" />
         </div>
         <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 12px 0; font-weight: 500;">Search type:</p>
+          <p style="margin: 0 0 12px 0; font-weight: 500;" data-i18n="twm.search.type">Search type:</p>
           <div style="display: flex; flex-direction: column; gap: 10px;">
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="web" checked /><span>🌐 Web</span></label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="images" /><span>🖼️ Images</span></label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="news" /><span>📰 News</span></label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="videos" /><span>🎥 Videos</span></label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="books" /><span>📚 Books</span></label>
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="shopping" /><span>🛒 Shopping</span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="web" checked /><span>🌐 <span data-i18n="twm.search.web">Web</span></span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="images" /><span>🖼️ <span data-i18n="twm.search.images">Images</span></span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="news" /><span>📰 <span data-i18n="twm.search.news">News</span></span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="videos" /><span>🎥 <span data-i18n="twm.search.videos">Videos</span></span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="books" /><span>📚 <span data-i18n="twm.search.books">Books</span></span></label>
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="radio" name="searchType" value="shopping" /><span>🛒 <span data-i18n="twm.search.shopping">Shopping</span></span></label>
           </div>
         </div>
         <div style="margin-bottom: 20px;">
-          <p style="margin: 0 0 12px 0; font-weight: 500;">Advanced options:</p>
-          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="checkbox" id="safeSearch" /><span>Safe Search</span></label>
+          <p style="margin: 0 0 12px 0; font-weight: 500;" data-i18n="twm.search.advanced-options">Advanced options:</p>
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;"><input type="checkbox" id="safeSearch" /><span data-i18n="twm.search.safe-search">Safe Search</span></label>
         </div>
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button type="button" onclick="closePopup('popupAdvancedSearch')" style="padding: 8px 16px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins';">Cancel</button>
-          <button type="submit" style="padding: 8px 16px; background: rgba(100,200,255,.6); border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; font-weight: 500;">Search on Google</button>
+          <button type="button" onclick="closePopup('popupAdvancedSearch')" style="padding: 8px 16px; background: rgba(255,255,255,.1); border: 1px solid #3a3a3a; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins';" data-i18n="common.cancel">Cancel</button>
+          <button type="submit" style="padding: 8px 16px; background: rgba(100,200,255,.6); border: none; border-radius: 5px; color: #fff; cursor: pointer; font-family: 'Poppins'; font-weight: 500;" data-i18n="twm.search.submit">Search on Google</button>
         </div>
       </form>
     </div>
   </div>
 
+  <div id="popup10" class="popup">
+    <div class="popup-header"><span data-i18n="desktop.app.files">Files</span><span class="altf4" onclick="closePopup('popup10')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/explorer/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup11" class="popup">
+    <div class="popup-header"><span data-i18n="desktop.app.calendar">Calendar</span><span class="altf4" onclick="closePopup('popup11')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/calendar/index.html" class="popup-frame"></iframe>
+  </div>
+
   <div id="popup3" class="popup">
-    <div class="popup-header"><span>Help</span><span class="altf4" onclick="closePopup('popup3')">✖</span></div>
-    <iframe src="apps/help/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.help">Help</span><span class="altf4" onclick="closePopup('popup3')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/help/index.html" class="popup-frame"></iframe>
   </div>
 
   <div id="popup4" class="popup">
-    <div class="popup-header"><span>Music</span><span class="altf4" onclick="closePopup('popup4')">✖</span></div>
-    <iframe src="apps/music/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.music">Music</span><span class="altf4" onclick="closePopup('popup4')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/music/index.html" class="popup-frame"></iframe>
   </div>
 
   <div id="popup5" class="popup">
-    <div class="popup-header"><span>Notes</span><span class="altf4" onclick="closePopup('popup5')">✖</span></div>
-    <iframe src="apps/notes/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.notes">Notes</span><span class="altf4" onclick="closePopup('popup5')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/notes/index.html" class="popup-frame"></iframe>
   </div>
 
   <div id="popup6" class="popup">
-    <div class="popup-header"><span>Messaging</span><span class="altf4" onclick="closePopup('popup6')">✖</span></div>
-    <iframe src="about:blank" data-external-src="https://organizations.minnit.chat/744784529789521/c/Main?embed" class="popup-frame" id="chattable"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.messaging">Messaging</span><span class="altf4" onclick="closePopup('popup6')">✖</span></div>
+    <iframe src="about:blank" data-default-src="https://organizations.minnit.chat/744784529789521/c/Main?embed" class="popup-frame" id="chattable"></iframe>
   </div>
 
   <div id="popup7" class="popup">
-    <div class="popup-header"><span>Store</span><span class="altf4" onclick="closePopup('popup7')">✖</span></div>
-    <iframe src="apps/store/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.store">Store</span><span class="altf4" onclick="closePopup('popup7')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/store/index.html" class="popup-frame"></iframe>
   </div>
 
   <div id="popup8" class="popup">
-    <div class="popup-header"><span>Terminal</span><span class="altf4" onclick="closePopup('popup8')">✖</span></div>
-    <iframe src="apps/terminal/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.terminal">Terminal</span><div class="window-actions"><span class="altf4" onclick="closePopup('popup8')">✖</span></div></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/terminal/index.html" class="popup-frame"></iframe>
   </div>
 
   <div id="popup9" class="popup" style="width: 400px; height: 550px;">
-    <div class="popup-header"><span>Calculator</span><span class="altf4" onclick="closePopup('popup9')">✖</span></div>
-    <iframe src="apps/calculator/index.html" class="popup-frame"></iframe>
+    <div class="popup-header"><span data-i18n="twm.app.calculator">Calculator</span><span class="altf4" onclick="closePopup('popup9')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/calculator/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup12" class="popup">
+    <div class="popup-header"><span data-i18n="twm.app.pictures">Pictures</span><span class="altf4" onclick="closePopup('popup12')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/pictures/index.html" class="popup-frame"></iframe>
+  </div>
+
+  <div id="popup13" class="popup">
+    <div class="popup-header"><span data-i18n="twm.app.video-player">Video Player</span><span class="altf4" onclick="closePopup('popup13')">✖</span></div>
+    <iframe src="about:blank" data-default-src="/desktop/apps/videoplayer/index.html" class="popup-frame"></iframe>
   </div>
 
   <script>
+    // SECURITY (layer-2 XSS): app icons/urls come from installed store apps and from
+    // postMessage, both untrusted. renderIcon returns a DOM node (no HTML string);
+    // safeAppUrl blocks javascript:/data:/vbscript: before a URL reaches iframe src.
     const renderIcon = (iconStr) => {
-      if (!iconStr) return '<span class="menu-icon-symbol">📦</span>';
+      const symbol = (text) => {
+        const s = document.createElement('span');
+        s.className = 'menu-icon-symbol';
+        s.textContent = text;
+        return s;
+      };
+      if (!iconStr) return symbol('📦');
       if (iconStr.includes('/') || iconStr.includes('.')) {
-        return `<img src="${iconStr}" class="menu-icon" style="border-radius: 4px; object-fit: cover;">`;
+        const safe = /^(https?:\/\/|\/)/i.test(String(iconStr).trim()) ? String(iconStr).trim() : '';
+        if (!safe) return symbol('📦');
+        const img = document.createElement('img');
+        img.className = 'menu-icon';
+        img.style.borderRadius = '4px';
+        img.style.objectFit = 'cover';
+        img.src = safe;
+        return img;
       }
-      return `<span class="menu-icon-symbol">${iconStr}</span>`;
+      return symbol(String(iconStr));
+    };
+
+    const safeAppUrl = (url) => {
+      const u = String(url == null ? '' : url).trim();
+      if (!u || /^(javascript|data|vbscript):/i.test(u)) return 'about:blank';
+      return u;
+    };
+
+    // Builds the dropdown entry + popup window for one installed app, using DOM APIs
+    // so untrusted app fields (title, icon, url, appId) are never parsed as HTML.
+    const buildInstalledAppEntry = (app, dropdown) => {
+      const btn = document.createElement('a');
+      btn.onclick = () => openPopup(app.appId);
+      const item = document.createElement('div');
+      item.className = 'dropdown-item';
+      item.setAttribute('data-popup', app.appId == null ? '' : String(app.appId));
+      const label = document.createElement('span');
+      label.textContent = app.title == null ? '' : String(app.title);
+      item.append(renderIcon(app.icon), document.createTextNode(' '), label);
+      btn.appendChild(item);
+      dropdown.appendChild(btn);
+
+      const popupDiv = document.createElement('div');
+      popupDiv.id = app.appId;
+      popupDiv.className = 'popup';
+      const header = document.createElement('div');
+      header.className = 'popup-header';
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = app.title == null ? '' : String(app.title);
+      const close = document.createElement('span');
+      close.className = 'altf4';
+      close.textContent = '✖';
+      close.addEventListener('click', () => closePopup(app.appId));
+      header.append(titleSpan, close);
+      const frame = document.createElement('iframe');
+      frame.className = 'popup-frame';
+      // Third-party Store apps run on their own origin; the sandbox stops them navigating the OS away.
+      if (app.isolated) {
+        frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads');
+        frame.setAttribute('allow', 'fullscreen');
+      }
+      frame.setAttribute('data-default-src', safeAppUrl(app.url));
+      frame.src = 'about:blank';
+      popupDiv.append(header, frame);
+      return popupDiv;
     };
 
     let popupCounter = 0;
@@ -1093,8 +1210,8 @@ body.power-saver .qs-subpanel-header {
       tileWifi.className = `qs-tile ${qsState.wifi ? 'active' : 'inactive'}`;
       document.getElementById("iconWifi").textContent = qsState.wifi ? "wifi" : "wifi_off";
       document.getElementById("titleWifi").textContent = qsState.wifi 
-        ? (qsState.connectedWifi || "Internet") 
-        : "Off";
+        ? (qsState.connectedWifi === "Disconnected" ? mariowOSI18n.t("twm.qs.disconnected", "Disconnected") : (qsState.connectedWifi || mariowOSI18n.t("twm.qs.internet", "Internet"))) 
+        : mariowOSI18n.t("twm.qs.off", "Off");
 
       // Bluetooth
       const tileBt = document.getElementById("tileBt");
@@ -1102,7 +1219,7 @@ body.power-saver .qs-subpanel-header {
       document.getElementById("iconBt").textContent = qsState.bluetooth ? "bluetooth" : "bluetooth_disabled";
       document.getElementById("titleBt").textContent = qsState.bluetooth 
         ? (qsState.connectedBt || "Bluetooth") 
-        : "Off";
+        : mariowOSI18n.t("twm.qs.off", "Off");
 
       // DND
       const tileDnd = document.getElementById("tileDnd");
@@ -1114,7 +1231,12 @@ body.power-saver .qs-subpanel-header {
       const titlePower = document.getElementById("titlePower");
       const iconPower = document.getElementById("iconPower");
 
-      titlePower.textContent = qsState.powerMode;
+      const powerLabels = {
+        "Balanced": mariowOSI18n.t("twm.power.balanced", "Balanced"),
+        "Performance": mariowOSI18n.t("twm.power.performance", "Performance"),
+        "Battery Saver": mariowOSI18n.t("twm.power.battery-saver", "Battery Saver")
+      };
+      titlePower.textContent = powerLabels[qsState.powerMode] || qsState.powerMode;
       if (qsState.powerMode === "Performance") {
         tilePower.className = "qs-tile active";
         iconPower.textContent = "bolt";
@@ -1129,18 +1251,20 @@ body.power-saver .qs-subpanel-header {
 
     async function updateQSBackend(setting, value) {
       try {
-        await fetch("/api/system/quick-settings", {
+        const res = await fetch("/api/system/quick-settings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ setting, value })
         });
-      } catch (err) { console.error("Errore salvataggio QS:", err); }
+        return await res.json();
+      } catch (err) { console.error("Errore salvataggio QS:", err); return { success: false }; }
     }
 
-    function toggleQS(setting) {
+    async function toggleQS(setting) {
       qsState[setting] = !qsState[setting];
       renderQuickSettings();
-      updateQSBackend(setting, qsState[setting]);
+      const result = await updateQSBackend(setting, qsState[setting]);
+      if (!result.success) { qsState[setting] = !qsState[setting]; renderQuickSettings(); }
       if (setting === 'wifi' && !qsState.wifi) document.getElementById('panelWifi').style.display = 'none';
       if (setting === 'bluetooth' && !qsState.bluetooth) document.getElementById('panelBt').style.display = 'none';
     }
@@ -1198,39 +1322,56 @@ function cyclePowerMode() {
           renderQuickSettings();
 
           if (data.networks.length === 0) {
-            listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Wi-Fi networks found</div>`;
+            listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">${mariowOSI18n.t("twm.qs.no-wifi", "No Wi-Fi networks found")}</div>`;
             return;
           }
 
-          listContainer.innerHTML = data.networks.map(net => `
-            <div class="qs-list-item ${net.connected ? 'connected' : ''}" onclick="connectWifi('${net.ssid}')">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span class="material-symbols-outlined" style="font-size:18px;">${net.secured ? 'lock' : 'wifi'}</span>
-                <span>${net.ssid}</span>
-              </div>
-              <span style="font-size:11px;">${net.connected ? 'Connected' : net.signal + '%'}</span>
-            </div>
-          `).join('');
+          // SECURITY (layer-2 XSS): Wi-Fi SSIDs are attacker-controllable; build via DOM.
+          listContainer.replaceChildren();
+          data.networks.forEach(net => {
+            const item = document.createElement('div');
+            item.className = 'qs-list-item' + (net.connected ? ' connected' : '');
+            item.addEventListener('click', () => connectWifi(net.ssid));
+            const left = document.createElement('div');
+            left.style.cssText = 'display:flex; align-items:center; gap:8px;';
+            const icon = document.createElement('span');
+            icon.className = 'material-symbols-outlined';
+            icon.style.fontSize = '18px';
+            icon.textContent = net.secured ? 'lock' : 'wifi';
+            const name = document.createElement('span');
+            name.textContent = net.ssid == null ? '' : String(net.ssid);
+            left.append(icon, name);
+            const sig = document.createElement('span');
+            sig.style.fontSize = '11px';
+            sig.textContent = net.connected ? mariowOSI18n.t("twm.qs.connected", "Connected") : (net.signal + '%');
+            item.append(left, sig);
+            listContainer.appendChild(item);
+          });
         }
       } catch (err) {
-        listContainer.innerHTML = `<div style="font-size:11px; color:#ff453a; text-align:center;">Failed to scan Wi-Fi</div>`;
+        listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">${mariowOSI18n.t("twm.qs.wifi-failed", "Failed to scan Wi-Fi")}</div>`;
       }
     }
 
-    async function connectWifi(ssid) {
+    async function connectWifi(ssid, password) {
       try {
         const res = await fetch("/api/system/connect-wifi", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ssid })
+          body: JSON.stringify({ ssid, password })
         });
         const data = await res.json();
+        if (data.needsPassword && !password) {
+          const typed = await mDialog.prompt(mariowOSI18n.t("desktop.qs.wifi-password", "Password for {name}", { name: ssid }), { type: "password" });
+          if (typed) connectWifi(ssid, typed);
+          return;
+        }
         if (data.success) {
           qsState.connectedWifi = ssid;
           qsState.wifi = true;
           renderQuickSettings();
           fetchNetworks();
-          showNotification("Wi-Fi Connected", `Connected to ${ssid}`, "📶");
+          showNotification(mariowOSI18n.t("twm.toast.wifi-connected", "Wi-Fi Connected"), mariowOSI18n.t("twm.toast.connected-to", "Connected to {name}", { name: ssid }), "📶");
         }
       } catch (err) { console.error("Error connecting wifi:", err); }
     }
@@ -1246,23 +1387,35 @@ function cyclePowerMode() {
           renderQuickSettings();
 
           if (data.devices.length === 0) {
-            listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">No Bluetooth devices found</div>`;
+            listContainer.innerHTML = `<div style="font-size:11px; color:#aaa; text-align:center;">${mariowOSI18n.t("twm.qs.no-bt", "No Bluetooth devices found")}</div>`;
             return;
           }
 
-          const iconMap = { headset: 'headphones', smartphone: 'smartphone', mouse: 'mouse', keyboard: 'keyboard' };
-          listContainer.innerHTML = data.devices.map(dev => `
-            <div class="qs-list-item ${dev.connected ? 'connected' : ''}" onclick="connectBt('${dev.mac || dev.name}', '${dev.name}')">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span class="material-symbols-outlined" style="font-size:18px;">${iconMap[dev.type] || 'bluetooth'}</span>
-                <span>${dev.name}</span>
-              </div>
-              <span style="font-size:11px;">${dev.connected ? 'Connected' : 'Saved'}</span>
-            </div>
-          `).join('');
+          const iconMap = { speaker: 'speaker', headphones: 'headphones', headset: 'headphones', earbuds: 'earbuds', smartphone: 'smartphone', mouse: 'mouse', keyboard: 'keyboard', pen: 'stylus' };
+          // SECURITY (layer-2 XSS): Bluetooth device names are attacker-controllable; build via DOM.
+          listContainer.replaceChildren();
+          data.devices.forEach(dev => {
+            const item = document.createElement('div');
+            item.className = 'qs-list-item' + (dev.connected ? ' connected' : '');
+            item.addEventListener('click', () => connectBt(dev.mac || dev.name, dev.name));
+            const left = document.createElement('div');
+            left.style.cssText = 'display:flex; align-items:center; gap:8px;';
+            const icon = document.createElement('span');
+            icon.className = 'material-symbols-outlined';
+            icon.style.fontSize = '18px';
+            icon.textContent = iconMap[dev.type] || 'bluetooth';
+            const name = document.createElement('span');
+            name.textContent = dev.name == null ? '' : String(dev.name);
+            left.append(icon, name);
+            const status = document.createElement('span');
+            status.style.fontSize = '11px';
+            status.textContent = dev.connected ? mariowOSI18n.t("twm.qs.connected", "Connected") : mariowOSI18n.t("twm.qs.saved", "Saved");
+            item.append(left, status);
+            listContainer.appendChild(item);
+          });
         }
       } catch (err) {
-        listContainer.innerHTML = `<div style="font-size:11px; color:#ff453a; text-align:center;">Failed to find Bluetooth devices</div>`;
+        listContainer.innerHTML = `<div style="font-size:11px; color:#ff6b6b; text-align:center;">${mariowOSI18n.t("twm.qs.bt-failed", "Failed to find Bluetooth devices")}</div>`;
       }
     }
 
@@ -1274,12 +1427,13 @@ function cyclePowerMode() {
           body: JSON.stringify({ mac, name })
         });
         const data = await res.json();
+        if (data.unsupported) { showNotification("Bluetooth", mariowOSI18n.t("desktop.bt.connect-from-device", "Connect {name} from the device or from Windows", { name }), "🎧"); return; }
         if (data.success) {
           qsState.connectedBt = data.connectedBt;
           qsState.bluetooth = true;
           renderQuickSettings();
           fetchBtDevices();
-          showNotification("Bluetooth", data.connectedBt ? `Connected to ${name}` : `Disconnected ${name}`, "🎧");
+          showNotification("Bluetooth", data.connectedBt ? mariowOSI18n.t("twm.toast.connected-to", "Connected to {name}", { name }) : mariowOSI18n.t("twm.toast.disconnected", "Disconnected {name}", { name }), "🎧");
         }
       } catch (err) { console.error("Error connecting BT:", err); }
     }
@@ -1288,7 +1442,12 @@ function cyclePowerMode() {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = 'toast';
-      toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>`;
+      // SECURITY (layer-2 XSS): title/msg may carry untrusted text (SSID, BT/app name); use DOM.
+      const tIcon = document.createElement('div'); tIcon.className = 'toast-icon'; tIcon.textContent = icon == null ? '' : String(icon);
+      const tContent = document.createElement('div'); tContent.className = 'toast-content';
+      const tTitle = document.createElement('div'); tTitle.className = 'toast-title'; tTitle.textContent = title == null ? '' : String(title);
+      const tMsg = document.createElement('div'); tMsg.className = 'toast-msg'; tMsg.textContent = msg == null ? '' : String(msg);
+      tContent.append(tTitle, tMsg); toast.append(tIcon, tContent);
       container.appendChild(toast);
 
       setTimeout(() => {
@@ -1296,7 +1455,7 @@ function cyclePowerMode() {
         setTimeout(() => toast.remove(), 200);
       }, 4000);
 
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const time = new Date().toLocaleTimeString(mariowOSI18n.locale, { hour: '2-digit', minute: '2-digit' });
       notificationsHistory.unshift({ title, msg, icon, time });
       if (notificationsHistory.length > 10) notificationsHistory.pop();
 
@@ -1312,7 +1471,7 @@ function cyclePowerMode() {
         if (banner && banner.style.display === 'flex') {
           list.innerHTML = '';
         } else {
-          list.innerHTML = `<div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;">No new notifications</div>`;
+          list.innerHTML = `<div class="dropdown-item" style="color: #888; text-align: center; font-size: 12px; justify-content: center;" data-i18n="twm.notif.empty">No new notifications</div>`;
         }
         badge.style.display = 'none';
         return;
@@ -1325,13 +1484,19 @@ function cyclePowerMode() {
         const item = document.createElement('div');
         item.className = 'dropdown-item';
         item.style.cssText = "flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: normal;";
-        item.innerHTML = `
-          <div style="display:flex; width:100%; justify-content:space-between; font-weight:600; font-size:12px;">
-            <span>${n.icon} ${n.title}</span>
-            <span style="color:#666; font-size:10px;">${n.time}</span>
-          </div>
-          <div style="font-size:11px; color:#aaa; line-height:1.3; margin-top:2px;">${n.msg}</div>
-        `;
+        // SECURITY (layer-2 XSS): notification fields may carry untrusted text; use DOM + textContent.
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; width:100%; justify-content:space-between; font-weight:600; font-size:12px;';
+        const head = document.createElement('span');
+        head.textContent = `${n.icon == null ? '' : n.icon} ${n.title == null ? '' : n.title}`;
+        const time = document.createElement('span');
+        time.style.cssText = 'color:#666; font-size:10px;';
+        time.textContent = n.time == null ? '' : String(n.time);
+        row.append(head, time);
+        const body = document.createElement('div');
+        body.style.cssText = 'font-size:11px; color:#aaa; line-height:1.3; margin-top:2px;';
+        body.textContent = n.msg == null ? '' : String(n.msg);
+        item.append(row, body);
         list.appendChild(item);
       });
     }
@@ -1341,18 +1506,17 @@ function cyclePowerMode() {
       updateNotificationCenter();
     }
 
+    let mediaSource = null;
     function sendMediaCommand(cmd, event) {
-      const musicApp = document.querySelector('#popup4 iframe');
-      if (musicApp && musicApp.contentWindow) {
-        if (cmd === 'seek' && event) {
-          const wrapper = event.currentTarget;
-          const rect = wrapper.getBoundingClientRect();
-          const percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-          musicApp.contentWindow.postMessage({ type: 'media-command', command: cmd, percent: percent }, '*');
-        } else {
-          musicApp.contentWindow.postMessage({ type: 'media-command', command: cmd }, '*');
-        }
+      const fallback = document.querySelector('#popup4 iframe');
+      const target = mediaSource || (fallback && fallback.contentWindow);
+      if (!target) return;
+      let percent;
+      if (cmd === 'seek' && event) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
       }
+      target.postMessage({ type: 'media-command', command: cmd, percent }, '*');
     }
 
     function getTopmostPopup() {
@@ -1382,56 +1546,75 @@ function cyclePowerMode() {
         const appName = topPopup.querySelector('.popup-header span').innerText;
         contextBtn.innerText = appName;
 
-        let html = `<a onclick="closePopup('${topPopup.id}')"><div class="dropdown-item" style="color:#ff453a"><span>Quit ${appName}</span></div></a>`;
-
-        const iframe = topPopup.querySelector('iframe');
-        if (iframe) {
-          html += `<a onclick="reloadPopupIframe('${topPopup.id}')"><div class="dropdown-item"><span>Reload App</span></div></a>`;
-        }
-        contextDropdown.innerHTML = html;
+        // SECURITY (layer-2 XSS): appName is an app window title (may be untrusted); build via DOM.
+        const mkLink = (labelText, handler, color) => {
+          const a = document.createElement('a');
+          a.addEventListener('click', handler);
+          const d = document.createElement('div'); d.className = 'dropdown-item'; if (color) d.style.color = color;
+          const s = document.createElement('span'); s.textContent = labelText;
+          d.appendChild(s); a.appendChild(d);
+          return a;
+        };
+        contextDropdown.replaceChildren();
+        if (tilingOn) contextDropdown.appendChild(mkLink(floatingWindows.has(topPopup.id) ? mariowOSI18n.t("twm.menu.tile-window", "Tile window") : mariowOSI18n.t("twm.menu.float-window", "Float window"), () => toggleFloating(topPopup)));
+        contextDropdown.appendChild(mkLink(mariowOSI18n.t("twm.menu.quit", "Quit {app}", { app: appName == null ? '' : appName }), () => closePopup(topPopup.id), '#ff6b6b'));
+        if (topPopup.querySelector('iframe')) contextDropdown.appendChild(mkLink(mariowOSI18n.t("twm.menu.reload-app", "Reload App"), () => reloadPopupIframe(topPopup.id)));
       } else {
         contextBtn.innerText = "···";
-        contextDropdown.innerHTML = `<a href="com.mariowos.desktop.html"><div class="dropdown-item"><span>Refresh desktop</span></div></a>`;
+        contextDropdown.innerHTML = `<a href="com.mariowos.desktop.html"><div class="dropdown-item"><span data-i18n="twm.menu.refresh-desktop">Refresh desktop</span></div></a>`;
       }
+    }
+
+    // What runs when a window's close animation ends. Reopening cancels it: otherwise the
+    // end of the open animation would trigger it and hide the window.
+    const windowExits = new WeakMap();
+    function cancelWindowExit(popup) {
+      popup.removeEventListener('animationend', windowExits.get(popup));
+      windowExits.delete(popup);
     }
 
     function openPopup(popupId) {
       const popup = document.getElementById(popupId);
-      const externalFrame = popup.querySelector('iframe[data-external-src]');
-      if (externalFrame && externalFrame.src.includes('about:blank')) {
-        mwExternalConsent('minnit', 'Minnit chat (minnit.chat)').then(ok => {
-          if (ok) { externalFrame.src = externalFrame.dataset.externalSrc; openPopup(popupId); }
-        });
+      if (!popup) return;
+      const view = popup.querySelector('iframe');
+      const externalSrc = view && /^http/.test(view.dataset.defaultSrc || '') ? view.dataset.defaultSrc : '';
+      if (externalSrc && !popup.dataset.consentOk) {
+        const host = new URL(externalSrc).host;
+        mwExternalConsent(host, host).then(ok => { if (ok) { popup.dataset.consentOk = '1'; openPopup(popupId); } });
         return;
       }
+      cancelWindowExit(popup);
       popup.classList.remove("closing");
 
       const appIcon = document.querySelector(`.dropdown-item[data-popup="${popupId}"]`);
       if (appIcon) appIcon.classList.add('running');
 
-      const cs = getComputedStyle(popup);
-      const popupWidth = parseInt(cs.width, 10) || 1048;
-      const popupHeight = parseInt(cs.height, 10) || 600;
-      const screenWidth = window.innerWidth;
-      const screenHeight = window.innerHeight;
+      const wasOpen = popup.classList.contains('active');
+      if (!wasOpen && !isTiled(popup)) {
+        const cs = getComputedStyle(popup);
+        const popupWidth = parseInt(cs.width, 10) || 1048;
+        const popupHeight = parseInt(cs.height, 10) || 600;
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
 
-      let perRow = Math.floor((screenWidth - 40) / (popupWidth + 20)) || 1;
-      let row = Math.floor(popupCounter / perRow);
-      let col = popupCounter % perRow;
+        let perRow = Math.floor((screenWidth - 40) / (popupWidth + 20)) || 1;
+        let row = Math.floor(popupCounter / perRow);
+        let col = popupCounter % perRow;
 
-      let left = col * (popupWidth + 20) + 20;
-      let top = RESERVED_TOP + row * (popupHeight + 20);
+        let left = col * (popupWidth + 20) + 20;
+        let top = RESERVED_TOP + row * (popupHeight + 20);
 
-      left = Math.max(8, Math.min(left, screenWidth - popupWidth - 8));
-      top = Math.max(RESERVED_TOP, Math.min(top, screenHeight - popupHeight - 8));
+        left = Math.max(8, Math.min(left, screenWidth - popupWidth - 8));
+        top = Math.max(RESERVED_TOP, Math.min(top, screenHeight - popupHeight - 8));
 
-      popup.style.left = left + "px";
-      popup.style.top = top + "px";
+        popup.style.left = left + "px";
+        popup.style.top = top + "px";
+        popupCounter++;
+      }
 
       focusPopup(popup);
       popup.style.display = "block";
       popup.classList.add("active");
-      popupCounter++;
 
       const header = popup.querySelector(".popup-header");
       if (header && !header.dataset.dragSetup) {
@@ -1439,24 +1622,45 @@ function cyclePowerMode() {
         header.dataset.dragSetup = "true";
       }
 
+      if (view && view.src.includes('about:blank') && view.dataset.defaultSrc) {
+        if (!view.dataset.watched) { view.dataset.watched = '1'; view.addEventListener('load', () => wireAppFrame(view)); }
+        view.src = view.dataset.defaultSrc;
+      }
+
+      if (!wasOpen) {
+        tileOrder.push(popupId);
+        retile(popup);
+      }
       updateContextBar();
     }
 
     function closePopup(popupId) {
       const popup = document.getElementById(popupId);
+      if (!popup) return;
       popup.classList.remove("active");
       popup.classList.add("closing");
 
       const appIcon = document.querySelector(`.dropdown-item[data-popup="${popupId}"]`);
       if (appIcon) appIcon.classList.remove('running');
 
+      tileOrder = tileOrder.filter(id => id !== popupId);
+      if (monocleId === popupId) monocleId = null;
       updateContextBar();
+      retile();
 
       const onAnimationEnd = () => {
+        cancelWindowExit(popup);
         popup.style.display = "none";
         popup.classList.remove("closing");
-        popup.removeEventListener("animationend", onAnimationEnd);
+        const view = popup.querySelector('iframe');
+        if (view && view.dataset.defaultSrc) {
+          if (mediaSource === view.contentWindow) { mediaSource = null; const banner = document.getElementById('mediaPlayerBanner'); if (banner) banner.style.display = 'none'; updateNotificationCenter(); }
+          view.src = 'about:blank';
+        }
+        if (FILE_APPS[popupId]) FILE_APPS[popupId].ready = false;
       };
+      cancelWindowExit(popup);
+      windowExits.set(popup, onAnimationEnd);
       popup.addEventListener("animationend", onAnimationEnd);
     }
 
@@ -1475,40 +1679,77 @@ function cyclePowerMode() {
       updateContextBar();
     }
 
+    // A click inside an app never reaches this page; the page only sees itself lose focus.
+    window.addEventListener('blur', () => setTimeout(() => {
+      const frame = document.activeElement;
+      const popup = frame && frame.tagName === 'IFRAME' ? frame.closest('.popup') : null;
+      if (popup && popup !== getTopmostPopup()) focusPopup(popup);
+    }, 0));
+
+    // Windows move on the compositor while dragged (no layout, no repaint per frame).
     function makeDraggable(el, handle, minTop) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      handle.onmousedown = dragMouseDown;
-      handle.ontouchstart = (e) => dragMouseDown(e.touches[0]);
+      let dragging = false, tiled = false, startLeft = 0, startTop = 0, offsetX = 0, offsetY = 0, width = 0, height = 0, nextLeft = 0, nextTop = 0, pointerX = 0, pointerY = 0, frame = 0, dropTarget = null, moved = false;
+      handle.addEventListener('pointerdown', start);
 
-      function dragMouseDown(e) {
+      function start(e) {
+        if (e.button !== 0 || e.target.closest('button, input, .altf4')) return;
+        e.preventDefault();
         focusPopup(el);
-        pos3 = e.clientX; pos4 = e.clientY;
-        document.onmouseup = closeDrag;
-        document.onmousemove = drag;
-        document.ontouchend = closeDrag;
-        document.ontouchmove = (ev) => drag(ev.touches[0]);
+        dragging = true; moved = false; tiled = isTiled(el);
+        startLeft = parseFloat(el.style.left) || el.offsetLeft; startTop = parseFloat(el.style.top) || el.offsetTop;
+        width = el.offsetWidth; height = el.offsetHeight;
+        offsetX = e.clientX - startLeft; offsetY = e.clientY - startTop;
+        document.body.classList.add('window-dragging');
+        try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+        handle.addEventListener('pointermove', move);
+        handle.addEventListener('pointerup', end);
+        handle.addEventListener('pointercancel', end);
       }
 
-      function drag(e) {
-        pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-        pos3 = e.clientX; pos4 = e.clientY;
-
-        let newTop = el.offsetTop - pos2;
-        let newLeft = el.offsetLeft - pos1;
-
-        const maxLeft = window.innerWidth - el.offsetWidth - 8;
-        const maxTop = window.innerHeight - el.offsetHeight - 8;
-
-        newLeft = Math.max(8, Math.min(newLeft, maxLeft));
-        newTop = Math.max(minTop, Math.min(newTop, maxTop));
-
-        el.style.top = newTop + "px";
-        el.style.left = newLeft + "px";
+      function move(e) {
+        pointerX = e.clientX; pointerY = e.clientY;
+        if (!frame) frame = requestAnimationFrame(apply);
       }
 
-      function closeDrag() {
-        document.onmouseup = null; document.onmousemove = null;
-        document.ontouchend = null; document.ontouchmove = null;
+      function apply() {
+        frame = 0;
+        if (!dragging) return;
+        nextLeft = Math.max(8, Math.min(pointerX - offsetX, window.innerWidth - width - 8));
+        nextTop = Math.max(minTop, Math.min(pointerY - offsetY, window.innerHeight - height - 8));
+        el.style.translate = `${nextLeft - startLeft}px ${nextTop - startTop}px`;
+        moved = true;
+        if (tiled) {
+          const target = tiledWindows().find(other => {
+            if (other === el) return false;
+            const r = other.getBoundingClientRect();
+            return pointerX >= r.left && pointerX <= r.right && pointerY >= r.top && pointerY <= r.bottom;
+          }) || null;
+          if (target !== dropTarget) {
+            if (dropTarget) dropTarget.classList.remove('tile-drop');
+            if (target) target.classList.add('tile-drop');
+            dropTarget = target;
+          }
+        }
+      }
+
+      function end() {
+        dragging = false;
+        if (frame) { cancelAnimationFrame(frame); frame = 0; }
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', end);
+        handle.removeEventListener('pointercancel', end);
+        document.body.classList.remove('window-dragging');
+        if (tiled) {
+          if (dropTarget) {
+            dropTarget.classList.remove('tile-drop');
+            swapTiles(el, dropTarget);
+            dropTarget = null;
+          }
+          retile();
+          return;
+        }
+        el.style.translate = '';
+        if (moved) { el.style.left = nextLeft + 'px'; el.style.top = nextTop + 'px'; }
       }
     }
 
@@ -1516,6 +1757,210 @@ function cyclePowerMode() {
       const header = e.target.closest('.popup-header');
       if (header) focusPopup(header.parentElement);
     });
+
+    // --- Tiling: the first window is the master on the left, the others stack on the right. ---
+    const TILE_GAP = 10;
+    const TILE_MIN_RATIO = 0.25, TILE_MAX_RATIO = 0.75;
+    let tilingOn = localStorage.getItem('twmTiling') !== 'off';
+    let tileRatio = Math.min(TILE_MAX_RATIO, Math.max(TILE_MIN_RATIO, parseFloat(localStorage.getItem('twmTileRatio')) || 0.55));
+    let tileOrder = [];       // window ids, master first
+    let monocleId = null;     // the window maximized over the layout
+    const floatingWindows = new Set(['popupAdvancedSearch']);
+
+    const isTiled = el => tilingOn && !floatingWindows.has(el.id);
+    const tiledWindows = () => tileOrder.map(id => document.getElementById(id))
+      .filter(el => el && el.classList.contains('active') && isTiled(el));
+
+    // Puts a window at its new rect at once (one layout), then plays the way there on the
+    // compositor. Starting from the on-screen rect makes it safe to interrupt.
+    const rectAnimations = new WeakMap();
+    function animateRect(el, applyRect) {
+      const from = el.getBoundingClientRect();
+      rectAnimations.get(el)?.cancel();
+      const origin = el.style.transformOrigin;
+      el.style.transformOrigin = '0 0';
+      applyRect();
+      const to = el.getBoundingClientRect();
+      if (!from.width || !to.width || !from.height || !to.height) { el.style.transformOrigin = origin; return; }
+      const animation = el.animate([
+        { translate: `${from.left - to.left}px ${from.top - to.top}px`, scale: `${from.width / to.width} ${from.height / to.height}` },
+        { translate: '0px 0px', scale: '1 1' }
+      ], { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+      rectAnimations.set(el, animation);
+      const done = () => { if (rectAnimations.get(el) === animation) { rectAnimations.delete(el); el.style.transformOrigin = origin; } };
+      animation.onfinish = done; animation.oncancel = done;
+    }
+
+    function placeWindow(el, rect, instant) {
+      // The size a window goes back to when it floats again.
+      if (!el.dataset.floatSize) el.dataset.floatSize = JSON.stringify({ width: el.style.width, height: el.style.height });
+      const apply = () => {
+        el.style.translate = '';
+        el.style.left = rect.x + 'px'; el.style.top = rect.y + 'px';
+        el.style.width = rect.w + 'px'; el.style.height = rect.h + 'px';
+      };
+      if (instant) apply(); else animateRect(el, apply);
+    }
+
+    function retile(justOpened, instant) {
+      const gutter = document.getElementById('tileGutter');
+      gutter.classList.remove('show');
+      if (!tilingOn) return;
+      const windows = tiledWindows();
+      const area = { x: TILE_GAP, y: RESERVED_TOP, w: window.innerWidth - TILE_GAP * 2, h: window.innerHeight - RESERVED_TOP - TILE_GAP };
+      const monocle = monocleId && document.getElementById(monocleId);
+      if (monocle) {
+        placeWindow(monocle, area, monocle === justOpened || instant);
+        focusPopup(monocle);
+        return;
+      }
+      if (!windows.length) return;
+      if (windows.length === 1) { placeWindow(windows[0], area, windows[0] === justOpened || instant); return; }
+
+      const masterW = Math.round((area.w - TILE_GAP) * tileRatio);
+      const stack = windows.slice(1);
+      const stackH = (area.h - TILE_GAP * (stack.length - 1)) / stack.length;
+      placeWindow(windows[0], { x: area.x, y: area.y, w: masterW, h: area.h }, windows[0] === justOpened || instant);
+      stack.forEach((el, i) => placeWindow(el, {
+        x: area.x + masterW + TILE_GAP, y: Math.round(area.y + i * (stackH + TILE_GAP)),
+        w: area.w - masterW - TILE_GAP, h: Math.round(stackH)
+      }, el === justOpened || instant));
+
+      Object.assign(gutter.style, { left: area.x + masterW + 'px', top: area.y + 'px', width: TILE_GAP + 'px', height: area.h + 'px' });
+      gutter.classList.add('show');
+    }
+
+    function swapTiles(a, b) {
+      const i = tileOrder.indexOf(a.id), j = tileOrder.indexOf(b.id);
+      if (i < 0 || j < 0) return;
+      tileOrder[i] = b.id; tileOrder[j] = a.id;
+    }
+
+    function setTileRatio(ratio, instant) {
+      tileRatio = Math.min(TILE_MAX_RATIO, Math.max(TILE_MIN_RATIO, ratio));
+      localStorage.setItem('twmTileRatio', tileRatio);
+      retile(null, instant);
+    }
+
+    function restoreFloatSize(el) {
+      const size = JSON.parse(el.dataset.floatSize || 'null');
+      if (size) { el.style.width = size.width; el.style.height = size.height; }
+      delete el.dataset.floatSize;
+    }
+
+    function cascadeWindow(el, index) {
+      const step = 32;
+      animateRect(el, () => {
+        el.style.translate = '';
+        restoreFloatSize(el);
+        el.style.left = 20 + index * step + 'px';
+        el.style.top = RESERVED_TOP + index * step + 'px';
+      });
+    }
+
+    function toggleTiling() {
+      tilingOn = !tilingOn;
+      localStorage.setItem('twmTiling', tilingOn ? 'on' : 'off');
+      monocleId = null;
+      renderTilingState();
+      if (tilingOn) { retile(); showNotification("Tiles", mariowOSI18n.t("twm.tiling.on", "Tiling on"), "🪟"); return; }
+      retile();
+      tileOrder.map(id => document.getElementById(id)).filter(el => el && el.classList.contains('active')).forEach(cascadeWindow);
+      showNotification("Tiles", mariowOSI18n.t("twm.tiling.off", "Tiling off"), "🪟");
+    }
+
+    function toggleFloating(el) {
+      if (!tilingOn || !el) return;
+      if (floatingWindows.has(el.id)) {
+        floatingWindows.delete(el.id);
+      } else {
+        floatingWindows.add(el.id);
+        if (monocleId === el.id) monocleId = null;
+        cascadeWindow(el, 1);
+        focusPopup(el);
+      }
+      retile();
+    }
+
+    function toggleMaximize(popupId) {
+      const el = document.getElementById(popupId);
+      if (!el || !tilingOn) return;
+      floatingWindows.delete(popupId);
+      monocleId = monocleId === popupId ? null : popupId;
+      retile();
+    }
+
+    function focusNeighbour(step) {
+      const windows = tiledWindows();
+      if (!windows.length) return;
+      const index = windows.indexOf(getTopmostPopup());
+      const next = windows[(index + step + windows.length) % windows.length];
+      focusPopup(next);
+      const frame = next.querySelector('iframe');
+      if (frame) frame.focus();
+    }
+
+    function renderTilingState() {
+      document.body.classList.toggle('tiling', tilingOn);
+      const label = document.getElementById('tilingMenuLabel');
+      if (label) {
+        delete label.dataset.i18nSource;
+        label.dataset.i18n = tilingOn ? 'twm.menu.tiling-off' : 'twm.menu.tiling-on';
+        label.textContent = tilingOn ? mariowOSI18n.t("twm.menu.tiling-off", "Turn off tiling") : mariowOSI18n.t("twm.menu.tiling-on", "Turn on tiling");
+      }
+    }
+
+    function handleTilingKeys(e) {
+      if (!e.altKey || e.ctrlKey || e.metaKey) return;
+      const top = getTopmostPopup();
+      const actions = {
+        t: toggleTiling,
+        j: () => focusNeighbour(1),
+        k: () => focusNeighbour(-1),
+        h: () => setTileRatio(tileRatio - 0.05),
+        l: () => setTileRatio(tileRatio + 0.05),
+        f: () => toggleFloating(top),
+        m: () => top && toggleMaximize(top.id),
+        q: () => top && closePopup(top.id),
+        enter: () => {
+          if (!top || !isTiled(top)) return;
+          tileOrder = [top.id, ...tileOrder.filter(id => id !== top.id)];
+          retile();
+        }
+      };
+      const action = actions[e.key.toLowerCase()];
+      if (!action) return;
+      e.preventDefault();
+      e.stopPropagation();
+      action();
+    }
+    window.addEventListener('keydown', handleTilingKeys, true);
+
+    // Keyboard focus inside an app never reaches this page, so same-origin apps forward it.
+    function wireAppFrame(frame) {
+      try {
+        if (frame.contentWindow.location.href !== 'about:blank') frame.contentWindow.addEventListener('keydown', handleTilingKeys, true);
+      } catch (err) {}
+    }
+
+    (function setupTileGutter() {
+      const gutter = document.getElementById('tileGutter');
+      let frame = 0, x = 0;
+      gutter.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        gutter.setPointerCapture(e.pointerId);
+        document.body.classList.add('window-dragging');
+        const areaW = window.innerWidth - TILE_GAP * 2;
+        const apply = () => { frame = 0; setTileRatio((x - TILE_GAP) / (areaW - TILE_GAP), true); };
+        const move = ev => { x = ev.clientX; if (!frame) frame = requestAnimationFrame(apply); };
+        const up = () => {
+          gutter.removeEventListener('pointermove', move); gutter.removeEventListener('pointerup', up); gutter.removeEventListener('pointercancel', up);
+          document.body.classList.remove('window-dragging');
+        };
+        gutter.addEventListener('pointermove', move); gutter.addEventListener('pointerup', up); gutter.addEventListener('pointercancel', up);
+      });
+    })();
+    window.addEventListener('resize', () => retile(null, true));
 
     function openAdvancedSearch(query) {
       query = query.trim();
@@ -1571,6 +2016,11 @@ function cyclePowerMode() {
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     let systemTimeOffset = 0, timezoneOffset = 0, manualTimeEnabled = false;
 
+    function setClockText(text) {
+      const clock = document.getElementById("center-clock");
+      if (clock.textContent !== text) clock.textContent = text;
+    }
+
     function updateClock() {
       const now = new Date();
       let utcMs = now.getTime() - (now.getTimezoneOffset() * 60000);
@@ -1581,10 +2031,15 @@ function cyclePowerMode() {
       }
       const d = new Date(utcMs);
       let h = d.getUTCHours(), m = d.getUTCMinutes();
+      if (mariowOSI18n.locale) {
+        const opts = { timeZone: "UTC" };
+        setClockText(`${d.toLocaleDateString(mariowOSI18n.locale, { ...opts, weekday: "long", day: "numeric", month: "long" })}, ${d.toLocaleTimeString(mariowOSI18n.locale, { ...opts, hour: "2-digit", minute: "2-digit" })}`);
+        return;
+      }
       const ampm = h >= 12 ? "PM" : "AM";
       h = h % 12 || 12;
       m = m < 10 ? "0" + m : m;
-      document.getElementById("center-clock").textContent = `${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`;
+      setClockText(`${days[d.getUTCDay()]} ${d.getUTCDate()} ${months[d.getUTCMonth()]}, ${h}:${m} ${ampm}`);
     }
 
     function checkTimeOffset() {
@@ -1637,12 +2092,63 @@ function cyclePowerMode() {
         });
     }
 
+    // Apps opened with a file wait for the app's ready message, as on the desktop.
+    const FILE_APPS = {
+      popup5: { open: 'open-file-in-notes', ready: false, pending: [] },
+      popup12: { open: 'open-file-in-picture', ready: false, pending: [] },
+      popup13: { open: 'open-file-in-video', ready: false, pending: [] }
+    };
+    function flushFileApp(popupId) {
+      const app = FILE_APPS[popupId], frame = document.querySelector(`#${popupId} iframe`);
+      if (!app.ready || !frame || !frame.contentWindow) return;
+      app.pending.splice(0).forEach(request => frame.contentWindow.postMessage({ type: app.open, ...request }, location.origin));
+    }
+    function openFileIn(popupId, path, name) {
+      if (typeof path !== 'string' || typeof name !== 'string') return;
+      FILE_APPS[popupId].pending.push({ path, name });
+      openPopup(popupId);
+      flushFileApp(popupId);
+    }
+    let terminalReady = false, pendingTerminalPath = null;
+
+    // Only these may come from another origin (an isolated Store app), for its own window.
+    const CROSS_ORIGIN_APP_MESSAGES = new Set(['show-notification', 'close-app', 'maximize-app']);
+    const popupOfSource = source => [...document.querySelectorAll('.popup')].find(popup => {
+      const frame = popup.querySelector('iframe');
+      return frame && frame.contentWindow === source;
+    });
+
     window.addEventListener("message", async (e) => {
+      if (!e.data || typeof e.data !== 'object') return;
+      const sender = popupOfSource(e.source);
+      if (e.origin !== location.origin && !CROSS_ORIGIN_APP_MESSAGES.has(e.data.type)) return;
+      if (e.data.type === 'close-app' || e.data.type === 'maximize-app') {
+        const target = e.origin === location.origin ? (e.data.appId || (sender && sender.id)) : (sender && sender.id);
+        if (e.data.type === 'close-app') closePopup(target); else toggleMaximize(target);
+      }
+      if (e.data.type === 'notes-ready' || e.data.type === 'picture-ready' || e.data.type === 'video-ready') {
+        const popupId = { 'notes-ready': 'popup5', 'picture-ready': 'popup12', 'video-ready': 'popup13' }[e.data.type];
+        FILE_APPS[popupId].ready = true;
+        flushFileApp(popupId);
+      }
+      if (e.data.type === 'open-file-in-notes') openFileIn('popup5', e.data.path, e.data.name);
+      if (e.data.type === 'open-file-in-picture') openFileIn('popup12', e.data.path, e.data.name);
+      if (e.data.type === 'open-file-in-video') openFileIn('popup13', e.data.path, e.data.name);
+      if (e.data.type === 'open-terminal-in-directory' || e.data.type === 'terminal-ready') {
+        if (e.data.type === 'terminal-ready') terminalReady = true;
+        else { pendingTerminalPath = e.data.path; openPopup('popup8'); }
+        const frame = document.querySelector('#popup8 iframe');
+        if (terminalReady && pendingTerminalPath !== null && frame) {
+          frame.contentWindow.postMessage({ type: 'set-working-directory', path: pendingTerminalPath }, location.origin);
+          pendingTerminalPath = null;
+        }
+      }
+
       if (e.data.type === 'show-notification') {
         showNotification(e.data.title, e.data.msg, e.data.icon);
       }
 
-      if (e.data.type === 'apply-wallpaper') {
+      if (e.data.type === 'apply-wallpaper' || e.data.type === 'apply-lab-flags') {
         applyUserWallpaper();
         // Load lab flags from server and apply their visual effects
         (async () => {
@@ -1657,29 +2163,11 @@ function cyclePowerMode() {
         const app = e.data.app;
         const dropdown = document.getElementById("actionsDropdown");
 
-        if (!document.querySelector(`[data-popup="${app.appId}"]`)) {
-          const btn = document.createElement("a");
-          btn.onclick = () => openPopup(app.appId);
-          btn.innerHTML = `
-            <div class="dropdown-item" data-popup="${app.appId}">
-              ${renderIcon(app.icon)} <span>${app.title}</span>
-            </div>
-          `;
-          dropdown.appendChild(btn);
-
-          const popupDiv = document.createElement("div");
-          popupDiv.id = app.appId;
-          popupDiv.className = "popup";
-          popupDiv.innerHTML = `
-            <div class="popup-header">
-              <span>${app.title}</span>
-              <span class="altf4" onclick="closePopup('${app.appId}')">✖</span>
-            </div>
-            <iframe src="${app.url}" class="popup-frame"></iframe>
-          `;
+        if (!document.querySelector(`[data-popup="${CSS.escape(String(app.appId == null ? '' : app.appId))}"]`)) {
+          const popupDiv = buildInstalledAppEntry(app, dropdown);
           document.body.appendChild(popupDiv);
 
-          showNotification("App Installata", `${app.title} è pronta all'uso!`, app.icon);
+          showNotification(mariowOSI18n.t("twm.toast.app-installed", "App installed"), mariowOSI18n.t("twm.toast.app-installed-msg", "{title} is ready to use!", { title: app.title }), app.icon);
         }
       }
 
@@ -1698,7 +2186,7 @@ function cyclePowerMode() {
           setTimeout(() => popupDiv.remove(), 200);
         }
 
-        showNotification("App Rimossa", "L'applicazione è stata disinstallata.", "🗑️");
+        showNotification(mariowOSI18n.t("twm.toast.app-removed", "App removed"), mariowOSI18n.t("twm.toast.app-removed-msg", "The app has been uninstalled."), "🗑️");
       }
 
       if (e.data.type === "load-youafter") {
@@ -1736,14 +2224,15 @@ function cyclePowerMode() {
         const banner = document.getElementById('mediaPlayerBanner');
         if (!banner) return;
 
-        if (e.data.title === 'Not playing' || !e.data.title) {
+        if (e.source) mediaSource = e.source;
+        if (e.data.hasMedia === false || e.data.title === 'Not playing' || !e.data.title) {
           banner.style.display = 'none';
         } else {
           banner.style.display = 'flex';
         }
 
         document.getElementById('mediaBannerTitle').textContent = e.data.title;
-        document.getElementById('mediaBannerArtist').textContent = e.data.artist;
+        document.getElementById('mediaBannerArtist').textContent = e.data.artist || '';
 
         const playIcon = document.getElementById('mediaBannerPlayIcon');
         const timeline = document.getElementById('mediaBannerTimeline');
@@ -1803,25 +2292,7 @@ function cyclePowerMode() {
           const dropdown = document.getElementById("actionsDropdown");
 
           config.installedApps.forEach(app => {
-            const btn = document.createElement("a");
-            btn.onclick = () => openPopup(app.appId);
-            btn.innerHTML = `
-              <div class="dropdown-item" data-popup="${app.appId}">
-                ${renderIcon(app.icon)} <span>${app.title}</span>
-              </div>
-            `;
-            dropdown.appendChild(btn);
-
-            const popupDiv = document.createElement("div");
-            popupDiv.id = app.appId;
-            popupDiv.className = "popup";
-            popupDiv.innerHTML = `
-              <div class="popup-header">
-                <span>${app.title}</span>
-                <span class="altf4" onclick="closePopup('${app.appId}')">✖</span>
-              </div>
-              <iframe src="${app.url}" class="popup-frame"></iframe>
-            `;
+            const popupDiv = buildInstalledAppEntry(app, dropdown);
             document.body.appendChild(popupDiv);
           });
         }
@@ -1829,6 +2300,9 @@ function cyclePowerMode() {
         console.error("Errore durante il caricamento delle app:", error);
       }
     }
+
+    renderQuickSettings();
+    renderTilingState();
 
     window.addEventListener("DOMContentLoaded", () => {
       applyUserWallpaper();

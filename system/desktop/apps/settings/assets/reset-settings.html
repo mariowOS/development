@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +18,7 @@
   --md-sys-color-background: transparent;
   --md-sys-color-surface-container: rgba(255,255,255,0.06);
   --md-sys-color-surface-container-high: rgba(255,255,255,0.1);
-  --md-sys-color-secondary-container: rgba(10,132,255,0.18);
+  --md-sys-color-secondary-container: color-mix(in srgb, var(--sys-accent) 18%, transparent);
   --md-sys-color-on-secondary-container: #ffffff;
   --md-sys-color-on-surface: #ffffff;
   --md-sys-color-on-surface-variant: rgba(255,255,255,0.5);
@@ -138,14 +141,14 @@ html::-webkit-scrollbar {
   <div class="warning-banner">
     <h3>
       <span class="material-symbols-outlined">warning</span>
-      Warning
+      <span data-i18n="settings.reset-settings.warning">Warning</span>
     </h3>
-    <p>This will reset your <strong>account email, its verification and the daily report preference</strong>, plus local preferences (lock screen, Lab, time). Your password, files, apps and wallpaper are <strong>NOT</strong> affected.</p>
+    <p><span data-i18n="settings.reset-settings.intro-1">This will reset your</span> <strong data-i18n="settings.reset-settings.intro-2">account email, its verification and the daily report preference</strong><span data-i18n="settings.reset-settings.intro-3">, plus local preferences (lock screen, Lab, time). Your password, files, apps and wallpaper are</span> <strong data-i18n="settings.reset-settings.intro-4">NOT</strong> <span data-i18n="settings.reset-settings.intro-5">affected.</span></p>
   </div>
 
   <div class="button-row">
-    <button class="btn-secondary" onclick="goBack()">Cancel</button>
-    <button class="btn-danger" id="resetBtn">Reset Settings</button>
+    <button class="btn-secondary" onclick="goBack()" data-i18n="common.cancel">Cancel</button>
+    <button class="btn-danger" id="resetBtn" data-i18n="settings.reset-settings.reset">Reset Settings</button>
   </div>
 </div>
 
@@ -154,23 +157,42 @@ function goBack() {
   window.history.back();
 }
 
-document.getElementById("resetBtn").addEventListener("click", async () => {
+function withPassword(cb, onCancel) {
+  // The settings shell shows the auth dialog and hands back the verified password.
+  if (window.parent && window.parent !== window && typeof window.parent.requirePassword === "function") {
+    window.parent.requirePassword(cb, onCancel);
+  } else {
+    cb(""); // no shell gate available (e.g. no password set): backend decides
+  }
+}
+
+async function doResetSettings(password) {
+  const res = await fetch("/api/system/reset-settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: password || "" })
+  });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.error || mariowOSI18n.t("settings.reset-settings.unknown-error", "Unknown error"));
+  ["clockFont", "clockWeight", "liveWallpaper", "lab-darkMode", "lab-performance", "lab-animations", "lab-developer", "lab-allowFlashing", "systemTimeOffset", "manualTimeEnabled", "timezoneOffset"].forEach(k => {
+    try { localStorage.removeItem(k); } catch (e) {}
+  });
+  await mDialog.alert(mariowOSI18n.t("settings.reset-settings.done", "Settings restored to default."));
+  if (window.top !== window) window.top.location.reload();
+  else goBack();
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
   const btn = document.getElementById("resetBtn");
   btn.disabled = true;
-  try {
-    const res = await fetch("/api/system/reset-settings", { method: "POST" });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error || "Unknown error");
-    ["clockFont", "clockWeight", "liveWallpaper", "lab-darkMode", "lab-performance", "lab-animations", "lab-developer", "lab-allowFlashing", "systemTimeOffset", "manualTimeEnabled", "timezoneOffset"].forEach(k => {
-      try { localStorage.removeItem(k); } catch (e) {}
-    });
-    await mDialog.alert("Settings restored to default.");
-    if (window.top !== window) window.top.location.reload();
-    else goBack();
-  } catch (e) {
-    await mDialog.alert("Reset failed: " + e.message);
-    btn.disabled = false;
-  }
+  withPassword(async (password) => {
+    try {
+      await doResetSettings(password);
+    } catch (e) {
+      await mDialog.alert(mariowOSI18n.t("settings.reset-settings.failed", "Reset failed: {error}", { error: e.message }));
+      btn.disabled = false;
+    }
+  }, () => { btn.disabled = false; });
 });
 </script>
 </body>

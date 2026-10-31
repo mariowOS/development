@@ -7,12 +7,15 @@ Licensed under the Apache License, Version 2.0
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notes</title>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
+<title data-i18n="notes.title">Notes</title>
 <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <style>
   :root {
-    --accent: #0a84ff;
+    --accent: var(--sys-accent);
     --text: #ffffff;
     --muted: rgba(255, 255, 255, 0.55);
     --dim: rgba(255, 255, 255, 0.35);
@@ -36,12 +39,12 @@ Licensed under the Apache License, Version 2.0
   .icon-btn { width: 32px; height: 32px; flex: 0 0 32px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 9px;
     background: transparent; color: rgba(255,255,255,.75); cursor: pointer; transition: background .15s, color .15s; }
   .icon-btn:hover { background: var(--hover); color: #fff; }
-  .icon-btn.on { color: var(--accent); }
+  .icon-btn.on { color: var(--sys-accent-text); }
   .icon-btn .ms { font-size: 20px; }
-  .icon-btn.primary { background: var(--accent); color: #fff; }
+  .icon-btn.primary { background: var(--accent); color: var(--sys-accent-on); }
   .icon-btn.primary:hover { filter: brightness(1.1); }
   .search { margin: 4px 12px 8px; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 10px; background: rgba(0,0,0,.28); border: 1px solid var(--border); }
-  .search:focus-within { border-color: var(--accent); }
+  .search:focus-within { border-color: var(--sys-accent-text); }
   .search .ms { font-size: 18px; color: var(--dim); }
   .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font: 13px 'Poppins', sans-serif; }
   .note-list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
@@ -85,7 +88,7 @@ Licensed under the Apache License, Version 2.0
   .file-badge .ms { font-size: 16px; }
   .file-badge span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .editor-wrap { flex: 1; overflow-y: auto; }
-  .editor { max-width: 860px; min-height: 100%; margin: 0 auto; padding: 20px 28px 60px; outline: none; font-size: 15px; line-height: 1.65; caret-color: var(--accent); word-wrap: break-word; }
+  .editor { max-width: 860px; min-height: 100%; margin: 0 auto; padding: 20px 28px 60px; outline: none; font-size: 15px; line-height: 1.65; caret-color: var(--sys-accent-text); word-wrap: break-word; }
   .editor:empty::before { content: 'Start writing… Try "# " for a title, "- " for a list or "[] " for a checklist'; color: var(--dim); pointer-events: none; }
   .editor h1 { font-size: 28px; line-height: 1.25; margin: 6px 0 10px; font-weight: 700; letter-spacing: -.5px; }
   .editor h2 { font-size: 21px; line-height: 1.3; margin: 14px 0 6px; font-weight: 600; }
@@ -103,9 +106,10 @@ Licensed under the Apache License, Version 2.0
   .editor ul.checklist > li { position: relative; padding-left: 30px; }
   .editor ul.checklist > li::before { content: ''; position: absolute; left: 0; top: 4px; width: 17px; height: 17px; border-radius: 50%; border: 2px solid rgba(255,255,255,.4); cursor: pointer; transition: all .15s; box-sizing: border-box; }
   .editor ul.checklist > li[data-checked="true"] { color: var(--dim); text-decoration: line-through; }
-  .editor ul.checklist > li[data-checked="true"]::before { background: var(--accent); border-color: var(--accent);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); background-size: 13px; background-position: center; background-repeat: no-repeat; }
-  .editor[contenteditable="false"] { color: var(--muted); }
+  .editor ul.checklist > li[data-checked="true"]::before { background: var(--accent); border-color: var(--sys-accent-text);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); background-size: 13px; background-position: center; background-repeat: no-repeat; color: var(--sys-accent-on); }
+  :root[data-accent-on="dark"] .editor ul.checklist > li[data-checked="true"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z'/%3E%3C/svg%3E"); }
+  .editor[contenteditable="false"] { color: var(--muted); user-select: text; }
   .status { display: flex; align-items: center; gap: 14px; padding: 6px 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--dim); }
   .status .grow { flex: 1; }
   .status .err { color: #ff6961; }
@@ -116,7 +120,7 @@ Licensed under the Apache License, Version 2.0
   .trash-banner.show { display: flex; }
   .trash-banner .grow { flex: 1; }
   .pill { padding: 6px 12px; border: 0; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500; background: rgba(255,255,255,.12); }
-  .pill.blue { background: var(--accent); }
+  .pill.blue { background: var(--accent); color: var(--sys-accent-on); }
   .pill.red { background: rgba(255, 69, 58, .85); }
 
   /* ── Menus ── */
@@ -136,7 +140,6 @@ Licensed under the Apache License, Version 2.0
   .swatch { width: 22px; height: 22px; border-radius: 50%; border: 0; cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); transition: transform .12s; }
   .swatch:hover { transform: scale(1.15); }
   .swatch.none { background: transparent !important; box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); position: relative; }
-  .swatch.none::after { content: ''; position: absolute; left: 4px; right: 4px; top: 10px; height: 2px; background: #ff6961; transform: rotate(-45deg); }
   .menu.styles button { font-size: 13px; }
   .menu.styles .s-h1 { font-size: 18px; font-weight: 700; }
   .menu.styles .s-h2 { font-size: 15.5px; font-weight: 600; }
@@ -148,7 +151,7 @@ Licensed under the Apache License, Version 2.0
   .toasts { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
   .toast { display: flex; align-items: center; gap: 12px; padding: 9px 14px; border-radius: 12px; background: rgba(28,30,36,.95); border: 1px solid rgba(255,255,255,.1);
     box-shadow: 0 12px 34px rgba(0,0,0,.45); font-size: 12.5px; pointer-events: auto; animation: rise .25s var(--spring); white-space: nowrap; }
-  .toast button { border: 0; background: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 12.5px; }
+  .toast button { border: 0; background: none; color: var(--sys-accent-text); font-weight: 600; cursor: pointer; font-size: 12.5px; }
 
   .scrim { display: none; }
   /* Narrow window: the note list slides over the editor. */
@@ -170,43 +173,43 @@ Licensed under the Apache License, Version 2.0
 <aside class="sidebar" id="sidebar">
   <div class="side-head">
     <div class="side-title" id="sideTitle">Notes</div>
-    <button class="icon-btn primary" id="newBtn" title="New note (Ctrl+N)"><span class="ms">edit_square</span></button>
+    <button class="icon-btn primary" id="newBtn" title="New note (Ctrl+N)" data-i18n-title="notes.toolbar.new"><span class="ms">edit_square</span></button>
   </div>
-  <label class="search"><span class="ms">search</span><input id="search" placeholder="Search notes" spellcheck="false" autocomplete="off"></label>
+  <label class="search"><span class="ms">search</span><input id="search" placeholder="Search notes" data-i18n-placeholder="notes.search" spellcheck="false" autocomplete="off"></label>
   <div class="note-list" id="noteList"></div>
   <div class="side-foot">
-    <button class="trash-link" id="trashLink"><span class="ms">delete</span>Recently deleted<span class="count" id="trashCount"></span></button>
+    <button class="trash-link" id="trashLink"><span class="ms">delete</span><span data-i18n="notes.trash">Recently deleted</span><span class="count" id="trashCount"></span></button>
   </div>
 </aside>
 <div class="scrim" id="scrim"></div>
 
 <main class="main">
   <div class="toolbar" id="toolbar">
-    <button class="tb" id="toggleList" title="Show or hide the note list"><span class="ms">left_panel_close</span></button>
+    <button class="tb" id="toggleList" title="Show or hide the note list" data-i18n-title="notes.toolbar.toggle-list"><span class="ms">left_panel_close</span></button>
     <div class="sep"></div>
-    <button class="tb style-btn" id="styleBtn" title="Text style"><span class="label" id="styleLabel">Body</span><span class="ms">expand_more</span></button>
+    <button class="tb style-btn" id="styleBtn" title="Text style" data-i18n-title="notes.toolbar.style"><span class="label" id="styleLabel">Body</span><span class="ms">expand_more</span></button>
     <div class="sep"></div>
-    <button class="tb" data-cmd="bold" title="Bold (Ctrl+B)"><span class="ms">format_bold</span></button>
-    <button class="tb" data-cmd="italic" title="Italic (Ctrl+I)"><span class="ms">format_italic</span></button>
-    <button class="tb" data-cmd="underline" title="Underline (Ctrl+U)"><span class="ms">format_underlined</span></button>
-    <button class="tb" data-cmd="strikeThrough" title="Strikethrough"><span class="ms">strikethrough_s</span></button>
-    <button class="tb" id="colorBtn" title="Text color and highlight"><span class="ms">format_color_text</span></button>
+    <button class="tb" data-cmd="bold" title="Bold (Ctrl+B)" data-i18n-title="notes.toolbar.bold"><span class="ms">format_bold</span></button>
+    <button class="tb" data-cmd="italic" title="Italic (Ctrl+I)" data-i18n-title="notes.toolbar.italic"><span class="ms">format_italic</span></button>
+    <button class="tb" data-cmd="underline" title="Underline (Ctrl+U)" data-i18n-title="notes.toolbar.underline"><span class="ms">format_underlined</span></button>
+    <button class="tb" data-cmd="strikeThrough" title="Strikethrough" data-i18n-title="notes.toolbar.strikethrough"><span class="ms">strikethrough_s</span></button>
+    <button class="tb" id="colorBtn" title="Text color and highlight" data-i18n-title="notes.toolbar.color"><span class="ms">format_color_text</span></button>
     <div class="sep"></div>
-    <button class="tb" id="checklistBtn" title="Checklist (Ctrl+Shift+L)"><span class="ms">checklist</span></button>
-    <button class="tb" data-cmd="insertUnorderedList" title="Bulleted list"><span class="ms">format_list_bulleted</span></button>
-    <button class="tb" data-cmd="insertOrderedList" title="Numbered list"><span class="ms">format_list_numbered</span></button>
+    <button class="tb" id="checklistBtn" title="Checklist (Ctrl+Shift+L)" data-i18n-title="notes.toolbar.checklist"><span class="ms">checklist</span></button>
+    <button class="tb" data-cmd="insertUnorderedList" title="Bulleted list" data-i18n-title="notes.toolbar.bullets"><span class="ms">format_list_bulleted</span></button>
+    <button class="tb" data-cmd="insertOrderedList" title="Numbered list" data-i18n-title="notes.toolbar.numbers"><span class="ms">format_list_numbered</span></button>
     <div class="sep"></div>
-    <button class="tb" id="linkBtn" title="Link (Ctrl+K)"><span class="ms">link</span></button>
-    <button class="tb" id="imageBtn" title="Insert image"><span class="ms">image</span></button>
+    <button class="tb" id="linkBtn" title="Link (Ctrl+K)" data-i18n-title="notes.toolbar.link"><span class="ms">link</span></button>
+    <button class="tb" id="imageBtn" title="Insert image" data-i18n-title="notes.toolbar.image"><span class="ms">image</span></button>
     <button class="tb" id="emojiBtn" title="Emoji"><span class="ms">mood</span></button>
-    <button class="tb" data-cmd="removeFormat" title="Clear formatting"><span class="ms">format_clear</span></button>
+    <button class="tb" data-cmd="removeFormat" title="Clear formatting" data-i18n-title="notes.toolbar.clear"><span class="ms">format_clear</span></button>
     <div class="grow"></div>
-    <button class="tb save-file" id="saveFileBtn" title="Save changes to the file (Ctrl+S)" hidden><span class="ms">save</span>Save file</button>
-    <button class="tb" id="pinBtn" title="Pin note"><span class="ms">keep</span></button>
-    <button class="tb" id="moreBtn" title="More"><span class="ms">more_horiz</span></button>
+    <button class="tb save-file" id="saveFileBtn" title="Save changes to the file (Ctrl+S)" data-i18n-title="notes.toolbar.save-file.title" hidden><span class="ms">save</span><span data-i18n="notes.toolbar.save-file">Save file</span></button>
+    <button class="tb" id="pinBtn" title="Pin note" data-i18n-title="notes.toolbar.pin"><span class="ms">keep</span></button>
+    <button class="tb" id="moreBtn" title="More" data-i18n-title="notes.toolbar.more"><span class="ms">more_horiz</span></button>
   </div>
-  <div class="trash-banner" id="trashBanner"><span class="ms">info</span><span class="grow">This note is in Recently deleted.</span>
-    <button class="pill blue" id="restoreBtn">Restore</button><button class="pill red" id="purgeBtn">Delete forever</button></div>
+  <div class="trash-banner" id="trashBanner"><span class="ms">info</span><span class="grow" data-i18n="notes.trash.banner">This note is in Recently deleted.</span>
+    <button class="pill blue" id="restoreBtn" data-i18n="notes.restore">Restore</button><button class="pill red" id="purgeBtn" data-i18n="notes.purge">Delete forever</button></div>
   <div class="file-badge" id="fileBadge"><span class="ms">description</span><span id="fileBadgeText"></span></div>
   <div class="editor-wrap" id="editorWrap">
     <div class="editor" id="editor" contenteditable="true" spellcheck="true"></div>
@@ -217,19 +220,19 @@ Licensed under the Apache License, Version 2.0
 </main>
 
 <div class="menu styles" id="styleMenu">
-  <button data-block="h1" class="s-h1">Title</button>
-  <button data-block="h2" class="s-h2">Heading</button>
-  <button data-block="h3" class="s-h3">Subheading</button>
-  <button data-block="p">Body</button>
-  <button data-block="blockquote"><span class="ms">format_quote</span>Quote</button>
-  <button data-block="pre" class="s-pre">Monospaced</button>
+  <button data-block="h1" class="s-h1" data-i18n="notes.style.title">Title</button>
+  <button data-block="h2" class="s-h2" data-i18n="notes.style.heading">Heading</button>
+  <button data-block="h3" class="s-h3" data-i18n="notes.style.subheading">Subheading</button>
+  <button data-block="p" data-i18n="notes.style.body">Body</button>
+  <button data-block="blockquote"><span class="ms">format_quote</span><span data-i18n="notes.style.quote">Quote</span></button>
+  <button data-block="pre" class="s-pre" data-i18n="notes.style.mono">Monospaced</button>
   <hr>
-  <button data-action="hr"><span class="ms">horizontal_rule</span>Divider</button>
+  <button data-action="hr"><span class="ms">horizontal_rule</span><span data-i18n="notes.style.divider">Divider</span></button>
 </div>
 <div class="menu" id="colorMenu">
-  <div class="label">Text color</div>
+  <div class="label" data-i18n="notes.color.text">Text color</div>
   <div class="swatches" id="textSwatches"></div>
-  <div class="label">Highlight</div>
+  <div class="label" data-i18n="notes.color.highlight">Highlight</div>
   <div class="swatches" id="highlightSwatches"></div>
 </div>
 <div class="menu" id="emojiMenu"><div class="emoji-grid" id="emojiGrid"></div></div>
@@ -258,10 +261,6 @@ let query = '';
 let notesReady = false;
 const pendingFileRequests = [];
 
-try {
-  const accent = JSON.parse(localStorage.getItem('desktopStyle') || '{}').accent;
-  if (/^#[0-9a-f]{6}$/i.test(accent)) document.documentElement.style.setProperty('--accent', accent);
-} catch (e) {}
 
 /* ───────────────────────── Helpers ───────────────────────── */
 function sanitizeHtml(html) {
@@ -295,20 +294,20 @@ function noteTitle(note) {
   const first = plainText(note.content).split('\n').find(line => line.trim());
   if (first) return first.trim().slice(0, 80);
   if (note.name && note.name !== 'Note') return note.name;
-  return 'New note';
+  return mariowOSI18n.t('notes.new-note', 'New note');
 }
 function noteSnippet(note) {
   const lines = plainText(note.content).split('\n').map(l => l.trim()).filter(Boolean);
-  return (note.sourceName ? lines[0] : lines[1]) || 'No additional text';
+  return (note.sourceName ? lines[0] : lines[1]) || mariowOSI18n.t('notes.no-text', 'No additional text');
 }
 function formatDate(ts) {
   if (!ts) return '';
   const d = new Date(ts), now = new Date();
   const days = Math.floor((new Date(now.toDateString()) - new Date(d.toDateString())) / 86400000);
-  if (days === 0) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (days === 1) return 'Yesterday';
-  if (days < 7) return d.toLocaleDateString([], { weekday: 'long' });
-  return d.toLocaleDateString([], { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+  if (days === 0) return d.toLocaleTimeString(mariowOSI18n.locale, { hour: '2-digit', minute: '2-digit' });
+  if (days === 1) return mariowOSI18n.t('notes.date.yesterday', 'Yesterday');
+  if (days < 7) return d.toLocaleDateString(mariowOSI18n.locale, { weekday: 'long' });
+  return d.toLocaleDateString(mariowOSI18n.locale, { day: 'numeric', month: 'short', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
 }
 function toast(message, action) {
   const node = document.createElement('div');
@@ -333,7 +332,7 @@ let dirtyAgain = false;
 function cacheLocally() { try { localStorage.setItem('multiNotes', JSON.stringify(notes)); } catch (e) {} }
 function scheduleSave() {
   cacheLocally();
-  setSaveStatus('Saving…');
+  setSaveStatus(mariowOSI18n.t('notes.status.saving', 'Saving…'));
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveNow, 700);
 }
@@ -343,11 +342,11 @@ async function saveNow({ keepalive = false } = {}) {
   saving = true;
   try {
     const res = await fetch('/api/system/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(notes), keepalive });
-    if (res.status === 401) throw new Error('Session expired: log in again to save');
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not save');
-    setSaveStatus('Saved');
+    if (res.status === 401) throw new Error(mariowOSI18n.t('notes.status.session-expired', 'Session expired: log in again to save'));
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || mariowOSI18n.t('notes.status.save-error', 'Could not save'));
+    setSaveStatus(mariowOSI18n.t('notes.status.saved', 'Saved'));
   } catch (error) {
-    setSaveStatus(error.message || 'Could not save', true);
+    setSaveStatus(error.message || mariowOSI18n.t('notes.status.save-error', 'Could not save'), true);
   } finally {
     saving = false;
     if (dirtyAgain) { dirtyAgain = false; saveNow(); }
@@ -415,18 +414,18 @@ function renderList() {
   const trashCount = notes.filter(n => n.deletedAt).length;
   $('trashCount').textContent = trashCount || '';
   $('trashLink').classList.toggle('on', showTrash);
-  $('sideTitle').textContent = showTrash ? 'Recently deleted' : 'Notes';
+  $('sideTitle').textContent = showTrash ? mariowOSI18n.t('notes.trash', 'Recently deleted') : mariowOSI18n.t('notes.title', 'Notes');
   $('newBtn').style.visibility = showTrash ? 'hidden' : '';
 
   if (!shown.length) {
     const empty = document.createElement('div');
     empty.className = 'list-empty';
-    empty.textContent = query ? 'No notes match your search.' : showTrash ? `Deleted notes stay here for ${TRASH_DAYS} days.` : 'No notes yet. Create one with the pencil button.';
+    empty.textContent = query ? mariowOSI18n.t('notes.list.no-match', 'No notes match your search.') : showTrash ? mariowOSI18n.t('notes.list.trash-info', 'Deleted notes stay here for {days} days.', { days: TRASH_DAYS }) : mariowOSI18n.t('notes.list.empty', 'No notes yet. Create one with the pencil button.');
     list.append(empty);
   }
   let lastGroup = null;
   shown.forEach((note, index) => {
-    const group = showTrash ? null : note.pinned ? 'Pinned' : 'Notes';
+    const group = showTrash ? null : note.pinned ? mariowOSI18n.t('notes.list.pinned', 'Pinned') : mariowOSI18n.t('notes.title', 'Notes');
     if (group && group !== lastGroup && shown.some(n => n.pinned)) {
       const label = document.createElement('div');
       label.className = 'list-label';
@@ -493,7 +492,7 @@ function openNote(id) {
 function renderEditor() {
   const note = current();
   $('emptyState').classList.toggle('show', !note);
-  $('emptyText').textContent = showTrash ? 'No deleted notes' : 'Create a note to get started';
+  $('emptyText').textContent = showTrash ? mariowOSI18n.t('notes.empty.trash', 'No deleted notes') : mariowOSI18n.t('notes.empty.start', 'Create a note to get started');
   editor.style.visibility = note ? '' : 'hidden';
   $('trashBanner').classList.toggle('show', Boolean(note?.deletedAt));
   $('fileBadge').classList.toggle('show', Boolean(note?.sourcePath));
@@ -520,10 +519,12 @@ function flushEditor() {
 function updateStatus() {
   const note = current();
   if (!note) { $('statusEdited').textContent = ''; $('statusCount').textContent = ''; return; }
-  $('statusEdited').textContent = note.deletedAt ? `Deleted ${formatDate(note.deletedAt)}` : `Edited ${formatDate(note.updatedAt)}`;
+  $('statusEdited').textContent = note.deletedAt ? mariowOSI18n.t('notes.status.deleted', 'Deleted {date}', { date: formatDate(note.deletedAt) }) : mariowOSI18n.t('notes.status.edited', 'Edited {date}', { date: formatDate(note.updatedAt) });
   const text = plainText(editor.innerHTML);
   const words = (text.match(/\S+/g) || []).length;
-  $('statusCount').textContent = `${words} ${words === 1 ? 'word' : 'words'} · ${text.length} characters`;
+  const wordsLabel = words === 1 ? mariowOSI18n.t('notes.status.words.one', '{count} word', { count: words }) : mariowOSI18n.t('notes.status.words.other', '{count} words', { count: words });
+  const charsLabel = text.length === 1 ? mariowOSI18n.t('notes.status.chars.one', '{count} character', { count: text.length }) : mariowOSI18n.t('notes.status.chars.other', '{count} characters', { count: text.length });
+  $('statusCount').textContent = `${wordsLabel} · ${charsLabel}`;
 }
 
 let listTimer = null;
@@ -595,7 +596,7 @@ function currentBlock() {
   }
   return null;
 }
-const BLOCK_LABELS = { H1: 'Title', H2: 'Heading', H3: 'Subheading', BLOCKQUOTE: 'Quote', PRE: 'Monospaced' };
+const BLOCK_LABELS = { H1: mariowOSI18n.t('notes.style.title', 'Title'), H2: mariowOSI18n.t('notes.style.heading', 'Heading'), H3: mariowOSI18n.t('notes.style.subheading', 'Subheading'), BLOCKQUOTE: mariowOSI18n.t('notes.style.quote', 'Quote'), PRE: mariowOSI18n.t('notes.style.mono', 'Monospaced') };
 function updateToolbarState() {
   if (!editor.contains(window.getSelection().anchorNode)) return;
   ['bold', 'italic', 'underline', 'strikeThrough', 'insertUnorderedList', 'insertOrderedList'].forEach(cmd => {
@@ -607,8 +608,9 @@ function updateToolbarState() {
   });
   $('checklistBtn').classList.toggle('on', Boolean(currentList()?.classList.contains('checklist')));
   const block = currentBlock();
-  $('styleLabel').textContent = (block && BLOCK_LABELS[block.tagName]) || 'Body';
+  $('styleLabel').textContent = (block && BLOCK_LABELS[block.tagName]) || mariowOSI18n.t('notes.style.body', 'Body');
 }
+$('styleLabel').textContent = mariowOSI18n.t('notes.style.body', 'Body');
 document.querySelectorAll('.tb[data-cmd]').forEach(b => {
   b.addEventListener('mousedown', e => e.preventDefault());
   b.onclick = () => exec(b.dataset.cmd);
@@ -661,17 +663,17 @@ editor.addEventListener('click', e => {
 });
 editor.addEventListener('mouseover', e => {
   const a = e.target.closest('a[href]');
-  if (a) a.title = `${a.href}\nCtrl+click to open`;
+  if (a) a.title = `${a.href}\n${mariowOSI18n.t('notes.link.ctrl-click', 'Ctrl+click to open')}`;
 });
 
 async function insertLink() {
   rememberSelection();
   const selected = savedRange && !savedRange.collapsed ? savedRange.toString() : '';
   const existing = currentBlock()?.closest?.('a');
-  const url = await mDialog.prompt('Link address', { title: 'Insert link', placeholder: 'https://example.com', defaultValue: existing?.href || '', okText: 'Insert' });
+  const url = await mDialog.prompt(mariowOSI18n.t('notes.link.address', 'Link address'), { title: mariowOSI18n.t('notes.link.title', 'Insert link'), placeholder: 'https://example.com', defaultValue: existing?.href || '', okText: mariowOSI18n.t('notes.link.insert', 'Insert') });
   if (!url) return;
   const href = /^[a-z]+:/i.test(url) ? url : `https://${url}`;
-  if (!/^(https?:|mailto:)/i.test(href)) { toast('Only web and e-mail links are allowed'); return; }
+  if (!/^(https?:|mailto:)/i.test(href)) { toast(mariowOSI18n.t('notes.link.not-allowed', 'Only web and e-mail links are allowed')); return; }
   restoreSelection();
   if (selected) document.execCommand('createLink', false, href);
   else document.execCommand('insertHTML', false, `<a href="${escapeHtml(href)}">${escapeHtml(url)}</a>&nbsp;`);
@@ -706,7 +708,7 @@ async function insertImages(files) {
       const data = await compressImage(file);
       restoreSelection();
       document.execCommand('insertHTML', false, `<img src="${data}" alt=""><p><br></p>`);
-    } catch (e) { toast('Could not insert the image'); }
+    } catch (e) { toast(mariowOSI18n.t('notes.image.error', 'Could not insert the image')); }
   }
   editor.dispatchEvent(new Event('input'));
 }
@@ -806,7 +808,7 @@ $('styleMenu').querySelectorAll('button').forEach(b => b.onclick = () => {
 });
 
 function buildSwatches(container, colors, onPick, withNone) {
-  if (withNone) { const n = document.createElement('button'); n.className = 'swatch none'; n.title = 'None'; n.onclick = () => onPick(null); container.append(n); }
+  if (withNone) { const n = document.createElement('button'); n.className = 'swatch none'; n.title = mariowOSI18n.t('notes.color.none', 'None'); n.onclick = () => onPick(null); container.append(n); }
   colors.forEach(c => { const s = document.createElement('button'); s.className = 'swatch'; s.style.background = c; s.title = c; s.onclick = () => onPick(c); container.append(s); });
 }
 buildSwatches($('textSwatches'), TEXT_COLORS, c => { closeMenus(); exec('foreColor', c || '#ffffff'); });
@@ -832,28 +834,28 @@ function openNoteMenu(note, x, y) {
   const menu = $('noteMenu');
   menu.replaceChildren();
   if (note.deletedAt) {
-    menu.append(menuButton('restore_from_trash', 'Restore', () => restoreNote(note)),
-      menuButton('delete_forever', 'Delete forever', () => purgeNote(note), { danger: true }));
+    menu.append(menuButton('restore_from_trash', mariowOSI18n.t('notes.restore', 'Restore'), () => restoreNote(note)),
+      menuButton('delete_forever', mariowOSI18n.t('notes.purge', 'Delete forever'), () => purgeNote(note), { danger: true }));
   } else {
     menu.append(
-      menuButton('keep', note.pinned ? 'Unpin' : 'Pin to top', () => togglePin(note)),
-      menuButton('content_copy', 'Duplicate', () => duplicateNote(note)));
-    const label = document.createElement('div'); label.className = 'label'; label.textContent = 'Color label';
+      menuButton('keep', note.pinned ? mariowOSI18n.t('notes.menu.unpin', 'Unpin') : mariowOSI18n.t('notes.menu.pin', 'Pin to top'), () => togglePin(note)),
+      menuButton('content_copy', mariowOSI18n.t('notes.menu.duplicate', 'Duplicate'), () => duplicateNote(note)));
+    const label = document.createElement('div'); label.className = 'label'; label.textContent = mariowOSI18n.t('notes.menu.color-label', 'Color label');
     const sw = document.createElement('div'); sw.className = 'swatches';
     buildSwatches(sw, LABEL_COLORS, c => { closeMenus(); note.color = c || ''; note.updatedAt = Date.now(); scheduleSave(); renderList(); }, true);
     const hr = () => document.createElement('hr');
     menu.append(hr(), label, sw, hr(),
-      menuButton('download', 'Export as HTML', () => exportNote(note, 'html')),
-      menuButton('description', 'Export as text', () => exportNote(note, 'txt')),
-      menuButton('upload_file', 'Import notes…', () => $('importInput').click()),
+      menuButton('download', mariowOSI18n.t('notes.menu.export-html', 'Export as HTML'), () => exportNote(note, 'html')),
+      menuButton('description', mariowOSI18n.t('notes.menu.export-text', 'Export as text'), () => exportNote(note, 'txt')),
+      menuButton('upload_file', mariowOSI18n.t('notes.menu.import', 'Import notes…'), () => $('importInput').click()),
       hr(),
-      menuButton('delete', 'Delete', () => deleteNote(note), { danger: true, kbd: 'Ctrl+Del' }));
+      menuButton('delete', mariowOSI18n.t('common.delete', 'Delete'), () => deleteNote(note), { danger: true, kbd: 'Ctrl+Del' }));
   }
   openMenu(menu, x, y);
 }
 $('moreBtn').onclick = () => {
   const note = current();
-  if (!note) { const menu = $('noteMenu'); menu.replaceChildren(menuButton('upload_file', 'Import notes…', () => $('importInput').click())); openMenu(menu, $('moreBtn')); return; }
+  if (!note) { const menu = $('noteMenu'); menu.replaceChildren(menuButton('upload_file', mariowOSI18n.t('notes.menu.import', 'Import notes…'), () => $('importInput').click())); openMenu(menu, $('moreBtn')); return; }
   const r = $('moreBtn').getBoundingClientRect();
   openNoteMenu(note, r.right - 220, r.bottom + 6);
 };
@@ -865,7 +867,7 @@ function togglePin(note) {
   scheduleSave();
   renderList();
   renderEditorChrome();
-  toast(note.pinned ? 'Pinned to the top' : 'Unpinned');
+  toast(note.pinned ? mariowOSI18n.t('notes.toast.pinned', 'Pinned to the top') : mariowOSI18n.t('notes.toast.unpinned', 'Unpinned'));
 }
 function renderEditorChrome() {
   const note = current();
@@ -881,7 +883,7 @@ function duplicateNote(note) {
   scheduleSave();
   renderList();
   renderEditor();
-  toast('Note duplicated');
+  toast(mariowOSI18n.t('notes.toast.duplicated', 'Note duplicated'));
 }
 function deleteNote(note) {
   flushEditor();
@@ -893,7 +895,7 @@ function deleteNote(note) {
   scheduleSave();
   renderList();
   renderEditor();
-  if (!empty) toast('Moved to Recently deleted', { label: 'Undo', run: () => { delete note.deletedAt; currentId = note.id; scheduleSave(); renderList(); renderEditor(); } });
+  if (!empty) toast(mariowOSI18n.t('notes.toast.moved-to-trash', 'Moved to Recently deleted'), { label: mariowOSI18n.t('notes.toast.undo', 'Undo'), run: () => { delete note.deletedAt; currentId = note.id; scheduleSave(); renderList(); renderEditor(); } });
 }
 function restoreNote(note) {
   delete note.deletedAt;
@@ -903,10 +905,10 @@ function restoreNote(note) {
   scheduleSave();
   renderList();
   renderEditor();
-  toast('Note restored');
+  toast(mariowOSI18n.t('notes.toast.restored', 'Note restored'));
 }
 async function purgeNote(note) {
-  if (!(await mDialog.confirm(`Delete "${noteTitle(note)}" forever? This cannot be undone.`, { title: 'Delete forever', okText: 'Delete', danger: true }))) return;
+  if (!(await mDialog.confirm(mariowOSI18n.t('notes.purge.confirm', 'Delete "{title}" forever? This cannot be undone.', { title: noteTitle(note) }), { title: mariowOSI18n.t('notes.purge', 'Delete forever'), okText: mariowOSI18n.t('common.delete', 'Delete'), danger: true }))) return;
   notes = notes.filter(n => n !== note);
   const next = visibleNotes()[0];
   currentId = next ? next.id : null;
@@ -957,7 +959,9 @@ $('importInput').onchange = async e => {
     scheduleSave();
     renderList();
     renderEditor();
-    toast(`${files.length} ${files.length === 1 ? 'note' : 'notes'} imported`);
+    toast(files.length === 1
+      ? mariowOSI18n.t('notes.toast.imported.one', '{count} note imported', { count: files.length })
+      : mariowOSI18n.t('notes.toast.imported.other', '{count} notes imported', { count: files.length }));
   }
   e.target.value = '';
 };
@@ -965,12 +969,12 @@ $('importInput').onchange = async e => {
 /* ── Files opened from Explorer ── */
 async function openFileInNotes(request) {
   if (!request || typeof request.path !== 'string' || !request.path.startsWith('/') ||
-      typeof request.name !== 'string' || !request.name || /[\\/]/.test(request.name)) { toast('Cannot open this file'); return; }
+      typeof request.name !== 'string' || !request.name || /[\\/]/.test(request.name)) { toast(mariowOSI18n.t('notes.file.cannot-open', 'Cannot open this file')); return; }
   const existing = notes.find(n => n.sourcePath === request.path && n.sourceName === request.name && !n.deletedAt);
   if (existing) { showTrash = false; openNote(existing.id); return; }
   const extension = `.${request.name.split('.').pop().toLowerCase()}`;
   if (BINARY_EXTENSIONS.has(extension)) {
-    newNote('<p>This file cannot be edited in Notes because it is not a text file.</p>', { sourcePath: request.path, sourceName: request.name, sourceFormat: 'binary' });
+    newNote(`<p>${escapeHtml(mariowOSI18n.t('notes.file.binary', 'This file cannot be edited in Notes because it is not a text file.'))}</p>`, { sourcePath: request.path, sourceName: request.name, sourceFormat: 'binary' });
     renderEditor();
     return;
   }
@@ -990,7 +994,7 @@ async function openFileInNotes(request) {
     renderEditor();
   } catch (error) {
     console.error('Could not open file in Notes:', error);
-    toast('Could not open the file');
+    toast(mariowOSI18n.t('notes.file.open-error', 'Could not open the file'));
   }
 }
 async function saveCurrentFile() {
@@ -1015,10 +1019,10 @@ async function saveCurrentFile() {
     if (!response.ok || !data.success) throw new Error(data.error || 'Unable to save file');
     scheduleSave();
     if (IS_EMBEDDED) window.parent.postMessage({ type: 'refresh-desktop' }, window.location.origin);
-    toast(`Saved to ${note.sourceName}`);
+    toast(mariowOSI18n.t('notes.file.saved', 'Saved to {name}', { name: note.sourceName }));
   } catch (error) {
     console.error('Could not save file from Notes:', error);
-    toast('Could not save the file');
+    toast(mariowOSI18n.t('notes.file.save-error', 'Could not save the file'));
   }
 }
 $('saveFileBtn').onclick = saveCurrentFile;
@@ -1073,7 +1077,7 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     const note = current();
     if (note?.sourcePath && note.sourceFormat !== 'binary') saveCurrentFile();
-    else { flushEditor(); saveNow(); toast('Saved'); }
+    else { flushEditor(); saveNow(); toast(mariowOSI18n.t('notes.status.saved', 'Saved')); }
   }
   else if (key === 'k') { e.preventDefault(); insertLink(); }
   else if (key === 'l' && e.shiftKey) { e.preventDefault(); toggleChecklist(); }
@@ -1093,7 +1097,7 @@ function restoreDesktopHeader() {
     const header = doc.querySelector('#popup5 .popup-header');
     if (header && header.querySelector('#os-notes-tabs, #os-notes-actions')) {
       header.style.gap = '';
-      header.innerHTML = '<span>Notes</span><div class="window-actions">' +
+      header.innerHTML = `<span>${escapeHtml(mariowOSI18n.t('notes.title', 'Notes'))}</span><div class="window-actions">` +
         '<span class="material-symbols-outlined action-btn min-btn" onclick="minimizePopup(\'popup5\')">remove</span>' +
         '<span class="material-symbols-outlined action-btn max-btn" onclick="toggleMaximize(\'popup5\')">crop_square</span>' +
         '<span class="material-symbols-outlined action-btn close-btn" onclick="closePopup(\'popup5\')">close</span></div>';

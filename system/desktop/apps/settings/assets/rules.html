@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rules</title>
@@ -103,25 +106,23 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back to settings" onclick="goBackToSettings()">
+    <button class="settings-page-back" type="button" aria-label="Back to settings" data-i18n-aria-label="settings.rules.back" onclick="goBackToSettings()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Rules</h1>
+    <h1 data-i18n="settings.rules.title">Rules</h1>
   </div>
 
   <div class="banner">
-    <div class="title">Create custom automation rules</div>
-    <div class="desc">
-      Set up automated actions based on specific events and conditions on your system. Rules help you automate repetitive tasks.
-    </div>
+    <div class="title" data-i18n="settings.rules.banner">Create custom automation rules</div>
+    <div class="desc" data-i18n="settings.rules.banner-desc">Set up automated actions based on specific events and conditions on your system. Rules help you automate repetitive tasks.</div>
   </div>
 
   <div class="panel settings-list">
   <div class="item" onclick="navigateToFile('new-rule.html')">
     <div class="icon-badge bg-gray"><span class="material-symbols-outlined">add</span></div>
     <div class="text-group">
-    <div class="text-title">New rule</div>
-    <div class="text-desc">Create a new automation rule from scratch</div>
+    <div class="text-title" data-i18n="settings.rules.new">New rule</div>
+    <div class="text-desc" data-i18n="settings.rules.new-desc">Create a new automation rule from scratch</div>
     </div>
     <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
   </div>
@@ -129,8 +130,8 @@ html::-webkit-scrollbar {
   <div class="item" onclick="navigateToFile('manage-rules.html')">
     <div class="icon-badge bg-gray"><span class="material-symbols-outlined">list_alt</span></div>
     <div class="text-group">
-    <div class="text-title">Manage rules</div>
-    <div class="text-desc">View, edit, and delete existing rules</div>
+    <div class="text-title" data-i18n="settings.rules.manage">Manage rules</div>
+    <div class="text-desc" data-i18n="settings.rules.manage-desc">View, edit, and delete existing rules</div>
     </div>
     <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
   </div>
@@ -138,8 +139,8 @@ html::-webkit-scrollbar {
   <div class="item" onclick="navigateToFile('rule-templates.html')">
     <div class="icon-badge bg-gray"><span class="material-symbols-outlined">view_cozy</span></div>
     <div class="text-group">
-    <div class="text-title">Rule templates</div>
-    <div class="text-desc">Use predefined rule templates for common tasks</div>
+    <div class="text-title" data-i18n="settings.rules.templates">Rule templates</div>
+    <div class="text-desc" data-i18n="settings.rules.templates-desc">Use predefined rule templates for common tasks</div>
     </div>
     <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
   </div>
@@ -147,8 +148,8 @@ html::-webkit-scrollbar {
   <div class="item" onclick="navigateToFile('rule-history.html')">
     <div class="icon-badge bg-gray"><span class="material-symbols-outlined">history</span></div>
     <div class="text-group">
-    <div class="text-title">Rule history</div>
-    <div class="text-desc">View the history of executed rules</div>
+    <div class="text-title" data-i18n="settings.rules.history">Rule history</div>
+    <div class="text-desc" data-i18n="settings.rules.history-desc">View the history of executed rules</div>
     </div>
     <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
   </div>
@@ -156,8 +157,8 @@ html::-webkit-scrollbar {
   <div class="item" onclick="navigateToFile('enable-disable-rules.html')">
     <div class="icon-badge bg-gray"><span class="material-symbols-outlined">toggle_on</span></div>
     <div class="text-group">
-    <div class="text-title">Enable/Disable all rules</div>
-    <div class="text-desc">Temporarily disable all automation rules</div>
+    <div class="text-title" data-i18n="settings.rules.toggle">Enable/Disable all rules</div>
+    <div class="text-desc" data-i18n="settings.rules.toggle-desc">Temporarily disable all automation rules</div>
     </div>
     <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
   </div>

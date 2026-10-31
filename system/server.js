@@ -13,7 +13,6 @@ const os = require("os");
 const crypto = require("crypto");
 const multer = require("multer");
 const cron = require('node-cron');
-const nodemailer = require("nodemailer");
 const childProcess = require('child_process');
 // Never flash a console window on Windows for helper commands (netsh, git, powershell...).
 const exec = (command, options, callback) => {
@@ -25,7 +24,7 @@ const spawn = (command, args, options) => {
   return childProcess.spawn(command, args, { windowsHide: true, ...(options || {}) });
 };
 
-// Load secrets (e.g. SMTP credentials) from system/.env without overriding real env vars.
+// Load local overrides (e.g. MARIOWOS_MAIL_RELAY_URL) from system/.env without overriding real env vars.
 (function loadEnvFile() {
   const envPath = path.join(__dirname, ".env");
   if (!fs.existsSync(envPath)) return;
@@ -40,6 +39,57 @@ const spawn = (command, args, options) => {
 // The backend owns the config file, login flow, desktop routes, and the app store.
 // If you are building on top of the OS, this is the file to understand first.
 const app = express();
+
+// SECURITY (D-01): defence-in-depth Content-Security-Policy + hardening headers.
+// The desktop and every app are served from this origin and loaded as same-origin
+// iframes, so one policy set here covers them all. This is LAYER 1: it does NOT yet
+// forbid inline scripts/handlers ('unsafe-inline' stays, because the whole UI is
+// built on inline code — removing it is a separate, larger refactor together with
+// sanitising the innerHTML sinks). What it DOES buy right now:
+//   - connect-src 'self'  -> a successful XSS cannot exfiltrate data to a remote
+//                            server or beacon out; every app already talks only to
+//                            same-origin /api/* routes (the backend proxies outward).
+//   - script-src pinned   -> no stage-2 payload can be pulled from an attacker CDN;
+//                            only self + the CDN the OS genuinely uses are allowed.
+//   - object-src 'none', base-uri 'self', frame-ancestors 'self' -> kill <object>/
+//                            <embed>, <base> hijacking and clickjacking/re-framing.
+// The in-OS browser runs in a <webview> (its own browsing context), so external
+// sites it visits are unaffected by this header.
+//
+// Third-party Store apps are the exception: they are served from a SEPARATE origin
+// (APPS_ORIGIN, see "THIRD-PARTY APP ISOLATION" below) so they cannot reach this one.
+const APPS_HOST = process.env.MARIOWOS_BIND_HOST || "127.0.0.1";
+const APPS_PORT = Number(process.env.MARIOWOS_APPS_PORT || Number(process.env.MARIOWOS_PORT || 3000) + 1);
+const APPS_ORIGIN = `http://${APPS_HOST}:${APPS_PORT}`;
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  // 'unsafe-eval' is required by the Monaco editor (ACode); 'unsafe-inline' by the
+  // OS's inline handlers/scripts. cdnjs serves Monaco + JSZip.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+  "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' data: blob:",
+  "connect-src 'self'",
+  // External iframes the shell embeds (homepage, chat widgets) are https only; the
+  // browser app itself uses a <webview>, not an iframe, so it is not constrained here.
+  `frame-src 'self' https: ${APPS_ORIGIN}`,
+  // Monaco (ACode) spins up its language worker from a data: URL. 'blob:' covers the
+  // common pattern; 'data:' is needed for this Monaco build. (Hosting Monaco from the
+  // bundled local copy in desktop/assets/vendor/monaco would let this drop to 'self'.)
+  "worker-src 'self' blob: data:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'self'"
+].join("; ");
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", CONTENT_SECURITY_POLICY);
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  next();
+});
+
 const PORT = Number(process.env.MARIOWOS_PORT || 3000);
 if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
   throw new Error('MARIOWOS_PORT must be a valid TCP port');
@@ -57,98 +107,31 @@ const SOTA_COMPONENTS = new Set([
   "store", "terminal", "desktop"
 ]);
 
-// Semantic version comparison. The updater must only ever offer a NEWER build:
-// comparing versions as plain strings made 1.0.0 look like an "update" for 1.1.0,
-// which offered the user a silent downgrade.
-const SEMVER_PATTERN = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/;
+// Pure version & URL-validation helpers live in ./lib/validation.js so they can be
+// unit-tested without booting the server (see system/test/validation.test.js).
+// Semantics unchanged:
+//  - isNewerVersion: the updater only ever offers a strictly NEWER build (no silent
+//    downgrade); unparseable versions fall back to "different means newer".
+//  - isAllowedRepoUrl (SECURITY A-07 adjacent): store apps clone/pull/update ONLY from
+//    https github.com / raw.githubusercontent.com repo URLs — never a local path, a
+//    non-https transport, or an "ext::"/option-injection URL.
+const {
+  parseVersion,
+  comparePrerelease,
+  compareVersions,
+  isNewerVersion,
+  getRawGithubUrl,
+  isAllowedRepoUrl,
+  getRepoRawUrls
+} = require("./lib/validation");
 
-function parseVersion(version) {
-  const match = SEMVER_PATTERN.exec(String(version || "").trim());
-  if (!match) return null;
-  return {
-    release: [Number(match[1]), Number(match[2]), Number(match[3])],
-    prerelease: match[4] ? match[4].split(".") : []
-  };
-}
+const { createRollbackPoint, readRollbackPoint } = require("./lib/rollback");
+const { createMailClient } = require("./lib/mail");
+const { createSessions, createPasswordGuard } = require("./lib/session");
 
-function comparePrerelease(left, right) {
-  // A build with no prerelease tag outranks the same release with one (1.2.0 > 1.2.0-beta).
-  if (!left.length && !right.length) return 0;
-  if (!left.length) return 1;
-  if (!right.length) return -1;
-
-  for (let index = 0; index < Math.max(left.length, right.length); index++) {
-    const leftPart = left[index];
-    const rightPart = right[index];
-    if (leftPart === undefined) return -1;
-    if (rightPart === undefined) return 1;
-
-    const leftNumeric = /^\d+$/.test(leftPart);
-    const rightNumeric = /^\d+$/.test(rightPart);
-    if (leftNumeric && rightNumeric) {
-      if (Number(leftPart) !== Number(rightPart)) return Number(leftPart) < Number(rightPart) ? -1 : 1;
-    } else if (leftNumeric !== rightNumeric) {
-      return leftNumeric ? -1 : 1;
-    } else if (leftPart !== rightPart) {
-      return leftPart < rightPart ? -1 : 1;
-    }
-  }
-  return 0;
-}
-
-// Returns -1, 0 or 1, or null when either side is not a version we understand.
-function compareVersions(left, right) {
-  const parsedLeft = parseVersion(left);
-  const parsedRight = parseVersion(right);
-  if (!parsedLeft || !parsedRight) return null;
-
-  for (let index = 0; index < 3; index++) {
-    if (parsedLeft.release[index] !== parsedRight.release[index]) {
-      return parsedLeft.release[index] < parsedRight.release[index] ? -1 : 1;
-    }
-  }
-  return comparePrerelease(parsedLeft.prerelease, parsedRight.prerelease);
-}
-
-// The only question the updater should ever ask: is `candidate` strictly newer than
-// `installed`? Unparseable versions fall back to "different means newer" so a custom
-// build string still gets offered, but equal strings never do.
-function isNewerVersion(candidate, installed) {
-  const order = compareVersions(candidate, installed);
-  return order === null ? String(candidate) !== String(installed) : order > 0;
-}
-
-function getRawGithubUrl(repoUrl) {
-  // Store apps live on GitHub, and this helper turns a repo URL into a default icon URL.
-  // It helps the app catalog show something meaningful even before a custom icon is uploaded.
-  if (!repoUrl) return null;
-  const cleanUrl = repoUrl.replace(/\.git$/, '');
-  const match = cleanUrl.match(/github\.com\/([^/]+\/[^/]+)/);
-  return match ? `https://raw.githubusercontent.com/${match[1]}/main/icon.png` : null;
-}
-
-// SECURITY (A-07 adjacent): store apps are installed from, and updated against, their
-// source repository. Accept ONLY https github.com repo URLs so that:
-//  - `git clone`/`git pull` can't be pointed at a local path, a non-https transport,
-//    or an "ext::"/option-injection URL, and
-//  - update checks fetch version metadata only from the repo the app came from.
-function isAllowedRepoUrl(repoUrl) {
-  if (typeof repoUrl !== "string") return false;
-  try {
-    const u = new URL(repoUrl);
-    return u.protocol === "https:" &&
-      (u.hostname === "github.com" || u.hostname === "raw.githubusercontent.com") &&
-      /^\/[^/]+\/[^/]+/.test(u.pathname);
-  } catch (e) { return false; }
-}
-
-// Raw URLs for a file in the repo, trying main then master.
-function getRepoRawUrls(repoUrl, file) {
-  if (!repoUrl) return [];
-  const cleanUrl = repoUrl.replace(/\.git$/, "");
-  const match = cleanUrl.match(/github\.com\/([^/]+\/[^/]+)/);
-  if (!match) return [];
-  return ["main", "master"].map(b => `https://raw.githubusercontent.com/${match[1]}/${b}/${file}`);
+function readStagedVersion(stagePath) {
+  try { return JSON.parse(fs.readFileSync(path.join(stagePath, "version.json"), "utf8")).version || null; }
+  catch (e) { return null; }
 }
 
 // Read a repo's declared version from its version.json (the app author's own file).
@@ -175,41 +158,17 @@ function readInstalledAppVersion(appId) {
 
 // --- UPDATE AUTHENTICITY (A-07) ---
 // The system updater clones the official repo over HTTPS. That protects the download in
-// transit but not against a compromised/malicious source: whoever controls the source
-// controls both the code and any plain hash manifest. Real authenticity needs a
-// signature verified against a key that ships with the client.
+// transit but not against a compromised source: whoever controls the repository controls
+// both the code and any plain hash list. Real authenticity needs a signature checked
+// against a key that ships with the device.
 //
-// This is opt-in by presence of a public key: drop an Ed25519/RSA public key at
-// update-pubkey.pem and publish a detached base64 signature of version.json at
-// <repo>/version.json.sig. When the key is present, the updater REFUSES any
-// release whose version.json is missing a valid signature. When it is absent, behavior
-// is unchanged (updates proceed unsigned) and a warning is logged — so nothing breaks
-// before signing is set up, and everything is authenticated the moment it is.
+// Opt-in by presence of update-pubkey.pem (created by tools/release-keys.js). When it is
+// present, the updater REFUSES any release whose release-manifest.json is not signed by
+// the matching private key or whose files do not match it (lib/update-checks.js).
+// When it is absent, updates proceed unsigned and a warning is logged.
 const updatePubKeyFile = path.join(__dirname, "update-pubkey.pem");
 function getUpdatePublicKey() {
   try { return fs.readFileSync(updatePubKeyFile, "utf8"); } catch (e) { return null; }
-}
-
-// Verifies the detached signature of `versionUrl` using the configured public key.
-// Returns { ok, unsigned?, reason? }. ok=true with unsigned=true means "no key set".
-async function verifyUpdateAuthenticity(versionUrl) {
-  const pubKey = getUpdatePublicKey();
-  if (!pubKey) {
-    console.warn("[update] No update-pubkey.pem configured: updates are NOT signature-verified.");
-    return { ok: true, unsigned: true };
-  }
-  try {
-    const verRes = await fetch(versionUrl);
-    if (!verRes.ok) return { ok: false, reason: "version.json unreachable" };
-    const versionBytes = Buffer.from(await verRes.arrayBuffer());
-    const sigRes = await fetch(versionUrl + ".sig");
-    if (!sigRes.ok) return { ok: false, reason: "release is not signed (version.json.sig missing)" };
-    const signature = Buffer.from((await sigRes.text()).trim(), "base64");
-    const valid = crypto.verify(null, versionBytes, pubKey, signature);
-    return valid ? { ok: true } : { ok: false, reason: "invalid update signature" };
-  } catch (e) {
-    return { ok: false, reason: "signature check error: " + e.message };
-  }
 }
 
 // --- FILESYSTEM INTEGRITY / VERIFIED BOOT (tamper detection) ---
@@ -352,30 +311,11 @@ if (fs.existsSync(configFile)) {
   };
 }
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.MARIOWOS_SMTP_USER,
-    pass: process.env.MARIOWOS_SMTP_PASSWORD
-  },
-  // Trust the OS certificate store too, so antivirus/proxy HTTPS inspection
-  // (which re-signs TLS with a locally trusted root) doesn't break SMTP.
-  tls: { ca: getTrustedCAs() }
+// Emails go through the mariowOS mail relay (lib/mail.js): no mail password on the device.
+const mail = createMailClient({
+  relayUrl: process.env.MARIOWOS_MAIL_RELAY_URL || "https://mariowos-mail.mariowos.workers.dev",
+  errorLogFile: path.join(__dirname, "mail-error.log")
 });
-
-function getTrustedCAs() {
-  const tls = require("tls");
-  if (typeof tls.getCACertificates !== "function") return undefined;
-  try {
-    return [...new Set([...tls.getCACertificates("default"), ...tls.getCACertificates("system")])];
-  } catch (e) {
-    return undefined;
-  }
-}
-const SMTP_CONFIGURED = Boolean(process.env.MARIOWOS_SMTP_USER && process.env.MARIOWOS_SMTP_PASSWORD);
-if (!SMTP_CONFIGURED) console.warn("[mail] MARIOWOS_SMTP_USER / MARIOWOS_SMTP_PASSWORD not set: emails cannot be sent.");
 
 function saveConfig() {
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
@@ -386,179 +326,23 @@ function isValidEmail(email) {
   return typeof email === "string" && email.length <= 254 && EMAIL_RE.test(email.trim());
 }
 
-// One-time codes kept in memory, keyed by purpose + email. Codes are stored hashed.
-const CODE_TTL_MS = 10 * 60 * 1000;
-const CODE_COOLDOWN_MS = 60 * 1000;
-const CODE_MAX_ATTEMPTS = 5;
-const pendingCodes = new Map();
-const hashCode = code => crypto.createHash("sha256").update(String(code)).digest("hex");
+// One-time codes are generated, stored and checked by the mail relay.
+const sendCodeEmail = (purpose, email) => mail.sendCode(purpose, email, config.username);
+const checkCode = (purpose, email, code) => mail.checkCode(purpose, email, code);
 
-// Email-client-safe template: tables + inline styles only (Gmail/Outlook strip <style> and flexbox).
-function renderCodeEmail(purpose, code) {
-  const isReset = purpose === "reset";
-  const heading = isReset ? "Reset your password" : "Verify your email";
-  const intro = isReset
-    ? "Someone asked to reset the password of your mariowOS account. Use this code to choose a new one:"
-    : "Welcome! Enter this code in <b>Settings &rsaquo; You</b> to confirm this email belongs to you:";
-  const digits = code.split("").map(d =>
-    `<td style="padding:0 4px;"><div style="width:44px;height:56px;line-height:56px;background:#ffffff;border:1px solid #e3e6ef;border-radius:12px;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:28px;font-weight:700;color:#14161c;text-align:center;">${d}</div></td>`
-  ).join("");
-  return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${heading}</title></head>
-<body style="margin:0;padding:0;background:#eef1f7;">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your mariowOS code is ${code}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f7;padding:40px 16px;font-family:'Poppins','Segoe UI',Helvetica,Arial,sans-serif;">
-    <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 12px 40px rgba(20,22,28,0.08);">
-        <tr><td style="background:linear-gradient(135deg,#0a84ff 0%,#5e5ce6 100%);background-color:#0a84ff;padding:36px 32px 32px;text-align:center;">
-          <div style="font-size:26px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">mariowOS</div>
-          <div style="margin-top:6px;font-size:13px;color:rgba(255,255,255,0.8);">${isReset ? "Account security" : "Account verification"}</div>
-        </td></tr>
-        <tr><td style="padding:36px 32px 8px;text-align:center;">
-          <div style="font-size:22px;font-weight:600;color:#14161c;">${heading}</div>
-          <div style="margin-top:12px;font-size:15px;line-height:1.6;color:#5b6070;">${intro}</div>
-        </td></tr>
-        <tr><td align="center" style="padding:24px 24px 8px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" style="background:#f5f7fb;border-radius:18px;padding:18px 14px;"><tr>${digits}</tr></table>
-        </td></tr>
-        <tr><td style="padding:12px 32px 32px;text-align:center;">
-          <div style="display:inline-block;padding:6px 14px;background:#fff4e5;border-radius:999px;font-size:12px;font-weight:600;color:#b25e00;">&#9201; Expires in 10 minutes</div>
-        </td></tr>
-        <tr><td style="padding:0 32px;"><div style="height:1px;background:#eceef3;"></div></td></tr>
-        <tr><td style="padding:20px 32px 32px;text-align:center;font-size:12px;line-height:1.6;color:#8a8f9e;">
-          Didn't request this? You can safely ignore this email &mdash; nothing will change.<br>
-          Never share this code with anyone, not even the mariowOS team.
-        </td></tr>
-      </table>
-      <div style="margin-top:20px;font-size:11px;color:#a0a5b3;font-family:'Segoe UI',Helvetica,Arial,sans-serif;">&copy; ${new Date().getFullYear()} mariowOS &middot; Sent automatically, please don't reply.</div>
-    </td></tr>
-  </table>
-</body></html>`;
-}
-
-async function sendCodeEmail(purpose, email) {
-  if (!SMTP_CONFIGURED) return { ok: false, status: 503, error: "Email service not configured on this system." };
-  const key = purpose + ":" + email.toLowerCase();
-  const existing = pendingCodes.get(key);
-  if (existing && Date.now() - existing.sentAt < CODE_COOLDOWN_MS) {
-    const wait = Math.ceil((CODE_COOLDOWN_MS - (Date.now() - existing.sentAt)) / 1000);
-    return { ok: false, status: 429, error: `Please wait ${wait}s before requesting a new code.`, retryAfter: wait };
-  }
-  const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
-  const title = purpose === "reset" ? "Password reset code" : "Email verification code";
-  try {
-    await transporter.sendMail({
-      from: { name: "mariowOS", address: process.env.MARIOWOS_SMTP_USER },
-      to: email,
-      subject: `mariowOS - ${title}`,
-      text: `Your mariowOS code is ${code}. It expires in 10 minutes.\nIf you did not request it, you can safely ignore this email.`,
-      html: renderCodeEmail(purpose, code)
-    });
-  } catch (err) {
-    const detail = [err.code, err.responseCode, err.message].filter(Boolean).join(" ");
-    console.error("[mail] Failed to send code:", detail);
-    try { fs.appendFileSync(path.join(__dirname, "mail-error.log"), `${new Date().toISOString()} ${detail}\n${err.stack || ""}\n`); } catch (e) {}
-    return { ok: false, status: 502, error: "Could not send the email: " + detail };
-  }
-  pendingCodes.set(key, { hash: hashCode(code), expiresAt: Date.now() + CODE_TTL_MS, sentAt: Date.now(), attempts: 0 });
-  return { ok: true };
-}
-
-function checkCode(purpose, email, code) {
-  const key = purpose + ":" + String(email || "").trim().toLowerCase();
-  const entry = pendingCodes.get(key);
-  if (!entry) return { ok: false, error: "No code requested for this email. Request a new one." };
-  if (Date.now() > entry.expiresAt) { pendingCodes.delete(key); return { ok: false, error: "Code expired. Request a new one." }; }
-  if (entry.attempts >= CODE_MAX_ATTEMPTS) { pendingCodes.delete(key); return { ok: false, error: "Too many attempts. Request a new code." }; }
-  entry.attempts++;
-  const given = Buffer.from(hashCode(String(code || "").trim()));
-  if (!crypto.timingSafeEqual(given, Buffer.from(entry.hash))) {
-    return { ok: false, error: `Wrong code. ${CODE_MAX_ATTEMPTS - entry.attempts} attempts left.` };
-  }
-  pendingCodes.delete(key);
-  return { ok: true };
-}
-
-// --- SESSION AUTHENTICATION (A-02) ---
-// The backend used to trust every caller: any page (or any process able to reach the
-// port) could hit the mutating API with no proof of being the logged-in user. We now
-// issue a signed, HttpOnly, SameSite=Strict session cookie on successful login and
-// require it for every state-changing request. SameSite=Strict also means a malicious
-// web page the user happens to visit cannot drive these routes via the browser (CSRF,
-// which also closes the unauthenticated factory-reset/restore vector, C-05 / M-05).
-const SESSION_COOKIE = "mw_session";
-const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12h
-
-// The signing secret is persisted so sessions survive the frequent backend respawns
-// (updates, reboots). It is kept in its own file, never in config.json (which is sent
-// to the frontend), and is gitignored.
-const sessionKeyFile = path.join(__dirname, "session.key");
-let SESSION_SECRET;
-try {
-  SESSION_SECRET = fs.readFileSync(sessionKeyFile, "utf8").trim();
-  if (!SESSION_SECRET) throw new Error("empty");
-} catch (e) {
-  SESSION_SECRET = crypto.randomBytes(32).toString("hex");
-  try { fs.writeFileSync(sessionKeyFile, SESSION_SECRET, { mode: 0o600 }); }
-  catch (writeErr) { console.warn("[auth] Could not persist session key:", writeErr.message); }
-}
-
-function signSession(payloadB64) {
-  return crypto.createHmac("sha256", SESSION_SECRET).update(payloadB64).digest("base64url");
-}
-
-function issueSession(res) {
-  const payload = { exp: Date.now() + SESSION_TTL_MS, nonce: crypto.randomBytes(8).toString("hex") };
-  const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const token = `${payloadB64}.${signSession(payloadB64)}`;
-  res.setHeader("Set-Cookie",
-    `${SESSION_COOKIE}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}` +
-    (process.env.MARIOWOS_SECURE_COOKIE === "1" ? "; Secure" : ""));
-}
-
-function clearSession(res) {
-  res.setHeader("Set-Cookie", `${SESSION_COOKIE}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`);
-}
-
-function parseCookies(req) {
-  const header = req.headers.cookie || "";
-  const out = {};
-  header.split(";").forEach(part => {
-    const i = part.indexOf("=");
-    if (i > -1) out[part.slice(0, i).trim()] = part.slice(i + 1).trim();
-  });
-  return out;
-}
-
-function hasValidSession(req) {
-  const token = parseCookies(req)[SESSION_COOKIE];
-  if (!token || token.indexOf(".") < 0) return false;
-  const [payloadB64, sig] = token.split(".");
-  const expected = signSession(payloadB64);
-  const a = Buffer.from(sig || "");
-  const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
-  try {
-    const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
-    return typeof payload.exp === "number" && Date.now() < payload.exp;
-  } catch (e) { return false; }
-}
-
-// Brute-force protection for every account-password check: after 5 consecutive
-// failures, all checks are refused for 30 s, doubling up to 15 minutes.
-const passwordGuard = { failures: 0, lockedUntil: 0 };
-function passwordLockSeconds() {
-  return Math.max(0, Math.ceil((passwordGuard.lockedUntil - Date.now()) / 1000));
-}
-async function comparePassword(candidate, hash) {
-  if (!hash || passwordLockSeconds() > 0) return false;
-  const ok = typeof candidate === "string" && await bcrypt.compare(candidate, hash);
-  if (ok) passwordGuard.failures = 0;
-  else if (++passwordGuard.failures >= 5) {
-    passwordGuard.lockedUntil = Date.now() + Math.min(15 * 60 * 1000, 30 * 1000 * 2 ** (passwordGuard.failures - 5));
-  }
-  return ok;
-}
+// --- SESSION AUTHENTICATION (A-02) --- see lib/session.js
+// SHA-256 of session keys that were once published in the GitHub repositories. Anyone
+// could sign a session with them, so a device still using one gets a fresh key (its
+// user simply logs in again).
+const LEAKED_SESSION_KEY_HASHES = new Set([
+  "2feed71c3d843835e71c2a9963de5c671cd0ed0ab4da984466210bf7e2f0b9b2"
+]);
+const { issueSession, clearSession, hasValidSession, signAppToken, verifyAppToken } = createSessions({
+  keyFile: path.join(__dirname, "session.key"),
+  leakedKeyHashes: LEAKED_SESSION_KEY_HASHES,
+  secureCookie: process.env.MARIOWOS_SECURE_COOKIE === "1"
+});
+const { comparePassword, lockSeconds: passwordLockSeconds } = createPasswordGuard((candidate, hash) => bcrypt.compare(candidate, hash));
 
 // Routes that must stay reachable WITHOUT a session: the login/recovery flow itself,
 // health checks, and the Electron shell's own token-authenticated power controls.
@@ -599,19 +383,6 @@ function loadAppPermissions() {
   } catch (e) { return { enforced: false, rules: [] }; }
 }
 
-function signAppToken(appId) {
-  const payloadB64 = Buffer.from(JSON.stringify({ appId, iat: Date.now() })).toString("base64url");
-  return `${payloadB64}.${crypto.createHmac("sha256", SESSION_SECRET).update("app:" + payloadB64).digest("base64url")}`;
-}
-function verifyAppToken(token) {
-  if (typeof token !== "string" || token.indexOf(".") < 0) return null;
-  const [payloadB64, sig] = token.split(".");
-  const expected = crypto.createHmac("sha256", SESSION_SECRET).update("app:" + payloadB64).digest("base64url");
-  const a = Buffer.from(sig || ""); const b = Buffer.from(expected);
-  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
-  try { return JSON.parse(Buffer.from(payloadB64, "base64url").toString()); } catch (e) { return null; }
-}
-
 function enforceAppPermissions(req, res, next) {
   const perms = loadAppPermissions();
   if (!perms.enforced) return next();
@@ -623,6 +394,35 @@ function enforceAppPermissions(req, res, next) {
   }
   next();
 }
+
+// --- THIRD-PARTY APP ISOLATION ---
+// Store apps from developers other than the mariowOS team run on their own origin
+// (APPS_ORIGIN, a second port), not as same-origin iframes of the shell. The browser
+// then keeps them away from the shell's DOM, cookies and storage, and:
+//  - they cannot READ this API: no CORS headers are ever sent to them;
+//  - they cannot WRITE to it: every state-changing request carrying a foreign Origin
+//    is refused below (this also stops any other web page from posting here);
+//  - they cannot sneak back onto this origin: their files are not served here.
+const TRUSTED_APP_OWNERS = new Set(["mariowos", "mariowstech"]);
+function isThirdPartyApp(installed) {
+  if (!installed || !installed.repoUrl) return false; // built into the OS
+  const owner = String(installed.repoUrl).match(/^https:\/\/(?:raw\.githubusercontent\.com|github\.com)\/([^/]+)\//i);
+  return !owner || !TRUSTED_APP_OWNERS.has(owner[1].toLowerCase());
+}
+const thirdPartyAppIds = () => new Set((config.installedApps || []).filter(isThirdPartyApp).map(installed => installed.appId));
+
+const SHELL_ORIGINS = new Set([`http://127.0.0.1:${PORT}`, `http://localhost:${PORT}`, `http://${APPS_HOST}:${PORT}`]);
+function rejectForeignWrites(req, res, next) {
+  if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") return next();
+  const origin = req.get("origin");
+  // No Origin: a non-browser client on this machine (the launcher, curl). Same origin: the shell.
+  if (!origin || SHELL_ORIGINS.has(origin)) return next();
+  return res.status(403).json({ success: false, error: "Requests from other origins are not allowed." });
+}
+app.use(rejectForeignWrites);
+
+app.use("/desktop/apps/:appId", (req, res, next) => thirdPartyAppIds().has(req.params.appId)
+  ? res.status(403).send("This app runs in its own sandbox.") : next());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 // Notes can hold pasted images, so their route gets its own larger body limit (below).
@@ -638,6 +438,7 @@ require("./spotify").registerSpotifyRoutes(app, {
 const requireAuthJson = (req, res, next) => (!config.passwordHash || hasValidSession(req))
   ? next() : res.status(401).json({ success: false, error: "Authentication required. Please log in again." });
 require("./media-session").registerMediaSessionRoutes(app, { requireAuth: requireAuthJson });
+require("./bluetooth-watch").registerBluetoothWatchRoutes(app, { requireAuth: requireAuthJson });
 require("./online-services").registerOnlineServiceRoutes(app, { getConfig: () => config, saveConfig, requireAuth: requireAuthJson });
 
 app.get('/api/system/health', (req, res) => {
@@ -736,12 +537,48 @@ app.get('/desktop/assets/bootlogo.user.png', serveUploadedImage(
   'boot logo'
 ));
 
+// A language is available when it is listed in locales/languages.json and has its
+// locales/<code>.json (English is built into the pages and needs no file).
+const LOCALES_DIR = path.join(__dirname, "desktop", "assets", "locales");
+function isAvailableLanguage(code) {
+  if (code === "auto" || code === "en") return true;
+  if (typeof code !== "string" || !/^[a-z]{2,3}(-[a-z0-9]{2,4})?$/.test(code)) return false;
+  return Object.hasOwn(readLanguages(), code) && fs.existsSync(path.join(LOCALES_DIR, `${code}.json`));
+}
+function readLanguages() {
+  try { return { en: "English", ...JSON.parse(fs.readFileSync(path.join(LOCALES_DIR, "languages.json"), "utf8")) }; }
+  catch { return { en: "English" }; }
+}
+// "auto" follows the computer: Electron sends its language as Accept-Language.
+function resolveLanguage(preference, acceptLanguage) {
+  if (preference !== "auto") return preference && preference !== "en" && isAvailableLanguage(preference) ? preference : "en";
+  for (const part of String(acceptLanguage || "").toLowerCase().split(",")) {
+    const tag = part.split(";")[0].trim();
+    for (const code of [tag, tag.split("-")[0]]) if (code && code !== "auto" && isAvailableLanguage(code)) return code;
+  }
+  return "en";
+}
+// The page's language and translations as a script, so they are ready before the
+// page's own scripts run (see desktop/assets/i18n.js).
+app.get("/desktop/assets/i18n-data.js", (req, res) => {
+  const preference = config.language || "en";
+  const language = resolveLanguage(preference, req.get("accept-language"));
+  let dictionary = {};
+  if (language !== "en") {
+    try { dictionary = JSON.parse(fs.readFileSync(path.join(LOCALES_DIR, `${language}.json`), "utf8")); } catch {}
+  }
+  const data = JSON.stringify({ preference, language, languages: readLanguages(), dictionary }).replace(/</g, "\\u003c");
+  res.set({ "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "no-store" });
+  res.send(`window.__mariowOSI18nData = ${data};\n`);
+});
+
 // Static files are the actual desktop shell. The login screen, settings pages, and app folders
 // are served as normal web assets from the filesystem, which keeps the OS feel web-based and easy to tweak.
 // The notes database lives under desktop/ for historical reasons: never serve it as a static file.
 app.get("/desktop/notes-db.json", (req, res) => res.status(404).end());
 app.use("/desktop", express.static(path.join(__dirname, "desktop")));
 app.use("/loginui", express.static(path.join(__dirname, "loginui")));
+app.use("/lockscreen", express.static(path.join(__dirname, "lockscreen")));
 
 app.get('/desktop/apps/settings/assets/you.html', (req, res, next) => {
   next();
@@ -834,17 +671,18 @@ app.get("/api/system/desktops", (req, res) => {
 
 let dailyEmailTask = null;
 async function sendDiscordFlagsEmail() {
-  if (!config.email || !config.verified || !SMTP_CONFIGURED) return;
-  try {
-    await transporter.sendMail({
-      from: { name: "mariowOS", address: process.env.MARIOWOS_SMTP_USER },
-      to: config.email,
-      subject: "mariowOS Daily Issue Flags - Discord",
-      html: `<h2>mariowOS Daily Report</h2><p>Hello ${config.username}, check the latest issue flags on our Discord server.</p>`
-    });
+  if (!config.email || !config.verified || !mail.configured) return;
+  if (!config.mailToken) {
+    console.warn("[mail] daily report skipped: verify your email again in Settings to enable it.");
+    return;
+  }
+  const result = await mail.sendDailyReport({ email: config.email, token: config.mailToken, username: config.username });
+  if (result.ok) {
     config.lastSent = Date.now();
-    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
-  } catch (err) { console.error('Failed to send daily email:', err); }
+    saveConfig();
+  } else {
+    console.error("Failed to send daily email:", result.error);
+  }
 }
 
 function scheduleDailyEmail() {
@@ -930,32 +768,97 @@ app.get("/api/system/quick-settings", (req, res) => {
   });
 });
 
-app.post("/api/system/quick-settings", (req, res) => {
+// Windows: Wi-Fi and Bluetooth go through lib/windows-radios.ps1, which needs no admin rights.
+function runWindowsRadios(args, env = {}) {
+  const script = path.join(__dirname, "lib", "windows-radios.ps1");
+  return new Promise((resolve, reject) => {
+    childProcess.execFile("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", script, ...args],
+      { windowsHide: true, timeout: 30000, env: { ...process.env, ...env } }, (err, stdout) => {
+        if (err) return reject(err);
+        try {
+          const result = JSON.parse(stdout);
+          return result.success ? resolve(result) : reject(new Error(result.error || "Radio command failed"));
+        } catch (parseError) { reject(parseError); }
+      });
+  });
+}
+
+function runCommand(cmd) {
+  return new Promise((resolve, reject) => exec(cmd, err => (err ? reject(err) : resolve())));
+}
+
+function setWifiPower(on) {
+  if (currentOS === "win32") return runWindowsRadios(["-Action", "set", "-Kind", "WiFi", "-On", on ? "1" : "0"]);
+  if (currentOS === "darwin") return runCommand(`networksetup -setairportpower en0 ${on ? 'on' : 'off'}`);
+  return runCommand(`nmcli radio wifi ${on ? 'on' : 'off'}`);
+}
+
+function setBluetoothPower(on) {
+  if (currentOS === "win32") return runWindowsRadios(["-Action", "set", "-Kind", "Bluetooth", "-On", on ? "1" : "0"]);
+  if (currentOS === "darwin") return runCommand(`blueutil -p ${on ? '1' : '0'}`);
+  return runCommand(`rfkill ${on ? 'unblock' : 'block'} bluetooth`);
+}
+
+// Airplane mode turns every radio off and remembers how they were, to put them back after.
+async function setAirplaneMode(on) {
+  const qs = config.quickSettings;
+  if (on) {
+    qs.radiosBeforeAirplane = { wifi: qs.wifi !== false, bluetooth: qs.bluetooth !== false };
+    await Promise.allSettled([setWifiPower(false), setBluetoothPower(false)]);
+    qs.wifi = false;
+    qs.bluetooth = false;
+    return;
+  }
+  const before = qs.radiosBeforeAirplane || { wifi: true, bluetooth: true };
+  await Promise.allSettled([setWifiPower(before.wifi), setBluetoothPower(before.bluetooth)]);
+  qs.wifi = before.wifi;
+  qs.bluetooth = before.bluetooth;
+  delete qs.radiosBeforeAirplane;
+}
+
+app.post("/api/system/quick-settings", async (req, res) => {
   const { setting, value } = req.body;
   if (!setting || value === undefined) {
     return res.status(400).json({ success: false, error: "Dati mancanti" });
   }
 
-  config.quickSettings[setting] = value;
-  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
-
   // --- HARDWARE POWER TOGGLES ---
-  if (setting === 'wifi') {
-    let cmd = "";
-    if (currentOS === "linux") cmd = `nmcli radio wifi ${value ? 'on' : 'off'}`;
-    else if (currentOS === "darwin") cmd = `networksetup -setairportpower en0 ${value ? 'on' : 'off'}`;
-    else if (currentOS === "win32") cmd = `netsh interface set interface name="Wi-Fi" admin=${value ? 'enabled' : 'disabled'}`;
-    exec(cmd, (err) => { if (err) console.error("Wi-Fi Hardware Toggle Error:", err.message); });
-  } 
-  else if (setting === 'bluetooth') {
-    let cmd = "";
-    if (currentOS === "linux") cmd = `rfkill ${value ? 'unblock' : 'block'} bluetooth`;
-    else if (currentOS === "darwin") cmd = `blueutil -p ${value ? '1' : '0'}`;
-    else if (currentOS === "win32") cmd = `powershell -command "${value ? 'Enable' : 'Disable'}-PnpDevice -Class Bluetooth -Confirm:$false"`;
-    exec(cmd, (err) => { if (err) console.error("BT Hardware Toggle Error:", err.message); });
+  // The saved state only changes once the hardware did, so the panel can't show a state it isn't in.
+  const hardware = { wifi: setWifiPower, bluetooth: setBluetoothPower, airplane: setAirplaneMode }[setting];
+  if (hardware) {
+    try {
+      await hardware(Boolean(value));
+    } catch (error) {
+      console.error(`${setting} toggle error:`, error.message);
+      return res.status(500).json({ success: false, error: error.message, quickSettings: config.quickSettings });
+    }
   }
 
+  config.quickSettings[setting] = value;
+  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
   res.json({ success: true, quickSettings: config.quickSettings });
+});
+
+// Whether this machine has a battery at all: a plugged-in desktop and a fully charged laptop
+// look the same to the page. The level and charging state then come live from the page.
+let batteryPresence = null;
+function detectBattery() {
+  return new Promise(resolve => {
+    if (currentOS === "linux") {
+      try { return resolve(fs.readdirSync("/sys/class/power_supply").some(name => name.startsWith("BAT"))); }
+      catch { return resolve(false); }
+    }
+    if (currentOS === "darwin") return exec("pmset -g batt", (err, stdout) => resolve(!err && stdout.includes("InternalBattery")));
+    if (currentOS === "win32") {
+      return childProcess.execFile("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", "(Get-CimInstance Win32_Battery | Measure-Object).Count"],
+        { windowsHide: true, timeout: 15000 }, (err, stdout) => resolve(!err && parseInt(stdout, 10) > 0));
+    }
+    resolve(false);
+  });
+}
+app.get("/api/system/battery", async (req, res) => {
+  batteryPresence ??= detectBattery();
+  res.json({ present: await batteryPresence });
 });
 
 
@@ -1029,30 +932,21 @@ app.get("/api/system/networks", (req, res) => {
     });
 
   } else if (currentOS === "win32") {
-    exec("netsh wlan show networks mode=bssid", (err, stdout) => {
-      if (err) return res.json({ success: true, networks: [] });
-      const networks = [];
-      const lines = stdout.split("\r\n");
-      let currentSsid = "";
-
-      lines.forEach(line => {
-        if (line.includes("SSID")) {
-          const parts = line.split(":");
-          if (parts[1]) currentSsid = parts[1].trim();
-        } else if (line.includes("Signal") || line.includes("Segnale")) {
-          const parts = line.split(":");
-          const signal = parseInt(parts[1], 10) || 50;
-          if (currentSsid && !networks.find(n => n.ssid === currentSsid)) {
-            networks.push({
-              ssid: currentSsid,
-              signal: signal,
-              secured: true,
-              connected: config.quickSettings.connectedWifi === currentSsid
-            });
-          }
-        }
+    // A live scan: netsh only reads the list Windows last cached.
+    runWindowsRadios(["-Action", "scan"]).then(scan => {
+      exec("netsh wlan show interfaces", (err, stdout) => {
+        const match = !err && stdout.match(/^\s*SSID\s*:\s*(.+)$/m);
+        const connectedSsid = match ? match[1].trim() : null;
+        const networks = [].concat(scan.networks || [])
+          .map(network => ({ ...network, connected: network.ssid === connectedSsid }))
+          .sort((a, b) => b.connected - a.connected || b.signal - a.signal);
+        config.quickSettings.wifi = scan.wifi !== false;
+        config.quickSettings.bluetooth = scan.bluetooth !== false;
+        res.json({ success: true, networks, wifi: config.quickSettings.wifi, bluetooth: config.quickSettings.bluetooth });
       });
-      res.json({ success: true, networks });
+    }).catch(error => {
+      console.error("Wi-Fi scan error:", error.message);
+      res.json({ success: true, networks: [] });
     });
 
   } else if (currentOS === "darwin") {
@@ -1097,6 +991,18 @@ app.post("/api/system/connect-wifi", (req, res) => {
   // quoted argument and inject commands. (See also the spawn() helper at the top of
   // this file for the preferred no-shell approach.)
   const SHELL_UNSAFE = /["'`$\\;&|<>\n\r]/;
+  // Windows: a password goes through no shell at all, so any character is fine in it.
+  if (currentOS === "win32" && password) {
+    if (typeof ssid !== "string" || typeof password !== "string") {
+      return res.status(400).json({ success: false, error: "Invalid SSID or password." });
+    }
+    return runWindowsRadios(["-Action", "connect", "-Ssid", ssid], { MARIOWOS_WIFI_PASSWORD: password }).then(() => {
+      config.quickSettings.connectedWifi = ssid;
+      config.quickSettings.wifi = true;
+      fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+      res.json({ success: true, connectedWifi: ssid });
+    }).catch(() => res.status(500).json({ success: false, error: "Unable to connect to the network." }));
+  }
   if (typeof ssid !== "string" || SHELL_UNSAFE.test(ssid) ||
       (password !== undefined && password !== null &&
         (typeof password !== "string" || SHELL_UNSAFE.test(password)))) {
@@ -1113,7 +1019,8 @@ app.post("/api/system/connect-wifi", (req, res) => {
   }
 
   exec(cmd, (err) => {
-    if (err) return res.status(500).json({ success: false, error: "Unable to connect to the network." });
+    // On Windows a network without a saved profile fails here: ask the user for its password.
+    if (err) return res.status(500).json({ success: false, needsPassword: currentOS === "win32", error: "Unable to connect to the network." });
     config.quickSettings.connectedWifi = ssid;
     config.quickSettings.wifi = true;
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
@@ -1152,24 +1059,14 @@ app.get("/api/system/bt-devices", (req, res) => {
     });
 
   } else if (currentOS === "win32") {
-    const psCmd = `powershell "Get-PnpDevice -Class Bluetooth | Select-Object FriendlyName, Status | ConvertTo-Json"`;
-    exec(psCmd, (err, stdout) => {
-      if (err) return res.json({ success: true, devices: [] });
-      try {
-        const parsed = JSON.parse(stdout);
-        const list = Array.isArray(parsed) ? parsed : [parsed];
-        const devices = list
-          .filter(d => d.FriendlyName && !d.FriendlyName.includes("Enumerator") && !d.FriendlyName.includes("Adapter"))
-          .map(d => ({
-            name: d.FriendlyName,
-            mac: d.FriendlyName,
-            type: "bluetooth",
-            connected: d.Status === "OK" && config.quickSettings.connectedBt === d.FriendlyName
-          }));
-        res.json({ success: true, devices });
-      } catch (e) {
-        res.json({ success: true, devices: [] });
-      }
+    // The driver's "OK" only means paired: ask Windows what is connected right now.
+    runWindowsRadios(["-Action", "bluetooth"]).then(result => {
+      const devices = [].concat(result.devices || []);
+      config.quickSettings.connectedBt = (devices.find(device => device.connected) || {}).name || null;
+      res.json({ success: true, devices });
+    }).catch(error => {
+      console.error("Bluetooth devices error:", error.message);
+      res.json({ success: true, devices: [] });
     });
 
   } else if (currentOS === "darwin") {
@@ -1204,23 +1101,31 @@ app.post("/api/system/connect-bt", (req, res) => {
     return res.status(400).json({ success: false, error: "Invalid Bluetooth target." });
   }
 
+  // Windows has no public way to connect an audio device from an app: say so, never pretend.
+  if (currentOS === "win32") return res.status(501).json({ success: false, unsupported: true });
+
   const isConnected = config.quickSettings.connectedBt === name;
   let cmd = "";
-
-  if (currentOS === "linux") {
+if (currentOS === "linux") {
     cmd = `bluetoothctl ${isConnected ? "disconnect" : "connect"} ${target}`;
   } else if (currentOS === "darwin") {
     cmd = `blueutil --${isConnected ? "disconnect" : "connect"} ${target}`;
-  } else if (currentOS === "win32") {
-    cmd = `echo Toggle Bluetooth for ${name}`;
   }
+  // SECURITY (D-04): win32 had `echo Toggle Bluetooth for ${name}` here — `name` is
+  // user-controlled and was NOT validated (only `target` is), so it was a real shell
+  // command-injection sink (e.g. name = "x & whoami"), reachable by any session WITHOUT
+  // the account password. The echo was a no-op placeholder, so it is removed entirely;
+  // only the validated-MAC branches ever touch the shell now, and never run an empty cmd.
 
-  exec(cmd, () => {
+  const applyToggle = () => {
     config.quickSettings.connectedBt = isConnected ? null : name;
     config.quickSettings.bluetooth = true;
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
     res.json({ success: true, connectedBt: config.quickSettings.connectedBt });
-  });
+  };
+
+  if (cmd) exec(cmd, applyToggle);
+  else applyToggle();
 });
 
 // --- BACKUP & RESTORE ---
@@ -1235,9 +1140,18 @@ app.get("/api/system/backup", (req, res) => {
   res.json(safeConfig);
 });
 
-app.post("/api/system/restore", backupUpload.single("backupFile"), (req, res) => {
+app.post("/api/system/restore", backupUpload.single("backupFile"), async (req, res) => {
   if (!req.file) return res.status(400).json({ success: false, error: "No file uploaded" });
-  
+
+  // SECURITY (D-02): a restore overwrites the entire config (rules, calendar, account
+  // email, installed-app list...). Require the account password so a rogue same-origin
+  // app can't silently swap the user's config. No password set (first-run / welcome
+  // import) => nothing to protect, proceed.
+  if (config.passwordHash) {
+    const ok = await comparePassword(String((req.body && req.body.password) || ""), config.passwordHash);
+    if (!ok) return res.status(403).json({ success: false, error: "Incorrect password." });
+  }
+
   try {
     const importedConfig = JSON.parse(req.file.buffer.toString());
     
@@ -1419,13 +1333,14 @@ app.post("/api/email/send-code", async (req, res) => {
   res.json({ success: true, message: "Code sent to " + email });
 });
 
-app.post("/api/email/verify-code", (req, res) => {
+app.post("/api/email/verify-code", async (req, res) => {
   const email = String(req.body.email || "").trim();
   if (!isValidEmail(email)) return res.status(400).json({ success: false, error: "Invalid email address." });
-  const result = checkCode("verify", email, req.body.code);
+  const result = await checkCode("verify", email, req.body.code);
   if (!result.ok) return res.status(400).json({ success: false, error: result.error });
   config.email = email;
   config.verified = true;
+  config.mailToken = result.token || null;
   saveConfig();
   res.json({ success: true, message: "Email verified!" });
 });
@@ -1447,7 +1362,7 @@ app.post("/reset-password", async (req, res) => {
   if (typeof newPassword !== "string" || newPassword.length < 4) {
     return res.status(400).json({ success: false, error: "Password must be at least 4 characters." });
   }
-  const result = checkCode("reset", email, code);
+  const result = await checkCode("reset", email, code);
   if (!result.ok) return res.status(400).json({ success: false, error: result.error });
   config.passwordHash = await bcrypt.hash(newPassword, 10);
   saveConfig();
@@ -1516,6 +1431,14 @@ app.post("/api/desktop-style", (req, res) => {
 
 app.get("/get-settings", (req, res) => {
   const safe = { ...config };
+  safe.hasPassword = !!config.passwordHash; // lets Settings ask for it before destructive actions
+  // Third-party Store apps open from their own origin (see THIRD-PARTY APP ISOLATION).
+  safe.appsOrigin = APPS_ORIGIN;
+  if (Array.isArray(safe.installedApps)) {
+    safe.installedApps = safe.installedApps.map(installed => isThirdPartyApp(installed)
+      ? { ...installed, isolated: true, url: `${APPS_ORIGIN}/apps/${encodeURIComponent(installed.appId)}/index.html` }
+      : installed);
+  }
   delete safe.passwordHash;
   if (safe.lastfm) safe.lastfm = { username: safe.lastfm.username }; // the API key stays server-side
   res.json(safe);
@@ -1546,6 +1469,7 @@ app.post("/save-settings", (req, res) => {
     config.email = cleanEmail;
   }
   Object.keys(extra).forEach(key => {
+    if (key === "language" && !isAvailableLanguage(extra[key])) return;
     if (SAVE_SETTINGS_ALLOWED.has(key)) config[key] = extra[key];
   });
   fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
@@ -1591,9 +1515,16 @@ app.post("/api/system/logout", (req, res) => {
   res.json({ success: true });
 });
 
-// The desktop shell (already authenticated by the session cookie) mints a per-app
-// token when it opens an app's iframe, then injects it into that app so the app can
-// send it as `X-App-Token` on its API calls. See enforceAppPermissions.
+// SECURITY (D-03): per-app tokens are ACCOUNTABILITY, NOT ISOLATION. Apps run as
+// same-origin iframes, so any app can POST here asking for ANY appId's token (there is
+// no un-spoofable way, over same-origin HTTP, to prove which app is calling). Treat
+// `enforceAppPermissions` as "which app is *supposed* to own this endpoint" for logging
+// and least-privilege-by-convention — never as a trust boundary against a malicious
+// app. Anything that must be safe against a rogue app is instead gated by the account
+// PASSWORD at the route itself (see /api/remote/exec, /api/recovery/debug,
+// /api/system/factory-reset, /api/system/restore, /clear-password). A real boundary
+// would require serving each app from its own origin/partition and binding the token
+// to the un-spoofable Origin header — a separate, larger change.
 app.post("/api/app/token", (req, res) => {
   const appId = req.body && req.body.appId;
   if (!isValidAppId(appId)) return res.status(400).json({ success: false, error: "Invalid app ID" });
@@ -1601,7 +1532,26 @@ app.post("/api/app/token", (req, res) => {
 });
 
 
-app.post("/api/system/factory-reset", (req, res) => {
+app.post("/api/system/factory-reset", async (req, res) => {
+  // SECURITY (D-02): a factory reset is irreversible (wipes installed apps, assets and
+  // the whole config, and clears the password). A valid session alone is not enough —
+  // a hijacked session or a rogue same-origin app must not be able to trigger it. Re-
+  // confirm the account password. When no password is configured there is nothing to
+  // protect, so the fresh-install / post-reset path still works with no password.
+  if (config.passwordHash) {
+    const password = String((req.body && req.body.password) || "");
+    if (!password) {
+      return res.status(403).json({ success: false, code: "PASSWORD_REQUIRED",
+        error: "Enter your account password to confirm the factory reset." });
+    }
+    if (passwordLockSeconds() > 0) {
+      return res.status(429).json({ success: false, code: "PASSWORD_LOCKED",
+        error: `Too many wrong password attempts. Try again in ${passwordLockSeconds()} seconds.` });
+    }
+    const ok = await comparePassword(password, config.passwordHash);
+    if (!ok) return res.status(403).json({ success: false, code: "WRONG_PASSWORD",
+      error: "Incorrect password. Nothing was erased." });
+  }
   const errors = [];
   const removePath = target => {
     try { if (fs.existsSync(target)) fs.rmSync(target, { recursive: true, force: true }); }
@@ -1633,7 +1583,6 @@ app.post("/api/system/factory-reset", (req, res) => {
   Object.keys(batteryRuleState).forEach(id => delete batteryRuleState[id]);
   startupRulesRun.clear();
   pendingRuleNotifications.length = 0;
-  pendingCodes.clear();
   scheduleDailyEmail();
 
   if (errors.length) console.error("Factory reset warnings:", errors);
@@ -1905,6 +1854,8 @@ app.post("/api/store/install", async (req, res) => {
     // Record repoUrl + installed version so the store can offer version.json-based
     // upgrades later (see /api/store/check-upgrades).
     const installedVersion = readInstalledAppVersion(appId);
+    // Tiles is a desktop, not an app: it lives in desktop/ only, never in desktop/apps.
+    if (appId === "tiles") fs.rmSync(absolutePath, { recursive: true, force: true });
     const existing = config.installedApps.find(app => app.appId === appId);
     if (existing) {
       existing.repoUrl = repoUrl;
@@ -2515,17 +2466,7 @@ function validateStagedServer(filePath) {
   });
 }
 
-function matchesGitBlob(contents, expectedHash) {
-  const hashBuffer = buffer => crypto.createHash("sha1")
-    .update(`blob ${buffer.length}\0`)
-    .update(buffer)
-    .digest("hex");
-  if (hashBuffer(contents) === expectedHash) return true;
-
-  const text = contents.toString("utf8");
-  if (!Buffer.from(text, "utf8").equals(contents) || !text.includes("\r\n")) return false;
-  return hashBuffer(Buffer.from(text.replace(/\r\n/g, "\n"), "utf8")) === expectedHash;
-}
+const { matchesGitBlob, validateStagedRuntime, verifyReleaseSignature } = require("./lib/update-checks");
 
 function getStagedUpdateFiles(stagePath) {
   const index = runGit(["-C", stagePath, "ls-files", "-s", "-z"], stagePath);
@@ -2875,7 +2816,7 @@ function launchServerReplacement(stagePath, serverMode) {
 // The build date is the newest modification time of the OS's own files, so the
 // About page reports when the system was really last changed instead of a date
 // somebody has to remember to edit by hand.
-const BUILD_ROOTS = ["server.js", "launcher.js", "preload.js", "boot.html", "desktop", "loginui", "recovery"];
+const BUILD_ROOTS = ["server.js", "launcher.js", "preload.js", "boot.html", "desktop", "loginui", "lockscreen", "recovery"];
 const BUILD_SKIP_NAMES = new Set(["node_modules", "config.json", "keys.json", "spotify-token.json", "sota-installed.json", "mail-error.log", ".env"]);
 const BUILD_CACHE_MS = 60 * 1000;
 let buildDateCache = { value: 0, computedAt: 0 };
@@ -2932,6 +2873,13 @@ app.get('/api/system/check-update', async (req, res) => {
     }
     
     const remote = await response.json();
+    // A release the launcher had to roll back is not offered again: the next fixed
+    // release will carry a different version number.
+    const rollback = readRollbackPoint(__dirname);
+    if (rollback && rollback.rolledBack && rollback.toVersion && rollback.toVersion === remote.version) {
+      return res.json({ updateAvailable: false, current: local, latest: remote.version, blocked: true,
+        error: `Version ${remote.version} was rolled back because it did not start. Waiting for a fixed release.` });
+    }
     res.json(
       isNewerVersion(remote.version, local)
         ? { updateAvailable: true, current: local, latest: remote.version, changelog: remote.changelog }
@@ -2965,21 +2913,31 @@ app.get('/api/system/ota-update', (req, res) => {
     try {
       const channel = getUpdateChannel();
 
-      // A-07: verify the release signature (when a public key is configured) BEFORE
-      // downloading/applying anything. Refuse unauthenticated code.
-      send(2, "Verifying update authenticity...");
-      const auth = await verifyUpdateAuthenticity(
-        `https://raw.githubusercontent.com/mariowOS/${channel}/main/version.json`
-      );
-      if (!auth.ok) throw new Error("Update rejected: " + auth.reason);
-
       send(5, "Downloading complete update...");
       await runGit(["clone", "--quiet", "--depth", "1", "--branch", "main", `https://github.com/mariowOS/${channel}.git`, stagePath], os.tmpdir());
       send(70, "Checking every downloaded file...");
       const files = await getStagedUpdateFiles(stagePath);
       if (files.length === 0) throw new Error("The update contains no files");
+      // A-07: with a public key installed, only a release signed by the maintainer is applied.
+      const publicKey = getUpdatePublicKey();
+      if (publicKey) {
+        send(72, "Verifying the release signature...");
+        const auth = verifyReleaseSignature(stagePath, files, publicKey);
+        if (!auth.ok) throw new Error("Update rejected: " + auth.reason);
+      } else {
+        console.warn("[update] No update-pubkey.pem configured: this update is NOT signature-verified.");
+      }
       const serverUpdate = files.find(file => file.relativePath === "server.js");
       if (serverUpdate) await validateStagedServer(serverUpdate.stagedFile);
+      validateStagedRuntime(stagePath, files, __dirname);
+      // Keep the files this update replaces: if the new kernel keeps crashing, the
+      // launcher puts them back (lib/rollback.js) instead of leaving a boot loop.
+      send(74, "Saving a restore point...");
+      createRollbackPoint(__dirname, files, {
+        toVersion: readStagedVersion(stagePath),
+        isProtected: isUpdateProtectedFile,
+        isUnchanged: (contents, file) => matchesGitBlob(contents, file.blobHash)
+      });
       send(75, `Verified ${files.length} files. Applying update...`);
       const transaction = applyStagedFiles(files, send, 75, 98);
 
@@ -3102,8 +3060,50 @@ app.get("/sysinfo", (req, res) => {
   const cpus = os.cpus();
   res.json({
     OS: `mariowOS (${currentOS})`, Kernel: `${os.type()} ${os.release()}`, Uptime: os.uptime(),
-    CPU: `${cpus[0].model}`, RAM: `${Math.round(os.totalmem() / 1048576)} MB`
+    CPU: `${cpus[0].model}`, RAM: `${Math.round(os.totalmem() / 1048576)} MB`,
+    FreeRAM: `${Math.round(os.freemem() / 1048576)} MB`, Cores: cpus.length, Platform: `${os.platform()} ${os.arch()}`
   });
+});
+
+// --- KEYRING ---
+// The Terminal's addkey / delkey / listkeys commands. Keys are opaque strings the user
+// wants the system to remember, kept in keys.json as [{ key, date }] — the file the
+// recovery wipe and factory reset already empty and the updater never overwrites.
+const keyringFile = path.join(__dirname, "keys.json");
+const KEYRING_MAX = 200;
+function readKeyring() {
+  try {
+    const keys = JSON.parse(fs.readFileSync(keyringFile, "utf8"));
+    return Array.isArray(keys) ? keys.filter(entry => entry && typeof entry.key === "string") : [];
+  } catch (error) { return []; }
+}
+function writeKeyring(keys) {
+  fs.writeFileSync(keyringFile, JSON.stringify(keys, null, 2));
+}
+function cleanKey(value) {
+  const key = typeof value === "string" ? value.trim() : "";
+  return key && key.length <= 512 && !/[\x00-\x1f]/.test(key) ? key : null;
+}
+app.get("/api/system/keyring", requireAuthJson, (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({ success: true, keys: readKeyring() });
+});
+app.post("/api/system/keyring", requireAuthJson, (req, res) => {
+  const key = cleanKey(req.body?.key);
+  if (!key) return res.status(400).json({ success: false, error: "Invalid key (1-512 printable characters)." });
+  const keys = readKeyring();
+  if (keys.some(entry => entry.key === key)) return res.status(409).json({ success: false, error: "Key already in the keyring." });
+  if (keys.length >= KEYRING_MAX) return res.status(400).json({ success: false, error: `The keyring is full (${KEYRING_MAX} keys).` });
+  keys.push({ key, date: new Date().toISOString() });
+  writeKeyring(keys);
+  res.json({ success: true });
+});
+app.post("/api/system/keyring/delete", requireAuthJson, (req, res) => {
+  const key = cleanKey(req.body?.key);
+  const keys = readKeyring();
+  if (!key || !keys.some(entry => entry.key === key)) return res.status(404).json({ success: false, error: "Key not found." });
+  writeKeyring(keys.filter(entry => entry.key !== key));
+  res.json({ success: true });
 });
 
 // --- MUSIC LIBRARY ---
@@ -3136,14 +3136,14 @@ function readMusicLibrary() {
   return tracks.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-app.get("/api/music/library", (req, res) => {
+app.get("/api/music/library", requireAuthJson, (req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({ success: true, tracks: readMusicLibrary() });
 });
 
 // Streams one file out of Home/Music. The name is matched against the directory
 // listing rather than joined blindly, so no traversal can reach another folder.
-app.get("/api/music/file", (req, res) => {
+app.get("/api/music/file", requireAuthJson, (req, res) => {
   const requested = typeof req.query.name === "string" ? req.query.name : "";
   const directory = path.join(__dirname, "desktop", "home", "Music");
   const match = readMusicLibrary().find(track => track.name === requested);
@@ -3335,7 +3335,7 @@ function describeEntry(parentPath, entry) {
   return described;
 }
 
-app.get("/api/system/files", (req, res) => {
+app.get("/api/system/files", requireAuthJson, (req, res) => {
   const targetPath = req.query.path || '/home';
   const resolved = resolveVirtualPath(targetPath);
 
@@ -3541,9 +3541,9 @@ app.post("/api/system/files/transfer", requireAuthJson, (req, res) => {
 // Stream a file of the home area for previews and downloads. ?path=&name=&download=1
 const PREVIEW_TYPES = {
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp", ".bmp": "image/bmp",
-  ".svg": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".avif": "image/avif",
+  ".svg": "image/svg+xml", ".ico": "image/x-icon", ".avif": "image/avif", ".tif": "image/tiff", ".tiff": "image/tiff", ".heic": "image/heic", ".heif": "image/heif",
   ".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg", ".m4a": "audio/mp4", ".flac": "audio/flac", ".aac": "audio/aac",
-  ".mp4": "video/mp4", ".webm": "video/webm", ".mov": "video/quicktime", ".mkv": "video/x-matroska",
+  ".mp4": "video/mp4", ".m4v": "video/mp4", ".webm": "video/webm", ".mov": "video/quicktime", ".mkv": "video/x-matroska", ".avi": "video/x-msvideo", ".ogv": "video/ogg", ".3gp": "video/3gpp",
   ".pdf": "application/pdf", ".txt": "text/plain; charset=utf-8", ".md": "text/plain; charset=utf-8", ".json": "text/plain; charset=utf-8",
   ".csv": "text/plain; charset=utf-8", ".log": "text/plain; charset=utf-8"
 };
@@ -3553,7 +3553,9 @@ app.get("/api/system/files/raw", requireAuthJson, (req, res) => {
     return res.status(404).json({ success: false, error: "File not found" });
   }
   const ext = path.extname(target.name).toLowerCase();
-  // HTML/SVG and unknown types are never rendered inline (they could run scripts on this origin).
+  // Only known media types render inline; HTML and unknown types are forced to download.
+  // SVG is served inline as an image, but the sandbox CSP below disables any scripts it
+  // carries (and the Pictures app loads it via <img>, where SVG scripts never run anyway).
   const inlineType = PREVIEW_TYPES[ext];
   res.setHeader("X-Content-Type-Options", "nosniff");
   // PDFs need the built-in viewer, which a sandbox CSP would block; everything else is locked down.
@@ -3656,7 +3658,7 @@ app.post("/api/system/files/trash/empty", requireAuthJson, (req, res) => {
   res.json({ success: true });
 });
 
-app.get("/api/system/files/content", (req, res) => {
+app.get("/api/system/files/content", requireAuthJson, (req, res) => {
   const resolved = resolveVirtualPath(req.query.path);
   if (!resolved || !resolved.realPath) return res.status(403).json({ success: false, error: "Access denied" });
   // SECURITY (A-03): the /device tree mirrors the entire host filesystem. Listing it
@@ -3721,6 +3723,41 @@ pruneLogs();
 cron.schedule("0 3 * * *", pruneLogs);
 
 httpServer = app.listen(PORT, BIND_HOST, () => console.log(`kernel booted on [${currentOS}] at http://${BIND_HOST}:${PORT}`));
+
+// Third-party Store apps (see THIRD-PARTY APP ISOLATION): static files only, on their
+// own origin. Nothing here can reach the shell's API, cookies or storage.
+const APP_SANDBOX_CSP = [
+  "default-src 'self' https: data: blob:",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+  "style-src 'self' 'unsafe-inline' https:",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' data: blob: https:",
+  "font-src 'self' data: https:",
+  "connect-src 'self' https:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  `frame-ancestors ${[...SHELL_ORIGINS].join(" ")}`
+].join("; ");
+const appsApp = express();
+appsApp.disable("x-powered-by");
+appsApp.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", APP_SANDBOX_CSP);
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  if (req.method !== "GET" && req.method !== "HEAD") return res.status(405).end();
+  next();
+});
+appsApp.use("/apps/:appId", (req, res, next) => {
+  if (!thirdPartyAppIds().has(req.params.appId)) return res.status(404).end();
+  express.static(path.join(__dirname, "desktop", "apps", req.params.appId), { dotfiles: "deny", fallthrough: false })(req, res, next);
+});
+// Shared fonts and icons, so apps can match the system look.
+for (const shared of ["fonts", "icons"]) {
+  appsApp.use(`/desktop/assets/${shared}`, express.static(path.join(__dirname, "desktop", "assets", shared), { fallthrough: false }));
+}
+appsApp.use((req, res) => res.status(404).end());
+const appsServer = appsApp.listen(APPS_PORT, BIND_HOST);
+appsServer.on("error", error => console.error("[apps] isolated app server could not start:", error.message));
 httpServer.on('error', error => {
   console.error('kernel failed to bind its HTTP server:', error);
   process.exit(1);

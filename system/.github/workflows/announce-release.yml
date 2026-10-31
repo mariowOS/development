@@ -1,0 +1,26 @@
+# Posts every new mariowOS release to Discord.
+# Setup (once, in this repository on GitHub): Settings › Secrets and variables › Actions ›
+# New repository secret, name DISCORD_WEBHOOK_URL, value = the webhook URL of the Discord
+# channel (Discord: Channel settings › Integrations › Webhooks › New webhook › Copy URL).
+name: Announce release
+
+on:
+  push:
+    branches: [main]
+    paths: [version.json]
+  workflow_dispatch:
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          CHANNEL_NAME: ${{ github.event.repository.name }}
+          REPOSITORY_URL: ${{ github.event.repository.html_url }}
+        run: node .github/announce-release.js

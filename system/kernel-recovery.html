@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+  <title>mariowOS Recovery</title>
+  <!-- Shown by launcher.js from disk when the kernel failed to start several times in a
+       row. It needs no kernel: every action goes through window.mariowOSElectron.kernelRecovery. -->
+  <style>
+    :root { color-scheme: dark; font-family: "Segoe UI", system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body { color: #f5f6fa; background: #05070b; display: grid; place-items: center; padding: 24px; }
+    main { width: min(720px, 100%); }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(255, 107, 107, .14);
+      color: #ffb4ab; font-size: 12px; font-weight: 600; letter-spacing: .4px; }
+    h1 { margin: 14px 0 8px; font-size: 28px; font-weight: 600; letter-spacing: -.3px; }
+    p { margin: 0; color: rgba(237, 242, 255, .72); line-height: 1.6; font-size: 15px; }
+    .rollback { margin-top: 18px; padding: 14px 16px; border-radius: 14px; background: rgba(125, 224, 163, .08);
+      border: 1px solid rgba(125, 224, 163, .22); color: #c9f2d8; font-size: 14px; line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    button { border: 0; border-radius: 12px; padding: 12px 18px; font: inherit; font-size: 14px; font-weight: 600;
+      color: #f5f6fa; background: rgba(255, 255, 255, .08); cursor: pointer; transition: background .15s; }
+    button:hover:not(:disabled) { background: rgba(255, 255, 255, .14); }
+    button:focus-visible { outline: 2px solid #4da3ff; outline-offset: 2px; }
+    button.primary { background: #0a84ff; }
+    button.primary:hover:not(:disabled) { background: #3398ff; }
+    button:disabled { opacity: .5; cursor: default; }
+    details { margin-top: 24px; }
+    summary { cursor: pointer; color: rgba(237, 242, 255, .72); font-size: 14px; }
+    pre { margin: 10px 0 0; max-height: 260px; overflow: auto; padding: 14px; border-radius: 12px;
+      background: rgba(255, 255, 255, .04); color: #ffb4ab; font: 12px/1.55 Consolas, "Cascadia Mono", monospace;
+      white-space: pre-wrap; overflow-wrap: anywhere; }
+    .report { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+    .report small { color: rgba(237, 242, 255, .55); font-size: 12px; line-height: 1.5; flex: 1 1 260px; }
+    .status { margin-top: 16px; min-height: 22px; font-size: 14px; color: rgba(237, 242, 255, .72); }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge" data-i18n="badge">RECOVERY</span>
+    <h1 data-i18n="title">mariowOS could not start</h1>
+    <p><span data-i18n="intro">The system kernel stopped several times while starting.</span> <span id="version"></span>
+      <span data-i18n="safe">Your files and settings have not been touched. Choose what to do next.</span></p>
+    <div class="rollback" id="rollback" hidden></div>
+    <div class="actions">
+      <button class="primary" id="retry" data-i18n="retry">Try again</button>
+      <button id="restore" data-i18n="restore" hidden>Restore previous version</button>
+      <button id="repair" data-i18n="repair">Repair system components</button>
+      <button id="logs" data-i18n="logs">Open log folder</button>
+      <button id="quit" data-i18n="quit">Shut down</button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <details id="details" hidden>
+      <summary data-i18n="details">Technical details</summary>
+      <pre id="errors"></pre>
+      <div class="report">
+        <button id="report" data-i18n="report">Send report to the developers</button>
+        <small data-i18n="reportNote">Sends only the error text above, without your name, email or file paths. Nothing is sent unless you press the button.</small>
+      </div>
+    </details>
+  </main>
+  <script>
+    // Local page, no kernel: the strings live here. Language follows the system's.
+    const STRINGS = {
+      en: {
+        badge: "RECOVERY", title: "mariowOS could not start",
+        intro: "The system kernel stopped several times while starting.",
+        safe: "Your files and settings have not been touched. Choose what to do next.",
+        version: v => `(version ${v})`,
+        retry: "Try again", restore: "Restore previous version", repair: "Repair system components",
+        logs: "Open log folder", quit: "Shut down", details: "Technical details",
+        report: "Send report to the developers",
+        reportNote: "Sends only the error text above, without your name, email or file paths. Nothing is sent unless you press the button.",
+        rollback: (to, from) => `The last update (${to}) can be undone, going back to ${from}.`,
+        starting: "Starting mariowOS...", restoring: "Restoring the previous version...",
+        repairing: "Reinstalling system components, this can take a minute...",
+        sending: "Sending the report...", sent: "Report sent. Thank you!",
+        failRestart: "Could not restart.", failRestore: "Could not restore the previous version.",
+        failRepair: "Repair failed. Check your internet connection and try again.",
+        failReport: "The report could not be sent. Check your internet connection.",
+        unavailable: "Recovery tools are not available. Restart mariowOS.",
+        newVersion: "new version", previousVersion: "the previous version"
+      },
+      it: {
+        badge: "RIPRISTINO", title: "mariowOS non riesce ad avviarsi",
+        intro: "Il kernel di sistema si è fermato più volte durante l'avvio.",
+        safe: "I tuoi file e le impostazioni non sono stati toccati. Scegli cosa fare.",
+        version: v => `(versione ${v})`,
+        retry: "Riprova", restore: "Ripristina versione precedente", repair: "Ripara componenti di sistema",
+        logs: "Apri cartella dei log", quit: "Spegni", details: "Dettagli tecnici",
+        report: "Invia segnalazione agli sviluppatori",
+        reportNote: "Invia solo il testo dell'errore qui sopra, senza nome, email o percorsi dei file. Non viene inviato nulla se non premi il pulsante.",
+        rollback: (to, from) => `L'ultimo aggiornamento (${to}) può essere annullato, tornando a ${from}.`,
+        starting: "Avvio di mariowOS...", restoring: "Ripristino della versione precedente...",
+        repairing: "Reinstallazione dei componenti di sistema, può richiedere un minuto...",
+        sending: "Invio della segnalazione...", sent: "Segnalazione inviata. Grazie!",
+        failRestart: "Impossibile riavviare.", failRestore: "Impossibile ripristinare la versione precedente.",
+        failRepair: "Riparazione non riuscita. Controlla la connessione a Internet e riprova.",
+        failReport: "Impossibile inviare la segnalazione. Controlla la connessione a Internet.",
+        unavailable: "Gli strumenti di ripristino non sono disponibili. Riavvia mariowOS.",
+        newVersion: "nuova versione", previousVersion: "la versione precedente"
+      }
+    };
+    // The launcher passes the system language setting (?lang=en|it|auto); English by default.
+    const requested = new URLSearchParams(location.search).get("lang") || "en";
+    const lang = requested === "auto"
+      ? (/^it\b/i.test(navigator.language || "") ? "it" : "en")
+      : (STRINGS[requested] ? requested : "en");
+    const T = STRINGS[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = T[el.dataset.i18n]; });
+
+    const api = window.mariowOSElectron && window.mariowOSElectron.kernelRecovery;
+    const $ = id => document.getElementById(id);
+    const buttons = [...document.querySelectorAll("button")];
+    const setBusy = (busy, message) => {
+      buttons.forEach(button => { button.disabled = busy; });
+      $("status").textContent = message || "";
+    };
+    async function run(action, busyMessage, failMessage, doneMessage) {
+      setBusy(true, busyMessage);
+      try {
+        const result = await action();
+        if (result && result.ok === false) setBusy(false, failMessage);
+        else if (doneMessage) setBusy(false, doneMessage);
+      } catch (error) {
+        setBusy(false, `${failMessage} (${error.message})`);
+      }
+    }
+
+    async function load() {
+      if (!api) { $("status").textContent = T.unavailable; return; }
+      const state = await api.getState();
+      if (state.version) $("version").textContent = T.version(state.version);
+      if (state.rollback) {
+        $("rollback").hidden = false;
+        $("rollback").textContent = T.rollback(state.rollback.toVersion || T.newVersion, state.rollback.fromVersion || T.previousVersion);
+        $("restore").hidden = false;
+      }
+      if (state.errors) {
+        $("details").hidden = false;
+        $("errors").textContent = state.errors;
+      }
+      $("retry").focus();
+    }
+
+    $("retry").addEventListener("click", () => run(() => api.retry(), T.starting, T.failRestart));
+    $("restore").addEventListener("click", () => run(() => api.rollback(), T.restoring, T.failRestore));
+    $("repair").addEventListener("click", () => run(() => api.repairDependencies(), T.repairing, T.failRepair));
+    $("logs").addEventListener("click", () => api.openLogFolder());
+    $("quit").addEventListener("click", () => api.quit());
+    $("report").addEventListener("click", async () => {
+      await run(() => api.sendReport(), T.sending, T.failReport, T.sent);
+      if ($("status").textContent === T.sent) $("report").disabled = true;
+    });
+    load().catch(error => { $("status").textContent = error.message; });
+  </script>
+</body>
+</html>

@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -140,33 +143,32 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Enable or Disable Rules</h1>
+    <h1 data-i18n="settings.enable-disable-rules.title">Enable or Disable Rules</h1>
   </div>
 
   <div class="banner">
-    <div class="title">Control All Rules</div>
-    <div class="desc">
-      Temporarily enable or disable all automation rules.
-    </div>
+    <div class="title" data-i18n="settings.enable-disable-rules.banner">Control All Rules</div>
+    <div class="desc" data-i18n="settings.enable-disable-rules.banner-desc">Temporarily enable or disable all automation rules.</div>
   </div>
 
   <div class="toggle-container">
     <div class="toggle-label">All Rules Enabled</div>
-    <button class="toggle-switch active" id="rulesToggle" type="button" role="switch" aria-checked="true" aria-label="Enable all rules">
+    <button class="toggle-switch active" id="rulesToggle" type="button" role="switch" aria-checked="true" aria-label="Enable all rules" data-i18n-aria-label="settings.enable-disable-rules.toggle">
       <span class="toggle-slider"></span>
     </button>
   </div>
 
-  <button class="btn" id="saveBtn">Save Changes</button>
+  <button class="btn" id="saveBtn" data-i18n="settings.enable-disable-rules.save">Save Changes</button>
 </div>
 
 <script>
 const rulesToggle = document.getElementById('rulesToggle');
 const saveBtn = document.getElementById('saveBtn');
 const label = rulesToggle.previousElementSibling;
+label.textContent = mariowOSI18n.t('settings.enable-disable-rules.enabled', 'All Rules Enabled');
 
 async function loadToggleState() {
   let allRulesEnabled = localStorage.getItem('allRulesEnabled') !== 'false';
@@ -177,11 +179,11 @@ async function loadToggleState() {
   if (allRulesEnabled) {
     rulesToggle.classList.add('active');
     rulesToggle.setAttribute('aria-checked', 'true');
-    label.textContent = 'All Rules Enabled';
+    label.textContent = mariowOSI18n.t('settings.enable-disable-rules.enabled', 'All Rules Enabled');
   } else {
     rulesToggle.classList.remove('active');
     rulesToggle.setAttribute('aria-checked', 'false');
-    label.textContent = 'All Rules Disabled';
+    label.textContent = mariowOSI18n.t('settings.enable-disable-rules.disabled', 'All Rules Disabled');
   }
 }
 
@@ -189,7 +191,7 @@ rulesToggle.addEventListener('click', () => {
   rulesToggle.classList.toggle('active');
   const enabled = rulesToggle.classList.contains('active');
   rulesToggle.setAttribute('aria-checked', String(enabled));
-  label.textContent = enabled ? 'All Rules Enabled' : 'All Rules Disabled';
+  label.textContent = enabled ? mariowOSI18n.t('settings.enable-disable-rules.enabled', 'All Rules Enabled') : mariowOSI18n.t('settings.enable-disable-rules.disabled', 'All Rules Disabled');
 });
 
 saveBtn.addEventListener('click', async () => {
@@ -200,9 +202,9 @@ saveBtn.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled: allRulesEnabled })
     });
-    if (!response.ok) throw new Error('Could not update rule execution.');
+    if (!response.ok) throw new Error(mariowOSI18n.t('settings.enable-disable-rules.update-failed', 'Could not update rule execution.'));
   } catch (error) {
-    await mDialog.alert(error.message || 'Could not update rule execution.');
+    await mDialog.alert(error.message || mariowOSI18n.t('settings.enable-disable-rules.update-failed', 'Could not update rule execution.'));
     return;
   }
 
@@ -218,7 +220,7 @@ saveBtn.addEventListener('click', async () => {
   });
   localStorage.setItem('ruleHistory', JSON.stringify(history));
 
-  await mDialog.alert('Changes saved!');
+  await mDialog.alert(mariowOSI18n.t('settings.enable-disable-rules.saved', 'Changes saved!'));
 });
 
 // Load state on page load

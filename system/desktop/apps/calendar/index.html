@@ -7,13 +7,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendar</title>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
+<title data-i18n="calendar.title">Calendar</title>
 <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <script src="/desktop/assets/calendar-core.js"></script>
 <style>
   :root {
-    --m3-accent-active: #0a84ff;
+    --m3-accent-active: var(--sys-accent);
     --m3-text-color: #ffffff;
     --m3-glass-border: rgba(255, 255, 255, 0.12);
     --muted: rgba(255, 255, 255, 0.5);
@@ -40,14 +43,14 @@
   .icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
   .pill-btn { height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.08); cursor: pointer; font-size: 13px; font-weight: 500; outline: none; display: flex; align-items: center; gap: 6px; transition: background 0.15s; white-space: nowrap; }
   .pill-btn:hover { background: rgba(255,255,255,0.15); }
-  .pill-btn:focus-visible, .icon-btn:focus-visible { box-shadow: 0 0 0 2px rgba(10,132,255,0.4); }
-  .pill-btn.primary { background: var(--m3-accent-active); border-color: transparent; color: #fff; font-weight: 500; }
+  .pill-btn:focus-visible, .icon-btn:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
+  .pill-btn.primary { background: var(--m3-accent-active); border-color: transparent; color: var(--sys-accent-on); font-weight: 500; }
   .pill-btn.primary:hover { filter: brightness(1.1); }
   .seg { display: flex; padding: 3px; border-radius: 9px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); }
   .seg button { height: 26px; padding: 0 11px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; font-size: 12.5px; font-weight: 500; }
   .seg button.on { background: rgba(255,255,255,0.14); color: #fff; }
   .search { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border-radius: 8px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); width: 140px; }
-  .search:focus-within { border-color: var(--m3-accent-active); }
+  .search:focus-within { border-color: var(--sys-accent-text); }
   .search .material-symbols-outlined { font-size: 17px; color: var(--muted); }
   .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; font-size: 12.5px; user-select: text; }
 
@@ -57,10 +60,10 @@
   .cell { background: var(--surface); border-radius: 12px; padding: 6px 6px 4px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; gap: 3px; border: 1px solid transparent; transition: background 0.15s, border-color 0.15s; min-height: 0; }
   .cell:hover { background: var(--surface-hover); }
   .cell.other { opacity: 0.38; }
-  .cell.selected { border-color: var(--m3-accent-active); }
+  .cell.selected { border-color: var(--sys-accent-text); }
   .cell.drop { border-color: var(--c-green); border-style: dashed; }
   .cell-num { font-size: 12px; font-weight: 500; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; flex: 0 0 auto; }
-  .cell.today .cell-num { background: var(--m3-accent-active); color: #fff; }
+  .cell.today .cell-num { background: var(--m3-accent-active); color: var(--sys-accent-on); }
   .chip { font-size: 11px; line-height: 1.35; padding: 1px 6px; border-radius: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: color-mix(in srgb, var(--ev) 22%, transparent); border-left: 3px solid var(--ev); cursor: grab; flex: 0 0 auto; }
   .chip.allday { background: var(--ev); color: #fff; border-left: none; }
   .chip time { opacity: 0.7; margin-right: 4px; }
@@ -71,7 +74,7 @@
   .wk-head, .wk-allday { display: grid; grid-template-columns: 52px repeat(var(--days), 1fr); border-bottom: 1px solid rgba(255,255,255,0.07); }
   .wk-head div { padding: 8px 6px 6px; text-align: center; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; cursor: pointer; }
   .wk-head div b { display: block; margin: 2px auto 0; width: 30px; height: 30px; line-height: 30px; border-radius: 50%; font-size: 15px; color: #fff; text-transform: none; letter-spacing: 0; }
-  .wk-head div.today b { background: var(--m3-accent-active); }
+  .wk-head div.today b { background: var(--m3-accent-active); color: var(--sys-accent-on); }
   .wk-head div.selected b { box-shadow: inset 0 0 0 1.5px var(--m3-accent-active); }
   .wk-allday { min-height: 26px; }
   .wk-allday > div { padding: 3px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid rgba(255,255,255,0.05); min-width: 0; }
@@ -81,7 +84,7 @@
   .wk-hours div { height: var(--hour); font-size: 10.5px; color: var(--muted); text-align: right; padding-right: 8px; transform: translateY(-7px); }
   .wk-col { position: relative; border-left: 1px solid rgba(255,255,255,0.05);
     background-image: repeating-linear-gradient(to bottom, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.06) 1px, transparent 1px, transparent var(--hour)); cursor: cell; }
-  .wk-col.today { background-color: rgba(10,132,255,0.05); }
+  .wk-col.today { background-color: color-mix(in srgb, var(--sys-accent) 5%, transparent); }
   .wk-col.drop { background-color: rgba(48,209,88,0.08); }
   .wk-ev { position: absolute; border-radius: 7px; padding: 3px 6px; font-size: 11px; line-height: 1.3; overflow: hidden; cursor: grab;
     background: color-mix(in srgb, var(--ev) 30%, rgba(20,22,28,.9)); border-left: 3px solid var(--ev); box-shadow: 0 1px 4px rgba(0,0,0,.35); }
@@ -94,7 +97,7 @@
   /* ---- side agenda ---- */
   .side { border-left: 1px solid rgba(255,255,255,0.1); background: rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; min-height: 0; }
   .side-head { padding: 18px 18px 10px; }
-  .side-day { font-size: 13px; color: var(--m3-accent-active); font-weight: 500; }
+  .side-day { font-size: 13px; color: var(--sys-accent-text); font-weight: 500; }
   .side-date { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; }
   .agenda { flex: 1; overflow-y: auto; padding: 4px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
   .agenda::-webkit-scrollbar { width: 6px; } .agenda::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
@@ -122,7 +125,7 @@
   .field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,0.4); }
   .field select option { background: #1e1e1e; color: #fff; }
   .field input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--m3-accent-active); box-shadow: 0 0 0 2px rgba(10,132,255,0.4); }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--sys-accent-text); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
   .field textarea { resize: vertical; min-height: 60px; }
   .row { display: flex; gap: 10px; } .row > .field { flex: 1; }
   .repeat-extra { display: none; gap: 10px; }
@@ -157,7 +160,7 @@
     .app { grid-template-columns: 1fr; grid-template-rows: 1fr 38%; }
     .side { border-left: none; border-top: 1px solid var(--m3-glass-border); }
     .chip { display: none; }
-    .cell.has-events .cell-num::after { content: "•"; display: block; line-height: 4px; color: var(--m3-accent-active); }
+    .cell.has-events .cell-num::after { content: "•"; display: block; line-height: 4px; color: var(--sys-accent-text); }
     .month-title { font-size: 18px; width: 100%; }
   }
 </style>
@@ -167,12 +170,12 @@
   <section class="main">
     <div class="toolbar">
       <div class="month-title" id="monthTitle">Month <span>Year</span></div>
-      <div class="seg" id="viewSeg"><button data-mode="month">Month</button><button data-mode="week">Week</button><button data-mode="day">Day</button></div>
-      <label class="search"><span class="material-symbols-outlined">search</span><input id="search" placeholder="Search" spellcheck="false" autocomplete="off"></label>
-      <button class="pill-btn" id="todayBtn">Today</button>
-      <button class="icon-btn" id="prevBtn" title="Previous"><span class="material-symbols-outlined">chevron_left</span></button>
-      <button class="icon-btn" id="nextBtn" title="Next"><span class="material-symbols-outlined">chevron_right</span></button>
-      <button class="pill-btn primary" id="newBtn"><span class="material-symbols-outlined">add</span><span class="new-label">New event</span></button>
+      <div class="seg" id="viewSeg"><button data-mode="month" data-i18n="calendar.view.month">Month</button><button data-mode="week" data-i18n="calendar.view.week">Week</button><button data-mode="day" data-i18n="calendar.view.day">Day</button></div>
+      <label class="search"><span class="material-symbols-outlined">search</span><input id="search" placeholder="Search" data-i18n-placeholder="common.search" spellcheck="false" autocomplete="off"></label>
+      <button class="pill-btn" id="todayBtn" data-i18n="calendar.today">Today</button>
+      <button class="icon-btn" id="prevBtn" title="Previous" data-i18n-title="calendar.previous"><span class="material-symbols-outlined">chevron_left</span></button>
+      <button class="icon-btn" id="nextBtn" title="Next" data-i18n-title="common.next"><span class="material-symbols-outlined">chevron_right</span></button>
+      <button class="pill-btn primary" id="newBtn"><span class="material-symbols-outlined">add</span><span class="new-label" data-i18n="calendar.new-event">New event</span></button>
     </div>
     <div class="weekdays" id="weekdays"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
     <div class="grid" id="grid"></div>
@@ -186,8 +189,8 @@
     </div>
     <div class="agenda" id="agenda"></div>
     <div class="side-foot">
-      <button class="pill-btn" id="importBtn" title="Import an .ics file from Windows Calendar, Outlook, Google or Apple"><span class="material-symbols-outlined">upload</span>Import</button>
-      <button class="pill-btn" id="exportBtn" title="Export to .ics"><span class="material-symbols-outlined">download</span>Export</button>
+      <button class="pill-btn" id="importBtn" title="Import an .ics file from Windows Calendar, Outlook, Google or Apple" data-i18n-title="calendar.import.hint"><span class="material-symbols-outlined">upload</span><span data-i18n="calendar.import">Import</span></button>
+      <button class="pill-btn" id="exportBtn" title="Export to .ics" data-i18n-title="calendar.export.hint"><span class="material-symbols-outlined">download</span><span data-i18n="calendar.export">Export</span></button>
       <input type="file" id="importFile" accept=".ics,text/calendar" hidden>
     </div>
   </aside>
@@ -195,55 +198,67 @@
 
 <div class="backdrop" id="editorBackdrop">
   <form class="editor" id="editor" autocomplete="off">
-    <h3 id="editorTitle">New event</h3>
-    <div class="field"><input class="title-input" id="fTitle" placeholder="Event title" maxlength="120"></div>
-    <div class="toggle-row"><span>All day</span><label class="switch"><input type="checkbox" id="fAllDay"><span class="slider"></span></label></div>
+    <h3 id="editorTitle" data-i18n="calendar.new-event">New event</h3>
+    <div class="field"><input class="title-input" id="fTitle" placeholder="Event title" data-i18n-placeholder="calendar.editor.title-placeholder" maxlength="120"></div>
+    <div class="toggle-row"><span data-i18n="calendar.all-day">All day</span><label class="switch"><input type="checkbox" id="fAllDay"><span class="slider"></span></label></div>
     <div class="row">
-      <div class="field"><label for="fDate">Starts</label><input type="date" id="fDate"></div>
+      <div class="field"><label for="fDate" data-i18n="calendar.editor.starts">Starts</label><input type="date" id="fDate"></div>
       <div class="field timeField"><label for="fStart">&nbsp;</label><input type="time" id="fStart"></div>
     </div>
     <div class="row">
-      <div class="field"><label for="fEndDate">Ends</label><input type="date" id="fEndDate"></div>
+      <div class="field"><label for="fEndDate" data-i18n="calendar.editor.ends">Ends</label><input type="date" id="fEndDate"></div>
       <div class="field timeField"><label for="fEnd">&nbsp;</label><input type="time" id="fEnd"></div>
     </div>
     <div class="row">
-      <div class="field"><label for="fRepeat">Repeat</label>
-        <select id="fRepeat"><option value="none">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select>
+      <div class="field"><label for="fRepeat" data-i18n="calendar.editor.repeat">Repeat</label>
+        <select id="fRepeat"><option value="none" data-i18n="calendar.repeat.never">Never</option><option value="daily" data-i18n="calendar.repeat.daily">Daily</option><option value="weekly" data-i18n="calendar.repeat.weekly">Weekly</option><option value="monthly" data-i18n="calendar.repeat.monthly">Monthly</option><option value="yearly" data-i18n="calendar.repeat.yearly">Yearly</option></select>
       </div>
-      <div class="field"><label for="fReminder">Reminder</label>
-        <select id="fReminder"><option value="-1">None</option><option value="0">At time of event</option><option value="5">5 minutes before</option><option value="10">10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option><option value="60">1 hour before</option><option value="120">2 hours before</option><option value="1440">1 day before</option><option value="2880">2 days before</option><option value="10080">1 week before</option></select>
+      <div class="field"><label for="fReminder" data-i18n="calendar.editor.reminder">Reminder</label>
+        <select id="fReminder"><option value="-1" data-i18n="calendar.reminder.none">None</option><option value="0" data-i18n="calendar.reminder.at-time">At time of event</option><option value="5" data-i18n="calendar.reminder.5m">5 minutes before</option><option value="10" data-i18n="calendar.reminder.10m">10 minutes before</option><option value="15" data-i18n="calendar.reminder.15m">15 minutes before</option><option value="30" data-i18n="calendar.reminder.30m">30 minutes before</option><option value="60" data-i18n="calendar.reminder.1h">1 hour before</option><option value="120" data-i18n="calendar.reminder.2h">2 hours before</option><option value="1440" data-i18n="calendar.reminder.1d">1 day before</option><option value="2880" data-i18n="calendar.reminder.2d">2 days before</option><option value="10080" data-i18n="calendar.reminder.1w">1 week before</option></select>
       </div>
     </div>
     <div class="repeat-extra" id="repeatExtra">
-      <div class="field"><label for="fInterval">Every</label><div class="inline-num"><input type="number" id="fInterval" min="1" max="99" value="1"><span id="intervalUnit">weeks</span></div></div>
-      <div class="field"><label for="fUntil">Until (optional)</label><input type="date" id="fUntil"></div>
+      <div class="field"><label for="fInterval" data-i18n="calendar.editor.every">Every</label><div class="inline-num"><input type="number" id="fInterval" min="1" max="99" value="1"><span id="intervalUnit">weeks</span></div></div>
+      <div class="field"><label for="fUntil" data-i18n="calendar.editor.until">Until (optional)</label><input type="date" id="fUntil"></div>
     </div>
-    <div class="field"><label for="fLocation">Location</label><input id="fLocation" placeholder="Add location" maxlength="200"></div>
-    <div class="field"><label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Add notes" maxlength="2000"></textarea></div>
-    <div class="field"><label>Color</label><div class="colors" id="colors"></div></div>
+    <div class="field"><label for="fLocation" data-i18n="calendar.editor.location">Location</label><input id="fLocation" placeholder="Add location" data-i18n-placeholder="calendar.editor.location-placeholder" maxlength="200"></div>
+    <div class="field"><label for="fNotes" data-i18n="calendar.editor.notes">Notes</label><textarea id="fNotes" placeholder="Add notes" data-i18n-placeholder="calendar.editor.notes-placeholder" maxlength="2000"></textarea></div>
+    <div class="field"><label data-i18n="calendar.editor.color">Color</label><div class="colors" id="colors"></div></div>
     <div class="error" id="editorError"></div>
     <div class="delete-choice" id="deleteChoice">
-      <span>This is a repeating event. What do you want to delete?</span>
+      <span data-i18n="calendar.delete.repeating-question">This is a repeating event. What do you want to delete?</span>
       <div class="btns">
-        <button type="button" class="pill-btn danger" id="deleteOneBtn">Only this event</button>
-        <button type="button" class="pill-btn danger" id="deleteAllBtn">All events in the series</button>
-        <button type="button" class="pill-btn" id="deleteCancelBtn">Cancel</button>
+        <button type="button" class="pill-btn danger" id="deleteOneBtn" data-i18n="calendar.delete.only-this">Only this event</button>
+        <button type="button" class="pill-btn danger" id="deleteAllBtn" data-i18n="calendar.delete.all-series">All events in the series</button>
+        <button type="button" class="pill-btn" id="deleteCancelBtn" data-i18n="common.cancel">Cancel</button>
       </div>
     </div>
     <div class="editor-actions">
-      <button type="button" class="pill-btn danger" id="deleteBtn"><span class="material-symbols-outlined">delete</span>Delete</button>
-      <button type="button" class="pill-btn" id="duplicateBtn" title="Duplicate"><span class="material-symbols-outlined">content_copy</span></button>
+      <button type="button" class="pill-btn danger" id="deleteBtn"><span class="material-symbols-outlined">delete</span><span data-i18n="common.delete">Delete</span></button>
+      <button type="button" class="pill-btn" id="duplicateBtn" title="Duplicate" data-i18n-title="calendar.duplicate"><span class="material-symbols-outlined">content_copy</span></button>
       <div class="spacer"></div>
-      <button type="button" class="pill-btn" id="cancelBtn">Cancel</button>
-      <button type="submit" class="pill-btn primary" id="saveBtn">Save</button>
+      <button type="button" class="pill-btn" id="cancelBtn" data-i18n="common.cancel">Cancel</button>
+      <button type="submit" class="pill-btn primary" id="saveBtn" data-i18n="common.save">Save</button>
     </div>
   </form>
 </div>
 
 <script>
 const COLORS = ['blue', 'green', 'red', 'orange', 'purple', 'pink', 'teal'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+// Month and weekday names in the system language (English when none is chosen).
+const LOCALE = mariowOSI18n.locale || 'en-US';
+const names = (count, options, at) => { const f = new Intl.DateTimeFormat(LOCALE, { ...options, timeZone: 'UTC' }); return Array.from({ length: count }, (_, i) => f.format(at(i))); };
+const MONTHS = names(12, { month: 'long' }, m => Date.UTC(2024, m, 1));
+const MONTHS_SHORT = names(12, { month: 'short' }, m => Date.UTC(2024, m, 1));
+const DAYS = names(7, { weekday: 'long' }, d => Date.UTC(2024, 0, 7 + d)); // 7 Jan 2024 was a Sunday
+const DAYS_SHORT = names(7, { weekday: 'short' }, d => Date.UTC(2024, 0, 7 + d));
+const cap = s => s.charAt(0).toLocaleUpperCase(LOCALE) + s.slice(1);
+const COLOR_NAMES = {
+  blue: mariowOSI18n.t("calendar.color.blue", "blue"), green: mariowOSI18n.t("calendar.color.green", "green"),
+  red: mariowOSI18n.t("calendar.color.red", "red"), orange: mariowOSI18n.t("calendar.color.orange", "orange"),
+  purple: mariowOSI18n.t("calendar.color.purple", "purple"), pink: mariowOSI18n.t("calendar.color.pink", "pink"),
+  teal: mariowOSI18n.t("calendar.color.teal", "teal")
+};
 const $ = id => document.getElementById(id);
 const { pad, ymd, parseYmd, addDays, daysBetween } = CalendarCore;
 const weekday = s => { const { y, m, d } = parseYmd(s); return new Date(Date.UTC(y, m, d)).getUTCDay(); };
@@ -264,11 +279,6 @@ function systemNow() {
   const d = new Date(ms);
   return { date: ymd(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()), time: `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` };
 }
-// Follow the accent color chosen in Settings → Wallpaper & Style.
-try {
-  const accent = JSON.parse(localStorage.getItem('desktopStyle') || '{}').accent;
-  if (/^#[0-9a-f]{6}$/i.test(accent)) document.documentElement.style.setProperty('--m3-accent-active', accent);
-} catch (e) {}
 
 let events = [];
 let loaded = false;
@@ -292,7 +302,7 @@ function eventsOn(date) {
   });
 }
 function timeLabel(ev) {
-  if (ev.allDay) return 'All day';
+  if (ev.allDay) return mariowOSI18n.t("calendar.all-day", "All day");
   return ev.end ? `${ev.start} – ${ev.end}` : ev.start;
 }
 const isRepeating = ev => ev.repeat && ev.repeat !== 'none';
@@ -301,7 +311,7 @@ async function api(url, options = {}) {
   const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
   let data = null;
   try { data = await res.json(); } catch (e) {}
-  if (!res.ok || (data && data.success === false)) throw new Error((data && data.error) || `Server error (${res.status}). Restart mariowOS if the problem persists.`);
+  if (!res.ok || (data && data.success === false)) throw new Error((data && data.error) || mariowOSI18n.t("calendar.error.server", "Server error ({status}). Restart mariowOS if the problem persists.", { status: res.status }));
   return data;
 }
 async function loadEvents() {
@@ -325,7 +335,7 @@ function render() {
 }
 
 function renderGrid() {
-  $('monthTitle').innerHTML = `${MONTHS[view.m]} <span>${view.y}</span>`;
+  $('monthTitle').innerHTML = `${cap(MONTHS[view.m])} <span>${view.y}</span>`;
   const grid = $('grid');
   grid.innerHTML = '';
   const first = ymd(view.y, view.m, 1);
@@ -358,7 +368,7 @@ function renderGrid() {
     if (dayEvents.length > maxChips) {
       const more = document.createElement('div');
       more.className = 'more';
-      more.textContent = `+${dayEvents.length - maxChips} more`;
+      more.textContent = mariowOSI18n.t("calendar.more", "+{count} more", { count: dayEvents.length - maxChips });
       cell.appendChild(more);
     }
     cell.addEventListener('click', () => { selected = date; render(); });
@@ -374,7 +384,7 @@ function renderGrid() {
 // move by the right amount.
 function makeDraggable(node, ev, date) {
   node.draggable = !isRepeating(ev);
-  if (isRepeating(ev)) node.title += ' · repeating events are moved from the editor';
+  if (isRepeating(ev)) node.title += ' · ' + mariowOSI18n.t("calendar.repeating-drag-hint", "repeating events are moved from the editor");
   node.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text/plain', JSON.stringify({ id: ev.id, from: date }));
     e.dataTransfer.effectAllowed = 'move';
@@ -393,8 +403,8 @@ function renderWeek() {
   const end = addDays(start, days - 1);
   const s = parseYmd(start), e = parseYmd(end);
   $('monthTitle').innerHTML = mode === 'day'
-    ? `${DAYS[weekday(start)]} <span>${s.d} ${MONTHS[s.m]} ${s.y}</span>`
-    : (s.m === e.m ? `${s.d} – ${e.d} ${MONTHS[s.m]} <span>${s.y}</span>` : `${s.d} ${MONTHS[s.m].slice(0, 3)} – ${e.d} ${MONTHS[e.m].slice(0, 3)} <span>${e.y}</span>`);
+    ? `${cap(DAYS[weekday(start)])} <span>${s.d} ${MONTHS[s.m]} ${s.y}</span>`
+    : (s.m === e.m ? `${s.d} – ${e.d} ${MONTHS[s.m]} <span>${s.y}</span>` : `${s.d} ${MONTHS_SHORT[s.m]} – ${e.d} ${MONTHS_SHORT[e.m]} <span>${e.y}</span>`);
 
   const wk = $('week');
   const oldScroll = wk.querySelector('.wk-scroll');
@@ -410,7 +420,7 @@ function renderWeek() {
   dates.forEach(date => {
     const h = document.createElement('div');
     h.className = (date === today ? 'today ' : '') + (date === selected ? 'selected' : '');
-    h.innerHTML = `${DAYS[weekday(date)].slice(0, 3)}<b>${parseYmd(date).d}</b>`;
+    h.innerHTML = `${DAYS_SHORT[weekday(date)]}<b>${parseYmd(date).d}</b>`;
     h.onclick = () => { selected = date; if (mode === 'week') render(); else renderAgenda(); };
     h.ondblclick = () => { selected = date; mode = 'day'; saveMode(); render(); };
     head.appendChild(h);
@@ -422,7 +432,7 @@ function renderWeek() {
   allday.className = 'wk-allday';
   const label = document.createElement('div');
   label.className = 'label';
-  label.textContent = 'all-day';
+  label.textContent = mariowOSI18n.t("calendar.all-day-label", "all-day");
   allday.appendChild(label);
   dates.forEach(date => {
     const col = document.createElement('div');
@@ -537,18 +547,18 @@ function renderAgenda() {
   const agenda = $('agenda');
   agenda.innerHTML = '';
   if (loadError) {
-    $('sideDay').textContent = 'Error';
-    $('sideDate').textContent = 'Not loaded';
-    agenda.innerHTML = `<div class="empty error"><span class="material-symbols-outlined">cloud_off</span>Could not load your events.<br>${esc(loadError)}</div>`;
+    $('sideDay').textContent = mariowOSI18n.t("common.error", "Error");
+    $('sideDate').textContent = mariowOSI18n.t("calendar.not-loaded", "Not loaded");
+    agenda.innerHTML = `<div class="empty error"><span class="material-symbols-outlined">cloud_off</span>${esc(mariowOSI18n.t("calendar.load-error", "Could not load your events."))}<br>${esc(loadError)}</div>`;
     return;
   }
   if (query) { renderSearch(); return; }
   const { y, m, d } = parseYmd(selected);
-  $('sideDay').textContent = selected === today ? 'Today' : DAYS[weekday(selected)];
+  $('sideDay').textContent = selected === today ? mariowOSI18n.t("calendar.today", "Today") : cap(DAYS[weekday(selected)]);
   $('sideDate').textContent = `${d} ${MONTHS[m]} ${y}`;
   const list = eventsOn(selected);
   if (!list.length) {
-    agenda.innerHTML = `<div class="empty"><span class="material-symbols-outlined">event_available</span>No events.<br>Double-click a day or press “New event”.</div>`;
+    agenda.innerHTML = `<div class="empty"><span class="material-symbols-outlined">event_available</span>${esc(mariowOSI18n.t("calendar.no-events", "No events."))}<br>${esc(mariowOSI18n.t("calendar.no-events-hint", "Double-click a day or press “New event”."))}</div>`;
   }
   list.forEach(ev => agenda.appendChild(eventCard(ev, null, selected)));
 
@@ -561,7 +571,7 @@ function renderAgenda() {
   if (upcoming.length) {
     const t = document.createElement('div');
     t.className = 'upcoming-title';
-    t.textContent = 'Coming up';
+    t.textContent = mariowOSI18n.t("calendar.coming-up", "Coming up");
     agenda.appendChild(t);
     upcoming.forEach(({ ev, date }) => agenda.appendChild(eventCard(ev, date, date)));
   }
@@ -584,10 +594,12 @@ function renderSearch() {
     .filter(ev => [ev.title, ev.location, ev.notes].some(f => (f || '').toLowerCase().includes(q)))
     .map(ev => ({ ev, date: nextOccurrence(ev, today) }))
     .sort((a, b) => (a.date < today) - (b.date < today) || (a.date < today ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)));
-  $('sideDay').textContent = 'Search';
-  $('sideDate').textContent = `${matches.length} ${matches.length === 1 ? 'result' : 'results'}`;
+  $('sideDay').textContent = mariowOSI18n.t("common.search", "Search");
+  $('sideDate').textContent = matches.length === 1
+    ? mariowOSI18n.t("calendar.search.result-one", "{count} result", { count: matches.length })
+    : mariowOSI18n.t("calendar.search.result-other", "{count} results", { count: matches.length });
   const agenda = $('agenda');
-  if (!matches.length) agenda.innerHTML = `<div class="empty"><span class="material-symbols-outlined">search_off</span>No events match “${esc(query)}”.</div>`;
+  if (!matches.length) agenda.innerHTML = `<div class="empty"><span class="material-symbols-outlined">search_off</span>${esc(mariowOSI18n.t("calendar.search.none", "No events match “{query}”.", { query }))}</div>`;
   matches.slice(0, 100).forEach(({ ev, date }) => {
     const card = eventCard(ev, date, date);
     card.addEventListener('click', () => { goTo(date); }, { capture: true });
@@ -600,7 +612,7 @@ function eventCard(ev, date, occurrence) {
   card.className = 'ev-card';
   card.style.setProperty('--ev', `var(--c-${ev.color || 'blue'})`);
   let when = timeLabel(ev);
-  if (date) { const p = parseYmd(date); when = `${DAYS[weekday(date)].slice(0, 3)} ${p.d} ${MONTHS[p.m].slice(0, 3)}${p.y !== parseYmd(today).y ? ' ' + p.y : ''} · ${when}`; }
+  if (date) { const p = parseYmd(date); when = `${DAYS_SHORT[weekday(date)]} ${p.d} ${MONTHS_SHORT[p.m]}${p.y !== parseYmd(today).y ? ' ' + p.y : ''} · ${when}`; }
   card.innerHTML = `<div class="ev-title">${esc(ev.title)}</div>
     <div class="ev-meta"><span class="material-symbols-outlined">schedule</span>${esc(when)}
     ${isRepeating(ev) ? '<span class="material-symbols-outlined">repeat</span>' : ''}
@@ -611,7 +623,7 @@ function eventCard(ev, date, occurrence) {
 }
 
 /* ---------- editor ---------- */
-$('colors').innerHTML = COLORS.map(c => `<div class="swatch" data-color="${c}" style="--ev: var(--c-${c})" title="${c}"></div>`).join('');
+$('colors').innerHTML = COLORS.map(c => `<div class="swatch" data-color="${c}" style="--ev: var(--c-${c})" title="${esc(COLOR_NAMES[c])}"></div>`).join('');
 $('colors').addEventListener('click', e => {
   const sw = e.target.closest('.swatch');
   if (sw) setColor(sw.dataset.color);
@@ -627,8 +639,14 @@ function syncRepeat() {
   const r = $('fRepeat').value;
   $('repeatExtra').classList.toggle('show', r !== 'none');
   const n = Number($('fInterval').value) || 1;
-  const unit = { daily: 'day', weekly: 'week', monthly: 'month', yearly: 'year' }[r] || 'week';
-  $('intervalUnit').textContent = n === 1 ? unit : unit + 's';
+  const units = {
+    daily: [mariowOSI18n.t("calendar.unit.day-one", "day"), mariowOSI18n.t("calendar.unit.day-other", "days")],
+    weekly: [mariowOSI18n.t("calendar.unit.week-one", "week"), mariowOSI18n.t("calendar.unit.week-other", "weeks")],
+    monthly: [mariowOSI18n.t("calendar.unit.month-one", "month"), mariowOSI18n.t("calendar.unit.month-other", "months")],
+    yearly: [mariowOSI18n.t("calendar.unit.year-one", "year"), mariowOSI18n.t("calendar.unit.year-other", "years")]
+  };
+  const unit = units[r] || units.weekly;
+  $('intervalUnit').textContent = n === 1 ? unit[0] : unit[1];
 }
 $('fAllDay').addEventListener('change', syncAllDay);
 $('fRepeat').addEventListener('change', syncRepeat);
@@ -649,7 +667,7 @@ function setEndOneHourAfter(start) {
 function openEditor(ev, date, time, occurrence) {
   editing = ev || null;
   editingDate = occurrence || null;
-  $('editorTitle').textContent = ev ? 'Edit event' : 'New event';
+  $('editorTitle').textContent = ev ? mariowOSI18n.t("calendar.edit-event", "Edit event") : mariowOSI18n.t("calendar.new-event", "New event");
   $('deleteBtn').style.display = ev ? '' : 'none';
   $('duplicateBtn').style.display = ev ? '' : 'none';
   $('deleteChoice').classList.remove('show');
@@ -670,7 +688,7 @@ function openEditor(ev, date, time, occurrence) {
   [...$('fReminder').options].filter(o => o.dataset.custom).forEach(o => o.remove());
   $('fReminder').value = String(ev ? (ev.reminder ?? -1) : 10);
   if (ev && ![...$('fReminder').options].some(o => o.value === String(ev.reminder))) {
-    const opt = new Option(`${ev.reminder} minutes before`, String(ev.reminder));
+    const opt = new Option(mariowOSI18n.t("calendar.reminder.minutes-before", "{count} minutes before", { count: ev.reminder }), String(ev.reminder));
     opt.dataset.custom = '1';
     $('fReminder').add(opt);
     $('fReminder').value = String(ev.reminder);
@@ -708,7 +726,7 @@ function readForm() {
 $('editor').addEventListener('submit', async e => {
   e.preventDefault();
   const body = readForm();
-  if (!body.title) { $('editorError').textContent = 'Please enter a title.'; $('fTitle').focus(); return; }
+  if (!body.title) { $('editorError').textContent = mariowOSI18n.t("calendar.error.no-title", "Please enter a title."); $('fTitle').focus(); return; }
   $('saveBtn').disabled = true;
   try {
     let saved;
@@ -749,7 +767,10 @@ $('deleteBtn').addEventListener('click', async () => {
   if (!editing) return;
   if (isRepeating(editing) && editingDate) { $('deleteChoice').classList.add('show'); return; }
   const target = editing;
-  const ok = await mDialog.confirm(`Delete “${target.title}”?${isRepeating(target) ? '\nAll repetitions will be removed.' : ''}`, { danger: true, okText: 'Delete', title: 'Delete event' });
+  const question = isRepeating(target)
+    ? mariowOSI18n.t("calendar.delete.confirm-repeating", "Delete “{title}”?\nAll repetitions will be removed.", { title: target.title })
+    : mariowOSI18n.t("calendar.delete.confirm", "Delete “{title}”?", { title: target.title });
+  const ok = await mDialog.confirm(question, { danger: true, okText: mariowOSI18n.t("common.delete", "Delete"), title: mariowOSI18n.t("calendar.delete.title", "Delete event") });
   if (ok) deleteSeries(target);
 });
 $('deleteCancelBtn').addEventListener('click', () => $('deleteChoice').classList.remove('show'));
@@ -812,7 +833,7 @@ async function moveEvent(id, fromDate, toDate, startMin) {
     render();
     notifySystem();
   } catch (err) {
-    mDialog.alert('Could not move the event: ' + err.message);
+    mDialog.alert(mariowOSI18n.t("calendar.error.move", "Could not move the event: {error}", { error: err.message }));
   }
 }
 
@@ -874,8 +895,8 @@ $('grid').addEventListener('wheel', e => {
 
 /* ---------- .ics import / export ---------- */
 $('exportBtn').addEventListener('click', () => {
-  if (!loaded) { mDialog.alert('Your events are not loaded yet, so there is nothing to export.', { kind: 'error' }); return; }
-  if (!events.length) { mDialog.alert('There are no events to export yet.', { kind: 'info' }); return; }
+  if (!loaded) { mDialog.alert(mariowOSI18n.t("calendar.export.not-loaded", "Your events are not loaded yet, so there is nothing to export."), { kind: 'error' }); return; }
+  if (!events.length) { mDialog.alert(mariowOSI18n.t("calendar.export.empty", "There are no events to export yet."), { kind: 'info' }); return; }
   const a = document.createElement('a');
   a.href = '/api/calendar/export.ics';
   a.download = 'mariowOS-calendar.ics';
@@ -893,12 +914,16 @@ $('importFile').addEventListener('change', async () => {
     const res = await fetch('/api/calendar/import', { method: 'POST', headers: { 'Content-Type': 'text/calendar' }, body: text });
     let data = null;
     try { data = await res.json(); } catch (e) {}
-    if (!res.ok || !data || !data.success) throw new Error((data && data.error) || `Server error (${res.status}).`);
+    if (!res.ok || !data || !data.success) throw new Error((data && data.error) || mariowOSI18n.t("calendar.error.server-short", "Server error ({status}).", { status: res.status }));
     await loadEvents();
     notifySystem();
-    mDialog.alert(`Imported ${data.imported} event${data.imported === 1 ? '' : 's'}.` + (data.skipped ? `\n${data.skipped} skipped (duplicates or unsupported).` : ''), { kind: 'success', title: 'Import complete' });
+    const imported = data.imported === 1
+      ? mariowOSI18n.t("calendar.import.done-one", "Imported {count} event.", { count: data.imported })
+      : mariowOSI18n.t("calendar.import.done-other", "Imported {count} events.", { count: data.imported });
+    const skipped = data.skipped ? '\n' + mariowOSI18n.t("calendar.import.skipped", "{count} skipped (duplicates or unsupported).", { count: data.skipped }) : '';
+    mDialog.alert(imported + skipped, { kind: 'success', title: mariowOSI18n.t("calendar.import.done-title", "Import complete") });
   } catch (err) {
-    mDialog.alert('Import failed: ' + err.message);
+    mDialog.alert(mariowOSI18n.t("calendar.import.failed", "Import failed: {error}", { error: err.message }));
   }
 });
 
@@ -920,6 +945,7 @@ setInterval(() => {
 }, 60000);
 new ResizeObserver(() => { if (mode === 'month') renderGrid(); }).observe($('grid'));
 
+$('weekdays').innerHTML = [1, 2, 3, 4, 5, 6, 0].map(d => `<div>${esc(DAYS_SHORT[d])}</div>`).join('');
 const startDate = new URLSearchParams(location.search).get('date');
 if (startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)) { selected = startDate; view = parseYmd(startDate); }
 loadEvents();

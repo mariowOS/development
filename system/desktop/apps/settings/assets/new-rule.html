@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,8 +101,8 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #0a84ff;
-  box-shadow: 0 0 0 2px rgba(10,132,255,0.4);
+  border-color: var(--sys-accent-text);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent);
 }
 
 .btn {
@@ -132,65 +135,63 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>New Rule</h1>
+    <h1 data-i18n="settings.new-rule.title">New Rule</h1>
   </div>
 
   <div class="banner">
     <div class="title">Create a New Rule</div>
-    <div class="desc">
-      Define the conditions and actions for your new automation rule.
-    </div>
+    <div class="desc" data-i18n="settings.new-rule.banner-desc">Define the conditions and actions for your new automation rule.</div>
   </div>
 
   <form>
     <div class="form-group">
-      <label for="ruleName">Rule Name</label>
-      <input type="text" id="ruleName" placeholder="Enter rule name" maxlength="60">
+      <label for="ruleName" data-i18n="settings.new-rule.name">Rule Name</label>
+      <input type="text" id="ruleName" placeholder="Enter rule name" data-i18n-placeholder="settings.new-rule.name-placeholder" maxlength="60">
     </div>
 
     <div class="form-group">
-      <label for="trigger">Trigger</label>
+      <label for="trigger" data-i18n="settings.new-rule.trigger">Trigger</label>
       <select id="trigger">
-        <option value="">Select a trigger</option>
-        <option value="time">Every day at a time</option>
-        <option value="battery">Battery at or below a level</option>
-        <option value="startup">At desktop startup</option>
+        <option value="" data-i18n="settings.new-rule.select-trigger">Select a trigger</option>
+        <option value="time" data-i18n="settings.new-rule.trigger-time">Every day at a time</option>
+        <option value="battery" data-i18n="settings.new-rule.trigger-battery">Battery at or below a level</option>
+        <option value="startup" data-i18n="settings.new-rule.trigger-startup">At desktop startup</option>
       </select>
     </div>
 
     <div class="form-group" id="timeGroup" style="display:none;">
-      <label for="triggerTime">Time</label>
+      <label for="triggerTime" data-i18n="settings.new-rule.time">Time</label>
       <input type="time" id="triggerTime" value="09:00">
     </div>
 
     <div class="form-group" id="batteryGroup" style="display:none;">
-      <label for="triggerBattery">Battery level (%)</label>
+      <label for="triggerBattery" data-i18n="settings.new-rule.battery-level">Battery level (%)</label>
       <input type="number" id="triggerBattery" min="1" max="100" value="20">
     </div>
 
     <div class="form-group">
-      <label for="action">Action</label>
+      <label for="action" data-i18n="settings.new-rule.action">Action</label>
       <select id="action"></select>
     </div>
 
     <div class="form-group" id="notifyGroup" style="display:none;">
-      <label for="notifyTitle">Notification title</label>
-      <input type="text" id="notifyTitle" placeholder="Title" maxlength="60">
-      <label for="notifyMessage" style="margin-top:8px;">Notification message</label>
-      <input type="text" id="notifyMessage" placeholder="Message" maxlength="200">
+      <label for="notifyTitle" data-i18n="settings.new-rule.notify-title">Notification title</label>
+      <input type="text" id="notifyTitle" placeholder="Title" data-i18n-placeholder="settings.new-rule.notify-title-placeholder" maxlength="60">
+      <label for="notifyMessage" style="margin-top:8px;" data-i18n="settings.new-rule.notify-message">Notification message</label>
+      <input type="text" id="notifyMessage" placeholder="Message" data-i18n-placeholder="settings.new-rule.notify-message-placeholder" maxlength="200">
     </div>
 
     <div class="form-group" id="runGroup" style="display:none;">
-      <label for="runCommand">Command</label>
-      <input type="text" id="runCommand" placeholder="Shell command to run">
+      <label for="runCommand" data-i18n="settings.new-rule.command">Command</label>
+      <input type="text" id="runCommand" placeholder="Shell command to run" data-i18n-placeholder="settings.new-rule.command-placeholder">
     </div>
 
     <div class="form-group" id="appGroup" style="display:none;">
-      <label for="appId">App</label>
-      <select id="appId"><option value="">Loading apps...</option></select>
+      <label for="appId" data-i18n="settings.new-rule.app">App</label>
+      <select id="appId"><option value="" data-i18n="settings.new-rule.loading-apps">Loading apps...</option></select>
     </div>
 
     <button type="submit" class="btn" id="submitBtn">Create Rule</button>
@@ -199,9 +200,9 @@ html::-webkit-scrollbar {
 
 <script>
 const ACTIONS = {
-  time: [['notify', 'Send notification'], ['run', 'Run command']],
-  battery: [['notify', 'Send notification']],
-  startup: [['launch-app', 'Open an app']]
+  time: [['notify', mariowOSI18n.t('settings.new-rule.send-notification', 'Send notification')], ['run', mariowOSI18n.t('settings.new-rule.run-command', 'Run command')]],
+  battery: [['notify', mariowOSI18n.t('settings.new-rule.send-notification', 'Send notification')]],
+  startup: [['launch-app', mariowOSI18n.t('settings.new-rule.open-app', 'Open an app')]]
 };
 const $ = id => document.getElementById(id);
 const editId = Number(new URLSearchParams(location.search).get('edit')) || null;
@@ -210,7 +211,7 @@ let editingRule = null;
 function refreshFields() {
   const trigger = $('trigger').value;
   const current = $('action').value;
-  $('action').replaceChildren(new Option(trigger ? 'Select an action' : 'Select a trigger first', ''));
+  $('action').replaceChildren(new Option(trigger ? mariowOSI18n.t('settings.new-rule.select-action', 'Select an action') : mariowOSI18n.t('settings.new-rule.select-trigger-first', 'Select a trigger first'), ''));
   (ACTIONS[trigger] || []).forEach(([value, label]) => $('action').add(new Option(label, value)));
   if ((ACTIONS[trigger] || []).some(([v]) => v === current)) $('action').value = current;
   else if ((ACTIONS[trigger] || []).length === 1) $('action').value = ACTIONS[trigger][0][0];
@@ -234,20 +235,22 @@ async function loadApps() {
     const res = await fetch('/get-settings');
     const settings = await res.json();
     const apps = Array.isArray(settings.installedApps) ? settings.installedApps : [];
-    $('appId').replaceChildren(new Option(apps.length ? 'Select an app' : 'No installed apps', ''));
+    $('appId').replaceChildren(new Option(apps.length ? mariowOSI18n.t('settings.new-rule.select-app', 'Select an app') : mariowOSI18n.t('settings.new-rule.no-apps', 'No installed apps'), ''));
     apps.forEach(app => $('appId').add(new Option(app.title, app.appId)));
   } catch (e) {
-    $('appId').replaceChildren(new Option('Could not load installed apps', ''));
+    $('appId').replaceChildren(new Option(mariowOSI18n.t('settings.new-rule.apps-failed', 'Could not load installed apps'), ''));
   }
 }
 
 async function loadRules() {
   const res = await fetch('/api/rules');
-  if (!res.ok) throw new Error('Could not load saved rules');
+  if (!res.ok) throw new Error(mariowOSI18n.t('settings.new-rule.load-failed', 'Could not load saved rules'));
   return res.json();
 }
 
 async function init() {
+  document.querySelector('.banner .title').textContent = mariowOSI18n.t('settings.new-rule.banner', 'Create a New Rule');
+  $('submitBtn').textContent = mariowOSI18n.t('settings.new-rule.create', 'Create Rule');
   refreshFields();
   await loadApps();
   if (!editId) return;
@@ -257,8 +260,8 @@ async function init() {
       || (JSON.parse(localStorage.getItem('rules')) || []).find(r => Number(r.id) === editId);
   } catch (e) {}
   if (!editingRule) return;
-  document.querySelector('.banner .title').textContent = 'Edit Rule';
-  $('submitBtn').textContent = 'Save Rule';
+  document.querySelector('.banner .title').textContent = mariowOSI18n.t('settings.new-rule.edit-title', 'Edit Rule');
+  $('submitBtn').textContent = mariowOSI18n.t('settings.new-rule.save', 'Save Rule');
   $('ruleName').value = editingRule.name || '';
   $('trigger').value = ACTIONS[editingRule.trigger] ? editingRule.trigger : '';
   refreshFields();
@@ -278,29 +281,29 @@ document.querySelector('form').addEventListener('submit', async (e) => {
   const name = $('ruleName').value.trim();
   const trigger = $('trigger').value;
   const action = $('action').value;
-  if (!name || !trigger || !action) { await mDialog.alert('Please fill in all fields.'); return; }
+  if (!name || !trigger || !action) { await mDialog.alert(mariowOSI18n.t('settings.new-rule.fill-all', 'Please fill in all fields.')); return; }
 
   let triggerValue;
   const actionParams = {};
   if (trigger === 'time') {
     triggerValue = $('triggerTime').value;
-    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(triggerValue)) { await mDialog.alert('Please choose a valid time.'); return; }
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(triggerValue)) { await mDialog.alert(mariowOSI18n.t('settings.new-rule.invalid-time', 'Please choose a valid time.')); return; }
   }
   if (trigger === 'battery') {
     triggerValue = Number($('triggerBattery').value);
-    if (!(triggerValue >= 1 && triggerValue <= 100)) { await mDialog.alert('Battery level must be between 1 and 100.'); return; }
+    if (!(triggerValue >= 1 && triggerValue <= 100)) { await mDialog.alert(mariowOSI18n.t('settings.new-rule.invalid-battery', 'Battery level must be between 1 and 100.')); return; }
   }
   if (action === 'notify') {
     actionParams.title = $('notifyTitle').value.trim() || name;
-    actionParams.message = $('notifyMessage').value.trim() || 'A rule just fired.';
+    actionParams.message = $('notifyMessage').value.trim() || mariowOSI18n.t('settings.new-rule.default-message', 'A rule just fired.');
   }
   if (action === 'run') {
     actionParams.command = $('runCommand').value.trim();
-    if (!actionParams.command) { await mDialog.alert('Please enter a command.'); return; }
+    if (!actionParams.command) { await mDialog.alert(mariowOSI18n.t('settings.new-rule.enter-command', 'Please enter a command.')); return; }
   }
   if (action === 'launch-app') {
     actionParams.appId = $('appId').value;
-    if (!actionParams.appId) { await mDialog.alert('Please select an app.'); return; }
+    if (!actionParams.appId) { await mDialog.alert(mariowOSI18n.t('settings.new-rule.select-app-alert', 'Please select an app.')); return; }
   }
 
   const rule = {
@@ -318,7 +321,7 @@ document.querySelector('form').addEventListener('submit', async (e) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rules })
     });
-    if (!res.ok) throw new Error('Could not save this rule');
+    if (!res.ok) throw new Error(mariowOSI18n.t('settings.new-rule.save-failed', 'Could not save this rule'));
   } catch (err) {
     await mDialog.alert(err.message);
     return;
@@ -332,7 +335,7 @@ document.querySelector('form').addEventListener('submit', async (e) => {
   history.push({ id: Date.now(), ruleName: name, action: editingRule ? 'Edited' : 'Created', timestamp: new Date().toISOString() });
   localStorage.setItem('ruleHistory', JSON.stringify(history));
 
-  await mDialog.alert(editingRule ? 'Rule saved!' : 'Rule created successfully!');
+  await mDialog.alert(editingRule ? mariowOSI18n.t('settings.new-rule.saved', 'Rule saved!') : mariowOSI18n.t('settings.new-rule.created', 'Rule created successfully!'));
   window.location.replace(editingRule ? 'manage-rules.html' : 'rules.html');
 });
 

@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lockscreen Settings</title>
@@ -80,7 +83,7 @@
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   .select-btn:hover { border-color: rgba(255, 255, 255, 0.3); }
-  .select-btn.active { border-color: #0a84ff; box-shadow: 0 0 0 2px rgba(10, 132, 255, 0.4); }
+  .select-btn.active { border-color: var(--sys-accent-text); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
   .select-btn .material-symbols-outlined { font-size: 16px; color: rgba(255,255,255,0.6); }
 
   .dropdown-menu {
@@ -149,14 +152,14 @@
 <body>
 <div class="container">
   
-  <div class="section-title">Clock Style</div>
+  <div class="section-title" data-i18n="settings.lockscreen.clock-style">Clock Style</div>
   <div class="panel">
     <div class="list-item">
       <div class="item-left">
         <div class="icon-badge bg-gray"><span class="material-symbols-outlined">text_fields</span></div>
         <div>
-          <div class="item-title">Clock Font</div>
-          <div class="item-subtitle">Typeface used on the lockscreen</div>
+          <div class="item-title" data-i18n="settings.lockscreen.font">Clock Font</div>
+          <div class="item-subtitle" data-i18n="settings.lockscreen.font-desc">Typeface used on the lockscreen</div>
         </div>
       </div>
       <div class="item-right custom-select-wrapper">
@@ -174,8 +177,8 @@
       <div class="item-left">
         <div class="icon-badge bg-blue"><span class="material-symbols-outlined">format_bold</span></div>
         <div>
-          <div class="item-title">Clock Thickness</div>
-          <div class="item-subtitle">Font weight of the time</div>
+          <div class="item-title" data-i18n="settings.lockscreen.weight">Clock Thickness</div>
+          <div class="item-subtitle" data-i18n="settings.lockscreen.weight-desc">Font weight of the time</div>
         </div>
       </div>
       <div class="item-right custom-select-wrapper">
@@ -184,24 +187,24 @@
           <span class="material-symbols-outlined">unfold_more</span>
         </div>
         <div class="dropdown-menu" id="weightMenu">
-          <div class="dropdown-item" onclick="selectWeight('300', 'Light')">Light</div>
-          <div class="dropdown-item" onclick="selectWeight('400', 'Regular')">Regular</div>
-          <div class="dropdown-item" onclick="selectWeight('600', 'Semi-Bold')">Semi-Bold</div>
-          <div class="dropdown-item" onclick="selectWeight('700', 'Bold')">Bold</div>
-          <div class="dropdown-item" onclick="selectWeight('900', 'Black')">Black</div>
+          <div class="dropdown-item" onclick="selectWeight('300')" data-i18n="settings.lockscreen.weight-light">Light</div>
+          <div class="dropdown-item" onclick="selectWeight('400')" data-i18n="settings.lockscreen.weight-regular">Regular</div>
+          <div class="dropdown-item" onclick="selectWeight('600')" data-i18n="settings.lockscreen.weight-semibold">Semi-Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('700')" data-i18n="settings.lockscreen.weight-bold">Bold</div>
+          <div class="dropdown-item" onclick="selectWeight('900')" data-i18n="settings.lockscreen.weight-black">Black</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="section-title">Background</div>
+  <div class="section-title" data-i18n="settings.lockscreen.background">Background</div>
   <div class="panel">
     <div class="list-item">
       <div class="item-left">
         <div class="icon-badge bg-purple"><span class="material-symbols-outlined">animation</span></div>
         <div>
-          <div class="item-title">Live Wallpaper</div>
-          <div class="item-subtitle">Animated dynamic background</div>
+          <div class="item-title" data-i18n="settings.lockscreen.live">Live Wallpaper</div>
+          <div class="item-subtitle" data-i18n="settings.lockscreen.live-desc">Animated dynamic background</div>
         </div>
       </div>
       <div class="item-right">
@@ -218,14 +221,22 @@
 <script>
   // macOS Lockscreen Equivalents mapped to Google Fonts
   const googleFonts = [
-    { name: "Poppins", label: "Standard" },       // SF Pro equivalent
-    { name: "Nunito", label: "Rounded" },         // SF Rounded equivalent
-    { name: "Lora", label: "Serif" },             // New York (Serif) equivalent
-    { name: "Roboto Slab", label: "Slab" },       // Thick Slab equivalent
-    { name: "Oswald", label: "Condensed" },       // Tall Condensed equivalent
-    { name: "Roboto Mono", label: "Monospace" },  // SF Mono equivalent
-    { name: "system-ui", label: "System Default" }
+    { name: "Poppins", label: mariowOSI18n.t("settings.lockscreen.font-standard", "Standard") },       // SF Pro equivalent
+    { name: "Nunito", label: mariowOSI18n.t("settings.lockscreen.font-rounded", "Rounded") },         // SF Rounded equivalent
+    { name: "Lora", label: mariowOSI18n.t("settings.lockscreen.font-serif", "Serif") },             // New York (Serif) equivalent
+    { name: "Roboto Slab", label: mariowOSI18n.t("settings.lockscreen.font-slab", "Slab") },       // Thick Slab equivalent
+    { name: "Oswald", label: mariowOSI18n.t("settings.lockscreen.font-condensed", "Condensed") },       // Tall Condensed equivalent
+    { name: "Roboto Mono", label: mariowOSI18n.t("settings.lockscreen.font-mono", "Monospace") },  // SF Mono equivalent
+    { name: "system-ui", label: mariowOSI18n.t("settings.lockscreen.font-system", "System Default") }
   ];
+
+  const weightMap = {
+    '300': mariowOSI18n.t("settings.lockscreen.weight-light", "Light"),
+    '400': mariowOSI18n.t("settings.lockscreen.weight-regular", "Regular"),
+    '600': mariowOSI18n.t("settings.lockscreen.weight-semibold", "Semi-Bold"),
+    '700': mariowOSI18n.t("settings.lockscreen.weight-bold", "Bold"),
+    '900': mariowOSI18n.t("settings.lockscreen.weight-black", "Black")
+  };
 
   function injectFont(fontName) {
     if (fontName === 'system-ui') return;
@@ -280,8 +291,8 @@
     notifyUpdate();
   }
 
-  function selectWeight(val, label) {
-    document.getElementById('weightLabel').textContent = label;
+  function selectWeight(val) {
+    document.getElementById('weightLabel').textContent = weightMap[val];
     localStorage.setItem('clockWeight', val);
     notifyUpdate();
   }
@@ -306,8 +317,7 @@
     document.getElementById('fontLabel').textContent = matchedFont.label;
     document.getElementById('fontLabel').style.fontFamily = currentFont !== 'system-ui' ? `'${currentFont}', sans-serif` : 'system-ui';
     
-    const weightMap = { '300': 'Light', '400': 'Regular', '600': 'Semi-Bold', '700': 'Bold', '900': 'Black' };
-    document.getElementById('weightLabel').textContent = weightMap[currentWeight] || 'Semi-Bold';
+    document.getElementById('weightLabel').textContent = weightMap[currentWeight] || weightMap['600'];
     
     document.getElementById('liveWallpaper').checked = localStorage.getItem('liveWallpaper') === 'true';
   }

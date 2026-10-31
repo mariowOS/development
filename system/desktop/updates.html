@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/desktop/assets/i18n-data.js"></script>
+    <script src="/desktop/assets/i18n.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
-    <title>mariowOS Setup</title>
+    <title data-i18n="setup.title">mariowOS Setup</title>
     <style>
         * {
             margin: 0;
@@ -160,19 +162,19 @@
     <div class="container">
         <div class="text-group">
             <h1 class="split-text" data-delay="0">Updates</h1>
-            <div class="gray-text split-text" data-delay="0.2">Keep mariowOS up to date</div>
+            <div class="gray-text split-text" data-delay="0.2" id="updates-subtitle">Keep mariowOS up to date</div>
             <div class="gray-text split-text" data-delay="0.4">Actualizări</div>
             <div class="gray-text split-text" data-delay="0.6">更新</div> 
         </div>
 
         <div class="right-section">
             <div class="info-box">
-                <h2>Update mariowOS loader along system?</h2>
-                <p>You can choose to opt out of this feature if you’re using an old version of node.js or kernel modules. Required updates and modules are still going to download. </p>
+                <h2 data-i18n="setup.updates.heading">Update mariowOS loader along system?</h2>
+                <p data-i18n="setup.updates.description">You can choose to opt out of this feature if you’re using an old version of node.js or kernel modules. Required updates and modules are still going to download. </p>
             </div>
 
             <div class="toggle-container" id="mainToggle">
-                <span class="toggle-label">Update</span>
+                <span class="toggle-label" data-i18n="setup.updates.toggle">Update</span>
                 <div class="switch">
                     <div class="circle"></div>
                 </div>
@@ -187,6 +189,8 @@
     </a>
 
     <script>
+        // Translated before the letters are split into animated spans.
+        document.getElementById('updates-subtitle').textContent = mariowOSI18n.t("setup.updates.subtitle", "Keep mariowOS up to date");
         document.querySelectorAll('.split-text').forEach(element => {
             const text = element.innerText;
             const baseDelay = parseFloat(element.getAttribute('data-delay'));

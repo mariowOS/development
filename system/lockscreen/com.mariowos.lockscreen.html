@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<!-- 
+mariowOS Lockscreen - (C) 2026 mariowstech and the mariowOS team 
+Licensed under the Apache License, Version 2.0; you can use this file if you give credits to the original creators and you may not use this file except in compliance with the License. 
+Obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0. 
+This project uses open source and free fonts sourced from Google Fonts. Google Fonts is a trademark of Google LLC, privacy docs are at https://developers.google.com/fonts/faq/privacy 
+-->
+<html lang="en">
+<head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link href="/desktop/assets/fonts/fonts.css" rel="stylesheet" id="default-font">
+<style>
+* { box-sizing: border-box; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+body {
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  overflow: hidden;
+  isolation: isolate;
+  transition: background 0.5s ease;
+}
+
+#desktop-wallpaper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url("/desktop/assets/wallpaper.factory.png") center/cover no-repeat;
+  z-index: -100;
+}
+
+/* --- LIVE WALLPAPER CSS EFFECT --- */
+body.live-wallpaper-active {
+  background: linear-gradient(-45deg, #0a0a0a, #1a2a6c, #b21f1f, #fdbb2d) !important;
+  background-size: 400% 400% !important;
+  animation: liveGradient 15s ease infinite !important;
+}
+/* Embedded in the desktop the page stays loaded while unlocked: the gradient must not keep repainting. */
+body.live-wallpaper-active.lock-standby { animation-play-state: paused !important; }
+@keyframes liveGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes loginRiseUp {
+  from { opacity: 0; transform: translate3d(-50%, 40px, 0); }
+  to { opacity: 1; transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes datetimeRiseUp {
+  from { opacity: 0; transform: translate3d(0, 140px, 0); }
+  to { opacity: 1; transform: translate3d(0, 100px, 0); }
+}
+
+@keyframes fallDownExit {
+  from { opacity: 1; transform: translate3d(-50%, 0, 0); }
+  to { opacity: 0; transform: translate3d(-50%, 160px, 0); }
+}
+
+@keyframes datetimeFallDownExit {
+  from { opacity: 1; transform: translate3d(0, 100px, 0); }
+  to { opacity: 0; transform: translate3d(0, 180px, 0); }
+}
+
+.datetime {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+  transform: translate3d(0, 100px, 0); 
+  animation: datetimeRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  will-change: transform, opacity;
+}
+
+.datetime.unlock-falling {
+  animation: datetimeFallDownExit 0.34s cubic-bezier(0.32, 0, 0.67, 0) forwards !important;
+}
+
+.datetime .date {
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.94);
+  margin-bottom: 6px;
+  text-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  transition: font-family 0.3s ease;
+}
+.datetime .time {
+  font-size: 110px;
+  font-weight: 600;
+  line-height: 0.9;
+  color: rgba(255, 255, 255, 0.98);
+  text-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  transition: font-family 0.3s ease, font-weight 0.3s ease;
+}
+
+.center-stack {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: loginRiseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+  will-change: transform, opacity;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+}
+.center-stack.unlock-falling {
+  animation: fallDownExit 0.32s cubic-bezier(0.32, 0, 0.67, 0) forwards !important;
+}
+
+/* --- QUICK SETTINGS COMPATIBLE MEDIA PLAYER CARD --- */
+.hmos-media-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+/* Cover art: a thumbnail, and the same art blurred behind the card. */
+.hmos-media-card { position: relative; overflow: hidden; }
+.hmos-media-card > *:not(.media-backdrop) { position: relative; z-index: 1; }
+.media-backdrop { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(22px) saturate(1.5); opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+.hmos-media-card.has-art .media-backdrop { opacity: 0.42; }
+.media-now { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.media-now .hmos-media-info { flex: 1; min-width: 0; }
+#mediaBannerArt { display: none; width: 46px; height: 46px; flex-shrink: 0; border-radius: 10px; object-fit: cover; box-shadow: 0 3px 10px rgba(0,0,0,0.4); }
+.hmos-media-card.has-art #mediaBannerArt { display: block; }
+.hmos-media-header .app-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+.hmos-media-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hmos-media-header .app-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.hmos-media-header .app-icon .material-symbols-outlined {
+  font-size: 14px;
+}
+.hmos-media-info {
+  text-align: left;
+}
+.media-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+  line-height: 1.2;
+}
+.media-artist {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+.hmos-media-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 0 4px;
+}
+.media-btn {
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s;
+}
+.media-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.15);
+}
+.media-btn:active {
+  transform: scale(0.88);
+}
+
+/* --- LOCKSCREEN NOTIFICATIONS (ON TOP OF PFP) --- */
+.lockscreen-notifs {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.lockscreen-notif-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.lockscreen-notif-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.lockscreen-notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.lockscreen-notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.lockscreen-notif-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lockscreen-notif-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  flex-shrink: 0;
+}
+
+.lockscreen-notif-hidden {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+}
+
+/* --- AVATAR (PFP) --- */
+.avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: url("/desktop/assets/avatar.png") center/cover no-repeat;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.55), inset 0 -4px 10px rgba(0,0,0,0.12);
+  transition: background-image 0.3s ease;
+  transform: translateZ(0);
+}
+
+/* --- UNLOCK PILL --- */
+.unlock-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.2);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-radius: 999px;
+  width: 340px;
+  height: 48px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.unlock-pill input {
+  flex: 1;
+  height: 100%;
+  padding: 0 20px;
+  background: rgba(20,22,28,0.24);
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 18px;
+  font-family: 'Poppins';
+}
+.unlocking .unlock-pill {
+  background-color: rgba(20, 22, 28, 0.82);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.unlock-pill.wrong {
+  border-color: rgba(255, 59, 48, 1);
+  animation: shake 0.45s cubic-bezier(.36, .07, .19, .97) both, fadeBorder 1s forwards;
+}
+
+#loginStatus {
+  min-height: 18px;
+  margin: -6px 0 0;
+  color: #ffb4ab;
+  font-size: 12px;
+  text-align: center;
+  text-shadow: 0 1px 5px rgba(0,0,0,.7);
+}
+
+#forgotPassword {
+  color: #ffffff;
+  font-size: 13px;
+  font-family: 'Poppins';
+  text-decoration: none;
+  margin-top: 2px;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+#forgotPassword:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-4px, 0, 0); }
+  20%, 80% { transform: translate3d(6px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+  40%, 60% { transform: translate3d(8px, 0, 0); }
+}
+
+@keyframes fadeBorder {
+  0% { border-color: rgba(255,59,48,1); }
+  100% { border-color: transparent; }
+}
+
+@media (max-width: 520px) {
+  .datetime .time { font-size: 72px; }
+  .unlock-pill { width: 100%; height: 44px; }
+  .avatar { width: 52px; height: 52px; }
+  .center-stack { bottom: 40px; }
+}
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.popup {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 30px 40px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4); 
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); 
+}
+.popup h1 { margin-top: 0; font-weight: 600; font-size: 26px; color: #000000; }
+.popup p { color: rgba(0, 0, 0, 0.85); font-size: 15px; margin: 12px 0 24px; }
+.popup-buttons { display: flex; justify-content: center; gap: 14px; }
+.popup-buttons button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Poppins';
+  font-weight: 500;
+  transition: transform 0.2s ease, background 0.2s ease;
+  will-change: transform;
+}
+.popup-buttons button:hover { transform: scale3d(1.04, 1.04, 1); }
+#closePopup { background: #bdbdbd; color: #fff; }
+#redirectPopup { background: #002fff; color: #ffffff; }
+
+@supports not (backdrop-filter: blur(1px)) {
+  .unlock-pill { background-color: rgba(20, 22, 28, 0.92); }
+  .unlock-pill input { background: rgba(20, 22, 28, 0.72); }
+  .popup { background: rgba(255, 255, 255, 0.96); }
+  .hmos-media-card { background: rgba(20, 22, 28, 0.92); }
+  .lockscreen-notif-item { background: rgba(20, 22, 28, 0.92); }
+}
+</style>
+</head>
+<body>
+  <div id="desktop-wallpaper"></div>
+  <div class="datetime" id="datetimeBlock" aria-hidden="true">
+    <div class="date" id="date">Loading…</div>
+    <div class="time" id="time">00:00</div>
+  </div>
+
+  <div class="center-stack" id="centerStackBlock" role="main">
+    <!-- MEDIA PLAYER BANNER (Shown if media is playing) -->
+    <div id="mediaPlayerBanner" class="hmos-media-card" style="display: none;">
+      <div class="media-backdrop" id="mediaBackdrop"></div>
+<div class="hmos-media-header">
+        <div class="app-icon" id="mediaAppIcon"><span class="material-symbols-outlined">play_arrow</span></div>
+        <span id="mediaAppName" style="font-size: 11px; opacity: 0.7; color: #fff;" data-i18n="desktop.media.this-device">This device</span>
+      </div>
+      <div class="media-now">
+        <img id="mediaBannerArt" alt="" onerror="document.getElementById('mediaPlayerBanner').classList.remove('has-art')">
+        <div class="hmos-media-info">
+          <div class="media-title" id="mediaBannerTitle" data-i18n="desktop.media.no-media">No media</div>
+          <div class="media-artist" id="mediaBannerArtist" data-i18n="desktop.media.not-playing">Not playing</div>
+        </div>
+      </div>
+      <div class="hmos-media-controls">
+        <span class="material-symbols-outlined media-btn" onclick="sendMediaCommand('prev')">skip_previous</span>
+        <span class="material-symbols-outlined media-btn" id="mediaBannerPlayIcon" onclick="sendMediaCommand('toggle')" style="font-size:26px;">play_arrow</span>
+        <span class="material-symbols-outlined media-btn" onclick="sendMediaCommand('next')">skip_next</span>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS LIST (Placed on top of the PFP) -->
+    <div id="lockscreenNotifs" class="lockscreen-notifs" style="display: none;"></div>
+
+    <!-- PFP (Avatar) -->
+    <div class="avatar" aria-hidden="true"></div>
+
+    <!-- UNLOCK PILL -->
+    <div class="unlock-pill" id="unlockPill" aria-label="Unlock" data-i18n-aria-label="login.unlock">
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" data-i18n-placeholder="login.password-placeholder" data-i18n-aria-label="login.password" class="w-full">
+    </div>
+    <p id="loginStatus" role="status" aria-live="polite"></p>
+    <a href="/desktop/password-recovery.html" id="forgotPassword" target="_top" data-i18n="login.forgot-password">Forgot Password?</a>
+  </div>
+
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup">
+      <h1 data-i18n="login.fallback.title">Enter fallback mode?</h1>
+      <p data-i18n="login.fallback.description">Fallback mode is useful if you screwed something up and have no way to recover. To exit this mode, you can press Finder > Exit fallback mode</p>
+      <div class="popup-buttons">
+        <button id="closePopup" data-i18n="common.no">No</button>
+        <button id="redirectPopup" data-i18n="common.yes">Yes</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// --- Custom Lockscreen Settings Sync & Dynamic Google Fonts ---
+function applyCustomSettings() {
+  const font = localStorage.getItem('clockFont') || 'Poppins';
+  const weight = localStorage.getItem('clockWeight') || '600';
+  const isLive = localStorage.getItem('liveWallpaper') === 'true';
+
+  if (font !== 'system-ui') {
+    let fontLink = document.getElementById('dynamic-google-font');
+    if (!fontLink) {
+      fontLink = document.createElement('link');
+      fontLink.id = 'dynamic-google-font';
+      fontLink.rel = 'stylesheet';
+      document.head.appendChild(fontLink);
+    }
+    fontLink.href = "/desktop/assets/fonts/fonts.css";
+  }
+
+  const timeEl = document.getElementById('time');
+  const dateEl = document.getElementById('date');
+  
+  const fontStr = font === 'system-ui' ? 'system-ui' : `'${font}', sans-serif`;
+  if (timeEl) {
+    timeEl.style.fontFamily = fontStr;
+    timeEl.style.fontWeight = weight;
+  }
+  if (dateEl) {
+    dateEl.style.fontFamily = fontStr;
+  }
+
+  if (isLive) {
+    document.body.classList.add('live-wallpaper-active');
+  } else {
+    document.body.classList.remove('live-wallpaper-active');
+  }
+}
+
+window.addEventListener('storage', (e) => {
+  if (['clockFont', 'clockWeight', 'liveWallpaper'].includes(e.key)) {
+    applyCustomSettings();
+  }
+});
+applyCustomSettings();
+
+function updateDateTime() {
+  const now = new Date();
+  const date = now.toLocaleDateString(mariowOSI18n.locale, { weekday: 'long', month: 'long', day: 'numeric' });
+  const time = now.toLocaleTimeString(mariowOSI18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+  const dateNode = document.getElementById('date'), timeNode = document.getElementById('time');
+  if (dateNode.textContent !== date) dateNode.textContent = date;
+  if (timeNode.textContent !== time) timeNode.textContent = time;
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+const passwordInput = document.getElementById('loginPassword');
+const unlockPill = document.getElementById('unlockPill');
+const loginStatus = document.getElementById('loginStatus');
+const datetimeBlock = document.getElementById('datetimeBlock');
+const centerStackBlock = document.getElementById('centerStackBlock');
+
+passwordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') attemptUnlock();
+});
+
+let wrongTimeout = null;
+async function attemptUnlock() {
+  const pass = passwordInput.value;
+  if (pass.length === 0) return;
+  passwordInput.disabled = true;
+  loginStatus.textContent = '';
+  try {
+    const resp = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ password: pass })
+    });
+    if (resp.status === 401) {
+      showWrong();
+      return;
+    }
+    if (!resp.ok) {
+      loginStatus.textContent = resp.status === 409
+        ? mariowOSI18n.t('login.no-password', 'No password is configured. Use the recovery flow to set one.')
+        : mariowOSI18n.t('login.verify-failed', 'Unable to verify password right now. Please try again.');
+      return;
+    }
+
+    // Inside the desktop the whole screen slides up as one sheet, so nothing here moves on its own.
+    if (window.parent && window.parent !== window) {
+      passwordInput.value = '';
+      window.parent.postMessage({ type: 'lockscreen-unlocked' }, '*');
+      if (typeof window.parent.unlockDesktop === 'function') {
+        try { window.parent.unlockDesktop(); } catch (e) {}
+      }
+      return;
+    }
+
+    document.body.classList.add('unlocking');
+    datetimeBlock.classList.add('unlock-falling');
+    centerStackBlock.classList.add('unlock-falling');
+
+    setTimeout(() => {
+      passwordInput.value = '';
+      window.location.href = '/desktop/com.mariowos.desktop.html';
+    }, 360);
+  } catch (error) {
+    loginStatus.textContent = mariowOSI18n.t('login.unreachable', 'Unable to reach mariowOS. Please try again.');
+    console.error('Could not verify lockscreen password:', error);
+  } finally {
+    if (loginStatus.textContent || unlockPill.classList.contains('wrong')) {
+      passwordInput.disabled = false;
+      passwordInput.focus();
+    }
+  }
+}
+
+function showWrong() {
+  loginStatus.textContent = mariowOSI18n.t('login.wrong-password', 'Incorrect password. Please try again.');
+  unlockPill.classList.add('wrong');
+  passwordInput.value = '';
+  clearTimeout(wrongTimeout);
+  wrongTimeout = setTimeout(() => unlockPill.classList.remove('wrong'), 1000);
+  passwordInput.focus();
+}
+
+window.addEventListener('load', () => {
+  passwordInput.focus();
+});
+
+/* --- PLAYER API INTERACTION (QS MEDIA PLAYER COMPATIBLE) --- */
+function sendMediaCommand(cmd) {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'media-command', command: cmd }, '*');
+    if (typeof window.parent.sendMediaCommand === 'function') {
+      try { window.parent.sendMediaCommand(cmd); } catch (e) {}
+    }
+  }
+}
+
+function updateMediaUI(data) {
+  const banner = document.getElementById('mediaPlayerBanner');
+  if (!banner) return;
+  if (!data) {
+    banner.style.display = 'none';
+    return;
+  }
+  const isPlaying = !!data.isPlaying;
+  const hasMedia = data.title && data.title !== 'No media' && data.title !== 'Not playing';
+  if (isPlaying || hasMedia) {
+    banner.style.display = 'flex';
+    document.getElementById('mediaBannerTitle').textContent = data.title || mariowOSI18n.t("desktop.media.no-media", "No media");
+    document.getElementById('mediaBannerArtist').textContent = data.artist || mariowOSI18n.t("desktop.media.not-playing", "Not playing");
+    document.getElementById('mediaBannerPlayIcon').textContent = isPlaying ? "pause" : "play_arrow";
+    document.getElementById('mediaAppName').textContent = data.app || mariowOSI18n.t("desktop.media.this-device", "This device");
+    const cover = /^(https:|blob:|\/|data:image\/)/i.test(String(data.cover || '')) ? String(data.cover) : '';
+    const art = document.getElementById('mediaBannerArt');
+    if (art.dataset.src !== cover) {
+      art.dataset.src = cover;
+      if (cover) art.src = cover; else art.removeAttribute('src');
+      document.getElementById('mediaBackdrop').style.backgroundImage = cover ? `url("${cover.replace(/["\\\n]/g, encodeURIComponent)}")` : '';
+    }
+    banner.classList.toggle('has-art', !!cover);
+    const appIconSlot = document.getElementById('mediaAppIcon');
+    const appIcon = /^(https:|\/|data:image\/)/i.test(String(data.appIcon || '')) ? String(data.appIcon) : '';
+    if (appIconSlot.dataset.src !== appIcon) {
+      appIconSlot.dataset.src = appIcon;
+      const image = document.createElement('img'); image.src = appIcon;
+      const glyph = document.createElement('span'); glyph.className = 'material-symbols-outlined'; glyph.textContent = 'play_arrow';
+      appIconSlot.replaceChildren(appIcon ? image : glyph);
+    }
+} else {
+    banner.style.display = 'none';
+  }
+}
+
+/* --- NOTIFICATIONS (ON TOP OF PFP, CONTENT HIDDEN) --- */
+function updateNotificationsUI(notifs) {
+  const container = document.getElementById('lockscreenNotifs');
+  if (!container) return;
+  if (!Array.isArray(notifs) || notifs.length === 0) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
+  }
+  container.style.display = 'flex';
+  container.innerHTML = '';
+  const recent = notifs.slice(0, 3);
+  recent.forEach(n => {
+    const item = document.createElement('div');
+    item.className = 'lockscreen-notif-item';
+
+    const iconEl = document.createElement('div');
+    iconEl.className = 'lockscreen-notif-icon';
+    iconEl.textContent = n.icon || '🔔';
+
+    const contentEl = document.createElement('div');
+    contentEl.className = 'lockscreen-notif-content';
+
+    const headerEl = document.createElement('div');
+    headerEl.className = 'lockscreen-notif-header';
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'lockscreen-notif-title';
+    titleEl.textContent = n.title || 'Notification';
+
+    const timeEl = document.createElement('span');
+    timeEl.className = 'lockscreen-notif-time';
+    timeEl.textContent = n.time || '';
+
+    headerEl.append(titleEl, timeEl);
+
+    const hiddenEl = document.createElement('div');
+    hiddenEl.className = 'lockscreen-notif-hidden';
+    
+    const lockIcon = document.createElement('span');
+    lockIcon.className = 'material-symbols-outlined';
+    lockIcon.style.fontSize = '13px';
+    lockIcon.style.opacity = '0.8';
+    lockIcon.textContent = 'visibility_off';
+
+    const hiddenText = document.createElement('span');
+    hiddenText.textContent = mariowOSI18n.t("lockscreen.hidden-content", "Notification content hidden");
+
+    hiddenEl.append(lockIcon, hiddenText);
+    contentEl.append(headerEl, hiddenEl);
+    item.append(iconEl, contentEl);
+    container.appendChild(item);
+  });
+}
+
+/* --- PARENT COMMUNICATION LISTENER --- */
+window.addEventListener('message', (e) => {
+  if (!e.data) return;
+  if (e.data.type === 'lockscreen-deactivated') {
+    document.body.classList.add('lock-standby');
+  } else if (e.data.type === 'lockscreen-activated') {
+    document.body.classList.remove('lock-standby');
+    document.body.classList.remove('unlocking');
+    datetimeBlock.classList.remove('unlock-falling');
+    centerStackBlock.classList.remove('unlock-falling');
+    unlockPill.classList.remove('wrong');
+    loginStatus.textContent = '';
+    passwordInput.disabled = false;
+    passwordInput.value = '';
+    updateDateTime();
+    applyCustomSettings();
+    if (e.data.media) updateMediaUI(e.data.media);
+    if (e.data.notifications) updateNotificationsUI(e.data.notifications);
+    setTimeout(() => passwordInput.focus(), 120);
+  } else if (e.data.type === 'media-update') {
+    updateMediaUI(e.data);
+  } else if (e.data.type === 'notifications-update') {
+    updateNotificationsUI(e.data.notifications);
+  } else if (e.data.type === 'lockscreen-sync') {
+    if (e.data.media) updateMediaUI(e.data.media);
+    if (e.data.notifications) updateNotificationsUI(e.data.notifications);
+  } else if (e.data.type === 'update-lockscreen-settings') {
+    applyCustomSettings();
+  }
+});
+
+if (window.parent !== window) document.body.classList.add('lock-standby');
+
+const popupOverlay = document.getElementById('popupOverlay');
+const closePopup = document.getElementById('closePopup');
+const redirectPopup = document.getElementById('redirectPopup');
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !popupOverlay.style.display && document.activeElement !== passwordInput) {
+    e.preventDefault();
+    popupOverlay.style.display = 'flex';
+  }
+});
+
+closePopup.addEventListener('click', () => {
+  popupOverlay.style.display = 'none';
+});
+
+redirectPopup.addEventListener('click', () => {
+  window.location.href = '/desktop/fallback/com.mariowos.desktop.html';
+});
+
+fetch("/desktop/assets/wallpaper.user.png", { method: "HEAD" })
+  .then(res => {
+    if (!document.body.classList.contains('live-wallpaper-active')) {
+      if (res.ok) {
+        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.user.png?ts=' + Date.now() + '")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      } else {
+        document.body.style.backgroundImage = 'url("/desktop/assets/wallpaper.png")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      }
+    }
+  });
+
+window.addEventListener("DOMContentLoaded", () => {
+  let wallpaper = localStorage.getItem("wallpaper");
+  if (!wallpaper) wallpaper = "/desktop/assets/wallpaper.factory.png";
+
+  if (!document.body.classList.contains('live-wallpaper-active')) {
+    document.body.style.backgroundImage = `url('${wallpaper}')`;
+  }
+
+  const avatar = document.querySelector('.avatar');
+  const userAvatarUrl = `/desktop/assets/avatar.user.png?ts=${Date.now()}`;
+  const userAvatar = new Image();
+  userAvatar.onload = () => { avatar.style.backgroundImage = `url("${userAvatarUrl}")`; };
+  userAvatar.onerror = () => { avatar.style.backgroundImage = 'url("/desktop/assets/avatar.png")'; };
+  userAvatar.src = userAvatarUrl;
+});
+
+function applyForcedLightMode() {
+  let lightModeStyle = document.getElementById('forced-light-mode-styles');
+  if (!lightModeStyle) {
+    lightModeStyle = document.createElement('style');
+    lightModeStyle.id = 'forced-light-mode-styles';
+    document.head.appendChild(lightModeStyle);
+  }
+  lightModeStyle.textContent = `
+    html body { background: #f5f5f5 !important; color: #1a1a1a !important; }
+    body { background: #f5f5f5 !important; }
+    .datetime .date { color: #1a1a1a !important; text-shadow: none !important; }
+    .datetime .time { color: #1a1a1a !important; text-shadow: none !important; }
+    .avatar { box-shadow: 0 6px 18px rgba(0,0,0,0.2), inset 0 -4px 10px rgba(0,0,0,0.08) !important; }
+    .unlock-pill { background: rgba(255,255,255,0.95) !important; border: 1px solid #ddd !important; box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important; }
+    .unlock-pill input { background: rgba(255,255,255,0.95) !important; color: #1a1a1a !important; }
+    .unlock-pill input::placeholder { color: #999 !important; }
+    #forgotPassword { color: #0066cc !important; }
+    label { color: #1a1a1a !important; }
+    .popup-overlay { background: rgba(0, 0, 0, 0.3) !important; }
+    .popup { background: #ffffff !important; }
+    .popup h1 { color: #1a1a1a !important; }
+    .popup p { color: #666666 !important; }
+    .hmos-media-card { background: rgba(255,255,255,0.9) !important; border-color: #ddd !important; color: #1a1a1a !important; }
+    .media-title { color: #1a1a1a !important; }
+    .media-artist { color: #555 !important; }
+    .media-btn { color: #1a1a1a !important; }
+    .lockscreen-notif-item { background: rgba(255,255,255,0.9) !important; border-color: #ddd !important; color: #1a1a1a !important; }
+    .lockscreen-notif-title { color: #1a1a1a !important; }
+    .lockscreen-notif-hidden { color: #555 !important; }
+    .lockscreen-notif-icon { background: rgba(0,0,0,0.08) !important; }
+  `;
+}
+
+function removeForcedLightMode() {
+  const lightModeStyle = document.getElementById('forced-light-mode-styles');
+  if (lightModeStyle) { lightModeStyle.remove(); }
+}
+
+function checkForcedLightMode() {
+  if (localStorage.getItem('forcedLightMode') === 'true') { applyForcedLightMode(); }
+}
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'forcedLightMode') {
+    if (e.newValue === 'true') { applyForcedLightMode(); } 
+    else { removeForcedLightMode(); }
+  }
+});
+
+window.addEventListener('load', checkForcedLightMode);
+</script>
+</body>
+</html>
+

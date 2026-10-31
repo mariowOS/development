@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,28 +124,35 @@ html::-webkit-scrollbar {
 
 <div class="container">
   <div class="settings-page-header">
-    <button class="settings-page-back" type="button" aria-label="Back" onclick="window.history.back()">
+    <button class="settings-page-back" type="button" aria-label="Back" data-i18n-aria-label="common.back" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back_ios_new</span>
     </button>
-    <h1>Rule History</h1>
+    <h1 data-i18n="settings.rule-history.title">Rule History</h1>
   </div>
 
   <div class="banner">
-    <div class="title">Execution History</div>
-    <div class="desc">
-      View the history of executed automation rules.
-    </div>
+    <div class="title" data-i18n="settings.rule-history.banner">Execution History</div>
+    <div class="desc" data-i18n="settings.rule-history.banner-desc">View the history of executed automation rules.</div>
   </div>
 
   <div class="panel" id="historyContainer">
     <!-- history load position -->
   </div>
 
-  <button class="btn" id="clearHistoryBtn">Clear History</button>
+  <button class="btn" id="clearHistoryBtn" data-i18n="settings.rule-history.clear">Clear History</button>
 </div>
 
 <script>
 const historyContainer = document.getElementById('historyContainer');
+// History entries store English action names; show them in the current language.
+const ACTION_LABELS = {
+  'Created': mariowOSI18n.t('settings.rule-history.action-created', 'Created'),
+  'Edited': mariowOSI18n.t('settings.rule-history.action-edited', 'Edited'),
+  'Deleted': mariowOSI18n.t('settings.rule-history.action-deleted', 'Deleted'),
+  'Created from template': mariowOSI18n.t('settings.rule-history.action-from-template', 'Created from template'),
+  'Enabled': mariowOSI18n.t('settings.rule-history.action-enabled', 'Enabled'),
+  'Disabled': mariowOSI18n.t('settings.rule-history.action-disabled', 'Disabled')
+};
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
 function loadHistory() {
@@ -150,7 +160,7 @@ function loadHistory() {
   historyContainer.innerHTML = '';
 
   if (history.length === 0) {
-    historyContainer.innerHTML = '<p class="empty-state">No history found.</p>';
+    historyContainer.innerHTML = '<p class="empty-state" data-i18n="settings.rule-history.empty">No history found.</p>';
     return;
   }
 
@@ -160,7 +170,7 @@ function loadHistory() {
   history.forEach(item => {
     const historyItem = document.createElement('div');
     historyItem.className = 'history-item';
-    const date = new Date(item.timestamp).toLocaleString();
+    const date = new Date(item.timestamp).toLocaleString(mariowOSI18n.locale);
     const icon = document.createElement('div');
     icon.className = 'icon-badge';
     icon.innerHTML = '<span class="material-symbols-outlined">history</span>';
@@ -168,10 +178,11 @@ function loadHistory() {
     details.className = 'text-group';
     const title = document.createElement('div');
     title.className = 'history-title';
-    title.textContent = `${item.ruleName} - ${item.action}`;
+    const ruleName = item.ruleName === 'All Rules' ? mariowOSI18n.t('settings.rule-history.all-rules', 'All Rules') : item.ruleName;
+    title.textContent = `${ruleName} - ${ACTION_LABELS[item.action] || item.action}`;
     const description = document.createElement('div');
     description.className = 'history-desc';
-    description.textContent = 'Action performed';
+    description.textContent = mariowOSI18n.t('settings.rule-history.performed', 'Action performed');
     const timestamp = document.createElement('div');
     timestamp.className = 'history-time';
     timestamp.textContent = date;
@@ -182,7 +193,7 @@ function loadHistory() {
 }
 
 clearHistoryBtn.addEventListener('click', async () => {
-  if (await mDialog.confirm('Are you sure you want to clear all history?', { danger: true, okText: 'Clear' })) {
+  if (await mDialog.confirm(mariowOSI18n.t('settings.rule-history.clear-confirm', 'Are you sure you want to clear all history?'), { danger: true, okText: mariowOSI18n.t('settings.rule-history.clear-ok', 'Clear') })) {
     localStorage.removeItem('ruleHistory');
     loadHistory();
   }

@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
@@ -34,7 +37,7 @@
 </head>
 <body>
   <div class="panel" id="appsPanel">
-    <div class="row"><div class="subtitle">Loading installed apps...</div></div>
+    <div class="row"><div class="subtitle" data-i18n="settings.apps.loading">Loading installed apps...</div></div>
   </div>
 
   <script>
@@ -56,21 +59,21 @@
                     <div class="subtitle">${app.appId}</div>
                   </div>
                 </div>
-                <button class="btn-danger" onclick="uninstallApp('${app.appId}')">Uninstall</button>
+                <button class="btn-danger" onclick="uninstallApp('${app.appId}')">${mariowOSI18n.t("settings.apps.uninstall", "Uninstall")}</button>
               </div>
             `;
           });
         } else {
-          html = `<div class="row"><div class="subtitle">No applications installed. Open Store to discover apps.</div></div>`;
+          html = `<div class="row"><div class="subtitle">${mariowOSI18n.t("settings.apps.empty", "No applications installed. Open Store to discover apps.")}</div></div>`;
         }
         document.getElementById('appsPanel').innerHTML = html;
       } catch (e) {
-        document.getElementById('appsPanel').innerHTML = `<div class="row"><div class="subtitle">Error loading apps.</div></div>`;
+        document.getElementById('appsPanel').innerHTML = `<div class="row"><div class="subtitle">${mariowOSI18n.t("settings.apps.load-error", "Error loading apps.")}</div></div>`;
       }
     }
 
     async function uninstallApp(appId) {
-      if (!await mDialog.confirm(`Are you sure you want to uninstall ${appId}?`, { danger: true, okText: 'Uninstall' })) return;
+      if (!await mDialog.confirm(mariowOSI18n.t("settings.apps.uninstall-confirm", "Are you sure you want to uninstall {app}?", { app: appId }), { danger: true, okText: mariowOSI18n.t("settings.apps.uninstall", "Uninstall") })) return;
       
       await fetch('/api/store/uninstall', {
         method: 'POST',

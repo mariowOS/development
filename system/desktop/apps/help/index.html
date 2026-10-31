@@ -6,17 +6,21 @@ Licensed under the Apache License, Version 2.0
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mariowOS Help & Documentation</title>
+  <title data-i18n="help.window-title">mariowOS Help &amp; Documentation</title>
 
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
 
   <style>
+    .content-area code { user-select: text; }
     /* Shared mariowOS app language: the same glass sidebar, top bar, accent,
        radii and type scale used by Files, Music and the Store. */
     :root {
-      --accent: #0a84ff;
+      --accent: var(--sys-accent);
       --text: #ffffff;
       --text-secondary: rgba(255, 255, 255, 0.55);
       --text-dim: rgba(255, 255, 255, 0.35);
@@ -91,7 +95,7 @@ Licensed under the Apache License, Version 2.0
     }
 
     .nav-item:hover:not(.active) { background: rgba(255, 255, 255, 0.1); }
-    .nav-item.active { background: var(--accent); font-weight: 500; }
+    .nav-item.active { background: var(--accent); font-weight: 500; color: var(--sys-accent-on); }
     .nav-item.hidden { display: none; }
 
     .icon-bg {
@@ -156,7 +160,7 @@ Licensed under the Apache License, Version 2.0
       background: rgba(255, 255, 255, 0.05);
       transition: border-color 0.2s;
     }
-    .search-bar:focus-within { border-color: var(--accent); }
+    .search-bar:focus-within { border-color: var(--sys-accent-text); }
     .search-bar .material-symbols-outlined { font-size: 17px; color: var(--text-secondary); }
     .search-bar input {
       flex: 1;
@@ -243,8 +247,8 @@ Licensed under the Apache License, Version 2.0
     .callout p { margin: 0; }
     .callout strong { display: block; margin-bottom: 3px; font-size: 13.5px; }
 
-    .callout.info    { background: rgba(10, 132, 255, 0.1);  border-left-color: var(--accent); }
-    .callout.info .material-symbols-outlined { color: var(--accent); }
+    .callout.info    { background: color-mix(in srgb, var(--sys-accent) 10%, transparent);  border-left-color: var(--accent); }
+    .callout.info .material-symbols-outlined { color: var(--sys-accent-text); }
 
     .callout.warning { background: rgba(255, 159, 10, 0.1);  border-left-color: #ff9f0a; }
     .callout.warning .material-symbols-outlined { color: #ff9f0a; }
@@ -285,46 +289,46 @@ Licensed under the Apache License, Version 2.0
 <body>
 
   <aside class="sidebar">
-    <div class="sidebar-header">Help</div>
+    <div class="sidebar-header" data-i18n="help.sidebar.title">Help</div>
 
-    <div class="sidebar-heading">Documentation</div>
+    <div class="sidebar-heading" data-i18n="help.sidebar.documentation">Documentation</div>
     <nav id="sidebarNav">
-      <a href="#intro" class="nav-item active" data-target="intro" data-label="Welcome">
+      <a href="#intro" class="nav-item active" data-target="intro">
         <div class="icon-bg c-welcome"><span class="material-symbols-outlined">rocket_launch</span></div>
-        Welcome
+        <span class="nav-label" data-i18n="help.nav.welcome">Welcome</span>
       </a>
-      <a href="#ui" class="nav-item" data-target="ui" data-label="Navigating the UI">
+      <a href="#ui" class="nav-item" data-target="ui">
         <div class="icon-bg c-ui"><span class="material-symbols-outlined">web_asset</span></div>
-        Navigating the UI
+        <span class="nav-label" data-i18n="help.nav.ui">Navigating the UI</span>
       </a>
-      <a href="#personalization" class="nav-item" data-target="personalization" data-label="Personalization">
+      <a href="#personalization" class="nav-item" data-target="personalization">
         <div class="icon-bg c-style"><span class="material-symbols-outlined">palette</span></div>
-        Personalization
+        <span class="nav-label" data-i18n="help.nav.personalization">Personalization</span>
       </a>
-      <a href="#security" class="nav-item" data-target="security" data-label="Security & Privacy">
+      <a href="#security" class="nav-item" data-target="security">
         <div class="icon-bg c-security"><span class="material-symbols-outlined">shield_lock</span></div>
-        Security &amp; Privacy
+        <span class="nav-label" data-i18n="help.nav.security">Security &amp; Privacy</span>
       </a>
-      <a href="#connectivity" class="nav-item" data-target="connectivity" data-label="Connectivity & Updates">
+      <a href="#connectivity" class="nav-item" data-target="connectivity">
         <div class="icon-bg c-network"><span class="material-symbols-outlined">wifi</span></div>
-        Connectivity &amp; Updates
+        <span class="nav-label" data-i18n="help.nav.connectivity">Connectivity &amp; Updates</span>
       </a>
-      <a href="#lab" class="nav-item" data-target="lab" data-label="Functions Lab">
+      <a href="#lab" class="nav-item" data-target="lab">
         <div class="icon-bg c-lab"><span class="material-symbols-outlined">science</span></div>
-        Functions Lab
+        <span class="nav-label" data-i18n="help.nav.lab">Functions Lab</span>
       </a>
     </nav>
 
-    <div class="sidebar-note">mariowOS documentation</div>
+    <div class="sidebar-note" data-i18n="help.sidebar.note">mariowOS documentation</div>
   </aside>
 
   <div class="main-wrapper">
     <div class="top-bar">
-      <span class="top-title" id="topTitle">Welcome</span>
+      <span class="top-title" id="topTitle"></span>
       <div class="search-bar" id="searchBar">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" id="searchInput" placeholder="Search the documentation…" autocomplete="off">
-        <button class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">
+        <input type="text" id="searchInput" placeholder="Search the documentation…" data-i18n-placeholder="help.search.placeholder" autocomplete="off">
+        <button class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search" data-i18n-title="help.search.clear" data-i18n-aria-label="help.search.clear">
           <span class="material-symbols-outlined" style="font-size: 17px;">close</span>
         </button>
       </div>
@@ -334,90 +338,90 @@ Licensed under the Apache License, Version 2.0
       <div class="document-container">
 
         <section id="intro">
-          <h1>Welcome to mariowOS</h1>
-          <p>mariowOS is a revolutionary, modular, and lightweight web-based desktop environment. Designed from the ground up for speed, minimalism, and high contrast, it provides a seamless user experience that feels both familiar and fundamentally modern.</p>
+          <h1 data-i18n="help.intro.title">Welcome to mariowOS</h1>
+          <p data-i18n="help.intro.body">mariowOS is a revolutionary, modular, and lightweight web-based desktop environment. Designed from the ground up for speed, minimalism, and high contrast, it provides a seamless user experience that feels both familiar and fundamentally modern.</p>
 
           <div class="callout success">
             <span class="material-symbols-outlined">speed</span>
             <div>
-              <strong>Built for Performance</strong>
-              <p>By leveraging modern web technologies and keeping the core system extraordinarily light, mariowOS ensures instant boot times and snappy application responses, even on lower-end hardware.</p>
+              <strong data-i18n="help.intro.performance.title">Built for Performance</strong>
+              <p data-i18n="help.intro.performance.body">By leveraging modern web technologies and keeping the core system extraordinarily light, mariowOS ensures instant boot times and snappy application responses, even on lower-end hardware.</p>
             </div>
           </div>
         </section>
 
         <section id="ui">
-          <h2><span class="material-symbols-outlined" style="color: #64d2ff;">web_asset</span> Navigating the UI</h2>
-          <p>The interface is built with highly responsive layouts that seamlessly adapt to your workflow, whether you are on a desktop monitor or a portable touch device.</p>
+          <h2><span class="material-symbols-outlined" style="color: #64d2ff;">web_asset</span> <span data-i18n="help.nav.ui">Navigating the UI</span></h2>
+          <p data-i18n="help.ui.body">The interface is built with highly responsive layouts that seamlessly adapt to your workflow, whether you are on a desktop monitor or a portable touch device.</p>
 
-          <h3>Background Worker Threads</h3>
-          <p>Unlike traditional operating systems that can hang when a single app misbehaves, mariowOS guarantees complete system stability. Intensive tasks and heavy computations are automatically offloaded to <strong>background worker threads</strong>.</p>
+          <h3 data-i18n="help.ui.workers.title">Background Worker Threads</h3>
+          <p id="helpWorkersBody">Unlike traditional operating systems that can hang when a single app misbehaves, mariowOS guarantees complete system stability. Intensive tasks and heavy computations are automatically offloaded to <strong>background worker threads</strong>.</p>
 
           <div class="callout info">
             <span class="material-symbols-outlined">info</span>
-            <p>This asynchronous architecture guarantees that the main user interface never freezes. You can continue interacting with the desktop while complex tasks run silently in the background.</p>
+            <p data-i18n="help.ui.workers.callout">This asynchronous architecture guarantees that the main user interface never freezes. You can continue interacting with the desktop while complex tasks run silently in the background.</p>
           </div>
         </section>
 
         <section id="personalization">
-          <h2><span class="material-symbols-outlined" style="color: #34c759;">palette</span> Personalization</h2>
-          <p>Making mariowOS your own is incredibly straightforward. Head over to the <strong>Wallpaper &amp; Style</strong> or <strong>Lockscreen</strong> settings to adjust your desktop's visual footprint.</p>
+          <h2><span class="material-symbols-outlined" style="color: #34c759;">palette</span> <span data-i18n="help.nav.personalization">Personalization</span></h2>
+          <p id="helpPersonalizationBody">Making mariowOS your own is incredibly straightforward. Head over to the <strong>Wallpaper &amp; Style</strong> or <strong>Lockscreen</strong> settings to adjust your desktop's visual footprint.</p>
 
-          <h3>Powered by monet-engine</h3>
-          <p>At the heart of the UI customization is the custom-built <code>monet-engine</code>. When you change your wallpaper, this engine dynamically extracts an optimized color palette from the image.</p>
+          <h3 data-i18n="help.personalization.monet.title">Powered by monet-engine</h3>
+          <p id="helpMonetBody">At the heart of the UI customization is the custom-built <code>monet-engine</code>. When you change your wallpaper, this engine dynamically extracts an optimized color palette from the image.</p>
           <ul>
-            <li><strong>System-wide Accents:</strong> Buttons, toggles, and highlights automatically adjust to complement your background.</li>
-            <li><strong>Smart Contrast:</strong> The engine ensures that text remains highly legible by calculating appropriate contrast ratios on the fly.</li>
+            <li><strong data-i18n="help.personalization.accents.title">System-wide Accents:</strong> <span data-i18n="help.personalization.accents.body">Buttons, toggles, and highlights automatically adjust to complement your background.</span></li>
+            <li><strong data-i18n="help.personalization.contrast.title">Smart Contrast:</strong> <span data-i18n="help.personalization.contrast.body">The engine ensures that text remains highly legible by calculating appropriate contrast ratios on the fly.</span></li>
           </ul>
         </section>
 
         <section id="security">
-          <h2><span class="material-symbols-outlined" style="color: #bf5af2;">shield_lock</span> Security &amp; Privacy</h2>
-          <p>At the core of mariowOS is a profound commitment to your privacy and security. The system architecture is designed to prevent unauthorized access by default.</p>
+          <h2><span class="material-symbols-outlined" style="color: #bf5af2;">shield_lock</span> <span data-i18n="help.nav.security">Security &amp; Privacy</span></h2>
+          <p data-i18n="help.security.body">At the core of mariowOS is a profound commitment to your privacy and security. The system architecture is designed to prevent unauthorized access by default.</p>
 
-          <h3>Strict Process Sandboxing</h3>
-          <p>mariowOS utilizes strict process sandboxing. There is a hard separation between user applications and the system core. Applications run in isolated environments; they cannot read or write to sensitive system files or access data from other apps without your explicit permission.</p>
+          <h3 data-i18n="help.security.sandbox.title">Strict Process Sandboxing</h3>
+          <p data-i18n="help.security.sandbox.body">mariowOS utilizes strict process sandboxing. There is a hard separation between user applications and the system core. Applications run in isolated environments; they cannot read or write to sensitive system files or access data from other apps without your explicit permission.</p>
 
           <div class="callout warning">
             <span class="material-symbols-outlined">lock</span>
             <div>
-              <strong>Mandatory Authentication</strong>
-              <p>Sensitive actions—such as modifying network configurations, resetting the system, or granting elevated app permissions—will always trigger a mandatory secure password prompt. The system will not proceed without verifying your identity.</p>
+              <strong data-i18n="help.security.auth.title">Mandatory Authentication</strong>
+              <p data-i18n="help.security.auth.body">Sensitive actions—such as modifying network configurations, resetting the system, or granting elevated app permissions—will always trigger a mandatory secure password prompt. The system will not proceed without verifying your identity.</p>
             </div>
           </div>
         </section>
 
         <section id="connectivity">
-          <h2><span class="material-symbols-outlined" style="color: #0a84ff;">wifi</span> Connectivity &amp; Updates</h2>
-          <p>Managing your digital connections is straightforward via the built-in Settings panel. mariowOS provides native interfaces for managing Wi-Fi, Bluetooth, and Ethernet networks instantly.</p>
+          <h2><span class="material-symbols-outlined" style="color: #0a84ff;">wifi</span> <span data-i18n="help.nav.connectivity">Connectivity &amp; Updates</span></h2>
+          <p data-i18n="help.connectivity.body">Managing your digital connections is straightforward via the built-in Settings panel. mariowOS provides native interfaces for managing Wi-Fi, Bluetooth, and Ethernet networks instantly.</p>
 
-          <h3>The Updater</h3>
-          <p>Keeping your system secure and equipped with the latest features is handled entirely by the built-in <strong>Updater</strong> application.</p>
+          <h3 data-i18n="help.connectivity.updater.title">The Updater</h3>
+          <p id="helpUpdaterBody">Keeping your system secure and equipped with the latest features is handled entirely by the built-in <strong>Updater</strong> application.</p>
           <ul>
-            <li><strong>Secure Mirrors:</strong> Updates are securely fetched from verified mariowOS remote mirrors.</li>
-            <li><strong>Modular Upgrades:</strong> Because of the system's modular nature, many updates apply instantly without requiring a full system reboot.</li>
-            <li><strong>Newer Builds Only:</strong> The updater compares versions semantically, so it only ever offers a build that is genuinely newer than the one you are running.</li>
+            <li><strong data-i18n="help.connectivity.mirrors.title">Secure Mirrors:</strong> <span data-i18n="help.connectivity.mirrors.body">Updates are securely fetched from verified mariowOS remote mirrors.</span></li>
+            <li><strong data-i18n="help.connectivity.modular.title">Modular Upgrades:</strong> <span data-i18n="help.connectivity.modular.body">Because of the system's modular nature, many updates apply instantly without requiring a full system reboot.</span></li>
+            <li><strong data-i18n="help.connectivity.newer.title">Newer Builds Only:</strong> <span data-i18n="help.connectivity.newer.body">The updater compares versions semantically, so it only ever offers a build that is genuinely newer than the one you are running.</span></li>
           </ul>
         </section>
 
         <section id="lab">
-          <h2><span class="material-symbols-outlined" style="color: #ff9f0a;">science</span> Functions Lab</h2>
-          <p>For power users, developers, and early adopters, mariowOS includes a dedicated space known as the <strong>Functions Lab</strong>, accessible via the System Settings.</p>
+          <h2><span class="material-symbols-outlined" style="color: #ff9f0a;">science</span> <span data-i18n="help.nav.lab">Functions Lab</span></h2>
+          <p id="helpLabBody">For power users, developers, and early adopters, mariowOS includes a dedicated space known as the <strong>Functions Lab</strong>, accessible via the System Settings.</p>
 
-          <p>The Functions Lab is where you can toggle experimental tools, advanced developer features, and beta API access for your workspace.</p>
+          <p data-i18n="help.lab.toggle">The Functions Lab is where you can toggle experimental tools, advanced developer features, and beta API access for your workspace.</p>
 
           <div class="callout warning">
             <span class="material-symbols-outlined">warning</span>
             <div>
-              <strong>Proceed with Caution</strong>
-              <p>Features contained within the Functions Lab are actively in development. While exciting, enabling them may cause unexpected behavior or temporary system instability. Use these features primarily for testing and development purposes.</p>
+              <strong data-i18n="help.lab.caution.title">Proceed with Caution</strong>
+              <p data-i18n="help.lab.caution.body">Features contained within the Functions Lab are actively in development. While exciting, enabling them may cause unexpected behavior or temporary system instability. Use these features primarily for testing and development purposes.</p>
             </div>
           </div>
         </section>
 
         <div class="empty" id="noResults" style="display: none;">
           <span class="material-symbols-outlined">search_off</span>
-          <div>No sections match that search.</div>
+          <div data-i18n="help.search.no-results">No sections match that search.</div>
         </div>
 
       </div>
@@ -425,6 +429,13 @@ Licensed under the Apache License, Version 2.0
   </div>
 
   <script>
+    // Paragraphs with inline emphasis: one translatable string each, markup included.
+    document.getElementById('helpWorkersBody').innerHTML = mariowOSI18n.t("help.ui.workers.body", "Unlike traditional operating systems that can hang when a single app misbehaves, mariowOS guarantees complete system stability. Intensive tasks and heavy computations are automatically offloaded to <strong>background worker threads</strong>.");
+    document.getElementById('helpPersonalizationBody').innerHTML = mariowOSI18n.t("help.personalization.body", "Making mariowOS your own is incredibly straightforward. Head over to the <strong>Wallpaper &amp; Style</strong> or <strong>Lockscreen</strong> settings to adjust your desktop's visual footprint.");
+    document.getElementById('helpMonetBody').innerHTML = mariowOSI18n.t("help.personalization.monet.body", "At the heart of the UI customization is the custom-built <code>monet-engine</code>. When you change your wallpaper, this engine dynamically extracts an optimized color palette from the image.");
+    document.getElementById('helpUpdaterBody').innerHTML = mariowOSI18n.t("help.connectivity.updater.body", "Keeping your system secure and equipped with the latest features is handled entirely by the built-in <strong>Updater</strong> application.");
+    document.getElementById('helpLabBody').innerHTML = mariowOSI18n.t("help.lab.body", "For power users, developers, and early adopters, mariowOS includes a dedicated space known as the <strong>Functions Lab</strong>, accessible via the System Settings.");
+
     document.addEventListener('DOMContentLoaded', () => {
       const sections = [...document.querySelectorAll('section')];
       const navItems = [...document.querySelectorAll('.nav-item')];
@@ -436,8 +447,10 @@ Licensed under the Apache License, Version 2.0
 
       const labelFor = id => {
         const item = navItems.find(nav => nav.dataset.target === id);
-        return item ? item.dataset.label : '';
+        const label = item && item.querySelector('.nav-label');
+        return label ? label.textContent.trim() : '';
       };
+      topTitle.textContent = labelFor('intro');
 
       /* ── Scroll spy ──
          Keeps the sidebar and the top bar in step with whatever section is in view. */
@@ -460,7 +473,7 @@ Licensed under the Apache License, Version 2.0
           target.scrollIntoView({ behavior: 'smooth' });
           navItems.forEach(item => item.classList.remove('active'));
           link.classList.add('active');
-          topTitle.textContent = link.dataset.label;
+          topTitle.textContent = labelFor(link.dataset.target);
         });
       });
 

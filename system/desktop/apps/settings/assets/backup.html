@@ -3,10 +3,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backup & Restore</title>
+  <title data-i18n="settings.nav.backup">Backup &amp; Restore</title>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
   <style>
@@ -32,8 +35,8 @@
       <div class="item-left">
         <div class="icon-badge" style="background: linear-gradient(180deg, #32d74b, #28cd41);"><span class="material-symbols-outlined">download</span></div>
         <div>
-          <div class="item-title">Export Settings</div>
-          <div class="item-subtitle">Download your data as credentials.json</div>
+          <div class="item-title" data-i18n="settings.backup.export">Export Settings</div>
+          <div class="item-subtitle" data-i18n="settings.backup.export.subtitle">Download your data as credentials.json</div>
         </div>
       </div>
       <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -43,8 +46,8 @@
       <div class="item-left">
         <div class="icon-badge" style="background: linear-gradient(180deg, #0a84ff, #007aff);"><span class="material-symbols-outlined">upload</span></div>
         <div>
-          <div class="item-title">Import Settings</div>
-          <div class="item-subtitle">Restore from a credentials.json file</div>
+          <div class="item-title" data-i18n="settings.backup.import">Import Settings</div>
+          <div class="item-subtitle" data-i18n="settings.backup.import.subtitle">Restore from a credentials.json file</div>
         </div>
       </div>
       <div class="item-right"><span class="material-symbols-outlined">chevron_right</span></div>
@@ -80,15 +83,16 @@ function exportBackup() {
 function importBackup(e) {
   const file = e.target.files[0];
   if (!file) return;
-  requirePassword(() => {
+  requirePassword((password) => {
     const fd = new FormData();
     fd.append('backupFile', file);
+    fd.append('password', password || '');
     fetch('/api/system/restore', { method: 'POST', body: fd })
       .then(r => r.json()).then(res => {
         if(res.success) {
-          window.parent.postMessage({ type: 'show-notification', title: 'Backup Restored', msg: 'System config updated successfully.', icon: '☁️' }, '*');
+          window.parent.postMessage({ type: 'show-notification', title: mariowOSI18n.t("settings.backup.restored", "Backup Restored"), msg: mariowOSI18n.t("settings.backup.restored.message", "System config updated successfully."), icon: '☁️' }, '*');
         } else {
-          mDialog.alert("Error: " + res.error);
+          mDialog.alert(mariowOSI18n.t("settings.backup.error", "Error: {message}", { message: res.error }));
         }
       });
   }, () => {

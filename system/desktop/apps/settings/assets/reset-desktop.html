@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/desktop/assets/i18n-data.js"></script>
+<script src="/desktop/assets/i18n.js"></script>
+<script src="/desktop/assets/accent.js"></script>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +18,7 @@
   --md-sys-color-background: transparent;
   --md-sys-color-surface-container: rgba(255,255,255,0.06);
   --md-sys-color-surface-container-high: rgba(255,255,255,0.1);
-  --md-sys-color-secondary-container: rgba(10,132,255,0.18);
+  --md-sys-color-secondary-container: color-mix(in srgb, var(--sys-accent) 18%, transparent);
   --md-sys-color-on-secondary-container: #ffffff;
   --md-sys-color-on-surface: #ffffff;
   --md-sys-color-on-surface-variant: rgba(255,255,255,0.5);
@@ -138,19 +141,19 @@ html::-webkit-scrollbar {
   <div class="warning-banner">
     <h3>
       <span class="material-symbols-outlined">warning</span>
-      Warning
+      <span data-i18n="settings.reset-desktop.warning">Warning</span>
     </h3>
-    <p>You're about to reset your desktop. It will restore the <strong>desktop to its original state</strong>. This will <strong>NOT</strong> affect your personal data.</p>
+    <p><span data-i18n="settings.reset-desktop.intro-1">You're about to reset your desktop. It will restore the</span> <strong data-i18n="settings.reset-desktop.intro-2">desktop to its original state</strong><span data-i18n="settings.reset-desktop.intro-3">. This will</span> <strong data-i18n="settings.reset-desktop.intro-4">NOT</strong> <span data-i18n="settings.reset-desktop.intro-5">affect your personal data.</span></p>
   </div>
 
   <div class="checkbox-card">
     <input type="checkbox" id="resetBackground" disabled checked>
-    <label for="resetBackground">Reset desktop to default</label>
+    <label for="resetBackground" data-i18n="settings.reset-desktop.checkbox">Reset desktop to default</label>
   </div>
 
   <div class="button-row">
-    <button class="btn-secondary" onclick="goBack()">Cancel</button>
-    <button class="btn-danger" id="resetBtn">Reset Desktop</button>
+    <button class="btn-secondary" onclick="goBack()" data-i18n="common.cancel">Cancel</button>
+    <button class="btn-danger" id="resetBtn" data-i18n="settings.reset-desktop.reset">Reset Desktop</button>
   </div>
 </div>
 
@@ -167,9 +170,9 @@ window.addEventListener("DOMContentLoaded", () => {
         btn.disabled = true;
         try {
             const res = await fetch("/api/system/reset-desktop", { method: "POST" });
-            if (!res.ok) throw new Error("Server error " + res.status);
+            if (!res.ok) throw new Error(mariowOSI18n.t("settings.reset-desktop.server-error", "Server error {status}", { status: res.status }));
         } catch (e) {
-            await mDialog.alert("Desktop reset failed: " + e.message);
+            await mDialog.alert(mariowOSI18n.t("settings.reset-desktop.failed", "Desktop reset failed: {error}", { error: e.message }));
             btn.disabled = false;
             return;
         }
@@ -181,7 +184,7 @@ window.addEventListener("DOMContentLoaded", () => {
             desktop.document.body.style.backgroundImage = `url('${wallpaperPath}')`;
         }
 
-        await mDialog.alert("Desktop restored to default.");
+        await mDialog.alert(mariowOSI18n.t("settings.reset-desktop.done", "Desktop restored to default."));
         if (window.top !== window) window.top.location.reload();
         else location.reload();
     });

@@ -3,8 +3,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
   <meta charset="UTF-8">
-  <title>mariowOS Recovery</title>
+  <title data-i18n="recovery.page-title">mariowOS Recovery</title>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
   <style>
@@ -75,44 +77,44 @@
 </head>
 <body>
 
-  <div class="header">Recovery mode</div>
+  <div class="header" data-i18n="recovery.header">Recovery mode</div>
 
   <div class="menu">
     <div class="menu-item" onclick="rebootOS()">
       <div class="icon"><span class="material-symbols-outlined">east</span></div>
       <div class="text">
-        <div class="title">Exit</div>
-        <div class="subtitle">Quit the recovery mode and restart into the OS.</div>
+        <div class="title" data-i18n="recovery.exit.title">Exit</div>
+        <div class="subtitle" data-i18n="recovery.exit.subtitle">Quit the recovery mode and restart into the OS.</div>
       </div>
     </div>
 
     <div class="menu-item" onclick="factoryReset()">
       <div class="icon"><span class="material-symbols-outlined">restart_alt</span></div>
       <div class="text">
-        <div class="title">Wipe Data</div>
-        <div class="subtitle">Erase all user data and restore factory defaults.</div>
+        <div class="title" data-i18n="recovery.wipe.title">Wipe Data</div>
+        <div class="subtitle" data-i18n="recovery.wipe.subtitle">Erase all user data and restore factory defaults.</div>
       </div>
     </div>
 
     <div class="menu-item" onclick="downgradeOS()">
       <div class="icon"><span class="material-symbols-outlined">update_disabled</span></div>
       <div class="text">
-        <div class="title">Downgrade</div>
-        <div class="subtitle">Remove the latest installed update to resolve system issues.</div>
+        <div class="title" data-i18n="recovery.downgrade.title">Downgrade</div>
+        <div class="subtitle" data-i18n="recovery.downgrade.subtitle">Remove the latest installed update to resolve system issues.</div>
       </div>
     </div>
 
     <div class="menu-item" onclick="runDiagnostics()">
       <div class="icon"><span class="material-symbols-outlined">health_and_safety</span></div>
       <div class="text">
-        <div class="title">System Diagnostics</div>
-        <div class="subtitle">Verify filesystem integrity and hardware statuses.</div>
+        <div class="title" data-i18n="recovery.diagnostics.title">System Diagnostics</div>
+        <div class="subtitle" data-i18n="recovery.diagnostics.subtitle">Verify filesystem integrity and hardware statuses.</div>
       </div>
     </div>
   </div>
 
   <div class="barcodes">
-    <span>BARCODES</span>
+    <span data-i18n="recovery.barcodes">BARCODES</span>
     <div class="barcode-img"></div>
     <div class="barcode-img" style="background: repeating-linear-gradient(90deg, #fff, #fff 3px, #000 3px, #000 5px, #fff 5px, #fff 7px, #000 7px, #000 12px);"></div>
   </div>
@@ -139,22 +141,22 @@
   }
 
   async function factoryReset() {
-    if(await mDialog.confirm("Erase all user data? This cannot be undone.")) {
+    if(await mDialog.confirm(mariowOSI18n.t("recovery.wipe.confirm", "Erase all user data? This cannot be undone."))) {
       fetch('/api/recovery/wipe', { method: 'POST' })
         .then(() => { rebootOS(); });
     }
   }
 
   function downgradeOS() {
-    showLoader("REMOVING LATEST PATCHES...", 3000, () => {
-      alert("Downgrade successful. Rebooting.");
+    showLoader(mariowOSI18n.t("recovery.downgrade.progress", "REMOVING LATEST PATCHES..."), 3000, () => {
+      alert(mariowOSI18n.t("recovery.downgrade.done", "Downgrade successful. Rebooting."));
       rebootOS();
     });
   }
 
   function runDiagnostics() {
-    showLoader("VERIFYING FILESYSTEM INTEGRITY...", 4000, () => {
-      alert("All systems nominal. No errors found on FS0.");
+    showLoader(mariowOSI18n.t("recovery.diagnostics.progress", "VERIFYING FILESYSTEM INTEGRITY..."), 4000, () => {
+      alert(mariowOSI18n.t("recovery.diagnostics.done", "All systems nominal. No errors found on FS0."));
     });
   }
 </script>

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
@@ -133,6 +135,8 @@
     document.querySelectorAll('[data-lang]').forEach(s => s.classList.toggle('show', s.dataset.lang === btn.dataset.set));
     document.documentElement.lang = btn.dataset.set;
   });
+  // Open on the section matching the system language (Italian for "it", English otherwise).
+  document.querySelector(`.lang button[data-set="${mariowOSI18n.language === 'it' ? 'it' : 'en'}"]`).click();
   document.getElementById('revoke').onclick = () => {
     mwRevokeExternalConsents();
     alert('OK');

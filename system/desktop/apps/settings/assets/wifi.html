@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
   <meta charset="UTF-8">
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
@@ -27,9 +30,9 @@
     .pwd-dropdown { display: none; padding: 12px 16px; background: rgba(0,0,0,0.15); border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; gap: 10px; }
     .pwd-dropdown input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; font-family: inherit; font-size: 13px; outline: none; transition: border-color 0.2s; }
     .pwd-dropdown input::placeholder { color: rgba(255,255,255,0.4); }
-    .pwd-dropdown input:focus { border-color: #0a84ff; box-shadow: 0 0 0 2px rgba(10,132,255,0.4); }
-    .pwd-dropdown button { padding: 7px 14px; min-height: 32px; border-radius: 8px; border: none; background: #0a84ff; color: white; font-weight: 500; font-size: 13px; outline: none; transition: background 0.15s; cursor: pointer; font-family: inherit; }
-    .pwd-dropdown button:hover { background: #007aff; }
+    .pwd-dropdown input:focus { border-color: var(--sys-accent-text); box-shadow: 0 0 0 2px color-mix(in srgb, var(--sys-accent) 40%, transparent); }
+    .pwd-dropdown button { padding: 7px 14px; min-height: 32px; border-radius: 8px; border: none; background: var(--sys-accent); color: var(--sys-accent-on); font-weight: 500; font-size: 13px; outline: none; transition: background 0.15s; cursor: pointer; font-family: inherit; }
+    .pwd-dropdown button:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); color: var(--sys-accent-on); }
   </style>
 </head>
 <body>
@@ -47,7 +50,7 @@
   </div>
 
   <div class="panel" id="networksPanel">
-    <div class="row"><div class="subtitle">Scanning for networks…</div></div>
+    <div class="row"><div class="subtitle" data-i18n="settings.wifi.scanning">Scanning for networks…</div></div>
   </div>
 
   <script>
@@ -57,7 +60,7 @@
       document.getElementById('wifiToggle').checked = qs.wifi;
 
       if (!qs.wifi) {
-        document.getElementById('networksPanel').innerHTML = `<div class="row"><div class="subtitle">Wi-Fi is disabled.</div></div>`;
+        document.getElementById('networksPanel').innerHTML = `<div class="row"><div class="subtitle">${mariowOSI18n.t("settings.wifi.disabled", "Wi-Fi is disabled.")}</div></div>`;
         return;
       }
 
@@ -88,10 +91,10 @@
             html += `
               <div class="row clickable" onclick="expandNetwork('${safeId}', '${net.ssid}', ${net.secured})">
                 <div class="left">
-                  <span class="material-symbols-outlined" style="color: ${net.connected ? '#0a84ff' : 'white'}">wifi</span>
+                  <span class="material-symbols-outlined" style="color: ${net.connected ? 'var(--sys-accent-text)' : 'white'}">wifi</span>
                   <div>
-                    <div class="title" style="color: ${net.connected ? '#0a84ff' : 'white'}">${net.ssid}</div>
-                    <div class="subtitle" id="status-${safeId}">${net.connected ? 'Connected' : ''}</div>
+                    <div class="title" style="color: ${net.connected ? 'var(--sys-accent-text)' : 'white'}">${net.ssid}</div>
+                    <div class="subtitle" id="status-${safeId}">${net.connected ? mariowOSI18n.t("settings.wifi.connected", "Connected") : ''}</div>
                   </div>
                 </div>
                 ${net.secured ? '<span class="material-symbols-outlined" style="font-size: 18px; color: rgba(255,255,255,0.3);">lock</span>' : ''}
@@ -101,17 +104,17 @@
             if (net.secured) {
               html += `
                 <div class="pwd-dropdown" id="pwd-${safeId}">
-                  <input type="password" id="input-${safeId}" placeholder="Enter password for ${net.ssid}" onkeydown="if(event.key === 'Enter') doConnect('${safeId}', '${net.ssid}')">
-                  <button onclick="doConnect('${safeId}', '${net.ssid}')">Join</button>
+                  <input type="password" id="input-${safeId}" placeholder="${mariowOSI18n.t("settings.wifi.password-for", "Enter password for {network}", { network: net.ssid })}" onkeydown="if(event.key === 'Enter') doConnect('${safeId}', '${net.ssid}')">
+                  <button onclick="doConnect('${safeId}', '${net.ssid}')">${mariowOSI18n.t("settings.wifi.join", "Join")}</button>
                 </div>
               `;
             }
           });
         } else {
-          html = `<div class="row"><div class="subtitle">No networks found.</div></div>`;
+          html = `<div class="row"><div class="subtitle">${mariowOSI18n.t("settings.wifi.no-networks", "No networks found.")}</div></div>`;
         }
       } else {
-        html = `<div class="row"><div class="subtitle">No networks found.</div></div>`;
+        html = `<div class="row"><div class="subtitle">${mariowOSI18n.t("settings.wifi.no-networks", "No networks found.")}</div></div>`;
       }
       document.getElementById('networksPanel').innerHTML = html;
     }
@@ -147,7 +150,7 @@
 
       const statusEl = document.getElementById(`status-${safeId}`);
       if (statusEl) {
-        statusEl.innerText = "Connecting…";
+        statusEl.innerText = mariowOSI18n.t("settings.wifi.connecting", "Connecting…");
         statusEl.style.color = "rgba(255,255,255,0.5)";
       }
 

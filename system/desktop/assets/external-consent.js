@@ -8,11 +8,17 @@
 
   window.mwExternalConsent = async function (id, serviceLabel) {
     try { if (localStorage.getItem(key(id)) === "yes") return true; } catch (e) {}
-    const message = `This feature loads content from an external service: ${serviceLabel}.\n\n` +
-      "Your IP address and technical data will be sent to that service, which may also set its own cookies. " +
-      "See the Privacy notice for details.\n\nDo you want to continue?";
+    const i18n = window.mariowOSI18n;
+    const english = "This feature loads content from an external service: {service}.\n\nYour IP address and technical data will be sent to that service, which may also set its own cookies. See the Privacy notice for details.\n\nDo you want to continue?";
+    const message = (i18n ? mariowOSI18n.t("consent.message", "This feature loads content from an external service: {service}.\n\nYour IP address and technical data will be sent to that service, which may also set its own cookies. See the Privacy notice for details.\n\nDo you want to continue?") : english)
+      .replace("{service}", () => serviceLabel);
     const ok = window.mDialog
-      ? await window.mDialog.confirm(message, { title: "External service", okText: "Continue", cancelText: "Cancel", kind: "info" })
+      ? await window.mDialog.confirm(message, {
+        title: (i18n ? mariowOSI18n.t("consent.title", "External service") : "External service"),
+        okText: (i18n ? mariowOSI18n.t("common.continue", "Continue") : "Continue"),
+        cancelText: (i18n ? mariowOSI18n.t("common.cancel", "Cancel") : "Cancel"),
+        kind: "info"
+      })
       : window.confirm(message);
     if (ok) { try { localStorage.setItem(key(id), "yes"); } catch (e) {} }
     return !!ok;
