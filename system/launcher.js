@@ -22,6 +22,7 @@ const EXIT_CODES = Object.freeze({ SHUTDOWN: 20, UPDATE_RESTART: 21, KERNEL_REBO
 const bootPage = path.join(__dirname, 'boot.html');
 const kernelRecoveryPage = path.join(__dirname, 'kernel-recovery.html');
 const rollback = require('./lib/rollback');
+const browserExtensions = require('./lib/browser-extensions');
 // Consecutive kernel failures before undoing the last update / showing the recovery screen.
 const ROLLBACK_AFTER_FAILURES = 3;
 const RECOVERY_AFTER_FAILURES = 5;
@@ -135,11 +136,23 @@ ipcMain.handle('mariowos:shutdown', async (event) => {
 
 ipcMain.handle('mariowos:clear-browser-data', async (event) => {
     if (!isTrustedRendererEvent(event)) throw new Error('clear request rejected for an untrusted renderer');
-    const { session } = require('electron');
-    await session.defaultSession.clearStorageData();
-    await session.defaultSession.clearCache();
+    // Browser tabs live in their own session; extensions keep their own storage.
+    const browser = browserExtensions.browserSession();
+    await browser.clearStorageData({ storages: ['cookies', 'localstorage', 'indexdb', 'websql', 'cachestorage', 'shadercache', 'serviceworkers', 'filesystem'] });
+    await browser.clearCache();
     return { cleared: true };
 });
+
+// Browser extensions: only the desktop shell may manage them (see lib/browser-extensions.js).
+const extensionHandler = (name, run) => ipcMain.handle('mariowos:extensions-' + name, async (event, ...args) => {
+    if (!isTrustedRendererEvent(event)) throw new Error('extension request rejected for an untrusted renderer');
+    return run(...args);
+});
+extensionHandler('list', () => browserExtensions.list());
+extensionHandler('install', input => browserExtensions.installFromStore(input));
+extensionHandler('load-unpacked', () => browserExtensions.loadUnpacked(mainWindow));
+extensionHandler('set-enabled', (id, enabled) => browserExtensions.setEnabled(String(id), !!enabled));
+extensionHandler('remove', id => browserExtensions.remove(String(id)));
 
 ipcMain.handle('mariowos:reboot', async (event) => {
     if (!isTrustedRendererEvent(event)) throw new Error('reboot request rejected for an untrusted renderer');
@@ -635,8 +648,9 @@ function browserShortcutFor(input) {
         '=': 'zoom-in', '+': 'zoom-in', '-': 'zoom-out', '0': 'zoom-reset' }[key] || null;
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
     console.log('[sniffer]: booting...');
+    await browserExtensions.init().catch(error => console.error('[browser]: extensions did not load:', error.message));
     bootMariowOS();
 
     app.on('activate', () => {

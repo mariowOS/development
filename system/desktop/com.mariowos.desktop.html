@@ -19,6 +19,7 @@ Questions? https://discord.gg/YDVxw6jfbH
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="/desktop/assets/i18n-data.js"></script>
   <script src="/desktop/assets/i18n.js"></script>
+  <script src="/api/users/me.js"></script>
   <script src="/desktop/assets/accent.js"></script>
   <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/desktop/assets/fonts/fonts.css"/>
@@ -195,8 +196,6 @@ Questions? https://discord.gg/YDVxw6jfbH
     body.lab-animations .popup.active { animation: labPopupIn 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) forwards; }
     body.lab-animations .toast { animation-duration: 0.6s !important; }
     /* Developer Options: live diagnostics chip */
-    #labDevChip { display: none; position: fixed; top: 10px; right: 10px; z-index: 10001; padding: 6px 10px; border-radius: 10px; background: rgba(0,0,0,0.75); color: #30d158; font: 11px/1.4 Consolas, monospace; pointer-events: none; white-space: pre; }
-    body.lab-developer #labDevChip { display: block; }
 
     .popup {
       display: none; position: fixed; top: 20px; left: 20px;
@@ -368,22 +367,11 @@ Questions? https://discord.gg/YDVxw6jfbH
       cursor: pointer; transition: background 0.15s ease, color 0.15s ease, transform 0.3s var(--spring-bounce);
       white-space: nowrap; position: relative; user-select: none; box-sizing: border-box;
     }
-    /* The apps menu arrives row by row, each icon landing a moment after its row. Transforms only: fading every row at once under the blurred panel halves the frame rate. */
-    @keyframes appRowIn { from { transform: translateY(34px); } to { transform: none; } }
-    @keyframes appIconIn { 0% { transform: scale(0.4); } 100% { transform: none; } }
-    #actionsDropdown.open .dropdown-item { animation: appRowIn 0.5s var(--spring) backwards; animation-delay: calc(var(--row, 0) * 26ms + 70ms); }
-    #actionsDropdown.open .menu-icon { animation: appIconIn 0.5s var(--spring-bounce) backwards; animation-delay: calc(var(--row, 0) * 26ms + 120ms); }
-    #actionsDropdown .menu-icon { transition: transform 0.34s var(--spring-bounce); }
-    #actionsDropdown .dropdown-item:hover .menu-icon { transform: scale(1.12); }
-    #actionsDropdown .dropdown-item:hover { transform: translateX(3px); }
-    #actionsDropdown .dropdown-item:active { transform: scale(0.95); }
     .dropdown-item:hover { background: rgba(255, 255, 255, 0.15) !important; }
     .dropdown-item:active { transform: scale(0.94); transition-duration: 0.1s; }
     .menu-icon { width: 20px; height: 20px; object-fit: contain; flex-shrink: 0; }
     .menu-icon-symbol { font-size: 18px; color: var(--m3-accent-text); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 
-    #notificationsDropdown { right: 0; left: auto; width: 360px; max-width: calc(100vw - 32px); max-height: calc(100vh - 80px); padding: 16px; transform-origin: bottom right; border-radius: 24px; }
-    #calendarDropdown { max-height: calc(100vh - 72px); }
     #dockContextMenu, #taskbarContextMenu { width: 230px; position: fixed; z-index: 9999; left: 50%; transform-origin: bottom center; }
     .ctx-menu-header { display: flex; align-items: center; gap: 10px; padding: 6px 14px 10px; margin-bottom: 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
     .ctx-menu-header .ctx-menu-name { font-size: 13px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -394,40 +382,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     .dropdown-item.danger:hover { background: rgba(255, 69, 58, 0.18) !important; }
     #desktopItemContextMenu { position: fixed; z-index: 9999; bottom: auto; transform-origin: top left; }
     #desktopContextMenu { position: fixed; z-index: 9999; bottom: auto; right: auto; transform-origin: top left; }
-    .cal-header { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; padding: 0 4px; }
-    .cal-day-text { font-size: 20px; font-weight: 600; color: #fff; line-height: 1.1; }
-    .cal-date-text { font-size: 13px; color: var(--m3-accent-text); font-weight: 500; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
-    .cal-day-name { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; padding-bottom: 6px; }
-    .cal-day { font-size: 13px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; cursor: default; transition: background 0.2s, transform 0.25s var(--spring-bounce); margin: 0 auto; }
-    .cal-day.today { background: var(--m3-accent-active); font-weight: 600; color: var(--m3-accent-on-active); box-shadow: 0 4px 10px color-mix(in srgb, var(--m3-accent-active) 40%, transparent); }
-    .cal-day.empty { background: transparent; }
-    .cal-day:hover:not(.empty):not(.today) { background: rgba(255, 255, 255, 0.15); transform: scale(1.15); }
-    .cal-day:active:not(.empty) { transform: scale(0.9); }
-    .cal-day:not(.empty) { cursor: pointer; position: relative; }
-    .cal-day.other-month { color: rgba(255,255,255,0.35); }
-    .cal-day.picked:not(.today) { box-shadow: inset 0 0 0 1.5px var(--m3-accent-text); }
-    .cal-day.has-ev::after { content: ""; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--m3-accent-text); }
-    .cal-day.today.has-ev::after { background: var(--m3-accent-on-active); }
-    .cal-nav { display: flex; align-items: center; gap: 4px; margin: -4px 0 10px; padding: 0 4px; }
-    .cal-month-label { flex: 1; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
-    .cal-nav-btn { font-size: 20px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s, transform 0.35s var(--spring-bounce); }
-    .cal-nav-btn:hover { background: rgba(255,255,255,0.15); }
-    .cal-nav-btn:active { transform: scale(0.82); transition-duration: 0.1s; }
-    .cal-events { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 6px; max-height: 160px; overflow-y: auto; }
-    .cal-events-title { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 4px; }
-    .cal-ev { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 10px; cursor: pointer; transition: background 0.2s; font-size: 12.5px; }
-    .cal-ev:hover { background: rgba(255,255,255,0.1); }
-    .cal-ev-bar { width: 3px; align-self: stretch; border-radius: 2px; flex: 0 0 3px; }
-    .cal-ev-title { font-weight: 500; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 210px; }
-    .cal-ev-time { font-size: 11px; color: rgba(255,255,255,0.55); }
-    .cal-empty { font-size: 12px; color: rgba(255,255,255,0.5); padding: 2px 4px; }
-    .cal-open-app { margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; background: rgba(255,255,255,0.08); cursor: pointer; font-size: 12.5px; font-weight: 500; transition: background 0.2s; }
-    .cal-open-app:hover { background: rgba(255,255,255,0.16); }
-    .cal-open-app .material-symbols-outlined { font-size: 18px; }
 
-    .hmos-qs-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-    .hmos-top-row { display: flex; gap: 12px; height: 140px; }
     .hmos-media-card { flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
     .hmos-media-card { position: relative; overflow: hidden; }
     .hmos-media-card > *:not(.media-backdrop) { position: relative; z-index: 1; }
@@ -461,7 +416,6 @@ Questions? https://discord.gg/YDVxw6jfbH
     .media-btn:hover { opacity: 0.8; transform: scale(1.2); }
     .media-btn:active { transform: scale(0.8); }
 
-    .hmos-toggles-col { display: flex; flex-direction: column; gap: 12px; width: 155px; }
     .qs-tile-hmos { flex: 1; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; display: flex; align-items: center; padding: 8px; gap: 12px; transition: transform 0.4s var(--spring-bounce), background 0.3s ease; }
     .qs-tile-hmos:active { transform: scale(0.92); }
     .hmos-icon-bg { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); transition: background 0.35s var(--spring), color 0.35s var(--spring), box-shadow 0.35s var(--spring), transform 0.4s var(--spring-bounce); cursor: pointer; }
@@ -569,16 +523,10 @@ Questions? https://discord.gg/YDVxw6jfbH
     #tilePower[data-mode="Balanced"] { --qs-tint: #22c55e; }
     #tilePower[data-mode="Performance"] { --qs-tint: #ff8a24; }
     #tilePower[data-mode="Battery Saver"] { --qs-tint: #f5b82e; }
-    .qs-tile-hmos.active { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.05); }
-    .hmos-circle-toggle.active { background: transparent; border-color: transparent; }
-    .qs-tile-hmos .hmos-icon-bg, .hmos-circle-toggle .hmos-icon-bg { background: #fff; color: var(--qs-tint, #667085); box-shadow: none; }
-    .qs-tile-hmos.inactive .hmos-icon-bg, .hmos-circle-toggle.inactive .hmos-icon-bg { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.58); }
-    .qs-tile-hmos.active .hmos-icon-bg, .hmos-circle-toggle.active .hmos-icon-bg { background: #fff; color: var(--qs-tint, #667085); box-shadow: none; }
     .hmos-text-container { display: flex; flex-direction: column; overflow: hidden; flex: 1; cursor: pointer; }
     .hmos-title { font-size: 13px; font-weight: 500; color: #fff; line-height: 1.1; margin-bottom: 2px;}
     .hmos-subtitle { font-size: 10px; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .hmos-bottom-row { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 16px; display: flex; align-items: center; justify-content: space-around; }
     .hmos-circle-toggle { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.35s var(--spring-bounce); }
     .hmos-circle-toggle:active { transform: scale(0.85); }
     .hmos-circle-toggle .hmos-icon-bg { width: 46px; height: 46px; }
@@ -594,10 +542,6 @@ Questions? https://discord.gg/YDVxw6jfbH
     .qs-list-item:active { transform: scale(0.97); }
     .qs-list-item.connected { background: color-mix(in srgb, var(--m3-accent-active) 45%, transparent) !important; color: #ffffff; font-weight: 500; }
 
-    .cc-actions-row { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .cc-action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; background: rgba(255,255,255,0.06); border-radius: 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.25s var(--spring-bounce); }
-    .cc-action-btn:hover { background: rgba(255,255,255,0.12); }
-    .cc-action-btn:active { transform: scale(0.92); }
 
     .spotlight-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 9999; display: flex; align-items: flex-start; justify-content: center; padding-top: 18vh; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.25s ease, visibility 0.25s ease; }
     .spotlight-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
@@ -646,8 +590,8 @@ Questions? https://discord.gg/YDVxw6jfbH
       display: block;
     }
 
-    #popup2 { background: #15171b !important; }
-    #popup2 .popup-header { height: 36px; padding: 0 12px 0 8px; background: #1b1d21 !important; cursor: move; }
+    #popup2 { background: var(--bt-bg, #15171b) !important; }
+    #popup2 .popup-header { height: 36px; padding: 0 12px 0 8px; background: var(--bt-frame, #1b1d21) !important; cursor: move; }
     .browser-tabs { display: flex; min-width: 0; height: 100%; flex: 1; align-items: flex-end; gap: 2px; overflow-x: auto; margin: 0 4px 0 0; scrollbar-width: none; }
     .browser-tabs::-webkit-scrollbar { display: none; }
     .browser-tab-btn {
@@ -658,7 +602,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     }
     .browser-tab-btn:not(.active) + .browser-tab-btn:not(.active)::after { position: absolute; left: -1px; top: 8px; bottom: 8px; width: 1px; background: rgba(255,255,255,.12); content: ""; }
     .browser-tab-btn:hover { color: #fff; background: rgba(255,255,255,.06); }
-    .browser-tab-btn.active { color: #fff; background: #26292e; }
+    .browser-tab-btn.active { color: #fff; background: var(--bt-toolbar, #26292e); }
     .browser-tab-icon { width: 16px; height: 16px; flex: 0 0 16px; display: flex; align-items: center; justify-content: center; font-size: 15px; color: rgba(255,255,255,.55); }
     .browser-tab-icon img { width: 16px; height: 16px; object-fit: contain; }
     .browser-tab-icon.loading::before { width: 12px; height: 12px; border: 2px solid color-mix(in srgb, var(--m3-accent-text) 25%, transparent); border-top-color: var(--m3-accent-text); border-radius: 50%; content: ""; animation: browserSpin .7s linear infinite; }
@@ -669,9 +613,9 @@ Questions? https://discord.gg/YDVxw6jfbH
     .browser-tab-close:hover { opacity: 1; background: rgba(255,255,255,.14); }
     #browserNewTab { flex: 0 0 28px; margin: 0 8px 1px 0; }
     #popup2 .browser-tab-btn, #popup2 .browser-tab-close { transition: none; }
-    .browser-toolbar { position: relative; display: flex; min-width: 0; height: 42px; align-items: center; gap: 2px; padding: 0 8px; background: #26292e; border-bottom: 1px solid rgba(255,255,255,.06); }
-    .browser-url-wrap { display: flex; min-width: 0; height: 30px; flex: 1; align-items: center; gap: 6px; margin: 0 6px; padding: 0 4px 0 10px; border: 1px solid transparent; border-radius: 15px; background: #15171b; }
-    .browser-url-wrap:focus-within { border-color: var(--m3-accent-text); }
+    .browser-toolbar { position: relative; display: flex; min-width: 0; height: 42px; align-items: center; gap: 2px; padding: 0 8px; background: var(--bt-toolbar, #26292e); border-bottom: 1px solid rgba(255,255,255,.06); }
+    .browser-url-wrap { display: flex; min-width: 0; height: 30px; flex: 1; align-items: center; gap: 6px; margin: 0 6px; padding: 0 4px 0 10px; border: 1px solid transparent; border-radius: 15px; background: var(--bt-bg, #15171b); }
+    .browser-url-wrap:focus-within { border-color: var(--bt-accent, var(--m3-accent-text)); }
     .browser-url-icon { font-size: 15px !important; color: rgba(255,255,255,.5); }
     .browser-url-icon.secure { color: #30d158; }
     #browserUrl { min-width: 0; height: 100%; flex: 1; padding: 0; border: 0; outline: none; color: #f4f4f5; background: transparent !important; font: 12.5px 'Poppins', sans-serif; }
@@ -687,28 +631,90 @@ Questions? https://discord.gg/YDVxw6jfbH
     #popup2 .browser-nav-btn { transition: none; }
     #popup2 .action-btn { transition: color .15s; }
     #popup2 .action-btn:hover, #popup2 .action-btn:active { transform: none; }
-    .browser-progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--m3-accent-text); opacity: 0; transition: width .4s ease, opacity .3s ease; pointer-events: none; }
+    .browser-progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--bt-accent, var(--m3-accent-text)); opacity: 0; transition: width .4s ease, opacity .3s ease; pointer-events: none; }
     .browser-progress.active { opacity: 1; }
     .browser-tab-content { position: relative; width: 100%; height: calc(100% - 78px); background: #fff; }
     .browser-view { display: flex; width: 100%; height: 100%; border: 0; background: #fff; }
     .browser-view[hidden] { display: none; }
-    .browser-error { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; color: #e8e8ea; background: #15171b; font-family: 'Poppins', sans-serif; }
+    .browser-error { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; color: #e8e8ea; background: var(--bt-bg, #15171b); font-family: 'Poppins', sans-serif; }
     .browser-error[hidden] { display: none; }
     .browser-error .material-symbols-outlined { font-size: 48px; color: rgba(255,255,255,.4); }
     .browser-error h2 { font-size: 20px; font-weight: 600; }
     .browser-error p { max-width: 460px; font-size: 13px; color: rgba(255,255,255,.6); word-break: break-word; }
     .browser-error button { margin-top: 8px; padding: 8px 22px; border: 0; border-radius: 16px; color: var(--m3-accent-on-active); background: var(--m3-accent-active); font: 13px 'Poppins', sans-serif; cursor: pointer; }
-    .browser-findbar { position: absolute; top: 8px; right: 12px; z-index: 3; display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 10px; border-radius: 10px; background: #26292e; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .browser-findbar { position: absolute; top: 8px; right: 12px; z-index: 3; display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 10px; border-radius: 10px; background: var(--bt-toolbar, #26292e); box-shadow: 0 8px 24px rgba(0,0,0,.4); }
     .browser-findbar[hidden] { display: none; }
     .browser-findbar input { width: 200px; border: 0; outline: 0; color: #fff; background: transparent; font: 12.5px 'Poppins', sans-serif; }
     .browser-findbar span.count { min-width: 44px; font-size: 11px; color: rgba(255,255,255,.55); text-align: right; }
-    .browser-menu { position: absolute; top: 4px; right: 8px; z-index: 4; min-width: 230px; padding: 6px; border-radius: 12px; background: #26292e; box-shadow: 0 12px 32px rgba(0,0,0,.5); font: 12.5px 'Poppins', sans-serif; color: #e8e8ea; }
+    .browser-menu { position: absolute; top: 4px; right: 8px; z-index: 4; min-width: 230px; padding: 6px; border-radius: 12px; background: var(--bt-toolbar, #26292e); box-shadow: 0 12px 32px rgba(0,0,0,.5); font: 12.5px 'Poppins', sans-serif; color: #e8e8ea; }
     .browser-menu[hidden] { display: none; }
     .browser-menu button { display: flex; width: 100%; align-items: center; gap: 10px; padding: 7px 10px; border: 0; border-radius: 8px; color: inherit; background: transparent; font: inherit; text-align: left; cursor: pointer; }
     .browser-menu button:hover { background: rgba(255,255,255,.08); }
     .browser-menu .menu-label { padding: 6px 10px 2px; font-size: 11px; color: rgba(255,255,255,.45); }
     .browser-menu hr { margin: 5px 4px; border: 0; border-top: 1px solid rgba(255,255,255,.08); }
-    .browser-menu .check { width: 16px; font-size: 15px !important; color: var(--m3-accent-text); }
+    .browser-menu .check { width: 16px; font-size: 15px !important; color: var(--bt-accent, var(--m3-accent-text)); }
+    /* Everything that pops over the page grows out of where it is anchored. */
+    @keyframes browserPop { from { opacity: 0; transform: translateY(-6px) scale(0.94); } to { opacity: 1; transform: none; } }
+    .browser-menu:not([hidden]) { transform-origin: top right; animation: browserPop 0.24s var(--spring) both; }
+    .browser-findbar:not([hidden]) { transform-origin: top right; animation: browserPop 0.24s var(--spring) both; }
+    #popup2 .browser-tab-btn { transition: background 0.18s ease, color 0.18s ease; }
+    .browser-progress { transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
+    /* Address bar suggestions */
+    .browser-suggest { position: absolute; top: calc(100% - 2px); left: 0; right: 0; z-index: 6; padding: 6px; border-radius: 0 0 14px 14px; background: var(--bt-toolbar, #26292e); box-shadow: 0 16px 34px rgba(0,0,0,0.45); font: 12.5px 'Poppins', sans-serif; color: #e8e8ea; transform-origin: top center; animation: browserPop 0.2s var(--spring) both; }
+    .browser-suggest[hidden] { display: none; }
+    .browser-suggest-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; cursor: pointer; min-width: 0; }
+    .browser-suggest-row.selected, .browser-suggest-row:hover { background: rgba(255,255,255,0.08); }
+    .browser-suggest-row .material-symbols-outlined { font-size: 17px; color: rgba(255,255,255,0.55); }
+    .browser-suggest-main { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .browser-suggest-sub { margin-left: auto; padding-left: 10px; max-width: 45%; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--bt-accent, var(--m3-accent-text)); font-size: 11.5px; }
+    .browser-suggest-main b { font-weight: 600; color: #fff; }
+    /* Extensions */
+    .browser-ext-actions { display: flex; align-items: center; gap: 0; }
+    .browser-ext-actions:empty { display: none; }
+    .browser-ext-btn img { width: 18px; height: 18px; object-fit: contain; }
+    .browser-ext-btn .material-symbols-outlined { font-size: 19px; }
+    .browser-ext-add { display: flex; align-items: center; gap: 5px; flex: 0 0 auto; height: 22px; padding: 0 10px 0 7px; border-radius: 11px; background: var(--bt-accent, var(--m3-accent-active)); color: #fff; font: 500 11px 'Poppins', sans-serif; cursor: pointer; animation: browserPop 0.3s var(--spring-bounce) both; }
+    .browser-ext-add[hidden] { display: none; }
+    .browser-ext-add:disabled { opacity: 0.6; cursor: default; }
+    .browser-ext-add .material-symbols-outlined { font-size: 14px; }
+    .browser-ext-popup { position: absolute; top: 4px; z-index: 5; overflow: hidden; border-radius: 12px; background: #fff; box-shadow: 0 14px 36px rgba(0,0,0,0.5); transform-origin: top right; animation: browserPop 0.24s var(--spring) both; }
+    .browser-ext-popup[hidden] { display: none; }
+    .browser-ext-popup webview { display: flex; transition: width 0.25s var(--spring), height 0.25s var(--spring); }
+    .browser-ext-panel { position: absolute; top: 4px; right: 8px; bottom: 8px; z-index: 5; width: 380px; max-width: calc(100% - 16px); box-sizing: border-box; display: flex; flex-direction: column; padding: 14px; border-radius: 16px; background: var(--bt-toolbar, #26292e); box-shadow: 0 18px 44px rgba(0,0,0,0.5); font: 12.5px 'Poppins', sans-serif; color: #e8e8ea; transform-origin: top right; animation: browserPop 0.28s var(--spring) both; }
+    .browser-ext-panel[hidden] { display: none; }
+    .bx-head { display: flex; align-items: center; margin-bottom: 10px; font-size: 15px; font-weight: 600; }
+    .bx-head .browser-nav-btn { margin-left: auto; }
+    .bx-install { display: flex; gap: 6px; }
+    .bx-install input { flex: 1; min-width: 0; height: 32px; padding: 0 12px; border-radius: 16px; background: var(--bt-bg, #15171b); color: #fff; font: 12px 'Poppins', sans-serif; }
+    .bx-btn { flex: 0 0 auto; height: 32px; padding: 0 14px; border-radius: 16px; background: rgba(255,255,255,0.1); color: #fff; font: 500 12px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease; display: inline-flex; align-items: center; gap: 6px; }
+    .bx-btn:hover { background: rgba(255,255,255,0.18); }
+    .bx-btn.primary { background: var(--bt-accent, var(--m3-accent-active)); }
+    .bx-btn:disabled { opacity: 0.55; pointer-events: none; }
+    .bx-btn .material-symbols-outlined { font-size: 16px; }
+    .bx-row { display: flex; gap: 6px; margin-top: 8px; }
+    .bx-status { min-height: 16px; margin: 8px 2px 4px; font-size: 11.5px; color: rgba(255,255,255,0.6); }
+    .bx-status.error { color: #ff8a80; }
+    .bx-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 4px; scrollbar-width: thin; }
+    .bx-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.05); animation: browserPop 0.3s var(--spring) both; }
+    .bx-item img, .bx-item .bx-noicon { width: 30px; height: 30px; flex: 0 0 30px; object-fit: contain; border-radius: 7px; }
+    .bx-noicon { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); }
+    .bx-text { flex: 1; min-width: 0; }
+    .bx-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bx-desc { font-size: 11px; color: rgba(255,255,255,0.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bx-switch { position: relative; width: 34px; height: 20px; flex: 0 0 34px; border-radius: 10px; background: rgba(255,255,255,0.18); cursor: pointer; transition: background 0.2s ease; }
+    .bx-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform 0.3s var(--spring-bounce); }
+    .bx-switch.on { background: var(--bt-accent, var(--m3-accent-active)); }
+    .bx-switch.on::after { transform: translateX(14px); }
+    .bx-empty { margin: auto; padding: 20px; text-align: center; color: rgba(255,255,255,0.5); }
+    .bx-note { margin-top: 8px; font-size: 10.5px; color: rgba(255,255,255,0.4); line-height: 1.35; }
+    /* Theme swatches in the menu */
+    .browser-themes { display: flex; flex-wrap: wrap; gap: 7px; padding: 4px 10px 6px; }
+    .browser-menu .browser-theme { width: 22px; height: 22px; padding: 0; border-radius: 50%; flex: 0 0 22px; background: var(--sw); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18); transition: transform 0.3s var(--spring-bounce), box-shadow 0.2s ease; }
+    .browser-menu .browser-theme:hover { transform: scale(1.15); background: var(--sw); }
+    .browser-menu .browser-theme.on { box-shadow: 0 0 0 2px var(--bt-toolbar, #26292e), 0 0 0 4px #fff; }
+    .browser-theme-custom { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .browser-theme-custom .material-symbols-outlined { font-size: 14px; color: #fff; pointer-events: none; }
+    .browser-theme-custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
     #toast-container { position: fixed; bottom: 70px; right: 20px; z-index: 9999; display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none; }
     .toast { background-color: rgba(15, 20, 30, 0.65) !important; -webkit-backdrop-filter: blur(40px) saturate(210%); backdrop-filter: blur(40px) saturate(210%); border-radius: 14px; padding: 12px 16px; color: #fff; width: 260px; display: flex; align-items: center; gap: 12px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important; pointer-events: auto; animation: toastIn 0.5s var(--spring-bounce) forwards; font-size: 13px; transform: translateZ(0);}
@@ -717,6 +723,254 @@ Questions? https://discord.gg/YDVxw6jfbH
     .toast-content { display: flex; flex-direction: column; }
     .toast-title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
     .toast-msg { font-size: 11px; color: #aaa; line-height: 1.3; }
+
+    /* --- Apps menu: recent files over every app, the account and the session at the bottom.
+       "More" grows one section into the whole panel; only flex sizes move, both ways. --- */
+    #actionsDropdown { width: 660px; max-width: calc(100vw - 24px); height: min(700px, calc(100vh - 78px)); max-height: none; padding: 0; border-radius: 26px; display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom left; }
+    .am-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; padding: 20px 20px 10px; }
+    .am-section { display: flex; flex-direction: column; min-height: 0; overflow: hidden; transition: flex-grow 0.55s var(--sheet), flex-basis 0.55s var(--sheet); }
+    #amFiles { flex: 1 1 0px; }
+    #amApps { flex: 0 0 256px; }
+    #actionsDropdown.am-open-apps #amFiles { flex: 0 0 38px; }
+    #actionsDropdown.am-open-apps #amApps { flex: 1 0 256px; }
+    #actionsDropdown.am-open-files #amApps { flex: 0 0 38px; }
+    .am-head { flex: 0 0 38px; display: flex; align-items: center; justify-content: space-between; padding: 0 2px 0 6px; }
+    .am-title { font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.88); }
+    .am-more { display: flex; align-items: center; gap: 2px; padding: 4px 6px 4px 12px; border-radius: 14px; background: transparent; color: rgba(255,255,255,0.6); font: 500 12px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease, color 0.15s ease; }
+    .am-more:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .am-more[hidden] { display: none; }
+    .am-more .material-symbols-outlined { font-size: 18px; transition: transform 0.5s var(--spring); }
+    .am-more[aria-expanded="true"] .material-symbols-outlined { transform: rotate(-90deg); }
+    .am-scroll { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; transition: opacity 0.3s ease; }
+    .am-scroll::-webkit-scrollbar { display: none; }
+    #actionsDropdown:not(.am-open-apps) #amApps .am-scroll, #actionsDropdown:not(.am-open-files) #amFiles .am-scroll { overflow-y: hidden; }
+    #actionsDropdown.am-open-apps #amFiles .am-scroll, #actionsDropdown.am-open-files #amApps .am-scroll { opacity: 0; pointer-events: none; }
+    .am-apps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 106px; gap: 2px 4px; padding-bottom: 8px; }
+    .am-app { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px 4px; border-radius: 18px; background: transparent; color: #fff; font: 500 12px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease, transform 0.35s var(--spring-bounce); }
+    .am-app:hover { background: rgba(255,255,255,0.09); }
+    .am-app:active { transform: scale(0.92); transition-duration: 0.1s; }
+    .am-app-icon { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; transition: transform 0.35s var(--spring-bounce); }
+    .am-app:hover .am-app-icon { transform: scale(1.08); }
+    .am-app-icon img, .am-app-icon .menu-icon { width: 52px; height: 52px; object-fit: contain; }
+    .am-app-icon .menu-icon-symbol { font-size: 34px; }
+    .am-app-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgba(255,255,255,0.9); }
+    .am-files { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; padding-bottom: 8px; }
+    .am-file { min-width: 0; display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 14px; background: transparent; color: #fff; text-align: left; font-family: 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease, transform 0.3s var(--spring-bounce); }
+    .am-file:hover { background: rgba(255,255,255,0.08); }
+    .am-file:active { transform: scale(0.97); }
+    .am-file-icon { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--ft, #4da3ff) 22%, transparent); color: var(--ft, #4da3ff); }
+    .am-file-icon .material-symbols-outlined { font-size: 21px; }
+    .am-file-text { display: flex; flex-direction: column; min-width: 0; }
+    .am-file-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .am-file-meta { font-size: 11px; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .am-empty { height: 100%; min-height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: rgba(255,255,255,0.45); font-size: 13px; }
+    .am-empty svg { width: 104px; height: 80px; }
+    @keyframes amItemIn { from { transform: translateY(22px) scale(0.86); } to { transform: none; } }
+    #actionsDropdown.open .am-app, #actionsDropdown.open .am-file { animation: amItemIn 0.55s var(--spring) backwards; animation-delay: calc(var(--i, 0) * 14ms + 60ms); }
+    .am-footer { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; padding: 12px 16px 12px 14px; background: rgba(255,255,255,0.035); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07); }
+    .am-user { min-width: 0; display: flex; align-items: center; gap: 10px; margin-right: auto; padding: 5px 14px 5px 5px; border-radius: 24px; background: transparent; color: #fff; font: 500 13.5px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease; }
+    .am-user:hover { background: rgba(255,255,255,0.08); }
+    .am-user img { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 50%; object-fit: cover; background: rgba(255,255,255,0.12); }
+    #amUserName { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .am-round, .cp-head-btn, .nc-head-btn, .cal-foot-app { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: transparent; color: rgba(255,255,255,0.85); cursor: pointer; transition: background 0.15s ease, color 0.15s ease, transform 0.3s var(--spring-bounce); }
+    .am-round:hover, .cp-head-btn:hover, .nc-head-btn:hover, .cal-foot-app:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .am-round:active, .cp-head-btn:active, .nc-head-btn:active, .cal-foot-app:active { transform: scale(0.88); transition-duration: 0.1s; }
+    .am-round .material-symbols-outlined { font-size: 22px; }
+    .am-power-wrap { position: relative; }
+    .am-power-menu { position: absolute; right: -6px; bottom: calc(100% + 12px); z-index: 2; width: 220px; box-sizing: border-box; padding: 6px; border-radius: 18px; background: rgba(36, 40, 52, 0.97); box-shadow: 0 18px 44px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.06); transform-origin: bottom right; transform: translateY(8px) scale(0.92); opacity: 0; visibility: hidden; transition: transform 0.18s cubic-bezier(0.4, 0, 1, 1), opacity 0.14s ease, visibility 0s linear 0.18s; }
+    .am-power-menu.open { transform: none; opacity: 1; visibility: visible; transition: transform 0.42s var(--spring-bounce), opacity 0.16s ease, visibility 0s; }
+    .am-power-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: transparent; color: #fff; font: 500 13px 'Poppins', sans-serif; text-align: left; cursor: pointer; transition: background 0.15s ease; }
+    .am-power-item:hover { background: rgba(255,255,255,0.1); }
+    .am-power-item:disabled { opacity: 0.5; pointer-events: none; }
+    .am-power-item .material-symbols-outlined { font-size: 19px; color: rgba(255,255,255,0.75); }
+    .am-power-item.danger, .am-power-item.danger .material-symbols-outlined { color: #ff6961; }
+    .am-power-item.danger:hover { background: rgba(255,69,58,0.16); }
+    .am-power-sep { height: 1px; margin: 4px 8px; background: rgba(255,255,255,0.08); }
+    .am-ctx { right: auto; bottom: auto; z-index: 5; transform-origin: top left; }
+    .am-head .am-clear { margin-left: auto; margin-right: 2px; padding: 4px 12px; }
+    #actionsDropdown { position: absolute; }
+    /* App shortcuts on the desktop: the app's own icon with a small arrow. */
+    .desktop-app-icon { position: relative; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.45)); }
+    .desktop-app-icon img, .desktop-app-icon .menu-icon-symbol { width: 48px; height: 48px; object-fit: contain; font-size: 36px; }
+    .desktop-app-badge { position: absolute; left: -2px; bottom: -2px; width: 16px; height: 16px; border-radius: 5px; background: rgba(255,255,255,0.92); color: #1b1f27; font-size: 12px !important; display: flex; align-items: center; justify-content: center; }
+    .desktop-app.broken .desktop-app-icon { opacity: 0.45; filter: grayscale(1); }
+
+    /* --- Taskbar: status icons are one button for the Control Panel, the clock carries the bell. --- */
+    /* Task view sits first in the dock, drawn like the Settings sidebar icons. */
+    .dock-apps { display: flex; align-items: center; }
+    /* Task view is a dock icon like the apps: same hover, press and boot animation, and the
+       running line while it is open. Its tile is drawn a little inside the 26px icon box, as app icons are. */
+    .dock-taskview { padding: 0; background: transparent; font: inherit; }
+    /* A button does not centre its line the way the app icons' divs do. */
+    .dock-taskview::after { left: 50%; translate: -50% 0; }
+    .dock-taskview-icon { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; pointer-events: none; background: linear-gradient(180deg, #bf5af2, #af52de); color: #fff; box-shadow: 0 1px 4px rgba(175, 82, 222, 0.35); transition: transform 0.35s var(--spring-bounce); }
+    .dock-taskview-icon .material-symbols-outlined { font-size: 15px; }
+    .dock-taskview:active .dock-taskview-icon { transform: scale(0.9); }
+    .tray-group { gap: 9px; padding: 5px 10px; font-family: 'Poppins', sans-serif; }
+    .tray-battery { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 500; }
+    #volumeIcon.muted { color: rgba(255,255,255,0.48); }
+    #notifBadge { display: none; position: absolute; top: 5px; right: 1px; pointer-events: none; width: 7px; height: 7px; border-radius: 50%; background: #ff453a; box-shadow: 0 0 0 2px rgba(10,14,22,0.7); }
+
+    /* --- Control Panel --- */
+    #notificationsDropdown { right: -6px; left: auto; width: 392px; max-width: calc(100vw - 24px); max-height: calc(100vh - 74px); padding: 16px 18px 18px; border-radius: 28px; transform-origin: bottom right; }
+    .cp-head { display: flex; align-items: center; justify-content: space-between; margin: 0 -6px 12px 4px; }
+    .cp-title { font-size: 19px; font-weight: 600; color: #fff; }
+    .cp-head-btn .material-symbols-outlined { font-size: 21px; }
+    .cp-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .cp-tiles .qs-tile-hmos { flex: none; height: 64px; box-sizing: border-box; padding: 0 12px 0 11px; border-radius: 22px; background: rgba(255,255,255,0.07); gap: 11px; cursor: pointer; transition: transform 0.4s var(--spring-bounce), background 0.2s ease; }
+    .cp-tiles .qs-tile-hmos:hover { background: rgba(255,255,255,0.1); }
+    .cp-tiles .qs-tile-hmos .hmos-icon-bg { width: 42px; height: 42px; flex: 0 0 42px; }
+    .cp-tiles .hmos-title { font-size: 13.5px; }
+    .cp-tiles .hmos-subtitle { font-size: 11px; }
+    .qs-tile-hmos .hmos-icon-bg, .hmos-circle-toggle .hmos-icon-bg, .qs-tile-hmos.active .hmos-icon-bg, .hmos-circle-toggle.active .hmos-icon-bg { background: var(--qs-tint, var(--m3-accent-active)); color: #fff; box-shadow: 0 4px 14px color-mix(in srgb, var(--qs-tint, var(--m3-accent-active)) 40%, transparent); }
+    .qs-tile-hmos.inactive .hmos-icon-bg, .hmos-circle-toggle.inactive .hmos-icon-bg { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.82); box-shadow: none; }
+    #tileNight.active { --qs-tint: #f5a524; }
+    #tilePower[data-mode="Battery Saver"] { --qs-tint: #e8a317; }
+    .qsi-bar { stroke: var(--qs-tint, #a855f7); }
+    #notificationsDropdown .qs-subpanel.active { margin-bottom: 12px; }
+    #notificationsDropdown .hmos-media-card { flex: none; height: auto; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; padding: 12px 12px 12px 12px; margin-bottom: 12px; border-radius: 22px; background: rgba(255,255,255,0.07); }
+    .media-cover { position: relative; width: 52px; height: 52px; flex: 0 0 52px; border-radius: 13px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); }
+    .media-cover-glyph { font-size: 24px; color: rgba(255,255,255,0.5); }
+    .media-cover #mediaArt { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+    .hmos-media-card.has-art .media-cover-glyph { display: none; }
+    #notificationsDropdown .media-now { flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; align-items: stretch; gap: 3px; }
+    #notificationsDropdown .hmos-media-header { justify-content: flex-start; gap: 8px; }
+    #notificationsDropdown .hmos-media-controls { flex: 0 0 auto; gap: 2px; padding: 0; }
+    #notificationsDropdown .media-btn { width: 34px; height: 34px; font-size: 24px; border-radius: 50%; }
+    #notificationsDropdown .media-btn.media-play { font-size: 30px; }
+    .cp-slider { position: relative; display: block; height: 46px; margin-bottom: 10px; border-radius: 23px; overflow: hidden; background: rgba(255,255,255,0.08); cursor: pointer; --fill: 0.5; }
+    .cp-slider::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: calc(46px + (100% - 46px) * var(--fill)); border-radius: 23px; background: rgba(255,255,255,0.86); pointer-events: none; }
+    .cp-slider input[type=range] { -webkit-appearance: none; appearance: none; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; background: transparent; cursor: pointer; }
+    .cp-slider input[type=range]::-webkit-slider-runnable-track { height: 100%; background: transparent; }
+    .cp-slider input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 1px; height: 46px; background: transparent; }
+    .cp-slider-icon, .cp-slider-value { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    #volumeDropdownIcon.cp-slider-icon { color: #1b1f27 !important; }
+    .cp-slider-value { color: rgba(255,255,255,0.7); transition: color 0.15s ease; }
+    .cp-slider.full .cp-slider-value { color: #1b1f27; }
+    .cp-slider-icon { left: 13px; font-size: 21px; }
+    .cp-slider-value { right: 16px; font-size: 12px; font-weight: 500; }
+    .cp-circles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding-top: 6px; }
+    .cp-circles .hmos-circle-toggle { gap: 7px; }
+    .cp-circles .hmos-circle-toggle .hmos-icon-bg { width: 50px; height: 50px; }
+    .cp-circles .hmos-icon-bg .material-symbols-outlined { font-size: 24px; }
+    .cp-circles .hmos-label { max-width: 72px; font-size: 11px; line-height: 1.25; text-align: center; color: rgba(255,255,255,0.8); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    #tileMute.active { --qs-tint: #ff453a; }
+    /* Edit mode: everything but the tiles steps back, the tiles get a rim and follow the pointer. */
+    /* The hint takes the title's place, so the Done button stays under the pointer. */
+    .cp-hint { display: none; min-width: 0; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cp-editing .cp-hint { display: block; }
+    .cp-editing .cp-title { display: none; }
+    .cp-editing #cpEditBtn { background: var(--m3-accent-active); color: #fff; }
+    #notificationsDropdown :is(.hmos-media-card, .cp-slider) { transition: opacity 0.25s ease; }
+    .cp-editing :is(.hmos-media-card, .cp-slider) { opacity: 0.35; pointer-events: none; }
+    .cp-editing :is(.cp-tiles, .cp-circles) > * { cursor: grab; touch-action: none; user-select: none; }
+    .cp-editing .cp-tiles > * { box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.2); }
+    .cp-editing .cp-circles .hmos-icon-bg { box-shadow: 0 0 0 2px rgba(255,255,255,0.22); }
+    .cp-editing :is(.qs-tile-hmos, .hmos-circle-toggle, .hmos-icon-bg):active { transform: none; }
+    .cp-dragging { position: relative; z-index: 5; cursor: grabbing !important; scale: 1.06; transition: scale 0.25s var(--spring-bounce); }
+    .cp-tiles > .cp-dragging { background: rgba(62, 68, 84, 0.95) !important; box-shadow: 0 16px 34px rgba(0,0,0,0.45), inset 0 0 0 1.5px rgba(255,255,255,0.3) !important; }
+
+    /* --- Notifications and calendar: two glass cards in one drawer. The drawer itself has no
+       glass and no fade: an ancestor below full opacity would cut the cards' blur off. --- */
+    /* It comes in from the right edge of the screen, like the Windows 11 notification centre. */
+    #calendarDropdown.dropdown:not(.panel-warmup) { transform: translateX(calc(100% + 24px)); }
+    #calendarDropdown.dropdown.open { transform: translateX(0) translateZ(0); }
+    #calendarDropdown.dropdown { right: -6px; left: auto; width: 380px; max-width: calc(100vw - 24px); height: calc(100vh - 74px); max-height: none; padding: 0; overflow: visible; border-radius: 0; display: flex; flex-direction: column; gap: 10px; background-color: transparent !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; opacity: 1; will-change: transform; transform-origin: bottom right; }
+    .nc-card, .cal-card { background-color: rgba(22, 26, 35, 0.65); -webkit-backdrop-filter: blur(40px) saturate(200%); backdrop-filter: blur(40px) saturate(200%); box-shadow: 0 20px 50px rgba(0,0,0,0.45); border-radius: 26px; box-sizing: border-box; }
+    body.power-saver :is(.nc-card, .cal-card), body.lab-performance :is(.nc-card, .cal-card) { background-color: rgba(20, 24, 32, 0.96); }
+    body.lab-dark-mode :is(.nc-card, .cal-card) { background-color: rgba(4, 5, 8, 0.92); }
+    .nc-card { flex: 1 1 auto; min-height: 150px; display: flex; flex-direction: column; padding: 16px 12px 12px 18px; }
+    .nc-head { display: flex; align-items: center; gap: 2px; margin-bottom: 10px; }
+    .nc-title { flex: 1; font-size: 19px; font-weight: 600; }
+    .nc-head-btn { width: 36px; height: 36px; flex-basis: 36px; }
+    .nc-head-btn .material-symbols-outlined { font-size: 21px; }
+    .nc-head-btn.on { color: #c89bff; }
+    .nc-head-btn:disabled { opacity: 0.35; pointer-events: none; }
+    .nc-dnd { display: flex; align-items: center; gap: 12px; margin: 0 6px 10px 0; padding: 12px 12px 12px 14px; border-radius: 18px; background: color-mix(in srgb, #a855f7 22%, rgba(255,255,255,0.05)); }
+    .nc-dnd[hidden] { display: none; }
+    .nc-dnd > .material-symbols-outlined { font-size: 22px; color: #c89bff; }
+    .nc-dnd-body { flex: 1; min-width: 0; }
+    .nc-dnd-title { font-size: 13px; font-weight: 600; }
+    .nc-dnd-text { font-size: 11.5px; line-height: 1.3; color: rgba(255,255,255,0.65); }
+    .nc-dnd-off { flex: 0 0 auto; padding: 6px 12px; border-radius: 14px; background: rgba(255,255,255,0.12); color: #fff; font: 500 12px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease; }
+    .nc-dnd-off:hover { background: rgba(255,255,255,0.2); }
+    .nc-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 8px; padding-right: 6px; }
+    .nc-list::-webkit-scrollbar { display: none; }
+    .nc-empty { margin: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; color: rgba(255,255,255,0.45); font-size: 13px; }
+    .nc-empty svg { width: 96px; height: 72px; }
+    @keyframes ncIn { from { transform: translateY(-14px) scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes ncOut { to { transform: translateX(60px); opacity: 0; } }
+    .nc-item { position: relative; flex: 0 0 auto; display: flex; gap: 12px; padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.07); }
+    .nc-item.fresh { animation: ncIn 0.45s var(--spring) backwards; }
+    .nc-item.leaving { animation: ncOut 0.24s ease-in forwards; }
+    .nc-item-icon { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); font-size: 18px; }
+    .nc-item-body { flex: 1; min-width: 0; }
+    .nc-item-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .nc-item-title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nc-item-time { flex: 0 0 auto; font-size: 11px; color: rgba(255,255,255,0.5); transition: opacity 0.15s ease; }
+    .nc-item-msg { margin-top: 2px; font-size: 12px; line-height: 1.35; color: rgba(255,255,255,0.7); word-break: break-word; }
+    .nc-item-close { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.14); color: #fff; font-size: 15px; cursor: pointer; opacity: 0; transition: opacity 0.15s ease, background 0.15s ease; }
+    .nc-item:hover .nc-item-close { opacity: 1; }
+    .nc-item:hover .nc-item-time { opacity: 0; }
+    .nc-item-close:hover { background: rgba(255,255,255,0.26); }
+    .cal-card { flex: 0 0 auto; padding: 12px 14px 8px; }
+    .cal-nav { display: flex; align-items: center; gap: 2px; margin: 0 0 6px; padding: 0; }
+    .cal-month-label { flex: 0 0 auto; min-width: 104px; padding: 0 2px; text-align: center; font-size: 17px; font-weight: 600; color: #fff; }
+    .cal-nav-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: transparent; color: #fff; cursor: pointer; transition: background 0.2s, transform 0.35s var(--spring-bounce); }
+    .cal-nav-btn:hover { background: rgba(255,255,255,0.12); }
+    .cal-nav-btn:active { transform: scale(0.82); transition-duration: 0.1s; }
+    .cal-nav-btn .material-symbols-outlined { font-size: 24px; }
+    .cal-toggle { margin-left: auto; display: flex; align-items: center; gap: 2px; padding: 4px 6px 4px 12px; border-radius: 14px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); font: 500 12px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease; }
+    .cal-toggle:hover { background: rgba(255,255,255,0.14); }
+    .cal-toggle .material-symbols-outlined { font-size: 18px; transition: transform 0.45s var(--spring); }
+    .cal-card.collapsed .cal-toggle .material-symbols-outlined { transform: rotate(180deg); }
+    .cal-grid-wrap { overflow: hidden; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 2px; text-align: center; transition: opacity 0.14s ease; }
+    .cal-grid.swap { opacity: 0; }
+    .cal-day-name { padding: 4px 0 6px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); }
+    .cal-day { position: relative; width: 42px; height: 42px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 14.5px; font-weight: 600; color: #fff; cursor: pointer; transition: background 0.2s, transform 0.25s var(--spring-bounce); }
+    .cal-day.weekend { color: rgba(255,255,255,0.62); }
+    .cal-day.other-month { color: rgba(255,255,255,0.28); font-weight: 500; }
+    .cal-day.today { background: var(--m3-accent-active); color: var(--m3-accent-on-active); box-shadow: 0 4px 12px color-mix(in srgb, var(--m3-accent-active) 40%, transparent); }
+    .cal-day:hover:not(.today) { background: rgba(255,255,255,0.12); transform: scale(1.06); }
+    .cal-day:active { transform: scale(0.9); }
+    .cal-day.picked:not(.today) { box-shadow: inset 0 0 0 1.5px var(--m3-accent-text); }
+    .cal-day.has-ev::after { content: ""; position: absolute; bottom: 5px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--m3-accent-text); }
+    .cal-day.today.has-ev::after { background: var(--m3-accent-on-active); }
+    .cal-card.collapsed .cal-day:not(.wk) { display: none; }
+    .cal-events { display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; scrollbar-width: none; margin-top: 6px; padding-top: 8px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+    .cal-events:empty { display: none; }
+    .cal-events-title { padding: 0 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+    .cal-ev { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 10px; font-size: 12.5px; cursor: pointer; transition: background 0.2s; }
+    .cal-ev:hover { background: rgba(255,255,255,0.1); }
+    .cal-ev-bar { width: 3px; flex: 0 0 3px; align-self: stretch; border-radius: 2px; }
+    .cal-ev-title { max-width: 270px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; color: #fff; }
+    .cal-ev-time { font-size: 11px; color: rgba(255,255,255,0.55); }
+    .cal-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; padding-top: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+    .cal-foot-link { padding: 7px 8px; border-radius: 10px; background: transparent; color: rgba(255,255,255,0.85); font: 500 13px 'Poppins', sans-serif; cursor: pointer; transition: background 0.15s ease; }
+    .cal-foot-link:hover { background: rgba(255,255,255,0.08); }
+    .cal-foot-app { width: 36px; height: 36px; flex-basis: 36px; }
+    .cal-foot-app .material-symbols-outlined { font-size: 20px; }
+
+    /* --- Task view: the windows themselves shrink into a grid, live, over the blurred desktop. --- */
+    #taskView { position: fixed; inset: 0; z-index: 299; background: rgba(6, 8, 14, 0.4); -webkit-backdrop-filter: blur(34px) saturate(150%); backdrop-filter: blur(34px) saturate(150%); opacity: 0; visibility: hidden; transition: opacity 0.42s ease, visibility 0s linear 0.42s; }
+    #taskView.open { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s; }
+    body.power-saver #taskView, body.lab-performance #taskView { background: rgba(8, 10, 14, 0.85); }
+    .tv-empty { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 15px; color: rgba(255,255,255,0.6); }
+    #taskView.empty .tv-empty { display: flex; }
+    .tv-label { position: absolute; height: 34px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; padding-right: 2px; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; opacity: 0; transform: translateY(10px); transition: opacity 0.16s ease, transform 0.2s ease, left 0.5s var(--spring), top 0.5s var(--spring), width 0.5s var(--spring); }
+    #taskView.open .tv-label { opacity: 1; transform: none; transition: opacity 0.3s ease var(--d, 0.12s), transform 0.5s var(--spring) var(--d, 0.12s), left 0.5s var(--spring), top 0.5s var(--spring), width 0.5s var(--spring); }
+    .tv-label .menu-icon, .tv-label img { width: 28px; height: 28px; flex: 0 0 28px; object-fit: contain; }
+    .tv-label .menu-icon-symbol { font-size: 22px; }
+    .tv-label-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+    .tv-close { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.16); color: #fff; font-size: 18px; cursor: pointer; opacity: 0; transition: opacity 0.15s ease, background 0.15s ease; }
+    .tv-label:hover .tv-close, .tv-label.hot .tv-close { opacity: 1; }
+    .tv-close:hover { background: #ff453a; }
+    body.task-view .popup iframe, body.task-view .popup webview { pointer-events: none !important; }
+    body.task-view .popup { cursor: pointer; }
+    body.task-view .popup .resize-handle { pointer-events: none; }
+    .popup.tv-hot { box-shadow: 0 0 0 6px rgba(255,255,255,0.5), 0 30px 70px rgba(0,0,0,0.55) !important; }
+
   </style>
 <script src="/desktop/assets/mariowos-dialogs.js"></script>
 <script src="/desktop/assets/external-consent.js"></script>
@@ -729,7 +983,6 @@ Questions? https://discord.gg/YDVxw6jfbH
   <div id="desktop-wallpaper"></div>
   <div id="desktop-icons"></div>
   
-  <div id="labDevChip"></div>
   <div class="status-bar">
     <div class="status-bar-bg"></div>
     <div class="status-left">
@@ -738,137 +991,108 @@ Questions? https://discord.gg/YDVxw6jfbH
           <img src="/desktop/assets/icons/stars.png" style="width: 30px; height: 30px; object-fit: contain;" class="stars-launcher">
         </button>
         <div class="dropdown" id="actionsDropdown">
-          <a onclick="launchAppFromMenu('popup10')"><div class="dropdown-item" data-popup="popup10"><img src="/desktop/assets/icons/files.png" class="menu-icon"> <span data-i18n="desktop.app.files">Files</span></div></a>
-          <a onclick="launchAppFromMenu('popup6')"><div class="dropdown-item" data-popup="popup6"><img src="/desktop/assets/icons/messaging.png" class="menu-icon"> <span data-i18n="desktop.app.messaging">Messaging</span></div></a>
-          <a onclick="launchAppFromMenu('popup2')"><div class="dropdown-item" data-popup="popup2"><img src="/desktop/assets/icons/browser.png" class="menu-icon"> <span data-i18n="desktop.app.browser">Browser</span></div></a>
-          <a onclick="launchAppFromMenu('popup1')"><div class="dropdown-item" data-popup="popup1"><img src="/desktop/assets/icons/settings.png" class="menu-icon"> <span data-i18n="desktop.app.settings">Settings</span></div></a>
-          <a onclick="launchAppFromMenu('popup4')"><div class="dropdown-item" data-popup="popup4"><img src="/desktop/assets/icons/music.png" class="menu-icon"> <span data-i18n="desktop.app.music">Music</span></div></a>
-          <a onclick="launchAppFromMenu('popup7')"><div class="dropdown-item" data-popup="popup7"><img src="/desktop/assets/icons/store.png" class="menu-icon"> <span data-i18n="desktop.app.store">Store</span></div></a>
-          <a onclick="launchAppFromMenu('popup3')"><div class="dropdown-item" data-popup="popup3"><img src="/desktop/assets/icons/feedback.png" class="menu-icon"> <span data-i18n="desktop.app.help">Help</span></div></a>
-          <a onclick="launchAppFromMenu('popup5')"><div class="dropdown-item" data-popup="popup5"><img src="/desktop/assets/icons/notes.png" class="menu-icon"> <span data-i18n="desktop.app.notes">Notes</span></div></a>
-          <a onclick="launchAppFromMenu('popup8')"><div class="dropdown-item" data-popup="popup8"><img src="/desktop/assets/icons/terminal.png" class="menu-icon"> <span data-i18n="desktop.app.terminal">Terminal</span></div></a>
-          <a onclick="launchAppFromMenu('popup9')"><div class="dropdown-item" data-popup="popup9"><img src="/desktop/assets/icons/calculator.png" class="menu-icon"> <span data-i18n="desktop.app.calculator">Calculator</span></div></a>
-          <a onclick="launchAppFromMenu('popup11')"><div class="dropdown-item" data-popup="popup11"><img src="/desktop/assets/icons/calendar.png" class="menu-icon"> <span data-i18n="desktop.app.calendar">Calendar</span></div></a>
-          <a onclick="launchAppFromMenu('popup12')"><div class="dropdown-item" data-popup="popup12"><img src="/desktop/assets/icons/pictures.png" class="menu-icon"> <span data-i18n="desktop.app.pictures">Pictures</span></div></a>
-          <a onclick="launchAppFromMenu('popup13')"><div class="dropdown-item" data-popup="popup13"><img src="/desktop/assets/icons/videos.png" class="menu-icon"> <span data-i18n="desktop.app.videoplayer">Video Player</span></div></a>
+          <div class="am-body">
+            <section class="am-section" id="amFiles">
+              <div class="am-head">
+                <span class="am-title" data-i18n="desktop.apps.recent-files">Recent files</span>
+                <button class="am-more am-clear" type="button" id="amClearFiles" hidden><span class="am-more-label" data-i18n="desktop.apps.clear">Clear</span></button>
+                <button class="am-more" type="button" data-expand="files" hidden><span class="am-more-label" data-i18n="desktop.apps.more">More</span><span class="material-symbols-outlined">chevron_right</span></button>
+              </div>
+              <div class="am-scroll" id="amFilesList"></div>
+            </section>
+            <section class="am-section" id="amApps">
+              <div class="am-head">
+                <span class="am-title" data-i18n="desktop.apps.all-apps">Apps</span>
+                <button class="am-more" type="button" data-expand="apps"><span class="am-more-label" data-i18n="desktop.apps.more">More</span><span class="material-symbols-outlined">chevron_right</span></button>
+              </div>
+              <div class="am-scroll"><div class="am-apps" id="amAppsGrid"></div></div>
+            </section>
+          </div>
+          <div class="am-power-menu am-ctx" id="amCtx" role="menu"></div>
+          <div class="am-footer">
+            <button class="am-user" type="button" onclick="openSettingsPage('you')">
+              <img id="amAvatar" alt="" src="/api/users/avatar/me" onerror="this.onerror=null;this.src='/desktop/assets/avatar.png'">
+              <span id="amUserName">user</span>
+            </button>
+            <button class="am-round" type="button" onclick="launchAppFromMenu('popup1')" title="Settings" data-i18n-title="desktop.app.settings"><span class="material-symbols-outlined">settings</span></button>
+            <div class="am-power-wrap">
+              <button class="am-round" type="button" id="amPowerBtn" title="Power" data-i18n-title="desktop.session.title"><span class="material-symbols-outlined">power_settings_new</span></button>
+              <div class="am-power-menu" id="amPowerMenu" role="menu">
+                <button class="am-power-item" type="button" onclick="closeAllPanels(); lockDesktop()"><span class="material-symbols-outlined">lock</span><span data-i18n="desktop.session.lock">Lock</span></button>
+                <button class="am-power-item" type="button" onclick="window.location.href='/loginui/com.mariowos.loginui.html'"><span class="material-symbols-outlined">logout</span><span data-i18n="desktop.session.sign-out">Sign out</span></button>
+                <button class="am-power-item" type="button" onclick="window.location.reload()"><span class="material-symbols-outlined">refresh</span><span data-i18n="desktop.session.refresh">Refresh Desktop</span></button>
+                <div class="am-power-sep"></div>
+                <button class="am-power-item" id="rebootMariowOSButton" type="button" aria-label="Reboot" data-i18n-aria-label="desktop.session.reboot" onclick="rebootMariowOS()"><span class="material-symbols-outlined">restart_alt</span><span id="rebootMariowOSLabel" data-i18n="desktop.session.reboot">Reboot</span></button>
+                <button class="am-power-item danger" id="shutdownMariowOSButton" type="button" aria-label="Shutdown" data-i18n-aria-label="desktop.session.shutdown" onclick="shutdownMariowOS()"><span class="material-symbols-outlined">power_settings_new</span><span id="shutdownMariowOSLabel" data-i18n="desktop.session.shutdown">Shutdown</span></button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
+
       <div class="search-btn" onclick="openSpotlight()">
         <span class="material-symbols-outlined">search</span>
         <span data-i18n="common.search">Search</span>
       </div>
     </div>
 
-    <div class="status-center" id="dockContainer"></div>
+    <div class="status-center">
+      <button class="dock-icon dock-taskview boot-anim" style="animation-delay: 0.15s;" id="taskViewBtn" type="button" onclick="toggleTaskView()" title="Task view" data-i18n-title="desktop.taskview.title"><span class="dock-taskview-icon"><span class="material-symbols-outlined">view_carousel</span></span></button>
+      <div class="dock-apps" id="dockContainer"></div>
+    </div>
 
     <div class="status-right">
       <span id="devChip" style="display:none;font-size:10px;background:var(--m3-accent-active);color:var(--m3-accent-on-active);border-radius:6px;padding:1px 6px;font-weight:600;">DEV</span>
-      
+
       <div class="btn-wrapper">
         <button class="system-tray-btn" id="contextBtn"><span class="material-symbols-outlined">more_horiz</span></button>
         <div class="dropdown" id="contextDropdown"><a href="/desktop/com.mariowos.desktop.html"><div class="dropdown-item"><span data-i18n="desktop.menu.refresh">Refresh desktop</span></div></a></div>
       </div>
 
-      <button class="system-tray-btn" onclick="openWifiList(event)"><span class="material-symbols-outlined" id="trayWifiIcon">wifi</span></button>
-      <div class="system-tray-btn" id="batteryBtn" hidden onclick="openQuickSettings(event)">
-        <span class="material-symbols-outlined" id="batteryIcon">battery_android_frame_full</span>
-        <span id="batteryPercent"></span>
-      </div>
-      
       <div class="btn-wrapper">
-        <button class="system-tray-btn" id="volumeBtn"><span class="material-symbols-outlined" id="volumeIcon">volume_up</span></button>
-        <div class="dropdown" id="volumeDropdown" style="right: 0; left: auto; width: 260px; padding: 16px; transform-origin: bottom right;">
-          <div style="font-size: 12px; font-weight: 600; margin-bottom: 12px; color: rgba(255,255,255,0.7);" data-i18n="desktop.volume.title">Output Volume</div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="material-symbols-outlined" id="volumeDropdownIcon" style="font-size: 20px; color: var(--m3-accent-text);">volume_up</span>
-            <input type="range" id="volumeSlider" min="0" max="100" value="70" style="flex: 1; cursor: pointer;">
-            <span id="volumeValue" style="font-size: 12px; font-weight: 500; width: 30px; text-align: right;">70%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-wrapper">
-        <div class="status-clock" id="clockBtn">11:56 PM</div>
-        <div class="dropdown" id="calendarDropdown" style="right: -4px; left: auto; width: 280px; padding: 18px; transform-origin: bottom right;">
-          <div class="cal-header">
-            <div class="cal-day-text" id="calDayText">Thursday</div>
-            <div class="cal-date-text" id="calDateText">August 27, 2026</div>
-          </div>
-            <div class="cal-nav">
-              <span class="cal-month-label" id="calMonthLabel"></span>
-              <span class="material-symbols-outlined cal-nav-btn" id="calPrev" title="Previous month" data-i18n-title="desktop.cal.prev-month">chevron_left</span>
-              <span class="material-symbols-outlined cal-nav-btn" id="calNext" title="Next month" data-i18n-title="desktop.cal.next-month">chevron_right</span>
-            </div>
-            <div class="cal-grid" id="calGrid"></div>
-            <div class="cal-events" id="calEvents"></div>
-            <div class="cal-open-app" id="calOpenApp"><span class="material-symbols-outlined">calendar_month</span> <span data-i18n="desktop.cal.open-app">Open Calendar</span></div>
-          </div>
-      </div>
-
-      <div class="btn-wrapper">
-        <button class="system-tray-btn" id="notificationsBtn" style="position:relative;">
-          <span class="material-symbols-outlined">tune</span>
-          <span id="notifBadge" style="display:none; position:absolute; top:4px; right:4px; width:6px; height:6px; background:#e01b24; border-radius:50%; box-shadow: 0 0 4px #e01b24;"></span>
+        <button class="system-tray-btn tray-group" id="notificationsBtn" type="button">
+          <span class="material-symbols-outlined" id="trayWifiIcon">wifi</span>
+          <span class="material-symbols-outlined" id="volumeIcon">volume_up</span>
+          <span class="tray-battery" id="batteryBtn" hidden>
+            <span class="material-symbols-outlined" id="batteryIcon">battery_android_frame_full</span>
+            <span id="batteryPercent"></span>
+          </span>
         </button>
 
         <div class="dropdown" id="notificationsDropdown">
-          <div class="hmos-qs-container">
-            <div class="hmos-top-row">
-              <div id="mediaPlayerBanner" class="hmos-media-card">
-                <div class="media-backdrop" id="mediaBackdrop"></div>
-                <div class="hmos-media-header">
-                  <div class="media-source" onclick="openMediaSource()"><div class="app-icon" id="mediaAppIcon"><span class="material-symbols-outlined">play_arrow</span></div><span id="mediaAppName" data-i18n="desktop.media.this-device">This device</span></div>
-                  <div class="media-dots" id="mediaDots"></div>
-                </div>
-                <div class="media-now">
-                  <img id="mediaArt" alt="" onerror="this.closest('.hmos-media-card').classList.remove('has-art')">
-                  <div class="hmos-media-info">
-                    <div class="media-title" id="mediaBannerTitle" data-i18n="desktop.media.no-media">No media</div>
-                    <div class="media-artist" id="mediaBannerArtist" data-i18n="desktop.media.not-playing">Not playing</div>
-                  </div>
-                </div>
-                <div class="hmos-media-controls">
-                  <span class="material-symbols-outlined media-btn media-skip" onclick="sendMediaCommand('prev')">skip_previous</span>
-                  <span class="material-symbols-outlined media-btn" id="mediaBannerPlayIcon" onclick="sendMediaCommand('toggle')" style="font-size:26px;">play_arrow</span>
-                  <span class="material-symbols-outlined media-btn media-skip" onclick="sendMediaCommand('next')">skip_next</span>
-                </div>
-              </div>
-              
-              <div class="hmos-toggles-col">
-                <div class="qs-tile-hmos active" id="tileWifi">
-                  <div class="hmos-icon-bg" onclick="event.stopPropagation(); toggleQS('wifi')"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><path class="qsi-arc a3" d="M2.6 9a13.4 13.4 0 0 1 18.8 0"/><path class="qsi-arc a2" d="M5.8 12.3a8.8 8.8 0 0 1 12.4 0"/><path class="qsi-arc a1" d="M9 15.5a4.3 4.3 0 0 1 6 0"/><circle class="qsi-dot" cx="12" cy="19" r="1.7"/><path class="qsi-slash" pathLength="1" d="M4 3.5 20 20"/></svg><span class="material-symbols-outlined" id="iconWifi">settings_ethernet</span></div>
-                  <div class="hmos-text-container" id="wifiTextContainer">
-                    <span class="hmos-title" id="titleWifi">WLAN</span>
-                    <span class="hmos-subtitle" id="subWifi" data-i18n="desktop.qs.on">On</span>
-                  </div>
-                </div>
-                <div class="qs-tile-hmos active" id="tileBt">
-                  <div class="hmos-icon-bg" onclick="event.stopPropagation(); toggleQS('bluetooth')"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><path class="qsi-rune" pathLength="1" d="M6.8 7.2 17 16.4 12 21V3l5 4.6L6.8 16.8"/><circle class="qsi-spark s1" cx="4" cy="12" r="1.1"/><circle class="qsi-spark s2" cx="20" cy="12" r="1.1"/><path class="qsi-slash" pathLength="1" d="M4 3.5 20 20"/></svg></div>
-                  <div class="hmos-text-container" onclick="toggleSubPanel('bt')">
-                    <span class="hmos-title" id="titleBt">Bluetooth</span>
-                    <span class="hmos-subtitle" id="subBt" data-i18n="desktop.qs.on">On</span>
-                  </div>
-                </div>
+          <div class="cp-head">
+            <span class="cp-title" data-i18n="desktop.cp.title">Control Panel</span>
+            <span class="cp-hint" data-i18n="desktop.cp.edit-hint">Drag tiles and buttons to rearrange them</span>
+            <button class="cp-head-btn" type="button" id="cpEditBtn" title="Edit" data-i18n-title="desktop.cp.edit"><span class="material-symbols-outlined" id="cpEditIcon">edit_square</span></button>
+          </div>
+
+          <div class="cp-tiles">
+            <div class="qs-tile-hmos active" id="tileWifi">
+              <div class="hmos-icon-bg" onclick="event.stopPropagation(); toggleQS('wifi')"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><path class="qsi-arc a3" d="M2.6 9a13.4 13.4 0 0 1 18.8 0"/><path class="qsi-arc a2" d="M5.8 12.3a8.8 8.8 0 0 1 12.4 0"/><path class="qsi-arc a1" d="M9 15.5a4.3 4.3 0 0 1 6 0"/><circle class="qsi-dot" cx="12" cy="19" r="1.7"/><path class="qsi-slash" pathLength="1" d="M4 3.5 20 20"/></svg><span class="material-symbols-outlined" id="iconWifi">settings_ethernet</span></div>
+              <div class="hmos-text-container" id="wifiTextContainer">
+                <span class="hmos-title" id="titleWifi">WLAN</span>
+                <span class="hmos-subtitle" id="subWifi" data-i18n="desktop.qs.on">On</span>
               </div>
             </div>
-
-            <div class="hmos-bottom-row">
-              <div class="hmos-circle-toggle inactive" id="tileDnd" onclick="toggleQS('dnd')">
-                <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><g class="qsi-bell"><path class="qsi-fill" d="M12 3a6 6 0 0 0-6 6v5l-1.6 2.4c-.3.5 0 1.1.6 1.1h14c.6 0 .9-.6.6-1.1L18 14V9a6 6 0 0 0-6-6z"/><path class="qsi-clapper" d="M10 20.3a2.2 2.2 0 0 0 4 0"/></g><g class="qsi-stop"><circle class="qsi-fill" cx="12" cy="12" r="9.5"/><path class="qsi-bar" pathLength="1" d="M7 12h10"/></g></svg></div>
-                <span class="hmos-label" id="titleDnd" data-i18n="desktop.qs.dnd">DND</span>
+            <div class="qs-tile-hmos active" id="tileBt">
+              <div class="hmos-icon-bg" onclick="event.stopPropagation(); toggleQS('bluetooth')"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><path class="qsi-rune" pathLength="1" d="M6.8 7.2 17 16.4 12 21V3l5 4.6L6.8 16.8"/><circle class="qsi-spark s1" cx="4" cy="12" r="1.1"/><circle class="qsi-spark s2" cx="20" cy="12" r="1.1"/><path class="qsi-slash" pathLength="1" d="M4 3.5 20 20"/></svg></div>
+              <div class="hmos-text-container" onclick="toggleSubPanel('bt')">
+                <span class="hmos-title" id="titleBt">Bluetooth</span>
+                <span class="hmos-subtitle" id="subBt" data-i18n="desktop.qs.on">On</span>
               </div>
-              <div class="hmos-circle-toggle active" id="tilePower" onclick="cyclePowerMode()">
-                <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><g class="qsi-mode m-balanced"><rect class="qsi-case" x="2.5" y="7" width="16.5" height="10" rx="2.6"/><path class="qsi-nub" d="M21.5 10.5v3"/><rect class="qsi-level" x="4.6" y="9.1" width="12.3" height="5.8" rx="1.2"/></g><g class="qsi-mode m-performance"><path class="qsi-fill qsi-bolt" d="M13.2 2.2 5 13.3c-.2.3 0 .7.4.7H11l-1 7.6c0 .4.5.6.7.3L19 11c.2-.3 0-.7-.4-.7H13l1-7.8c0-.4-.6-.6-.8-.3z"/></g><g class="qsi-mode m-saver"><path class="qsi-fill qsi-leaf" d="M20 4c-8 0-14.500 3.300-14.500 10.200 0 1.500.5 2.800 1.300 3.800C8 13.500 11 11 15 9.500c-3.200 2-5.800 4.700-7 9 .9.700 2 1.100 3.300 1.100C17.500 19.600 20 12.500 20 4z"/></g></svg></div>
-                <span class="hmos-label" id="titlePower" data-i18n="desktop.qs.power.balanced">Balanced</span>
+            </div>
+            <div class="qs-tile-hmos active" id="tilePower" onclick="cyclePowerMode()">
+              <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><g class="qsi-mode m-balanced"><rect class="qsi-case" x="2.5" y="7" width="16.5" height="10" rx="2.6"/><path class="qsi-nub" d="M21.5 10.5v3"/><rect class="qsi-level" x="4.6" y="9.1" width="12.3" height="5.8" rx="1.2"/></g><g class="qsi-mode m-performance"><path class="qsi-fill qsi-bolt" d="M13.2 2.2 5 13.3c-.2.3 0 .7.4.7H11l-1 7.6c0 .4.5.6.7.3L19 11c.2-.3 0-.7-.4-.7H13l1-7.8c0-.4-.6-.6-.8-.3z"/></g><g class="qsi-mode m-saver"><path class="qsi-fill qsi-leaf" d="M20 4c-8 0-14.500 3.300-14.500 10.200 0 1.500.5 2.800 1.300 3.800C8 13.500 11 11 15 9.500c-3.200 2-5.800 4.700-7 9 .9.700 2 1.100 3.300 1.100C17.500 19.600 20 12.500 20 4z"/></g></svg></div>
+              <div class="hmos-text-container">
+                <span class="hmos-title" data-i18n="desktop.cp.power">Power mode</span>
+                <span class="hmos-subtitle" id="titlePower" data-i18n="desktop.qs.power.balanced">Balanced</span>
               </div>
-              <div class="hmos-circle-toggle inactive" id="tileAirplane" onclick="toggleQS('airplane')">
-                <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><g class="qsi-plane"><path class="qsi-fill" d="M21.500 15.800v-1.900l-8.100-5.100V3.700a1.400 1.400 0 0 0-2.800 0v5.100l-8.100 5.100v1.900l8.100-2.500v5.400l-2.100 1.500v1.500l3.500-1 3.500 1v-1.500l-2.100-1.500v-5.400z"/></g></svg></div>
-                <span class="hmos-label" data-i18n="desktop.qs.airplane">Airplane</span>
-              </div>
-              <div class="hmos-circle-toggle inactive" id="tileNight" onclick="toggleQS('nightLight')">
-                <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><path class="qsi-fill qsi-moon" d="M20.500 14.700A8.700 8.700 0 1 1 9.300 3.500c.5-.1.800.4.500.800a7 7 0 0 0 9.900 9.900c.4-.3.900 0 .8.500z"/><circle class="qsi-star st1" cx="16.500" cy="5" r="1.100"/><circle class="qsi-star st2" cx="20.200" cy="9.200" r=".8"/></svg></div>
-                <span class="hmos-label" data-i18n="desktop.qs.night-light">Night light</span>
+            </div>
+            <div class="qs-tile-hmos inactive" id="tileNight" onclick="toggleQS('nightLight')">
+              <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><path class="qsi-fill qsi-moon" d="M20.500 14.700A8.700 8.700 0 1 1 9.300 3.500c.5-.1.800.4.500.800a7 7 0 0 0 9.900 9.900c.4-.3.900 0 .8.500z"/><circle class="qsi-star st1" cx="16.500" cy="5" r="1.100"/><circle class="qsi-star st2" cx="20.200" cy="9.200" r=".8"/></svg></div>
+              <div class="hmos-text-container">
+                <span class="hmos-title" data-i18n="desktop.qs.night-light">Night light</span>
+                <span class="hmos-subtitle" id="subNight" data-i18n="desktop.qs.off">Off</span>
               </div>
             </div>
           </div>
@@ -887,47 +1111,97 @@ Questions? https://discord.gg/YDVxw6jfbH
             <div class="qs-subpanel-list" id="btList"><div style="font-size:11px; color:#aaa; text-align:center;" data-i18n="desktop.qs.searching-devices">Searching devices...</div></div>
           </div>
 
-          <div class="qs-subpanel" id="panelSession">
-            <div class="qs-subpanel-header"><span data-i18n="desktop.session.title">Session Actions</span></div>
-            <div class="qs-subpanel-list">
-              <div class="qs-list-item" onclick="window.location.reload()">
-                <div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">refresh</span><span data-i18n="desktop.session.refresh">Refresh Desktop</span></div>
+          <div id="mediaPlayerBanner" class="hmos-media-card">
+            <div class="media-backdrop" id="mediaBackdrop"></div>
+            <div class="media-cover">
+              <img id="mediaArt" alt="" onerror="this.closest('.hmos-media-card').classList.remove('has-art')">
+              <span class="material-symbols-outlined media-cover-glyph">music_note</span>
+            </div>
+            <div class="media-now">
+              <div class="hmos-media-header">
+                <div class="media-source" onclick="openMediaSource()"><div class="app-icon" id="mediaAppIcon"><span class="material-symbols-outlined">play_arrow</span></div><span id="mediaAppName" data-i18n="desktop.media.this-device">This device</span></div>
+                <div class="media-dots" id="mediaDots"></div>
               </div>
-              <div class="qs-list-item" onclick="lockDesktop()">
-                <div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">lock</span><span data-i18n="desktop.session.lock">Lock</span></div>
+              <div class="hmos-media-info">
+                <div class="media-title" id="mediaBannerTitle" data-i18n="desktop.media.no-media">No media</div>
+                <div class="media-artist" id="mediaBannerArtist" data-i18n="desktop.media.not-playing">Not playing</div>
               </div>
-              <div class="qs-list-item" onclick="window.location.href='/loginui/com.mariowos.loginui.html'">
-                <div style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">logout</span><span data-i18n="desktop.session.sign-out">Sign out</span></div>
-              </div>
-              <button class="qs-list-item" id="shutdownMariowOSButton" type="button" aria-label="Shutdown" data-i18n-aria-label="desktop.session.shutdown" onclick="shutdownMariowOS()" style="width:100%; color:inherit; text-align:left; font-family:inherit;">
-                <span style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">power_settings_new</span><span id="shutdownMariowOSLabel" data-i18n="desktop.session.shutdown">Shutdown</span></span>
-              </button>
-              <button class="qs-list-item" id="rebootMariowOSButton" type="button" aria-label="Reboot" data-i18n-aria-label="desktop.session.reboot" onclick="rebootMariowOS()" style="width:100%; color:inherit; text-align:left; font-family:inherit;">
-                <span style="display:flex; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span><span id="rebootMariowOSLabel" data-i18n="desktop.session.reboot">Reboot</span></span>
-              </button>
+            </div>
+            <div class="hmos-media-controls">
+              <span class="material-symbols-outlined media-btn media-skip" onclick="sendMediaCommand('prev')">skip_previous</span>
+              <span class="material-symbols-outlined media-btn media-play" id="mediaBannerPlayIcon" onclick="sendMediaCommand('toggle')">play_arrow</span>
+              <span class="material-symbols-outlined media-btn media-skip" onclick="sendMediaCommand('next')">skip_next</span>
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.55);">
-            <span data-i18n="desktop.notifications.header">NOTIFICATIONS</span>
-            <span onclick="clearNotifications()" style="color: var(--m3-accent-text); cursor: pointer;" data-i18n="desktop.notifications.clear">Clear</span>
-          </div>
-          <div id="notificationsList">
-            <div class="dropdown-item" style="color: rgba(255,255,255,0.55); text-align: center; font-size: 12px; justify-content: center;" data-i18n="desktop.notifications.empty">No new notifications</div>
-          </div>
+          <label class="cp-slider" id="volumeRow" title="Volume" data-i18n-title="desktop.volume.title">
+            <input type="range" id="volumeSlider" min="0" max="100" value="70">
+            <span class="material-symbols-outlined cp-slider-icon" id="volumeDropdownIcon">volume_up</span>
+            <span class="cp-slider-value" id="volumeValue">70%</span>
+          </label>
 
-          <div class="cc-actions-row">
-            <div class="cc-action-btn" onclick="toggleSubPanel('session')">
-              <span class="material-symbols-outlined" style="font-size:18px;">grid_view</span> <span data-i18n="desktop.session.button">Desktop & Session</span>
+          <div class="cp-circles">
+            <div class="hmos-circle-toggle inactive" id="tileDnd" onclick="toggleQS('dnd')">
+              <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><g class="qsi-bell"><path class="qsi-fill" d="M12 3a6 6 0 0 0-6 6v5l-1.6 2.4c-.3.5 0 1.1.6 1.1h14c.6 0 .9-.6.6-1.1L18 14V9a6 6 0 0 0-6-6z"/><path class="qsi-clapper" d="M10 20.3a2.2 2.2 0 0 0 4 0"/></g><g class="qsi-stop"><circle class="qsi-fill" cx="12" cy="12" r="9.5"/><path class="qsi-bar" pathLength="1" d="M7 12h10"/></g></svg></div>
+              <span class="hmos-label" id="titleDnd" data-i18n="desktop.qs.dnd">Do not disturb</span>
             </div>
-            <div class="cc-action-btn" id="qsLockBtn" onclick="lockDesktop()">
-              <span class="material-symbols-outlined" style="font-size:18px;">lock</span> <span data-i18n="desktop.session.lock">Lock</span>
+            <div class="hmos-circle-toggle inactive" id="tileAirplane" onclick="toggleQS('airplane')">
+              <div class="hmos-icon-bg"><svg class="qsi" viewBox="0 0 24 24" aria-hidden="true"><g class="qsi-plane"><path class="qsi-fill" d="M21.500 15.800v-1.900l-8.100-5.100V3.700a1.400 1.400 0 0 0-2.800 0v5.100l-8.100 5.100v1.900l8.100-2.500v5.400l-2.100 1.500v1.500l3.500-1 3.500 1v-1.500l-2.100-1.500v-5.400z"/></g></svg></div>
+              <span class="hmos-label" data-i18n="desktop.qs.airplane">Airplane mode</span>
+            </div>
+            <div class="hmos-circle-toggle inactive" id="tileMute" onclick="toggleMute()">
+              <div class="hmos-icon-bg"><span class="material-symbols-outlined">volume_off</span></div>
+              <span class="hmos-label" data-i18n="desktop.cp.mute">Mute</span>
+            </div>
+            <div class="hmos-circle-toggle inactive" id="tileShowDesktop" onclick="closeAllPanels(); showDesktopToggle()">
+              <div class="hmos-icon-bg"><span class="material-symbols-outlined">desktop_windows</span></div>
+              <span class="hmos-label" data-i18n="desktop.cp.show-desktop">Show desktop</span>
+            </div>
+            <div class="hmos-circle-toggle inactive" id="tileTaskView" onclick="closeAllPanels(); openTaskView()">
+              <div class="hmos-icon-bg"><span class="material-symbols-outlined">view_carousel</span></div>
+              <span class="hmos-label" data-i18n="desktop.taskview.title">Task view</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-wrapper">
+        <div class="status-clock" id="clockBtn">11:56 PM</div>
+        <span id="notifBadge"></span>
+        <div class="dropdown" id="calendarDropdown">
+          <div class="nc-card">
+            <div class="nc-head">
+              <span class="nc-title" data-i18n="desktop.nc.title">Notifications</span>
+              <button class="nc-head-btn" type="button" id="ncDndBtn" onclick="toggleQS('dnd')" title="Do not disturb" data-i18n-title="desktop.qs.dnd"><span class="material-symbols-outlined" id="ncDndIcon">notifications_active</span></button>
+              <button class="nc-head-btn" type="button" id="ncClearBtn" onclick="clearNotifications()" title="Clear all" data-i18n-title="desktop.notifications.clear"><span class="material-symbols-outlined">delete</span></button>
+            </div>
+            <div class="nc-dnd" id="ncDnd" hidden>
+              <span class="material-symbols-outlined">notifications_off</span>
+              <div class="nc-dnd-body"><div class="nc-dnd-title" data-i18n="desktop.nc.dnd-title">Do not disturb is on</div><div class="nc-dnd-text" data-i18n="desktop.nc.dnd-text">New notifications are kept here without popping up</div></div>
+              <button class="nc-dnd-off" type="button" onclick="toggleQS('dnd')" data-i18n="desktop.nc.dnd-off">Turn off</button>
+            </div>
+            <div class="nc-list" id="notificationsList"></div>
+          </div>
+          <div class="cal-card" id="calCard">
+            <div class="cal-nav">
+              <button class="cal-nav-btn" type="button" id="calPrev" title="Previous month" data-i18n-title="desktop.cal.prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+              <span class="cal-month-label" id="calMonthLabel"></span>
+              <button class="cal-nav-btn" type="button" id="calNext" title="Next month" data-i18n-title="desktop.cal.next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+              <button class="cal-toggle" type="button" id="calToggle"><span id="calToggleLabel" data-i18n="desktop.cal.show-less">Show less</span><span class="material-symbols-outlined">expand_more</span></button>
+            </div>
+            <div class="cal-grid-wrap" id="calGridWrap"><div class="cal-grid" id="calGrid"></div></div>
+            <div class="cal-events" id="calEvents"></div>
+            <div class="cal-foot">
+              <button class="cal-foot-link" type="button" onclick="openSettingsPage('system')" data-i18n="desktop.cal.datetime-settings">Date &amp; time settings</button>
+              <button class="cal-foot-app" type="button" id="calOpenApp" title="Open Calendar" data-i18n-title="desktop.cal.open-app"><span class="material-symbols-outlined">calendar_month</span></button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <div id="taskView" aria-hidden="true"><div class="tv-empty" data-i18n="desktop.taskview.empty">No open windows</div></div>
 
   <!-- Hidden-on-open Lockscreen Overlay (uses the one in lockscreen folder) -->
   <div id="lockscreenContainer" class="lockscreen-overlay" aria-hidden="true">
@@ -1002,8 +1276,11 @@ Questions? https://discord.gg/YDVxw6jfbH
       <div class="browser-url-wrap">
         <span class="material-symbols-outlined browser-url-icon" id="browserUrlIcon">search</span>
         <input id="browserUrl" type="text" placeholder="Search or enter a website" data-i18n-placeholder="desktop.browser.url-placeholder" autocomplete="off" spellcheck="false" />
+        <button class="browser-ext-add" id="browserExtAdd" type="button" hidden><span class="material-symbols-outlined">extension</span><span id="browserExtAddLabel" data-i18n="desktop.browser.ext-add">Add to mariowOS</span></button>
         <button id="browserZoom" onclick="browserZoom(0)" title="Reset zoom" data-i18n-title="desktop.browser.reset-zoom" hidden>100%</button>
       </div>
+      <div class="browser-suggest" id="browserSuggest" hidden></div>
+      <div class="browser-ext-actions" id="browserExtActions"></div>
       <button class="browser-nav-btn" onclick="toggleBrowserMenu()" aria-label="Menu" title="Menu" data-i18n-aria-label="desktop.browser.menu" data-i18n-title="desktop.browser.menu"><span class="material-symbols-outlined" style="font-size:20px;">more_vert</span></button>
       <div class="browser-progress" id="browserProgress"></div>
     </div>
@@ -1017,6 +1294,8 @@ Questions? https://discord.gg/YDVxw6jfbH
         <button class="browser-nav-btn" onclick="closeBrowserFind()" aria-label="Close find" data-i18n-aria-label="desktop.browser.find-close"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
       </div>
       <div class="browser-menu" id="browserMenu" hidden></div>
+      <div class="browser-ext-popup" id="browserExtPopup" hidden></div>
+      <div class="browser-ext-panel" id="browserExtPanel" hidden></div>
     </div>
   </div>
 
@@ -1295,7 +1574,8 @@ Questions? https://discord.gg/YDVxw6jfbH
       titleSpan.textContent = app.title == null ? '' : String(app.title);
       item.append(iconTpl.content, document.createTextNode(' '), titleSpan);
       btn.appendChild(item);
-      if (dropdown) dropdown.appendChild(btn);
+      // The apps menu draws its grid from getAllApps(), which already holds this app.
+      if (dropdown) renderAppsMenu();
 
       const popupDiv = document.createElement('div');
       popupDiv.id = app.appId;
@@ -1369,7 +1649,11 @@ Questions? https://discord.gg/YDVxw6jfbH
       { id: 'popup13', title: mariowOSI18n.t("desktop.app.videoplayer", "Video Player"), icon: '/desktop/assets/icons/videos.png' }
     ];
     
-    function getAllApps() { return [...builtInApps, ...dynamicInstalledApps]; }
+    // Standard accounts (Settings > Users) cannot use some apps; the server refuses them too.
+    let currentUser = { admin: true };
+    const ADMIN_APPS = new Set(['popup8']);
+    const isAppAllowed = id => currentUser.admin || !ADMIN_APPS.has(id);
+    function getAllApps() { return [...builtInApps, ...dynamicInstalledApps].filter(app => isAppAllowed(app.id)); }
 
     function launchAppFromMenu(appId) {
       openPopup(appId);
@@ -1377,6 +1661,550 @@ Questions? https://discord.gg/YDVxw6jfbH
       if(actsDd) actsDd.classList.remove('open');
       const notifDd = document.getElementById('notificationsDropdown');
       if(notifDd) notifDd.classList.remove('open');
+    }
+
+    function closeAllPanels() {
+      document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open'));
+      document.getElementById('amPowerMenu')?.classList.remove('open');
+      document.getElementById('amCtx')?.classList.remove('open');
+      if (cpEditing) setCpEditing(false);
+    }
+
+    // --- Control Panel edit mode: tiles and round buttons are dragged into any order, which is kept. ---
+    const CP_ORDER_KEY = 'mariowos_cp_order';
+    let cpEditing = false;
+    const cpGroup = sel => document.querySelector('#notificationsDropdown ' + sel);
+
+    function applyCpOrder() {
+      let order = null;
+      try { order = JSON.parse(localStorage.getItem(CP_ORDER_KEY) || 'null'); } catch (e) {}
+      if (!order) return;
+      [['.cp-tiles', order.tiles], ['.cp-circles', order.circles]].forEach(([sel, ids]) => {
+        const box = cpGroup(sel);
+        if (Array.isArray(ids)) ids.forEach(id => { const el = typeof id === 'string' && document.getElementById(id); if (el && el.parentElement === box) box.appendChild(el); });
+      });
+    }
+
+    function saveCpOrder() {
+      const ids = sel => [...cpGroup(sel).children].map(el => el.id).filter(Boolean);
+      try { localStorage.setItem(CP_ORDER_KEY, JSON.stringify({ tiles: ids('.cp-tiles'), circles: ids('.cp-circles') })); } catch (e) {}
+    }
+
+    function setCpEditing(on) {
+      cpEditing = on;
+      const dd = document.getElementById('notificationsDropdown');
+      dd.classList.toggle('cp-editing', on);
+      document.getElementById('cpEditIcon').textContent = on ? 'check' : 'edit_square';
+      document.getElementById('cpEditBtn').title = on ? mariowOSI18n.t("desktop.cp.done", "Done") : mariowOSI18n.t("desktop.cp.edit", "Edit");
+      if (on) { dd.querySelectorAll('.qs-subpanel.active').forEach(p => p.classList.remove('active')); activeSubPanel = null; }
+      else saveCpOrder();
+    }
+
+    (function setupCpEdit() {
+      const dd = document.getElementById('notificationsDropdown');
+      const ITEM = '.cp-tiles > *, .cp-circles > *';
+      applyCpOrder();
+      document.getElementById('cpEditBtn').addEventListener('click', () => setCpEditing(!cpEditing));
+      // While editing, a tile is something to move, not a switch.
+      dd.addEventListener('click', e => { if (cpEditing && e.target.closest(ITEM)) { e.stopPropagation(); e.preventDefault(); } }, true);
+      dd.addEventListener('pointerdown', e => {
+        const item = cpEditing && e.button === 0 && e.target.closest(ITEM);
+        if (!item) return;
+        e.preventDefault();
+        const box = item.parentElement, sx = e.clientX, sy = e.clientY, start = { x: item.offsetLeft, y: item.offsetTop };
+        let dragging = false, px = sx, py = sy, raf = 0, lastHit = null;
+        try { item.setPointerCapture(e.pointerId); } catch (_) {}
+        // The tile under the pointer trades places; the others glide from where they were.
+        const reorder = () => {
+          const others = [...box.children].filter(el => el !== item);
+          const hit = others.find(el => { const r = el.getBoundingClientRect(); return px >= r.left && px <= r.right && py >= r.top && py <= r.bottom; });
+          // The tile just traded with is still sliding out from under the pointer: wait until the pointer leaves it.
+          if (!hit || hit === lastHit) { if (!hit) lastHit = null; return; }
+          lastHit = hit;
+          const before = new Map(others.map(el => [el, el.getBoundingClientRect()]));
+          const order = [...box.children];
+          box.insertBefore(item, order.indexOf(hit) > order.indexOf(item) ? hit.nextSibling : hit);
+          others.forEach(el => {
+            el.getAnimations().forEach(a => a.cancel());
+            const a = before.get(el), b = el.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+            if (dx || dy) el.animate([{ translate: dx + 'px ' + dy + 'px' }, { translate: '0px 0px' }], { duration: 320, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+          });
+        };
+        const frame = () => {
+          raf = 0; reorder();
+          item.style.translate = (px - sx - (item.offsetLeft - start.x)) + 'px ' + (py - sy - (item.offsetTop - start.y)) + 'px';
+        };
+        const move = ev => {
+          px = ev.clientX; py = ev.clientY;
+          if (!dragging) { if (Math.hypot(px - sx, py - sy) < 5) return; dragging = true; item.classList.add('cp-dragging'); }
+          if (!raf) raf = requestAnimationFrame(frame);
+        };
+        const up = () => {
+          item.removeEventListener('pointermove', move); item.removeEventListener('pointerup', up); item.removeEventListener('pointercancel', up);
+          cancelAnimationFrame(raf);
+          if (!dragging) return;
+          const from = item.style.translate || '0px 0px';
+          item.style.translate = ''; item.classList.remove('cp-dragging');
+          item.animate([{ translate: from }, { translate: '0px 0px' }], { duration: 380, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+          saveCpOrder();
+        };
+        item.addEventListener('pointermove', move); item.addEventListener('pointerup', up); item.addEventListener('pointercancel', up);
+      });
+    })();
+
+    // Opens Settings on one of its pages. A Settings window that is not loaded yet starts there once.
+    function openSettingsPage(page) {
+      closeAllPanels();
+      const frame = document.querySelector('#popup1 iframe');
+      const base = '/desktop/apps/settings/index.html';
+      if (frame) {
+        if (!frame.src || frame.src.includes('about:blank')) {
+          frame.dataset.defaultSrc = `${base}#${page}`;
+          frame.addEventListener('load', () => { frame.dataset.defaultSrc = base; }, { once: true });
+        } else {
+          try { frame.contentWindow.location.hash = page; } catch (e) { frame.src = `${base}#${page}`; }
+        }
+      }
+      openPopup('popup1');
+    }
+
+    // --- Apps menu: every app in a grid, the files opened lately above it. ---
+    function renderAppsMenu() {
+      const grid = document.getElementById('amAppsGrid'); if (!grid) return;
+      const apps = getAllApps().slice().sort((a, b) => String(a.title).localeCompare(String(b.title), mariowOSI18n.locale || undefined));
+      grid.replaceChildren(...apps.map((app, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'am-app'; btn.dataset.popup = app.id == null ? '' : String(app.id);
+        btn.style.setProperty('--i', Math.min(i, 24));
+        btn.addEventListener('click', () => launchAppFromMenu(app.id));
+        // Dragged onto the desktop it leaves a shortcut; the menu steps aside so the desktop shows.
+        btn.draggable = true;
+        btn.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('application/x-mariowos-app', String(app.id));
+          e.dataTransfer.effectAllowed = 'copy';
+          setTimeout(closeAllPanels, 120);
+        });
+        btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); openAppMenuContext(app, e.clientX, e.clientY); });
+        const icon = document.createElement('span'); icon.className = 'am-app-icon';
+        const tpl = document.createElement('template'); tpl.innerHTML = renderOsIcon(app.icon, 'dropdown'); icon.append(tpl.content);
+        const name = document.createElement('span'); name.className = 'am-app-name'; name.textContent = app.title == null ? '' : String(app.title);
+        btn.append(icon, name);
+        return btn;
+      }));
+      document.querySelector('#amApps .am-more').hidden = apps.length <= 12;
+    }
+
+    // --- App shortcuts on the desktop: /home/Desktop/<name>.mwapp holding {"appId": ...}. ---
+    const isAppShortcut = item => item && item.type !== 'folder' && /\.mwapp$/i.test(item.name);
+    const shortcutDisplayName = name => name.replace(/\.mwapp$/i, '');
+
+    function openAppShortcut(appId) {
+      const app = getAllApps().find(a => a.id === appId);
+      if (!app) { showNotification("Desktop", mariowOSI18n.t("desktop.shortcut.missing", "This app is no longer installed."), "⚠️"); return; }
+      openPopup(app.id);
+    }
+
+    async function addAppShortcut(appId) {
+      closeAllPanels();
+      const app = getAllApps().find(a => a.id === appId);
+      if (!app) return;
+      try {
+        const list = (await (await fetch('/api/system/files?path=/home/Desktop')).json()).contents || [];
+        if ((typeof desktopItemsList !== 'undefined' ? desktopItemsList : []).some(item => item.appId === app.id)) {
+          showNotification("Desktop", mariowOSI18n.t("desktop.shortcut.exists", "{app} is already on the desktop.", { app: app.title }), "📌");
+          return;
+        }
+        const base = String(app.title).replace(/[\\/:*?"<>|]+/g, '').trim() || 'App';
+        const names = new Set(list.map(item => item.name.toLowerCase()));
+        let name = base + '.mwapp';
+        for (let n = 2; names.has(name.toLowerCase()); n++) name = `${base} (${n}).mwapp`;
+        const res = await fetch('/api/system/files/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: '/home/Desktop', name, content: JSON.stringify({ appId: app.id }), createOnly: true }) });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'failed');
+        await loadDesktopIcons();
+        showNotification("Desktop", mariowOSI18n.t("desktop.shortcut.added", "{app} added to the desktop", { app: app.title }), "📌");
+        document.querySelector('#popup10 iframe')?.contentWindow?.postMessage({ type: 'refresh-view' }, window.location.origin);
+      } catch (err) {
+        showNotification(mariowOSI18n.t("common.error", "Error"), mariowOSI18n.t("desktop.shortcut.failed", "Could not add the shortcut."), "❌");
+      }
+    }
+
+    // Right-click on an app in the apps menu.
+    function openAppMenuContext(app, x, y) {
+      const pinnedNow = pinnedApps.includes(app.id);
+      openAmContext([
+        ['open_in_new', mariowOSI18n.t("common.open", "Open"), () => launchAppFromMenu(app.id)],
+        ['add_to_home_screen', mariowOSI18n.t("desktop.shortcut.add", "Add to desktop"), () => addAppShortcut(app.id)],
+        ['keep', pinnedNow ? mariowOSI18n.t("desktop.shortcut.unpin-taskbar", "Unpin from taskbar") : mariowOSI18n.t("desktop.shortcut.pin-taskbar", "Pin to taskbar"), () => togglePin(app.id)]
+      ], x, y);
+    }
+    function openAmContext(entries, x, y) {
+      const menu = document.getElementById('amCtx'), panel = document.getElementById('actionsDropdown').getBoundingClientRect();
+      menu.replaceChildren(...entries.map(([glyph, label, run]) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'am-power-item';
+        const g = document.createElement('span'); g.className = 'material-symbols-outlined'; g.textContent = glyph;
+        const t = document.createElement('span'); t.textContent = label;
+        b.append(g, t);
+        b.addEventListener('click', e => { e.stopPropagation(); menu.classList.remove('open'); run(); });
+        return b;
+      }));
+      menu.classList.add('open');
+      menu.style.left = Math.min(x - panel.left, panel.width - 230) + 'px';
+      menu.style.top = Math.min(y - panel.top, panel.height - menu.offsetHeight - 10) + 'px';
+    }
+
+    // Files reopen in the app that showed them; the list lives in this browser only.
+    // Kept per account (each account shares this browser's storage).
+    const RECENT_FILES_KEY = (window.mariowOSUserKey || (k => k))('mariowos_recent_files');
+    const RECENT_KINDS = {
+      notes: { icon: 'description', tint: '#4da3ff', open: (path, name) => openFileInNotes(path, name) },
+      picture: { icon: 'image', tint: '#30d158', open: (path, name) => openFileInPicture(path, name) },
+      video: { icon: 'movie', tint: '#ff9f0a', open: (path, name) => openFileInVideo(path, name) }
+    };
+    const EMPTY_FOLDER_SVG = '<svg viewBox="0 0 104 80" aria-hidden="true"><ellipse cx="52" cy="74" rx="40" ry="4" fill="rgba(255,255,255,0.06)"/><path d="M14 18a6 6 0 0 1 6-6h20l7 7h37a6 6 0 0 1 6 6v39a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z" fill="rgba(255,255,255,0.13)"/><path d="M10 32a6 6 0 0 1 6-6h72a6 6 0 0 1 6 6l-3 32a6 6 0 0 1-6 6H19a6 6 0 0 1-6-6z" fill="rgba(255,255,255,0.2)"/><path d="M64 11c3-5 9-5 10-1-4 0-7 2-10 1z" fill="rgba(255,255,255,0.24)"/></svg>';
+
+    function readRecentFiles() {
+      try {
+        const list = JSON.parse(localStorage.getItem(RECENT_FILES_KEY) || '[]');
+        return Array.isArray(list) ? list.filter(f => f && typeof f.path === 'string' && typeof f.name === 'string' && RECENT_KINDS[f.kind]) : [];
+      } catch (e) { return []; }
+    }
+
+    function addRecentFile(kind, path, name) {
+      if (!RECENT_KINDS[kind] || typeof path !== 'string' || typeof name !== 'string') return;
+      const list = readRecentFiles().filter(f => !(f.path === path && f.name === name));
+      list.unshift({ kind, path, name, at: Date.now() });
+      try { localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(list.slice(0, 40))); } catch (e) {}
+      renderRecentFiles();
+    }
+
+    function recentWhen(at) {
+      const mins = Math.max(0, Math.round((Date.now() - at) / 60000));
+      try {
+        const rtf = new Intl.RelativeTimeFormat(mariowOSI18n.locale || undefined, { numeric: 'auto' });
+        if (mins < 60) return rtf.format(-mins, 'minute');
+        if (mins < 1440) return rtf.format(-Math.round(mins / 60), 'hour');
+        return rtf.format(-Math.round(mins / 1440), 'day');
+      } catch (e) { return ''; }
+    }
+
+    function renderRecentFiles() {
+      const box = document.getElementById('amFilesList'); if (!box) return;
+      const files = readRecentFiles();
+      document.querySelector('#amFiles .am-more[data-expand]').hidden = files.length <= 6;
+      document.getElementById('amClearFiles').hidden = !files.length;
+      if (!files.length) {
+        box.innerHTML = `<div class="am-empty">${EMPTY_FOLDER_SVG}<span>${osEscapeHtml(mariowOSI18n.t("desktop.apps.no-files", "No files"))}</span></div>`;
+        return;
+      }
+      const grid = document.createElement('div'); grid.className = 'am-files';
+      files.forEach((file, i) => {
+        const kind = RECENT_KINDS[file.kind];
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'am-file'; btn.title = file.path.replace(/\/$/, '') + '/' + file.name;
+        btn.style.setProperty('--i', Math.min(i, 16)); btn.style.setProperty('--ft', kind.tint);
+        btn.addEventListener('click', () => { closeAllPanels(); kind.open(file.path, file.name); });
+        btn.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); openAmContext([
+          ['open_in_new', mariowOSI18n.t("common.open", "Open"), () => { closeAllPanels(); kind.open(file.path, file.name); }],
+          ['remove', mariowOSI18n.t("desktop.apps.remove-recent", "Remove from list"), () => forgetRecentFile(file)],
+          ['delete_sweep', mariowOSI18n.t("desktop.apps.clear-recents", "Clear recent files"), clearRecentFiles]], e.clientX, e.clientY); });
+        const icon = document.createElement('span'); icon.className = 'am-file-icon';
+        const glyph = document.createElement('span'); glyph.className = 'material-symbols-outlined'; glyph.textContent = kind.icon; icon.append(glyph);
+        const text = document.createElement('span'); text.className = 'am-file-text';
+        const name = document.createElement('span'); name.className = 'am-file-name'; name.textContent = file.name;
+        const meta = document.createElement('span'); meta.className = 'am-file-meta';
+        meta.textContent = [file.path.split('/').filter(Boolean).pop() || '/', recentWhen(file.at)].filter(Boolean).join(' · ');
+        text.append(name, meta); btn.append(icon, text); grid.append(btn);
+      });
+      box.replaceChildren(grid);
+    }
+
+    function writeRecentFiles(list) { try { localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(list)); } catch (e) {} }
+    function forgetRecentFile(file) { writeRecentFiles(readRecentFiles().filter(f => !(f.path === file.path && f.name === file.name))); renderRecentFiles(); }
+    function clearRecentFiles() {
+      writeRecentFiles([]);
+      if (document.getElementById('actionsDropdown').classList.contains('am-open-files')) setAppsMenuView(null);
+      renderRecentFiles();
+    }
+
+    // "More" grows one section over the other; null is the home view with both.
+    function setAppsMenuView(view) {
+      const dd = document.getElementById('actionsDropdown');
+      dd.classList.toggle('am-open-apps', view === 'apps');
+      dd.classList.toggle('am-open-files', view === 'files');
+      dd.querySelectorAll('.am-more[data-expand]').forEach(btn => {
+        const open = btn.dataset.expand === view;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.querySelector('.am-more-label').textContent = open ? mariowOSI18n.t("desktop.apps.less", "Less") : mariowOSI18n.t("desktop.apps.more", "More");
+        if (!open) btn.closest('.am-section').querySelector('.am-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    (function setupAppsMenu() {
+      document.querySelectorAll('#actionsDropdown .am-more[data-expand]').forEach(btn => btn.addEventListener('click', () => setAppsMenuView(btn.getAttribute('aria-expanded') === 'true' ? null : btn.dataset.expand)));
+      document.getElementById('amClearFiles').addEventListener('click', clearRecentFiles);
+      const powerMenu = document.getElementById('amPowerMenu');
+      document.getElementById('amPowerBtn').addEventListener('click', e => { e.stopPropagation(); powerMenu.classList.toggle('open'); });
+      document.getElementById('actionsDropdown').addEventListener('click', e => { if (!e.target.closest('.am-power-wrap')) powerMenu.classList.remove('open'); if (!e.target.closest('#amCtx')) document.getElementById('amCtx').classList.remove('open'); });
+      renderAppsMenu(); renderRecentFiles();
+    })();
+
+    // --- Control Panel sliders: the fill is drawn from --fill, set from the value. ---
+    function setSliderFill(input) {
+      if (!input) return;
+      const min = Number(input.min) || 0, max = Number(input.max) || 100;
+      const fill = (input.value - min) / (max - min);
+      input.parentElement.style.setProperty('--fill', fill.toFixed(4));
+      input.parentElement.classList.toggle('full', fill > 0.86);
+    }
+
+    let volumeBeforeMute = null;
+    function toggleMute() {
+      const slider = document.getElementById('volumeSlider'), current = Number(slider.value);
+      if (current) volumeBeforeMute = current;
+      slider.value = current ? 0 : (volumeBeforeMute || 50);
+      slider.dispatchEvent(new Event('input')); slider.dispatchEvent(new Event('change'));
+    }
+
+    // --- Task view: the windows themselves shrink into a grid over the blurred desktop, still
+    // live, and go back where they were when one is picked. Only their transform moves, on a
+    // spring, from wherever it is right now, so it can be reversed halfway and never drops a frame.
+    const TV_EASE = (() => {
+      const zeta = 0.86, omega = 8.2, damped = omega * Math.sqrt(1 - zeta * zeta), points = [];
+      for (let i = 0; i <= 48; i++) {
+        const t = i / 48;
+        points.push((1 - Math.exp(-zeta * omega * t) * (Math.cos(damped * t) + (zeta * omega / damped) * Math.sin(damped * t))).toFixed(4));
+      }
+      points[48] = '1';
+      return CSS.supports('animation-timing-function', 'linear(0, 1)') ? `linear(${points.join(', ')})` : 'cubic-bezier(0.2, 0.9, 0.1, 1)';
+    })();
+    const TV_LABEL_H = 44;
+    let taskViewOpen = false, taskViewGen = 0, taskViewHot = -1, taskViewItems = [];
+    const taskViewAnims = new WeakMap();
+
+    function taskViewWindows() {
+      return [...document.querySelectorAll('.popup')]
+        .filter(p => runningApps.has(p.id) && !p.id.startsWith('dialog_') && !p.classList.contains('closing'))
+        .sort((a, b) => (parseInt(b.style.zIndex) || 300) - (parseInt(a.style.zIndex) || 300));
+    }
+
+    // One scale for every window keeps their sizes true to each other. Tries every row count
+    // and keeps the one that shows the windows largest.
+    function layoutTaskView(rects) {
+      // Nothing open: only the blurred desktop and its message.
+      if (!rects.length) return [];
+      const W = window.innerWidth, H = window.innerHeight - TASKBAR_H;
+      const padX = 64, padTop = 56, padBottom = 36, gap = 44;
+      const areaW = W - padX * 2, areaH = H - padTop - padBottom, n = rects.length;
+      let best = null;
+      for (let rows = 1; rows <= n; rows++) {
+        const perRow = Math.ceil(n / rows), lines = [];
+        for (let i = 0; i < n; i += perRow) lines.push(rects.slice(i, i + perRow).map((r, k) => i + k));
+        let s = 0.62;
+        lines.forEach(line => { s = Math.min(s, (areaW - gap * (line.length - 1)) / line.reduce((a, i) => a + rects[i].width, 0)); });
+        const tallest = lines.reduce((a, line) => a + Math.max(...line.map(i => rects[i].height)), 0);
+        s = Math.min(s, (areaH - TV_LABEL_H * lines.length - gap * (lines.length - 1)) / tallest);
+        if (!best || s > best.s + 0.005) best = { s, lines };
+      }
+      const { s, lines } = best, out = [];
+      const lineH = lines.map(line => Math.max(...line.map(i => rects[i].height)) * s);
+      const total = lineH.reduce((a, h) => a + h + TV_LABEL_H, 0) + gap * (lines.length - 1);
+      let y = padTop + Math.max(0, (areaH - total) / 2);
+      lines.forEach((line, li) => {
+        const widths = line.map(i => rects[i].width * s);
+        let x = (W - widths.reduce((a, w) => a + w, 0) - gap * (line.length - 1)) / 2;
+        line.forEach((i, k) => {
+          const h = rects[i].height * s;
+          out[i] = { x, y: y + TV_LABEL_H + (lineH[li] - h) / 2, w: widths[k], h, s };
+          x += widths[k] + gap;
+        });
+        y += TV_LABEL_H + lineH[li] + gap;
+      });
+      return out;
+    }
+
+    const currentTransform = el => { const t = getComputedStyle(el).transform; return t && t !== 'none' ? t : 'matrix(1, 0, 0, 1, 0, 0)'; };
+    const taskViewTransform = it => `matrix(${it.target.s}, 0, 0, ${it.target.s}, ${it.target.x - it.rect.left}, ${it.target.y - it.rect.top})`;
+
+    function playTaskViewMove(el, from, to, ms, extra) {
+      taskViewAnims.get(el)?.cancel();
+      const anim = el.animate([{ transform: from, ...(extra && extra.from) }, { transform: to, ...(extra && extra.to) }], { duration: ms, easing: TV_EASE, fill: 'forwards' });
+      taskViewAnims.set(el, anim);
+      return anim;
+    }
+
+    function placeTaskViewLabel(it, index) {
+      const label = it.label;
+      label.dataset.index = index; label.querySelector('.tv-close').dataset.index = index;
+      label.style.left = it.target.x + 'px'; label.style.top = (it.target.y - TV_LABEL_H) + 'px'; label.style.width = it.target.w + 'px';
+    }
+
+    function buildTaskViewLabel(it, index) {
+      const app = getAllApps().find(a => a.id === it.el.id);
+      const label = document.createElement('div'); label.className = 'tv-label';
+      label.style.setProperty('--d', (0.1 + index * 0.03).toFixed(2) + 's');
+      const icon = document.createElement('template'); icon.innerHTML = renderOsIcon(app && app.icon, 'dropdown');
+      const name = document.createElement('span'); name.className = 'tv-label-name';
+      name.textContent = (app && app.title) || it.el.querySelector('.popup-header span')?.textContent || '';
+      const close = document.createElement('button'); close.type = 'button'; close.className = 'tv-close material-symbols-outlined'; close.textContent = 'close';
+      close.title = mariowOSI18n.t("common.close", "Close");
+      label.append(icon.content, name, close);
+      it.label = label; placeTaskViewLabel(it, index);
+      document.getElementById('taskView').appendChild(label);
+    }
+
+    function setTaskViewHot(index) {
+      if (index === taskViewHot) return;
+      taskViewItems[taskViewHot]?.el.classList.remove('tv-hot'); taskViewItems[taskViewHot]?.label?.classList.remove('hot');
+      taskViewHot = index;
+      taskViewItems[index]?.el.classList.add('tv-hot'); taskViewItems[index]?.label?.classList.add('hot');
+    }
+
+    function openTaskView() {
+      if (taskViewOpen) return;
+      closeAllPanels();
+      if (document.getElementById('spotlightSearch').classList.contains('active')) closeSpotlight();
+      taskViewOpen = true; taskViewGen++;
+      document.getElementById('taskViewBtn').classList.add('running');
+      const tv = document.getElementById('taskView');
+      tv.querySelectorAll('.tv-label').forEach(label => label.remove());
+      taskViewItems.forEach(it => it.el.classList.remove('tv-hot'));
+      taskViewHot = -1;
+      taskViewItems = taskViewWindows().map(el => {
+        // Minimized windows come back for the overview, and leave again unless picked.
+        const hidden = el.style.display === 'none' || getComputedStyle(el).display === 'none' || el.classList.contains('minimizing');
+        if (hidden) { cancelWindowExit(el); el.classList.remove('minimizing'); el.style.display = 'block'; el.classList.add('active'); el.tvRevived = true; }
+        rectAnimations.get(el)?.finish();
+        el.querySelector('iframe')?.classList.remove('throttled-frame');
+        if (el.tvOrigin === undefined) el.tvOrigin = el.style.transformOrigin;
+        return { el, revived: !!el.tvRevived, fresh: hidden, rect: { left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight } };
+      });
+      tv.classList.toggle('empty', !taskViewItems.length);
+      const targets = layoutTaskView(taskViewItems.map(it => it.rect));
+      taskViewItems.forEach((it, i) => {
+        it.target = targets[i];
+        const to = taskViewTransform(it);
+        const from = it.fresh
+          ? `matrix(${it.target.s * 0.9}, 0, 0, ${it.target.s * 0.9}, ${it.target.x - it.rect.left + it.target.w * 0.05}, ${it.target.y - it.rect.top + it.target.h * 0.05})`
+          : currentTransform(it.el);
+        it.el.style.transformOrigin = '0 0';
+        playTaskViewMove(it.el, from, to, 440);
+      });
+      // The windows are already moving on the compositor; the rest waits a frame so it can't
+      // hold up their first one. The labels then need one frame in place before they slide in.
+      const gen = taskViewGen;
+      requestAnimationFrame(() => {
+        if (gen !== taskViewGen) return;
+        document.body.classList.add('task-view');
+        taskViewItems.forEach((it, i) => buildTaskViewLabel(it, i));
+        requestAnimationFrame(() => { if (gen === taskViewGen) { tv.classList.add('open'); tv.setAttribute('aria-hidden', 'false'); } });
+      });
+    }
+
+    function closeTaskView(pick = -1) {
+      if (!taskViewOpen) return;
+      taskViewOpen = false;
+      const gen = ++taskViewGen;
+      document.getElementById('taskViewBtn').classList.remove('running');
+      const tv = document.getElementById('taskView');
+      const picked = taskViewItems[pick];
+      if (picked) { picked.el.tvRevived = false; picked.revived = false; }
+      const items = taskViewItems;
+      const anims = items.map(it => {
+        const from = currentTransform(it.el);
+        if (!it.revived) return playTaskViewMove(it.el, from, 'matrix(1, 0, 0, 1, 0, 0)', 480);
+        // Back into the taskbar, the way minimizing goes.
+        const dock = document.querySelector(`.dock-icon[data-popup="${CSS.escape(it.el.id)}"]`)?.getBoundingClientRect();
+        const s = 0.08, tx = dock ? dock.left + dock.width / 2 - it.rect.width * s / 2 : it.target.x, ty = dock ? dock.top - it.rect.height * s / 2 : window.innerHeight;
+        return playTaskViewMove(it.el, from, `matrix(${s}, 0, 0, ${s}, ${tx - it.rect.left}, ${ty - it.rect.top})`, 340, { from: { opacity: 1 }, to: { opacity: 0 } });
+      });
+      // Same as opening: the windows start first, the page catches up a frame later.
+      requestAnimationFrame(() => {
+        if (gen !== taskViewGen) return;
+        tv.classList.remove('open'); tv.setAttribute('aria-hidden', 'true');
+        setTaskViewHot(-1);
+        if (picked) focusPopup(picked.el);
+      });
+      items.forEach((it, i) => anims[i].finished.then(() => {
+        if (gen !== taskViewGen) return;
+        if (it.revived) { it.el.style.display = 'none'; it.el.classList.remove('active'); it.el.tvRevived = false; }
+        anims[i].cancel();
+        it.el.style.transformOrigin = it.el.tvOrigin || ''; delete it.el.tvOrigin;
+      }).catch(() => {}));
+      Promise.all(anims.map(a => a.finished.catch(() => {}))).then(() => {
+        if (gen !== taskViewGen) return;
+        document.body.classList.remove('task-view');
+        tv.querySelectorAll('.tv-label').forEach(label => label.remove());
+        updateContextBar();
+      });
+      if (!anims.length) document.body.classList.remove('task-view');
+    }
+
+    function toggleTaskView() { if (taskViewOpen) closeTaskView(); else openTaskView(); }
+
+    // Closing a window from the overview: it fades where it is, the rest close the gap.
+    function closeTaskViewWindow(index) {
+      const it = taskViewItems[index]; if (!it) return;
+      setTaskViewHot(-1);
+      taskViewItems.splice(index, 1);
+      it.label.remove(); it.el.tvRevived = false;
+      closePopup(it.el.id);
+      setTimeout(() => { taskViewAnims.get(it.el)?.cancel(); it.el.style.transformOrigin = it.el.tvOrigin || ''; delete it.el.tvOrigin; }, 320);
+      const tv = document.getElementById('taskView');
+      tv.classList.toggle('empty', !taskViewItems.length);
+      if (!taskViewItems.length) return;
+      const targets = layoutTaskView(taskViewItems.map(item => item.rect));
+      taskViewItems.forEach((item, i) => {
+        const from = currentTransform(item.el);
+        item.target = targets[i];
+        playTaskViewMove(item.el, from, taskViewTransform(item), 400);
+        placeTaskViewLabel(item, i);
+      });
+    }
+
+    function taskViewIndexAt(target) {
+      const label = target.closest('.tv-label');
+      if (label) return Number(label.dataset.index);
+      const popup = target.closest('.popup');
+      return popup ? taskViewItems.findIndex(it => it.el === popup) : -1;
+    }
+
+    (function setupTaskView() {
+      // While it is up the overview owns the pointer: nothing below gets dragged or clicked.
+      document.addEventListener('pointerdown', e => {
+        if (!document.body.classList.contains('task-view')) return;
+        if (e.target.closest('.status-bar')) { if (!e.target.closest('#taskViewBtn')) closeTaskView(); return; }
+        e.preventDefault(); e.stopPropagation();
+        if (!taskViewOpen) return;
+        const close = e.target.closest('.tv-close');
+        if (close) { closeTaskViewWindow(Number(close.dataset.index)); return; }
+        closeTaskView(taskViewIndexAt(e.target));
+      }, true);
+      document.addEventListener('click', e => {
+        if (document.body.classList.contains('task-view') && !e.target.closest('.status-bar')) { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+      document.addEventListener('pointermove', e => { if (taskViewOpen) setTaskViewHot(taskViewIndexAt(e.target)); }, { passive: true });
+      window.addEventListener('resize', () => {
+        if (!taskViewOpen || !taskViewItems.length) return;
+        const targets = layoutTaskView(taskViewItems.map(it => it.rect));
+        taskViewItems.forEach((it, i) => { const from = currentTransform(it.el); it.target = targets[i]; playTaskViewMove(it.el, from, taskViewTransform(it), 400); placeTaskViewLabel(it, i); });
+      });
+    })();
+
+    function handleTaskViewKeys(e) {
+      if (!taskViewOpen) {
+        if (e.key === 'F3' || ((e.metaKey || e.ctrlKey) && e.key === 'Tab' && !e.shiftKey)) { e.preventDefault(); openTaskView(); return true; }
+        return false;
+      }
+      const n = taskViewItems.length;
+      if (e.key === 'Escape' || e.key === 'F3') closeTaskView();
+      else if (e.key === 'Enter' || e.key === ' ') closeTaskView(taskViewHot >= 0 ? taskViewHot : 0);
+      else if (n && ['ArrowRight', 'ArrowDown', 'Tab'].includes(e.key) && !e.shiftKey) setTaskViewHot((taskViewHot + 1) % n);
+      else if (n && (['ArrowLeft', 'ArrowUp'].includes(e.key) || (e.key === 'Tab' && e.shiftKey))) setTaskViewHot((taskViewHot - 1 + n) % n);
+      else if (n && taskViewHot >= 0 && (e.key === 'Delete' || e.key.toLowerCase() === 'w')) closeTaskViewWindow(taskViewHot);
+      else return true;
+      e.preventDefault();
+      return true;
     }
 
     function updateDock(isBoot = false) {
@@ -1681,8 +2509,12 @@ Questions? https://discord.gg/YDVxw6jfbH
       val = parseInt(val); if (volVal) volVal.textContent = val + '%';
       let icon = 'volume_up'; if (val === 0) icon = 'volume_off'; else if (val < 50) icon = 'volume_down';
       if (volIcon) volIcon.textContent = icon; if (volDdIcon) volDdIcon.textContent = icon;
-      const volumeButton = document.getElementById('volumeBtn');
-      if (volumeButton) volumeButton.classList.toggle('muted', val === 0);
+      if (volIcon) volIcon.classList.toggle('muted', val === 0);
+      setSliderFill(volSlider);
+      const muteTile = document.getElementById('tileMute');
+      if (muteTile) muteTile.className = `hmos-circle-toggle ${val === 0 ? 'active' : 'inactive'}`;
+      const trayGroup = document.getElementById('notificationsBtn');
+      if (trayGroup) trayGroup.title = mariowOSI18n.t("desktop.volume.tooltip", "Volume: {value}%", { value: val });
     }
 
     if (volSlider) {
@@ -1711,16 +2543,20 @@ Questions? https://discord.gg/YDVxw6jfbH
       const tileBt = document.getElementById("tileBt"); tileBt.className = `qs-tile-hmos ${qsState.bluetooth ? 'active' : 'inactive'}`; document.getElementById("subBt").textContent = qsState.bluetooth ? (qsState.connectedBt || mariowOSI18n.t("desktop.qs.on", "On")) : mariowOSI18n.t("desktop.qs.off", "Off");
       const tileDnd = document.getElementById("tileDnd"); tileDnd.className = `hmos-circle-toggle ${qsState.dnd ? 'active' : 'inactive'}`; 
       const tilePower = document.getElementById("tilePower"); const titlePower = document.getElementById("titlePower");  titlePower.textContent = ({ "Balanced": mariowOSI18n.t("desktop.qs.power.balanced", "Balanced"), "Performance": mariowOSI18n.t("desktop.qs.power.performance", "Performance"), "Battery Saver": mariowOSI18n.t("desktop.qs.power.battery-saver", "Battery Saver") })[qsState.powerMode] || qsState.powerMode; tilePower.dataset.mode = qsState.powerMode;
-      tilePower.className = `hmos-circle-toggle ${qsState.powerMode === "Battery Saver" ? 'inactive' : 'active'}`;
+      tilePower.className = 'qs-tile-hmos active';
       document.getElementById("tileAirplane").className = `hmos-circle-toggle ${qsState.airplane ? 'active' : 'inactive'}`;
-      document.getElementById("tileNight").className = `hmos-circle-toggle ${qsState.nightLight ? 'active' : 'inactive'}`;
+      document.getElementById("tileNight").className = `qs-tile-hmos ${qsState.nightLight ? 'active' : 'inactive'}`;
+      document.getElementById("subNight").textContent = qsState.nightLight ? mariowOSI18n.t("desktop.qs.on", "On") : mariowOSI18n.t("desktop.qs.off", "Off");
       document.body.classList.toggle('night-light', !!qsState.nightLight);
+      document.getElementById("ncDndBtn").classList.toggle('on', !!qsState.dnd);
+      document.getElementById("ncDnd").hidden = !qsState.dnd;
+      document.getElementById("ncDndIcon").textContent = qsState.dnd ? 'notifications_off' : 'notifications_active';
       Object.entries(busyQsTiles).forEach(([id, busy]) => document.getElementById(id).classList.toggle('qs-busy', busy));
     }
 
     async function updateQSBackend(setting, value) {
       try {
-        const res = await fetch("/api/system/quick-settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ setting, value }) });
+        const res = await fetch("/api/system/quick-settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ setting, value }), signal: AbortSignal.timeout(15000) });
         return await res.json();
       } catch (err) { return { success: false }; }
     }
@@ -1785,16 +2621,14 @@ Questions? https://discord.gg/YDVxw6jfbH
     let activeSubPanel = null;
     async function toggleSubPanel(type) {
       const panels = {
-        wifi: document.getElementById("panelWifi"), bt: document.getElementById("panelBt"), ethernet: document.getElementById("panelEthernet"),
-        session: document.getElementById("panelSession")
+        wifi: document.getElementById("panelWifi"), bt: document.getElementById("panelBt"), ethernet: document.getElementById("panelEthernet")
       };
-      const dropdown = document.getElementById("notificationsDropdown");
       if (activeSubPanel === type) { panels[type].classList.remove('active'); activeSubPanel = null; return; }
       Object.values(panels).forEach(p => p.classList.remove('active')); panels[type].classList.add('active'); activeSubPanel = type;
 
       if (type === 'wifi') await fetchNetworks(); if (type === 'bt') await fetchBtDevices(); if (type === 'ethernet') await fetchEthernetStats();
 
-      setTimeout(() => { dropdown.scrollTo({ top: dropdown.scrollHeight, behavior: 'smooth' }); }, 150);
+      setTimeout(() => { panels[type].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 360);
     }
 
     async function fetchEthernetStats() {
@@ -1940,26 +2774,46 @@ Questions? https://discord.gg/YDVxw6jfbH
       }
     }
 
+    const renderedNotifications = new WeakSet();
     function updateNotificationCenter() {
-      const list = document.getElementById('notificationsList'); const badge = document.getElementById('notifBadge'); const dropdown = document.getElementById('notificationsDropdown');
-      if (notificationsHistory.length === 0) { list.innerHTML = `<div class="dropdown-item" style="color: rgba(255,255,255,0.55); text-align: center; font-size: 12px; justify-content: center;">${mariowOSI18n.t("desktop.notifications.empty", "No new notifications")}</div>`; badge.style.display = 'none'; return; }
-      if (dropdown && !dropdown.classList.contains('open')) badge.style.display = 'block'; 
-      list.innerHTML = '';
-      notificationsHistory.forEach(n => {
-        const item = document.createElement('div'); item.className = 'dropdown-item'; item.style.cssText = "flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; white-space: normal;";
+      const list = document.getElementById('notificationsList'); const badge = document.getElementById('notifBadge'); const dropdown = document.getElementById('calendarDropdown');
+      document.getElementById('ncClearBtn').disabled = notificationsHistory.length === 0;
+      if (notificationsHistory.length === 0) {
+        list.innerHTML = `<div class="nc-empty"><svg viewBox="0 0 96 72" aria-hidden="true"><path d="M50 6h30a8 8 0 0 1 8 8v12a8 8 0 0 1-8 8H66l-8 6v-6h-8a8 8 0 0 1-8-8V14a8 8 0 0 1 8-8z" fill="rgba(255,255,255,0.16)"/><path d="M10 40l10-14h40l10 14v20a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6z" fill="rgba(255,255,255,0.13)"/><path d="M10 40h18l4 8h16l4-8h18v20a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6z" fill="rgba(255,255,255,0.22)"/></svg><span>${osEscapeHtml(mariowOSI18n.t("desktop.notifications.empty", "No notifications"))}</span></div>`;
+        badge.style.display = 'none'; return;
+      }
+      if (dropdown && !dropdown.classList.contains('open')) badge.style.display = 'block';
+      list.replaceChildren(...notificationsHistory.map(n => {
         // SECURITY (layer-2 XSS): notification fields may carry untrusted text; use DOM.
-        const row = document.createElement('div'); row.style.cssText = 'display:flex; width:100%; justify-content:space-between; font-weight:600; font-size:12px;';
-        const head = document.createElement('span'); head.textContent = `${n.icon == null ? '' : n.icon} ${n.title == null ? '' : n.title}`;
-        const time = document.createElement('span'); time.style.cssText = 'color: rgba(255,255,255,0.5); font-size:10px;'; time.textContent = n.time == null ? '' : String(n.time);
-        row.append(head, time);
-        const body = document.createElement('div'); body.style.cssText = 'font-size:11px; color:#aaa; line-height:1.3; margin-top:2px;'; body.textContent = n.msg == null ? '' : String(n.msg);
-        item.append(row, body);
-        list.appendChild(item);
-      });
-
+        const item = document.createElement('div'); item.className = 'nc-item';
+        if (!renderedNotifications.has(n)) { renderedNotifications.add(n); item.classList.add('fresh'); }
+        const icon = document.createElement('div'); icon.className = 'nc-item-icon'; icon.textContent = n.icon == null ? '' : String(n.icon);
+        const body = document.createElement('div'); body.className = 'nc-item-body';
+        const row = document.createElement('div'); row.className = 'nc-item-row';
+        const title = document.createElement('span'); title.className = 'nc-item-title'; title.textContent = n.title == null ? '' : String(n.title);
+        const time = document.createElement('span'); time.className = 'nc-item-time'; time.textContent = n.time == null ? '' : String(n.time);
+        row.append(title, time);
+        const msg = document.createElement('div'); msg.className = 'nc-item-msg'; msg.textContent = n.msg == null ? '' : String(n.msg);
+        body.append(row, msg);
+        const close = document.createElement('button'); close.type = 'button'; close.className = 'nc-item-close material-symbols-outlined'; close.textContent = 'close';
+        close.addEventListener('click', e => { e.stopPropagation(); dismissNotification(n, item); });
+        item.append(icon, body, close);
+        return item;
+      }));
     }
 
-    function clearNotifications() { notificationsHistory = []; updateNotificationCenter(); syncLockscreenData(); }
+    function dismissNotification(n, item) {
+      item.classList.add('leaving');
+      item.addEventListener('animationend', () => { notificationsHistory = notificationsHistory.filter(other => other !== n); updateNotificationCenter(); syncLockscreenData(); }, { once: true });
+    }
+
+    function clearNotifications() {
+      const items = [...document.querySelectorAll('#notificationsList .nc-item')];
+      const finish = () => { notificationsHistory = []; updateNotificationCenter(); syncLockscreenData(); };
+      if (!items.length || !document.getElementById('calendarDropdown').classList.contains('open')) return finish();
+      items.forEach((item, i) => { item.style.animationDelay = Math.min(i, 8) * 30 + 'ms'; item.classList.add('leaving'); });
+      items[items.length - 1].addEventListener('animationend', finish, { once: true });
+    }
 
     // --- Media sessions: everything that can play sound registers here, and the mini player
     // shows one at a time. A source gives its title, art and state, plus a command(cmd, percent).
@@ -2120,8 +2974,7 @@ Questions? https://discord.gg/YDVxw6jfbH
     }
 
     function lockDesktop() {
-      const notifDropdown = document.getElementById('notificationsDropdown');
-      if (notifDropdown) notifDropdown.classList.remove('open');
+      closeAllPanels(); closeTaskView();
       const notifBtn = document.getElementById('notificationsBtn');
       if (notifBtn) notifBtn.classList.remove('active');
       document.querySelectorAll('.qs-subpanel.active').forEach(p => p.classList.remove('active'));
@@ -2258,6 +3111,10 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     function openPopup(popupId) {
       const popup = document.getElementById(popupId); if(!popup) return;
+      if (!isAppAllowed(popupId)) {
+        showNotification(mariowOSI18n.t("desktop.app.terminal", "Terminal"), mariowOSI18n.t("desktop.users.admin-only-app", "Only administrators can use this app."), "🔒");
+        return;
+      }
       const externalView = popup.querySelector('[data-default-src^="http"]');
       if (externalView && !popup.dataset.consentOk) {
         const host = new URL(externalView.dataset.defaultSrc).host;
@@ -2332,7 +3189,7 @@ Questions? https://discord.gg/YDVxw6jfbH
       updateContextBar();
       const finishClose = () => {
         popup.style.display = "none"; popup.classList.remove("closing"); 
-        const embeddedView = popup.querySelector('iframe, webview'); if (embeddedView) { if (!embeddedView.dataset.defaultSrc) embeddedView.dataset.defaultSrc = embeddedView.src; embeddedView.src = 'about:blank'; }
+        const embeddedView = popupId === 'popup2' ? null : popup.querySelector('iframe, webview'); if (embeddedView) { if (!embeddedView.dataset.defaultSrc) embeddedView.dataset.defaultSrc = embeddedView.src; embeddedView.src = 'about:blank'; }
         if (popupId === 'popup2') closeBrowserTabs();
         if (popupId === 'popup8') terminalFrameReady = false;
         if (popupId === 'popup5') notesFrameReady = false;
@@ -2399,7 +3256,8 @@ Questions? https://discord.gg/YDVxw6jfbH
 
     function makeDraggable(el, handle, minTop) {
       let isDragging = false, offsetX = 0, offsetY = 0, baseLeft = 0, baseTop = 0, dragLeft = 0, dragTop = 0, dragW = 0, dragH = 0, dragMoved = false, rafId = 0, pendingX = 0, pendingY = 0, pointerId = null;
-      const isInteractiveHeaderTarget = target => target.closest('.action-btn, .browser-tab-btn, #browserNewTab');
+      // App tabs in the title bar (Terminal, Files) are dragged to reorder them, not to move the window.
+      const isInteractiveHeaderTarget = target => target.closest('.action-btn, .browser-tab-btn, #browserNewTab, .notes-tab-btn, #os-term-actions, #os-files-actions');
       handle.addEventListener('dblclick', (e) => { if (isInteractiveHeaderTarget(e.target)) return; toggleMaximize(el.id); });
       handle.style.touchAction = 'none';
       handle.addEventListener('pointerdown', dragMouseDown);
@@ -2698,6 +3556,8 @@ snapZone = getSnapZone(pendingX, pendingY);
       icon.classList.toggle('secure', shown.startsWith('https:'));
       icon.title = !shown ? '' : shown.startsWith('https:') ? mariowOSI18n.t("desktop.browser.secure", "Secure connection") : mariowOSI18n.t("desktop.browser.not-secure", "Connection is not secure");
 
+      updateBrowserExtAdd(tab);
+
       const zoom = browserEl('browserZoom');
       const factor = tab?.zoom || 1;
       zoom.hidden = factor === 1;
@@ -2736,6 +3596,8 @@ snapZone = getSnapZone(pendingX, pendingY);
       });
       tab.button = button;
       browserEl('browserTabs').appendChild(button);
+      // Tabs grow in and shrink out; their neighbours follow because only the width moves.
+      button.animate([{ maxWidth: '0px', minWidth: '0px', opacity: 0 }, { maxWidth: '220px', minWidth: '60px', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
     }
 
     function updateBrowserTab(tab) {
@@ -2804,6 +3666,7 @@ snapZone = getSnapZone(pendingX, pendingY);
       });
       view.addEventListener('did-navigate', event => {
         removeMediaSession(`tab:${tab.id}`);
+        recordBrowserVisit(event.url);
         tab.url = event.url;
         tab.favicon = null;
         tab.progress = 45;
@@ -2816,6 +3679,7 @@ snapZone = getSnapZone(pendingX, pendingY);
       });
       view.addEventListener('page-title-updated', event => {
         tab.title = event.title || mariowOSI18n.t("desktop.browser.new-tab-title", "New Tab");
+        recordBrowserTitle(tab.url, event.title);
         if (mediaSessions.has(`tab:${tab.id}`)) refreshTabMedia(tab);
         refresh();
       });
@@ -2844,6 +3708,8 @@ snapZone = getSnapZone(pendingX, pendingY);
       view.className = 'browser-view';
       view.setAttribute('webpreferences', 'contextIsolation=yes,nodeIntegration=no,sandbox=yes');
       view.setAttribute('allowpopups', '');
+      // Its own session: extensions load there and nowhere near the desktop (lib/browser-extensions.js).
+      view.setAttribute('partition', BROWSER_PARTITION);
       view.src = url || BROWSER_HOME;
 
       const errorEl = document.createElement('div');
@@ -2886,10 +3752,12 @@ snapZone = getSnapZone(pendingX, pendingY);
 
     function destroyBrowserTab(tab) {
       removeMediaSession(`tab:${tab.id}`);
-      tab.view.src = 'about:blank';
+      // Removing the webview ends its page; pointing it at about:blank first raced its teardown.
       tab.view.remove();
       tab.errorEl.remove();
-      tab.button.remove();
+      const button = tab.button;
+      button.style.pointerEvents = 'none';
+      button.animate([{ maxWidth: button.offsetWidth + 'px', minWidth: '0px', opacity: 1 }, { maxWidth: '0px', minWidth: '0px', paddingLeft: '0px', paddingRight: '0px', opacity: 0 }], { duration: 200, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' }).finished.then(() => button.remove(), () => button.remove());
     }
 
     function closeBrowserTab(tabId) {
@@ -2998,6 +3866,9 @@ snapZone = getSnapZone(pendingX, pendingY);
           <span style="min-width:42px;text-align:center">${zoom}%</span>
           <button data-act="zoom-in" style="width:auto;padding:4px 10px">+</button>
         </div>
+        <button data-act="extensions"><span class="material-symbols-outlined check" style="color:inherit">extension</span>${mariowOSI18n.t("desktop.browser.extensions", "Extensions")}</button>
+        <hr><div class="menu-label">${mariowOSI18n.t("desktop.browser.theme", "Theme")}</div>
+        <div class="browser-themes">${browserThemeSwatches()}</div>
         <hr><div class="menu-label">${mariowOSI18n.t("desktop.browser.search-engine", "Search engine")}</div>
         ${Object.entries(BROWSER_ENGINES).map(([id, e]) =>
           `<button data-engine="${id}"><span class="material-symbols-outlined check">${id === engine ? 'check' : ''}</span>${e.name}</button>`).join('')}
@@ -3006,6 +3877,7 @@ snapZone = getSnapZone(pendingX, pendingY);
       menu.onclick = async event => {
         const item = event.target.closest('button');
         if (!item) return;
+        if (item.dataset.theme) { setBrowserTheme(item.dataset.theme); toggleBrowserMenu(true); return; }
         if (item.dataset.engine) {
           try { localStorage.setItem('browserSearchEngine', item.dataset.engine); } catch (e) {}
           toggleBrowserMenu(true);
@@ -3016,13 +3888,297 @@ snapZone = getSnapZone(pendingX, pendingY);
         menu.hidden = true;
         if (act === 'new-tab') createBrowserTab();
         if (act === 'find') openBrowserFind();
+        if (act === 'extensions') openBrowserExtPanel();
         if (act === 'clear-data') {
           if (!window.mariowOSElectron?.clearBrowserData) { showNotification(mariowOSI18n.t("desktop.app.browser", "Browser"), mariowOSI18n.t("desktop.browser.not-available", "Not available in this mode."), '⚠️'); return; }
           try { await window.mariowOSElectron.clearBrowserData(); showNotification(mariowOSI18n.t("desktop.app.browser", "Browser"), mariowOSI18n.t("desktop.browser.data-cleared", "Cookies, cache and site data cleared."), '🧹'); }
           catch (error) { showNotification(mariowOSI18n.t("desktop.app.browser", "Browser"), error.message || mariowOSI18n.t("desktop.browser.clear-failed", "Could not clear browsing data."), '⚠️'); }
         }
       };
+      const custom = menu.querySelector('.browser-theme-custom input');
+      if (custom) custom.addEventListener('input', () => setBrowserTheme(custom.value));
       menu.hidden = false;
+    }
+
+    // --- Address bar autofill: what you visit is remembered here and completed as you type. ---
+    const BROWSER_HISTORY_KEY = (window.mariowOSUserKey || (k => k))('browserHistory');
+    const BROWSER_SEED_SITES = ['google.com', 'youtube.com', 'github.com', 'wikipedia.org', 'reddit.com', 'x.com', 'instagram.com', 'facebook.com',
+      'amazon.com', 'netflix.com', 'twitch.tv', 'spotify.com', 'discord.com', 'stackoverflow.com', 'claude.ai', 'chatgpt.com', 'duckduckgo.com',
+      'bing.com', 'linkedin.com', 'outlook.com', 'mail.google.com', 'maps.google.com', 'translate.google.com', 'drive.google.com', 'whatsapp.com',
+      'tiktok.com', 'pinterest.com', 'ebay.com', 'paypal.com', 'apple.com', 'microsoft.com', 'openai.com', 'chromewebstore.google.com'];
+    let browserTyped = '', browserSuggestItems = [], browserSuggestIndex = -1;
+
+    function readBrowserHistory() {
+      try { const history = JSON.parse(localStorage.getItem(BROWSER_HISTORY_KEY) || '{}'); return history && typeof history === 'object' && !Array.isArray(history) ? history : {}; } catch (e) { return {}; }
+    }
+    function writeBrowserHistory(history) {
+      const entries = Object.entries(history);
+      if (entries.length > 400) history = Object.fromEntries(entries.sort((a, b) => (b[1].t || 0) - (a[1].t || 0)).slice(0, 400));
+      try { localStorage.setItem(BROWSER_HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+    }
+    function recordBrowserVisit(url) {
+      if (!/^https?:\/\//i.test(url || '') || url.startsWith(BROWSER_HOME)) return;
+      const history = readBrowserHistory();
+      const entry = history[url] || { v: 0 };
+      entry.v = (entry.v || 0) + 1; entry.t = Date.now();
+      history[url] = entry;
+      writeBrowserHistory(history);
+    }
+    function recordBrowserTitle(url, title) {
+      const history = readBrowserHistory();
+      if (!history[url] || !title) return;
+      history[url].title = String(title).slice(0, 200);
+      writeBrowserHistory(history);
+    }
+
+    const bareBrowserUrl = url => url.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+    // Sites score by visits, newer visits counting more; a site you never visited still completes.
+    function browserCandidates(typed) {
+      const query = typed.toLowerCase();
+      if (!query || /\s/.test(query)) return [];
+      const now = Date.now(), sites = new Map(), pages = [];
+      Object.entries(readBrowserHistory()).forEach(([url, entry]) => {
+        let parsed; try { parsed = new URL(url); } catch (e) { return; }
+        const score = (entry.v || 1) * (1 + 6 / (1 + (now - (entry.t || 0)) / 86400000));
+        const host = parsed.hostname.replace(/^www\./i, '');
+        const site = sites.get(host) || { text: host, url: parsed.origin + '/', title: '', score: 0, visited: true };
+        site.score += score;
+        if (parsed.pathname === '/' && entry.title) site.title = entry.title;
+        sites.set(host, site);
+        pages.push({ text: bareBrowserUrl(url), url, title: entry.title || '', score, visited: true });
+      });
+      BROWSER_SEED_SITES.forEach((host, i) => { if (!sites.has(host)) sites.set(host, { text: host, url: `https://${host}/`, title: '', score: 0.5 - i / 1000, visited: false }); });
+      const starts = [...sites.values(), ...(query.includes('/') ? pages : [])].filter(item => item.text.toLowerCase().startsWith(query));
+      const byTitle = pages.filter(item => item.title.toLowerCase().includes(query) && !starts.some(s => s.url === item.url));
+      const seen = new Set();
+      return [...starts.sort((a, b) => b.score - a.score), ...byTitle.sort((a, b) => b.score - a.score)]
+        .filter(item => !seen.has(item.url) && seen.add(item.url)).slice(0, 5);
+    }
+
+    function updateBrowserSuggestions(complete) {
+      const input = browserEl('browserUrl');
+      // Typing replaces the selected completion, so the value is exactly what was typed.
+      browserTyped = input.value;
+      const items = browserCandidates(browserTyped.trim());
+      // Inline: the best site that starts with what was typed fills the rest, selected, so typing on replaces it.
+      const best = items.find(item => item.text.toLowerCase().startsWith(browserTyped.toLowerCase()));
+      if (complete && best && browserTyped) {
+        const rest = best.text.replace(/\/$/, '').slice(browserTyped.length);
+        if (rest) { input.value = browserTyped + rest; input.setSelectionRange(browserTyped.length, input.value.length, 'backward'); }
+      }
+      const engine = BROWSER_ENGINES[getBrowserEngineId()];
+      browserSuggestItems = browserTyped.trim()
+        ? [...items, { search: true, text: browserTyped.trim(), url: null, title: mariowOSI18n.t("desktop.browser.search-with", "Search with {engine}", { engine: engine.name }) }]
+        : [];
+      browserSuggestIndex = -1;
+      renderBrowserSuggestions();
+    }
+
+    function renderBrowserSuggestions() {
+      const box = browserEl('browserSuggest');
+      if (!browserSuggestItems.length) { box.hidden = true; return; }
+      const typed = browserTyped.trim().toLowerCase();
+      // Hangs right under the address field, as wide as it.
+      const bar = box.parentElement.getBoundingClientRect(), wrap = box.parentElement.querySelector('.browser-url-wrap').getBoundingClientRect();
+      box.style.left = (wrap.left - bar.left) + 'px'; box.style.right = (bar.right - wrap.right) + 'px';
+      box.replaceChildren(...browserSuggestItems.map((item, i) => {
+        const row = document.createElement('div');
+        row.className = 'browser-suggest-row' + (i === browserSuggestIndex ? ' selected' : '');
+        const icon = document.createElement('span'); icon.className = 'material-symbols-outlined';
+        icon.textContent = item.search ? 'search' : item.visited ? 'history' : 'public';
+        const main = document.createElement('span'); main.className = 'browser-suggest-main';
+        const label = item.search ? item.text : item.text.replace(/\/$/, '');
+        // What was typed stays plain, the completion is bold, like the address bar fills it.
+        if (!item.search && label.toLowerCase().startsWith(typed)) { main.append(document.createTextNode(label.slice(0, typed.length))); const b = document.createElement('b'); b.textContent = label.slice(typed.length); main.append(b); }
+        else main.textContent = label;
+        const sub = document.createElement('span'); sub.className = 'browser-suggest-sub'; sub.textContent = item.search ? item.title : item.title || '';
+        row.append(icon, main, sub);
+        row.addEventListener('mousedown', event => { event.preventDefault(); hideBrowserSuggestions(); navigateBrowser(item.search ? item.text : item.url); });
+        return row;
+      }));
+      box.hidden = false;
+    }
+
+    function hideBrowserSuggestions() { browserSuggestItems = []; browserSuggestIndex = -1; browserEl('browserSuggest').hidden = true; }
+    function browserSuggestPick() {
+      const item = browserSuggestItems[browserSuggestIndex];
+      return item ? (item.search ? item.text : item.url) : null;
+    }
+    function handleBrowserSuggestKeys(event) {
+      if (!browserSuggestItems.length || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return false;
+      event.preventDefault();
+      const n = browserSuggestItems.length;
+      browserSuggestIndex = event.key === 'ArrowDown' ? (browserSuggestIndex + 1) % n : (browserSuggestIndex - 1 + n) % n;
+      const item = browserSuggestItems[browserSuggestIndex];
+      browserEl('browserUrl').value = item.search ? item.text : item.text.replace(/\/$/, '');
+      renderBrowserSuggestions();
+      return true;
+    }
+
+    // --- Themes: one colour tints the frame, the toolbar and the accents. ---
+    const BROWSER_THEMES = [
+      ['default', '#2a2d33'], ['accent', 'var(--m3-accent-active)'], ['#4263eb', '#4263eb'], ['#2f9e44', '#2f9e44'],
+      ['#9c36b5', '#9c36b5'], ['#e64980', '#e64980'], ['#1098ad', '#1098ad'], ['#f08c00', '#f08c00']
+    ];
+    const getBrowserTheme = () => { try { return localStorage.getItem('browserTheme') || 'default'; } catch (e) { return 'default'; } };
+    function browserThemeSwatches() {
+      const current = getBrowserTheme();
+      const custom = current.startsWith('#') && !BROWSER_THEMES.some(([id]) => id === current);
+      return BROWSER_THEMES.map(([id, color]) => `<button class="browser-theme${id === current ? ' on' : ''}" data-theme="${id}" style="--sw:${color}" title="${id === 'default' ? mariowOSI18n.t("desktop.browser.theme-default", "Default") : id === 'accent' ? mariowOSI18n.t("desktop.browser.theme-accent", "System accent") : id}"></button>`).join('') +
+        `<button class="browser-theme browser-theme-custom${custom ? ' on' : ''}" style="--sw:${custom ? current : 'conic-gradient(#ff6b6b, #fcc419, #51cf66, #339af0, #cc5de8, #ff6b6b)'}" title="${mariowOSI18n.t("desktop.browser.theme-custom", "Custom colour")}"><span class="material-symbols-outlined">colorize</span><input type="color" value="${custom ? current : '#4263eb'}"></button>`;
+    }
+    function applyBrowserTheme() {
+      const popup = document.getElementById('popup2'), theme = getBrowserTheme();
+      const seed = theme === 'accent' ? 'var(--m3-accent-active)' : /^#[0-9a-f]{6}$/i.test(theme) ? theme : null;
+      ['--bt-frame', '--bt-bg', '--bt-toolbar', '--bt-accent'].forEach(name => popup.style.removeProperty(name));
+      if (!seed) return;
+      popup.style.setProperty('--bt-frame', `color-mix(in srgb, ${seed} 20%, #16181c)`);
+      popup.style.setProperty('--bt-bg', `color-mix(in srgb, ${seed} 12%, #111316)`);
+      popup.style.setProperty('--bt-toolbar', `color-mix(in srgb, ${seed} 26%, #22252a)`);
+      popup.style.setProperty('--bt-accent', `color-mix(in srgb, ${seed} 80%, #fff)`);
+    }
+    function setBrowserTheme(theme) {
+      try { localStorage.setItem('browserTheme', theme); } catch (e) {}
+      applyBrowserTheme();
+    }
+
+    // --- Extensions: Chrome Web Store or unpacked, run only inside the browser's session. ---
+    const BROWSER_PARTITION = 'persist:mariowos-browser';
+    const browserExtApi = () => window.mariowOSElectron?.browserExtensions;
+    let browserExtensionList = [];
+    const browserStoreId = url => { const match = /^https:\/\/chromewebstore\.google\.com\/detail\/(?:[^/]+\/)?([a-p]{32})/.exec(url || ''); return match ? match[1] : null; };
+
+    async function refreshBrowserExtensions() {
+      if (!browserExtApi()) return;
+      try { browserExtensionList = await browserExtApi().list(); } catch (e) { browserExtensionList = []; }
+      renderBrowserExtActions();
+      updateBrowserExtAdd(getActiveBrowserTab());
+      if (!browserEl('browserExtPanel').hidden) renderBrowserExtPanel();
+    }
+
+    function renderBrowserExtActions() {
+      browserEl('browserExtActions').replaceChildren(...browserExtensionList.filter(ext => ext.enabled && ext.id).map(ext => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'browser-nav-btn browser-ext-btn'; button.title = ext.name;
+        if (ext.icon) { const img = document.createElement('img'); img.alt = ''; img.src = ext.icon; button.append(img); }
+        else { const glyph = document.createElement('span'); glyph.className = 'material-symbols-outlined'; glyph.textContent = 'extension'; button.append(glyph); }
+        button.addEventListener('click', () => openBrowserExtPopup(ext, button));
+        return button;
+      }));
+    }
+
+    function updateBrowserExtAdd(tab) {
+      const chip = browserEl('browserExtAdd'), id = browserStoreId(tab?.url);
+      chip.hidden = !id || !browserExtApi();
+      if (!id) return;
+      const installed = browserExtensionList.some(ext => ext.id === id);
+      chip.disabled = installed;
+      browserEl('browserExtAddLabel').textContent = installed ? mariowOSI18n.t("desktop.browser.ext-installed", "Installed") : mariowOSI18n.t("desktop.browser.ext-add", "Add to mariowOS");
+    }
+
+    // An extension's popup is its own page, shown in a small view of the same session.
+    function openBrowserExtPopup(ext, anchor) {
+      const pop = browserEl('browserExtPopup');
+      if (!pop.hidden && pop.dataset.id === ext.id) { closeBrowserExtPopup(); return; }
+      if (!ext.popup) { showNotification(ext.name, mariowOSI18n.t("desktop.browser.ext-no-popup", "This extension works on its own and has no window."), '🧩'); return; }
+      const view = document.createElement('webview');
+      view.setAttribute('partition', BROWSER_PARTITION);
+      view.style.width = '300px'; view.style.height = '150px';
+      view.src = `chrome-extension://${ext.id}/${ext.popup}`;
+      view.addEventListener('close', closeBrowserExtPopup);
+      // Like Chrome, the popup takes its page's natural size; pages often fill in after loading.
+      const fit = () => view.isConnected && view.executeJavaScript(`(() => { const html = document.documentElement, body = document.body; html.style.width = 'max-content'; const style = body && getComputedStyle(body); return [Math.ceil(html.getBoundingClientRect().width), Math.ceil(body ? body.getBoundingClientRect().height + parseFloat(style.marginTop) + parseFloat(style.marginBottom) : html.scrollHeight)]; })()`)
+        .then(([w, h]) => { view.style.width = Math.min(480, Math.max(200, w)) + 'px'; view.style.height = Math.min(560, Math.max(60, h)) + 'px'; }).catch(() => {});
+      view.addEventListener('dom-ready', () => [0, 150, 500, 1200].forEach(ms => setTimeout(fit, ms)));
+      pop.replaceChildren(view);
+      pop.dataset.id = ext.id;
+      const content = browserEl('browserTabContent').getBoundingClientRect(), at = anchor.getBoundingClientRect();
+      pop.style.right = Math.max(8, content.right - at.right) + 'px';
+      pop.hidden = false;
+    }
+    function closeBrowserExtPopup() {
+      const pop = browserEl('browserExtPopup');
+      pop.hidden = true; pop.replaceChildren(); delete pop.dataset.id;
+    }
+
+    function openBrowserExtPanel() {
+      const panel = browserEl('browserExtPanel');
+      if (!browserExtApi()) { showNotification(mariowOSI18n.t("desktop.app.browser", "Browser"), mariowOSI18n.t("desktop.browser.not-available", "Not available in this mode."), '⚠️'); return; }
+      panel.innerHTML = `
+        <div class="bx-head"><span>${mariowOSI18n.t("desktop.browser.extensions", "Extensions")}</span><button class="browser-nav-btn" type="button" data-bx="close"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button></div>
+        <div class="bx-install"><input id="bxInput" type="text" spellcheck="false" placeholder="${mariowOSI18n.t("desktop.browser.ext-input", "Chrome Web Store link or extension ID")}"><button class="bx-btn primary" type="button" data-bx="install">${mariowOSI18n.t("desktop.browser.ext-install", "Install")}</button></div>
+        <div class="bx-row">
+          <button class="bx-btn" type="button" data-bx="store"><span class="material-symbols-outlined">storefront</span>${mariowOSI18n.t("desktop.browser.ext-store", "Chrome Web Store")}</button>
+          <button class="bx-btn" type="button" data-bx="unpacked"><span class="material-symbols-outlined">folder_open</span>${mariowOSI18n.t("desktop.browser.ext-unpacked", "Load unpacked")}</button>
+        </div>
+        <div class="bx-status" id="bxStatus"></div>
+        <div class="bx-list" id="bxList"></div>
+        <div class="bx-note">${mariowOSI18n.t("desktop.browser.ext-note", "Extensions only run in the browser. Some Chrome features they rely on may be missing.")}</div>`;
+      panel.onclick = async event => {
+        const button = event.target.closest('[data-bx]');
+        if (!button) return;
+        const act = button.dataset.bx;
+        if (act === 'close') { panel.hidden = true; return; }
+        if (act === 'store') { panel.hidden = true; createBrowserTab('https://chromewebstore.google.com/category/extensions'); return; }
+        if (act === 'install') { installBrowserExtension(browserEl('bxInput').value); return; }
+        if (act === 'unpacked') {
+          try { const ext = await browserExtApi().loadUnpacked(); if (ext) setBrowserExtStatus(mariowOSI18n.t("desktop.browser.ext-added", "{name} added", { name: ext.name })); }
+          catch (error) { setBrowserExtStatus(browserExtError(error), true); }
+          refreshBrowserExtensions(); return;
+        }
+        const id = button.closest('[data-ext]')?.dataset.ext;
+        if (act === 'toggle' && id) { button.classList.toggle('on'); try { await browserExtApi().setEnabled(id, button.classList.contains('on')); } catch (error) { setBrowserExtStatus(browserExtError(error), true); } refreshBrowserExtensions(); }
+        if (act === 'remove' && id) { try { await browserExtApi().remove(id); } catch (error) { setBrowserExtStatus(browserExtError(error), true); } refreshBrowserExtensions(); }
+      };
+      browserEl('bxInput').addEventListener('keydown', event => { if (event.key === 'Enter') installBrowserExtension(event.target.value); });
+      panel.hidden = false;
+      renderBrowserExtPanel();
+      refreshBrowserExtensions();
+    }
+
+    // Errors from the main process arrive as "Error invoking remote method ...: Error: <message>".
+    const browserExtError = error => String(error?.message || error).replace(/^.*?Error:\s*/s, '');
+    function setBrowserExtStatus(text, isError) {
+      const status = browserEl('bxStatus'); if (!status) return;
+      status.textContent = text || ''; status.classList.toggle('error', !!isError);
+    }
+
+    function renderBrowserExtPanel() {
+      const list = browserEl('bxList'); if (!list) return;
+      if (!browserExtensionList.length) { list.innerHTML = `<div class="bx-empty">${mariowOSI18n.t("desktop.browser.ext-empty", "No extensions yet")}</div>`; return; }
+      list.replaceChildren(...browserExtensionList.map(ext => {
+        const row = document.createElement('div'); row.className = 'bx-item'; row.dataset.ext = ext.id || '';
+        const icon = ext.icon ? Object.assign(document.createElement('img'), { src: ext.icon, alt: '' }) : Object.assign(document.createElement('span'), { className: 'bx-noicon material-symbols-outlined', textContent: 'extension' });
+        const text = document.createElement('div'); text.className = 'bx-text';
+        const name = document.createElement('div'); name.className = 'bx-name'; name.textContent = ext.name + (ext.version ? '  ' + ext.version : '');
+        const desc = document.createElement('div'); desc.className = 'bx-desc'; desc.textContent = ext.description || (ext.source === 'unpacked' ? mariowOSI18n.t("desktop.browser.ext-unpacked", "Load unpacked") : '');
+        desc.title = ext.description || '';
+        text.append(name, desc);
+        const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'bx-switch' + (ext.enabled ? ' on' : ''); toggle.dataset.bx = 'toggle';
+        toggle.title = ext.enabled ? mariowOSI18n.t("desktop.browser.ext-disable", "Turn off") : mariowOSI18n.t("desktop.browser.ext-enable", "Turn on");
+        const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'browser-nav-btn'; remove.dataset.bx = 'remove';
+        remove.title = mariowOSI18n.t("common.remove", "Remove");
+        remove.innerHTML = '<span class="material-symbols-outlined" style="font-size:18px;">delete</span>';
+        row.append(icon, text, toggle, remove);
+        return row;
+      }));
+    }
+
+    async function installBrowserExtension(input) {
+      if (!browserExtApi() || !String(input || '').trim()) return;
+      const chip = browserEl('browserExtAdd');
+      chip.disabled = true; browserEl('browserExtAddLabel').textContent = mariowOSI18n.t("desktop.browser.ext-installing", "Installing…");
+      setBrowserExtStatus(mariowOSI18n.t("desktop.browser.ext-installing", "Installing…"));
+      try {
+        const ext = await browserExtApi().install(String(input).trim());
+        setBrowserExtStatus(mariowOSI18n.t("desktop.browser.ext-added", "{name} added", { name: ext.name }));
+        showNotification(mariowOSI18n.t("desktop.browser.extensions", "Extensions"), mariowOSI18n.t("desktop.browser.ext-added", "{name} added", { name: ext.name }), '🧩');
+        if (browserEl('bxInput')) browserEl('bxInput').value = '';
+      } catch (error) {
+        setBrowserExtStatus(browserExtError(error), true);
+        showNotification(mariowOSI18n.t("desktop.browser.extensions", "Extensions"), browserExtError(error), '⚠️');
+      }
+      refreshBrowserExtensions();
     }
 
     function runBrowserShortcut(name) {
@@ -3052,11 +4208,20 @@ snapZone = getSnapZone(pendingX, pendingY);
     (function setupBrowserControls() {
       const urlInput = browserEl('browserUrl');
       urlInput.addEventListener('focus', () => setTimeout(() => urlInput.select(), 0));
+      urlInput.addEventListener('input', event => updateBrowserSuggestions(!/^delete/.test(event.inputType || '')));
       urlInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter') navigateBrowser();
-        if (event.key === 'Escape') { urlInput.value = browserDisplayUrl(getActiveBrowserTab()?.url); urlInput.blur(); }
+        if (handleBrowserSuggestKeys(event)) return;
+        if (event.key === 'Enter') { const pick = browserSuggestPick(); hideBrowserSuggestions(); navigateBrowser(pick || urlInput.value); }
+        if (event.key === 'Escape') { hideBrowserSuggestions(); urlInput.value = browserDisplayUrl(getActiveBrowserTab()?.url); urlInput.blur(); }
       });
-      urlInput.addEventListener('blur', () => updateBrowserToolbar());
+      urlInput.addEventListener('blur', () => { hideBrowserSuggestions(); updateBrowserToolbar(); });
+      browserEl('browserExtAdd').addEventListener('click', () => installBrowserExtension(getActiveBrowserTab()?.url));
+      document.addEventListener('mousedown', event => {
+        const pop = browserEl('browserExtPopup');
+        if (!pop.hidden && !pop.contains(event.target) && !event.target.closest('.browser-ext-btn')) closeBrowserExtPopup();
+      });
+      applyBrowserTheme();
+      refreshBrowserExtensions();
       const findInput = browserEl('browserFindInput');
       findInput.addEventListener('input', () => browserFind(true, false));
       findInput.addEventListener('keydown', event => {
@@ -3164,30 +4329,55 @@ snapZone = getSnapZone(pendingX, pendingY);
       if(dateEl) dateEl.textContent = localized ? calFormat({ day: 'numeric', month: 'long', year: 'numeric' }, d) : `${monthName} ${date}, ${year}`;
       const label = document.getElementById('calMonthLabel'); if (label) label.textContent = localized ? calCapitalize(calFormat({ month: 'long', year: 'numeric' }, viewStart)) : `${months[vm]} ${vy}`;
       const grid = document.getElementById('calGrid'); if(!grid) return;
-      let html = localized
-        ? [0, 1, 2, 3, 4, 5, 6].map(i => `<span class="cal-day-name">${calEsc(calFormat({ weekday: 'narrow' }, new Date(Date.UTC(2023, 0, 1 + i))).toUpperCase())}</span>`).join('')
-        : '<span class="cal-day-name">S</span><span class="cal-day-name">M</span><span class="cal-day-name">T</span><span class="cal-day-name">W</span><span class="cal-day-name">T</span><span class="cal-day-name">F</span><span class="cal-day-name">S</span>';
+      let html = [0, 1, 2, 3, 4, 5, 6].map(i => `<span class="cal-day-name">${calEsc(localized ? calFormat({ weekday: 'short' }, new Date(Date.UTC(2023, 0, 1 + i))).replace('.', '').toUpperCase() : ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][i])}</span>`).join('');
+      // Whole weeks: the days around the month show greyed, like a wall calendar.
       const firstDay = new Date(Date.UTC(vy, vm, 1)).getUTCDay(); const daysInMonth = new Date(Date.UTC(vy, vm + 1, 0)).getUTCDate();
-      for (let i = 0; i < firstDay; i++) { html += '<div class="cal-day empty"></div>'; }
-      for (let i = 1; i <= daysInMonth; i++) {
-        const ds = calYmd(vy, vm, i);
+      const cells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+      // "Show less" keeps one week: the picked day's, else today's, else the first.
+      const inView = ds => ds.slice(0, 7) === calYmd(vy, vm, 1).slice(0, 7);
+      const focusDay = inView(picked) ? picked : inView(todayStr) ? todayStr : calYmd(vy, vm, 1);
+      const focusWeek = Math.floor((firstDay + calParse(focusDay).d - 1) / 7);
+      for (let c = 0; c < cells; c++) {
+        const cellDate = new Date(Date.UTC(vy, vm, c - firstDay + 1));
+        const ds = calYmd(cellDate.getUTCFullYear(), cellDate.getUTCMonth(), cellDate.getUTCDate());
+        const shift = c < firstDay ? -1 : c >= firstDay + daysInMonth ? 1 : 0;
         const cls = ['cal-day'];
+        if (shift) cls.push('other-month');
+        if (c % 7 === 0 || c % 7 === 6) cls.push('weekend');
+        if (Math.floor(c / 7) === focusWeek) cls.push('wk');
         if (ds === todayStr) cls.push('today');
         if (ds === picked) cls.push('picked');
         if (calEventsOn(ds).length) cls.push('has-ev');
-        html += `<div class="${cls.join(' ')}" data-date="${ds}">${i}</div>`;
+        html += `<div class="${cls.join(' ')}" data-date="${ds}" data-shift="${shift}">${cellDate.getUTCDate()}</div>`;
       }
       grid.innerHTML = html;
 
+      // Only a day with something on it lists it; an empty day keeps the drawer short.
       const list = document.getElementById('calEvents');
       if (list) {
         const evs = calEventsOn(picked);
         const p = calParse(picked);
         const title = picked === todayStr ? mariowOSI18n.t("desktop.cal.today", "Today") : localized ? calFormat({ weekday: 'long', day: 'numeric', month: 'long' }, new Date(Date.UTC(p.y, p.m, p.d))) : `${days[new Date(Date.UTC(p.y, p.m, p.d)).getUTCDay()]}, ${months[p.m]} ${p.d}`;
-        list.innerHTML = `<div class="cal-events-title">${title}</div>` + (evs.length
-          ? evs.map(ev => `<div class="cal-ev" data-date="${picked}"><div class="cal-ev-bar" style="background:${CAL_COLORS[ev.color] || CAL_COLORS.blue}"></div><div><div class="cal-ev-title">${calEsc(ev.title)}</div><div class="cal-ev-time">${ev.allDay ? mariowOSI18n.t("desktop.cal.all-day", "All day") : calEsc(ev.start + (ev.end ? ' – ' + ev.end : ''))}${ev.location ? ' · ' + calEsc(ev.location) : ''}</div></div></div>`).join('')
-          : `<div class="cal-empty">${mariowOSI18n.t("desktop.cal.no-events", "No events · double-click a day to add one")}</div>`);
+        list.innerHTML = evs.length ? `<div class="cal-events-title">${calEsc(title)}</div>` + evs.map(ev => `<div class="cal-ev" data-date="${picked}"><div class="cal-ev-bar" style="background:${CAL_COLORS[ev.color] || CAL_COLORS.blue}"></div><div><div class="cal-ev-title">${calEsc(ev.title)}</div><div class="cal-ev-time">${ev.allDay ? mariowOSI18n.t("desktop.cal.all-day", "All day") : calEsc(ev.start + (ev.end ? ' – ' + ev.end : ''))}${ev.location ? ' · ' + calEsc(ev.location) : ''}</div></div></div>`).join('') : '';
       }
+    }
+
+    // Folding to one week and back: the grid fades while its height glides.
+    let calCollapsed = localStorage.getItem('trayCalendarCollapsed') === 'true';
+    function setCalendarCollapsed(collapsed, animate) {
+      const card = document.getElementById('calCard'), wrap = document.getElementById('calGridWrap'), grid = document.getElementById('calGrid');
+      calCollapsed = collapsed;
+      try { localStorage.setItem('trayCalendarCollapsed', String(collapsed)); } catch (e) {}
+      document.getElementById('calToggleLabel').textContent = collapsed ? mariowOSI18n.t("desktop.cal.show-more", "Show more") : mariowOSI18n.t("desktop.cal.show-less", "Show less");
+      if (!animate) { card.classList.toggle('collapsed', collapsed); return; }
+      const from = wrap.offsetHeight;
+      grid.classList.add('swap');
+      setTimeout(() => {
+        card.classList.toggle('collapsed', collapsed);
+        const to = wrap.offsetHeight;
+        wrap.animate([{ height: from + 'px' }, { height: to + 'px' }], { duration: 380, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' });
+        grid.classList.remove('swap');
+      }, 120);
     }
 
     (function setupTrayCalendar() {
@@ -3198,7 +4388,9 @@ snapZone = getSnapZone(pendingX, pendingY);
       document.getElementById('calNext').addEventListener('click', () => { calViewOffset++; updateClock(); });
       document.getElementById('calOpenApp').addEventListener('click', () => openCalendarApp(calPicked));
       const grid = document.getElementById('calGrid');
-      grid.addEventListener('click', e => { const day = e.target.closest('.cal-day[data-date]'); if (day) { calPicked = day.dataset.date; updateClock(); } });
+      grid.addEventListener('click', e => { const day = e.target.closest('.cal-day[data-date]'); if (day) { calPicked = day.dataset.date; calViewOffset += Number(day.dataset.shift) || 0; updateClock(); } });
+      document.getElementById('calToggle').addEventListener('click', () => setCalendarCollapsed(!calCollapsed, true));
+      setCalendarCollapsed(calCollapsed, false);
       grid.addEventListener('dblclick', e => { const day = e.target.closest('.cal-day[data-date]'); if (day) openCalendarApp(day.dataset.date, true); });
       document.getElementById('calEvents').addEventListener('click', e => { const ev = e.target.closest('.cal-ev'); if (ev) openCalendarApp(ev.dataset.date); });
       // Reset to the current month each time the tray calendar is opened.
@@ -3268,8 +4460,11 @@ snapZone = getSnapZone(pendingX, pendingY);
       const panels = ['actionsDropdown', 'notificationsDropdown', 'calendarDropdown', 'volumeDropdown']
         .map(id => document.getElementById(id)).filter(panel => panel && !panel.classList.contains('open'));
       panels.forEach(panel => panel.classList.add('panel-warmup'));
+      // Ending the warm-up must not animate: the drawer has no fade, so it would slide shut in plain sight.
       requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => {
-        panels.forEach(panel => panel.classList.remove('panel-warmup'));
+        panels.forEach(panel => { panel.style.transition = 'none'; panel.classList.remove('panel-warmup'); });
+        void document.body.offsetWidth;
+        panels.forEach(panel => { panel.style.transition = ''; });
       }, 100)));
     }
 
@@ -3363,12 +4558,20 @@ snapZone = getSnapZone(pendingX, pendingY);
 
     function setupDropdown(btnId, ddId) {
       const btn = document.getElementById(btnId); const dd = document.getElementById(ddId); if(!btn || !dd) return;
-      btn.addEventListener('click', (e) => { e.stopPropagation(); const isOpen = dd.classList.contains('open'); document.querySelectorAll('.dropdown.open').forEach(openDd => { openDd.classList.remove('open'); }); if (!isOpen) { if (ddId === 'actionsDropdown') dd.querySelectorAll('.dropdown-item').forEach((item, i) => item.style.setProperty('--row', Math.min(i, 12))); dd.classList.add('open'); if (btnId === 'notificationsBtn') { document.getElementById('notifBadge').style.display = 'none'; fetchBtDevices(); dd.querySelectorAll('.qs-tile-hmos.active, .hmos-circle-toggle.active').forEach((tile, i) => setTimeout(() => playQsIcon(tile), 420 + i * 60)); } } });
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation(); const isOpen = dd.classList.contains('open'); closeAllPanels();
+        if (isOpen) return;
+        if (ddId === 'actionsDropdown') { setAppsMenuView(null); renderRecentFiles(); }
+        dd.classList.add('open');
+        // The drawer lists every toast already, so the ones still up step aside.
+        if (ddId === 'calendarDropdown') { document.getElementById('notifBadge').style.display = 'none'; document.querySelectorAll('#toast-container .toast:not(.hide)').forEach(toast => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 350); }); }
+        if (ddId === 'notificationsDropdown') { fetchBtDevices(); dd.querySelectorAll('.qs-tile-hmos.active, .hmos-circle-toggle.active').forEach((tile, i) => setTimeout(() => playQsIcon(tile), 420 + i * 60)); }
+      });
     }
     setupDropdown("actionsBtn", "actionsDropdown");
     setupDropdown("contextBtn", "contextDropdown");
     setupDropdown("notificationsBtn", "notificationsDropdown"); setupDropdown("clockBtn", "calendarDropdown");
-    setupDropdown("volumeBtn", "volumeDropdown"); 
+    updateNotificationCenter();
     
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.dropdown')) { document.querySelectorAll('.dropdown.open').forEach(dd => dd.classList.remove('open')); }
@@ -3391,7 +4594,8 @@ snapZone = getSnapZone(pendingX, pendingY);
     // --- Personalisation (Settings → Wallpaper & Style), stored in localStorage "desktopStyle" ---
     const DESKTOP_STYLE_DEFAULTS = {
       accent: '#0a84ff', wallpaperMode: 'image', wallpaperColor: '#1c2333', gradient: 'aurora', fit: 'cover',
-      brightness: 100, saturation: 100, blur: 0, radius: 16, glass: 75, iconScale: 100, uiFont: 'Poppins'
+      brightness: 100, saturation: 100, blur: 0, radius: 16, glass: 75, iconScale: 100, uiFont: 'Poppins',
+      nightWarmth: 35, nightSchedule: 'off', nightFrom: '21:00', nightTo: '07:00'
     };
     const DESKTOP_GRADIENTS = {
       aurora: 'linear-gradient(135deg, #0f2027 0%, #203a43 45%, #2c5364 100%)',
@@ -3456,8 +4660,36 @@ snapZone = getSnapZone(pendingX, pendingY);
         .desktop-item.selected { background: color-mix(in srgb, var(--m3-accent-active) 25%, transparent) !important; border-color: color-mix(in srgb, var(--m3-accent-active) 50%, transparent) !important; }
         ${font !== 'Poppins' ? `body, body *:not(.material-symbols-outlined):not(.material-icons) { font-family: ${font === 'system-ui' ? 'system-ui' : `'${font}', sans-serif`} !important; }` : ''}`;
       if (tag.textContent !== styleText) tag.textContent = styleText;
+      // Night light: warmth is how strong the amber is; the schedule may switch it on its own.
+      const warmth = Math.max(10, Math.min(60, Number(st.nightWarmth) || 35));
+      document.getElementById('nightLightOverlay').style.background = `rgba(255, 138, 40, ${(warmth / 100 * 0.5).toFixed(3)})`;
+      checkNightSchedule();
     }
     window.addEventListener('storage', e => { if (e.key === 'desktopStyle') applyDesktopStyle(); });
+
+    // The schedule only acts when it crosses from day to night or back, so turning night
+    // light on or off by hand in the Control Panel holds until the next change.
+    const NIGHT_SCHEDULE_KEY = 'nightScheduleState';
+    function nightScheduleWants(st, now = new Date()) {
+      const [from, to] = st.nightSchedule === 'sunset' ? ['19:00', '07:00'] : [st.nightFrom, st.nightTo];
+      const mins = t => { const m = /^(\d{2}):(\d{2})$/.exec(t || ''); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+      const a = mins(from), b = mins(to), n = now.getHours() * 60 + now.getMinutes();
+      if (a === null || b === null || a === b) return false;
+      return a < b ? n >= a && n < b : n >= a || n < b;
+    }
+    function checkNightSchedule() {
+      const st = loadDesktopStyle();
+      if (st.nightSchedule !== 'sunset' && st.nightSchedule !== 'custom') { try { localStorage.removeItem(NIGHT_SCHEDULE_KEY); } catch (e) {} return; }
+      const want = nightScheduleWants(st);
+      let last = null; try { last = localStorage.getItem(NIGHT_SCHEDULE_KEY); } catch (e) {}
+      if (last === String(want)) return;
+      try { localStorage.setItem(NIGHT_SCHEDULE_KEY, String(want)); } catch (e) {}
+      if (!!qsState.nightLight === want) return;
+      qsState.nightLight = want;
+      renderQuickSettings();
+      updateQSBackend('nightLight', want);
+    }
+    setInterval(checkNightSchedule, 30000);
 
     // Window commands an app from another origin (an isolated Store app) may send: only
     // for its own window, and only these. Everything else must come from the OS itself.
@@ -3491,6 +4723,8 @@ snapZone = getSnapZone(pendingX, pendingY);
       }
 
       if (e.data.type === 'apply-style') applyDesktopStyle();
+      if (e.data.type === 'quick-settings-changed') loadQuickSettings();
+      if (e.data.type === 'open-settings-page' && ['you', 'wallpaper', 'system', 'apps', 'security', 'functions', 'about'].includes(e.data.page)) openSettingsPage(e.data.page);
       if (e.data.type === 'apply-wallpaper') { applyUserWallpaper(); (async () => { try { const r = await fetch("/get-settings"); if (r.ok) { const cfg = await r.json(); applyLabFlagEffects({ darkMode: cfg.darkMode, performance: cfg.performance, animations: cfg.animations, developer: cfg.developer }); }; } catch (e) {} })(); }
       
       if (e.data.type === 'app-installed-live') {
@@ -3602,6 +4836,7 @@ snapZone = getSnapZone(pendingX, pendingY);
     });
 
     document.addEventListener('keydown', (e) => {
+      if (handleTaskViewKeys(e)) return;
       const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
       
       if (!isInput && typeof selectedDesktopItem !== 'undefined' && selectedDesktopItem) {
@@ -3642,6 +4877,11 @@ snapZone = getSnapZone(pendingX, pendingY);
     async function avviaAppInstallate() {
       try {
         const res = await fetch('/get-settings'); const config = await res.json();
+        if (typeof config.username === 'string' && config.username.trim()) document.getElementById('amUserName').textContent = config.username.trim();
+        if (config.currentUser) {
+          currentUser = config.currentUser;
+          if (!currentUser.admin) { pinnedApps = pinnedApps.filter(isAppAllowed); renderAppsMenu(); }
+        }
         if (config.installedApps && config.installedApps.length > 0) {
           const dropdown = document.getElementById("actionsDropdown");
           config.installedApps.forEach(app => {
@@ -3705,19 +4945,21 @@ snapZone = getSnapZone(pendingX, pendingY);
       applyDesktopStyle();
       clearInterval(labDevTimer);
       labDevTimer = null;
+      window.mariowOSDevStats = null;
       if (flags.developer) startLabDevChip();
     }
 
+    // Developer Options: the desktop measures, Settings → Functions Lab shows it under
+    // Performance Tuning (window.mariowOSDevStats, read by that page every second).
     function startLabDevChip() {
-      const chip = document.getElementById('labDevChip');
-      let frames = 0, last = performance.now(), fps = 0, kernel = '...';
+      let frames = 0, last = performance.now();
       const countFrame = () => { frames++; if (labDevTimer) requestAnimationFrame(countFrame); };
       labDevTimer = setInterval(async () => {
         const now = performance.now();
-        fps = Math.round(frames * 1000 / (now - last)); frames = 0; last = now;
+        const fps = Math.round(frames * 1000 / (now - last)); frames = 0; last = now;
+        let kernel;
         try { const r = await fetch('/api/system/health', { cache: 'no-store' }); kernel = r.ok ? 'online' : 'error ' + r.status; } catch (e) { kernel = 'offline'; }
-        const mem = performance.memory ? (performance.memory.usedJSHeapSize / 1048576).toFixed(1) + ' MB' : 'n/a';
-        chip.textContent = `DEV  fps ${fps}  heap ${mem}\napps ${runningApps.size}  kernel ${kernel}`;
+        window.mariowOSDevStats = { fps, heapMB: performance.memory ? +(performance.memory.usedJSHeapSize / 1048576).toFixed(1) : null, apps: runningApps.size, kernel, at: Date.now() };
       }, 1000);
       requestAnimationFrame(countFrame);
     }
@@ -3773,6 +5015,7 @@ snapZone = getSnapZone(pendingX, pendingY);
     }
 
     function openFileInNotes(path, name) {
+      addRecentFile('notes', path, name);
       openPopup('popup5');
       pendingNotesFileRequests.push({ path, name });
       flushNotesFileRequests();
@@ -3791,6 +5034,7 @@ snapZone = getSnapZone(pendingX, pendingY);
       });
     }
     function openFileInPicture(path, name) {
+      addRecentFile('picture', path, name);
       openPopup('popup12');
       pendingPictureFileRequests.push({ path, name });
       flushPictureFileRequests();
@@ -3807,6 +5051,7 @@ snapZone = getSnapZone(pendingX, pendingY);
       });
     }
     function openFileInVideo(path, name) {
+      addRecentFile('video', path, name);
       openPopup('popup13');
       pendingVideoFileRequests.push({ path, name });
       flushVideoFileRequests();
@@ -3830,7 +5075,16 @@ snapZone = getSnapZone(pendingX, pendingY);
         const container = document.getElementById('desktop-icons');
         container.innerHTML = '';
         desktopItemsList = (data.success && data.contents) ? data.contents : [];
-        
+        // App shortcuts are small .mwapp files that name the app they open.
+        await Promise.all(desktopItemsList.filter(isAppShortcut).map(async item => {
+          try {
+            const r = await fetch('/api/system/files/content?path=/home/Desktop&name=' + encodeURIComponent(item.name));
+            const d = await r.json();
+            const parsed = JSON.parse(d.content || '{}');
+            if (typeof parsed.appId === 'string') item.appId = parsed.appId;
+          } catch (err) {}
+        }));
+
         let elToAutoRename = null;
 
         desktopItemsList.forEach(item => {
@@ -3855,10 +5109,26 @@ snapZone = getSnapZone(pendingX, pendingY);
             iconColor = '#ffd54f';
           }
           
-          el.innerHTML = `
-            <span class="material-symbols-outlined desktop-item-icon" style="color: ${iconColor}; font-variation-settings: 'FILL' ${item.type === 'folder' ? '1' : '0'};">${icon}</span>
-            <span class="desktop-item-name">${item.name}</span>
-          `;
+          const shortcutApp = item.appId ? getAllApps().find(app => app.id === item.appId) : null;
+          if (isAppShortcut(item)) {
+            el.classList.add('desktop-app');
+            el.classList.toggle('broken', !shortcutApp);
+            const appIcon = document.createElement('span'); appIcon.className = 'desktop-item-icon desktop-app-icon';
+            const tpl = document.createElement('template'); tpl.innerHTML = renderOsIcon(shortcutApp ? shortcutApp.icon : '', 'dock'); appIcon.append(tpl.content);
+            const badge = document.createElement('span'); badge.className = 'material-symbols-outlined desktop-app-badge'; badge.textContent = 'arrow_outward';
+            appIcon.append(badge);
+            const label = document.createElement('span'); label.className = 'desktop-item-name'; label.textContent = shortcutDisplayName(item.name);
+            el.append(appIcon, label);
+          } else {
+            // SECURITY: file names are the user's (or a download's): text, never markup.
+            const glyph = document.createElement('span');
+            glyph.className = 'material-symbols-outlined desktop-item-icon';
+            glyph.style.color = iconColor;
+            glyph.style.fontVariationSettings = `'FILL' ${item.type === 'folder' ? '1' : '0'}`;
+            glyph.textContent = icon;
+            const label = document.createElement('span'); label.className = 'desktop-item-name'; label.textContent = item.name;
+            el.append(glyph, label);
+          }
 
           el.onclick = (e) => {
             e.stopPropagation();
@@ -3897,7 +5167,10 @@ snapZone = getSnapZone(pendingX, pendingY);
     const menu = document.getElementById('desktopItemContextMenu');
     const openIcon = document.getElementById('itemMenuOpenIcon');
     const openText = document.getElementById('itemMenuOpenText');
-    if (item.type === 'folder') {
+    if (isAppShortcut(item)) {
+      openIcon.textContent = 'open_in_new';
+      openText.textContent = mariowOSI18n.t("common.open", "Open");
+    } else if (item.type === 'folder') {
       openIcon.textContent = 'folder_open';
       openText.textContent = mariowOSI18n.t("desktop.item.open-in-files", "Open in Files");
     } 
@@ -3921,6 +5194,7 @@ snapZone = getSnapZone(pendingX, pendingY);
 
     function openDesktopItem(item) {
       if (!item) return;
+      if (isAppShortcut(item)) { openAppShortcut(item.appId); return; }
       if (item.type === 'folder') {
         const folderPath = '/home/Desktop/' + item.name;
         const iframe = document.querySelector('#popup10 iframe');
@@ -3991,14 +5265,14 @@ snapZone = getSnapZone(pendingX, pendingY);
       const input = document.createElement('input');
       input.type = 'text';
       input.className = 'desktop-inline-input';
-      input.value = oldName;
+      input.value = isAppShortcut(item) ? shortcutDisplayName(oldName) : oldName;
 
       nameSpan.style.display = 'none';
       el.appendChild(input);
       input.focus();
 
       const lastDot = oldName.lastIndexOf('.');
-      if (item.type !== 'folder' && lastDot > 0) {
+      if (item.type !== 'folder' && lastDot > 0 && !isAppShortcut(item)) {
         input.setSelectionRange(0, lastDot);
       } else {
         input.select();
@@ -4008,7 +5282,8 @@ snapZone = getSnapZone(pendingX, pendingY);
       const commit = async () => {
         if (committed) return;
         committed = true;
-        const newName = input.value.trim();
+        let newName = input.value.trim();
+        if (newName && isAppShortcut(item) && !/\.mwapp$/i.test(newName)) newName += '.mwapp';
 
         if (!newName || newName === oldName) {
           input.remove();
@@ -4026,7 +5301,7 @@ snapZone = getSnapZone(pendingX, pendingY);
           const resData = await res.json();
           if (resData.success) {
             item.name = newName;
-            nameSpan.textContent = newName;
+            nameSpan.textContent = isAppShortcut(item) ? shortcutDisplayName(newName) : newName;
             el.dataset.name = newName;
             input.remove();
             nameSpan.style.display = '';
@@ -4113,6 +5388,8 @@ snapZone = getSnapZone(pendingX, pendingY);
     document.body.addEventListener('drop', async (e) => {
       if (e.target.closest('.popup')) return; // Let apps handle their own drops
       e.preventDefault();
+      const droppedApp = e.dataTransfer.getData('application/x-mariowos-app');
+      if (droppedApp) { if (!e.target.closest('.status-bar')) addAppShortcut(droppedApp); return; }
       
       const files = e.dataTransfer.files;
       if (files.length > 0) {
@@ -4148,6 +5425,13 @@ snapZone = getSnapZone(pendingX, pendingY);
 
     window.addEventListener('message', (e) => {
       if (e.data.type === 'refresh-desktop') loadDesktopIcons();
+      if (e.data.type === 'open-app-shortcut' && typeof e.data.path === 'string' && typeof e.data.name === 'string') {
+        const explorerIframe = document.querySelector('#popup10 iframe');
+        if (e.origin === window.location.origin && explorerIframe && e.source === explorerIframe.contentWindow) {
+          fetch(`/api/system/files/content?path=${encodeURIComponent(e.data.path)}&name=${encodeURIComponent(e.data.name)}`).then(r => r.json())
+            .then(d => openAppShortcut(JSON.parse(d.content || '{}').appId)).catch(() => openAppShortcut(null));
+        }
+      }
     });
 
     document.addEventListener('DOMContentLoaded', loadDesktopIcons);

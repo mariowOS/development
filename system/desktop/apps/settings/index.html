@@ -112,6 +112,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   .c-ethernet { background: linear-gradient(180deg, #98989d, #706f76); }
   .c-apps { background: linear-gradient(180deg, #ff3b30, #ff453a); }
   .c-security { background: linear-gradient(180deg, #8e8e93, #636366); }
+  .c-users { background: linear-gradient(180deg, #40c8e0, #30b0c7); }
   .c-wallpaper { background: linear-gradient(180deg, #34c759, #28cd41); }
   .c-lockscreen { background: linear-gradient(180deg, #bf5af2, #af52de); }
   .c-functions { background: linear-gradient(180deg, #ff9f0a, #ffb340); }
@@ -138,7 +139,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   <div class="sidebar">
 
     <div class="profile-banner menu-item" onclick="loadPage('you', this)">
-      <img src="/desktop/assets/avatar.user.png" class="profile-avatar" id="sidebarAvatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
+      <img src="/api/users/avatar/me" class="profile-avatar" id="sidebarAvatar" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
       <div class="text-group">
         <div class="title" id="sidebarUsername" data-i18n="settings.you.default-name">mariowOS User</div>
         <div class="subtitle" id="sidebarEmail" data-i18n="settings.you.default-account">mariowOS Account</div>
@@ -201,6 +202,14 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
         <div class="text-group">
           <div class="title" data-i18n="settings.nav.security">Security</div>
           <div class="subtitle" data-i18n="settings.nav.security.subtitle">Passwords & resets</div>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="loadPage('users', this)">
+        <div class="icon-bg c-users"><span class="material-symbols-outlined">group</span></div>
+        <div class="text-group">
+          <div class="title" data-i18n="settings.nav.users">Users</div>
+          <div class="subtitle" data-i18n="settings.nav.users.subtitle">Accounts on this computer</div>
         </div>
       </div>
 
@@ -277,7 +286,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
       }
     } catch (err) {}
     const avatarImg = document.getElementById('sidebarAvatar');
-    avatarImg.src = `/desktop/assets/avatar.user.png?t=${new Date().getTime()}`;
+    avatarImg.src = `/api/users/avatar/me?t=${new Date().getTime()}`;
   }
 
   async function checkEthernetStatus() {
@@ -322,6 +331,7 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
     ethernet: "assets/ethernet.html",
     apps: "assets/apps.html",
     security: "assets/security.html",
+    users: "assets/users.html",
     wallpaper: "assets/wallpaper.html",
     lockscreen: "assets/lockscreen.html",
     functions: "assets/lab.html",
@@ -403,6 +413,17 @@ Licensed under the Apache License, Version 2.0; you can use this file if you giv
   };
 
   window.addEventListener('hashchange', handleUrlRouting);
+
+  // Standard accounts: the pages that change the system for everyone are hidden.
+  const ADMIN_PAGES = ['functions', 'updater', 'backup'];
+  fetch('/api/users/me', { cache: 'no-store' }).then(r => r.json()).then(({ user }) => {
+    if (!user || user.admin) return;
+    document.querySelectorAll('.menu-item').forEach(item => {
+      const page = (item.getAttribute('onclick') || '').match(/loadPage\('([^']+)'/);
+      if (page && ADMIN_PAGES.includes(page[1])) item.style.display = 'none';
+    });
+    ADMIN_PAGES.forEach(page => delete pages[page]);
+  }).catch(() => {});
 
   // Standardized Password Modal for the entire Settings App
   window.requirePassword = function(onSuccess, onCancel) {

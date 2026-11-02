@@ -142,6 +142,16 @@ select:focus { border-color: var(--sys-accent-text); box-shadow: 0 0 0 3px color
 select option { background: #1c1e24; }
 .saved { font-size: 11.5px; color: rgba(255,255,255,0.45); text-align: right; min-height: 16px; margin: -12px 4px 0 0; }
 .mode-panel[hidden] { display: none; }
+.row[hidden] { display: none; }
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; justify-self: end; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; cursor: pointer; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.switch input:checked + .slider { background-color: #f5a524; }
+.switch input:checked + .slider:before { transform: translateX(20px); }
+.time-range { grid-column: 2 / -1; justify-self: end; display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: rgba(255,255,255,0.6); }
+.time-range input { padding: 7px 10px; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; background: rgba(0,0,0,0.3); color: #fff; font: 13px 'Poppins', sans-serif; color-scheme: dark; outline: none; }
+.time-range input:focus { border-color: var(--sys-accent-text); }
 
 html::-webkit-scrollbar { display: none; }
 </style>
@@ -205,6 +215,23 @@ html::-webkit-scrollbar { display: none; }
         <option value="system-ui" data-i18n="settings.wallpaper.font-system">System</option>
       </select>
     </div>
+  </div>
+
+  <div class="section-title" data-i18n="settings.wallpaper.night-light">Night light</div>
+  <div class="panel">
+    <div class="row"><label for="nightOn"><span class="material-symbols-outlined">nightlight</span><span data-i18n="settings.wallpaper.night-light">Night light</span></label><span class="hint" id="nightState"></span>
+      <label class="switch"><input type="checkbox" id="nightOn"><span class="slider"></span></label></div>
+    <div class="row"><label for="nightWarmth"><span class="material-symbols-outlined">thermostat</span><span data-i18n="settings.wallpaper.night-warmth">Warmth</span></label><input type="range" id="nightWarmth" min="10" max="60"><output data-for="nightWarmth"></output></div>
+    <div class="row"><label for="nightSchedule"><span class="material-symbols-outlined">schedule</span><span data-i18n="settings.wallpaper.night-schedule">Schedule</span></label>
+      <select id="nightSchedule">
+        <option value="off" data-i18n="settings.wallpaper.night-schedule-off">Off</option>
+        <option value="sunset" data-i18n="settings.wallpaper.night-schedule-sunset">Sunset to sunrise (19:00–07:00)</option>
+        <option value="custom" data-i18n="settings.wallpaper.night-schedule-custom">Custom hours</option>
+      </select>
+    </div>
+    <div class="row" id="nightHours" hidden><label><span class="material-symbols-outlined">more_time</span><span data-i18n="settings.wallpaper.night-hours">Turn on</span></label>
+      <div class="time-range"><input type="time" id="nightFrom"><span data-i18n="settings.wallpaper.night-until">until</span><input type="time" id="nightTo"></div></div>
+    <div class="hint" data-i18n="settings.wallpaper.night-hint">Warms the screen to go easier on your eyes at night. You can also switch it from the Control Panel.</div>
   </div>
 
   <div class="saved" id="savedState"></div>
@@ -317,7 +344,8 @@ dropArea.addEventListener('drop', (e) => {
 // Keep defaults and gradients in sync with DESKTOP_STYLE_DEFAULTS in com.mariowos.desktop.html.
 const STYLE_DEFAULTS = {
   accent: '#0a84ff', wallpaperMode: 'image', wallpaperColor: '#1c2333', gradient: 'aurora', fit: 'cover',
-  brightness: 100, saturation: 100, blur: 0, radius: 16, glass: 75, iconScale: 100, uiFont: 'Poppins'
+  brightness: 100, saturation: 100, blur: 0, radius: 16, glass: 75, iconScale: 100, uiFont: 'Poppins',
+  nightWarmth: 35, nightSchedule: 'off', nightFrom: '21:00', nightTo: '07:00'
 };
 const ACCENTS = ['#0a84ff', '#5e5ce6', '#bf5af2', '#ff375f', '#ff453a', '#ff9f0a', '#ffd60a', '#30d158', '#40c8e0', '#8e8e93'];
 const BG_COLORS = ['#1c2333', '#000000', '#2c2c2e', '#0b3d2e', '#3a1c4a', '#4a1c1c', '#1c3a4a', '#f2f2f7'];
@@ -329,7 +357,7 @@ const GRADIENTS = {
   candy: [mariowOSI18n.t('settings.wallpaper.gradient-candy', 'Candy'), 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)'],
   midnight: [mariowOSI18n.t('settings.wallpaper.gradient-midnight', 'Midnight'), 'radial-gradient(circle at 30% 20%, #3a3f73 0%, #141629 60%, #07080f 100%)']
 };
-const UNITS = { brightness: '%', saturation: '%', blur: 'px', radius: 'px', glass: '%', iconScale: '%' };
+const UNITS = { brightness: '%', saturation: '%', blur: 'px', radius: 'px', glass: '%', iconScale: '%', nightWarmth: '%' };
 
 function loadStyle() {
   try { return { ...STYLE_DEFAULTS, ...JSON.parse(localStorage.getItem('desktopStyle') || '{}') }; }
@@ -400,6 +428,10 @@ function renderStyle() {
   document.querySelectorAll('.mode-panel').forEach(p => { p.hidden = p.dataset.for !== style.wallpaperMode; });
   document.getElementById('fit').value = style.fit;
   document.getElementById('uiFont').value = style.uiFont;
+  document.getElementById('nightSchedule').value = style.nightSchedule;
+  document.getElementById('nightHours').hidden = style.nightSchedule !== 'custom';
+  document.getElementById('nightFrom').value = style.nightFrom;
+  document.getElementById('nightTo').value = style.nightTo;
   Object.keys(UNITS).forEach(id => {
     document.getElementById(id).value = style[id];
     document.querySelector(`output[data-for="${id}"]`).textContent = style[id] + UNITS[id];
@@ -425,6 +457,31 @@ function renderStyle() {
 document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => saveStyle({ wallpaperMode: b.dataset.mode }));
 document.getElementById('fit').onchange = e => saveStyle({ fit: e.target.value });
 document.getElementById('uiFont').onchange = e => saveStyle({ uiFont: e.target.value });
+document.getElementById('nightSchedule').onchange = e => saveStyle({ nightSchedule: e.target.value });
+document.getElementById('nightFrom').onchange = e => { if (e.target.value) saveStyle({ nightFrom: e.target.value }); };
+document.getElementById('nightTo').onchange = e => { if (e.target.value) saveStyle({ nightTo: e.target.value }); };
+
+// The switch is the same one as in the Control Panel: it lives in Quick Settings.
+async function loadNightLight() {
+  try {
+    const qs = await (await fetch('/api/system/quick-settings', { cache: 'no-store' })).json();
+    document.getElementById('nightOn').checked = !!qs.nightLight;
+  } catch (e) {}
+  showNightState();
+}
+function showNightState() {
+  document.getElementById('nightState').textContent = document.getElementById('nightOn').checked ? mariowOSI18n.t('settings.wallpaper.night-on', 'On') : mariowOSI18n.t('settings.wallpaper.night-off', 'Off');
+}
+document.getElementById('nightOn').onchange = async e => {
+  const on = e.target.checked;
+  showNightState();
+  try {
+    const res = await fetch('/api/system/quick-settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ setting: 'nightLight', value: on }) });
+    if (!res.ok) throw new Error();
+    window.top.postMessage({ type: 'quick-settings-changed' }, location.origin);
+  } catch (err) { e.target.checked = !on; showNightState(); }
+};
+loadNightLight();
 Object.keys(UNITS).forEach(id => {
   document.getElementById(id).oninput = e => saveStyle({ [id]: Number(e.target.value) });
 });

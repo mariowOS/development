@@ -101,6 +101,21 @@ body.live-wallpaper-active {
   transition: background-image 0.3s ease; transform: translateZ(0);
 }
 
+.login-name { margin: -8px 0 -4px; font-size: 20px; font-weight: 600; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.5); }
+.login-name:empty { display: none; }
+/* Other accounts, bottom left: pick who signs in. */
+@keyframes switcherRise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+.user-switcher { position: absolute; left: 28px; bottom: 28px; display: flex; flex-direction: column; gap: 6px; animation: switcherRise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both; }
+.user-switcher[hidden] { display: none; }
+.user-choice { display: flex; align-items: center; gap: 12px; min-width: 210px; padding: 8px 16px 8px 8px; border: 0; border-radius: 14px; background: rgba(0,0,0,0.18); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); color: #fff; font: 500 14px 'Poppins', sans-serif; text-align: left; cursor: pointer; transition: background 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.user-choice:hover { background: rgba(255,255,255,0.16); }
+.user-choice:active { transform: scale(0.97); }
+.user-choice.active { background: rgba(255,255,255,0.24); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.45); }
+.user-choice img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex: 0 0 36px; background: rgba(255,255,255,0.15); }
+.user-choice small { display: block; font-size: 11px; font-weight: 400; color: rgba(255,255,255,0.65); }
+@keyframes avatarSwap { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: none; } }
+.avatar.swap { animation: avatarSwap 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+
 .unlock-pill {
   display:flex; align-items:center; justify-content:space-between;
   background-color: rgba(0, 0, 0, 0.2);
@@ -171,12 +186,15 @@ body.live-wallpaper-active {
 
   <div class="center-stack" id="centerStackBlock" role="main">
     <div class="avatar" aria-hidden="true"></div>
+    <div class="login-name" id="loginName"></div>
     <div class="unlock-pill" id="unlockPill" aria-label="Unlock" data-i18n-aria-label="login.unlock">
       <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" aria-label="Password" data-i18n-placeholder="login.password-placeholder" data-i18n-aria-label="login.password" class="w-full">
     </div>
     <p id="loginStatus" role="status" aria-live="polite"></p>
     <a href="/desktop/password-recovery.html" id="forgotPassword" class="text-white text-sm mt-3 hover:underline cursor-pointer" data-i18n="login.forgot-password">Forgot Password?</a>
   </div>
+
+  <div class="user-switcher" id="userSwitcher" role="listbox" aria-label="Accounts" data-i18n-aria-label="login.accounts" hidden></div>
 
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup">
@@ -259,7 +277,7 @@ async function attemptUnlock() {
     const resp = await fetch('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ password: pass })
+      body: new URLSearchParams({ password: pass, userId: selectedUserId })
     });
     if (resp.status === 401) {
       showWrong();
@@ -298,12 +316,57 @@ function showWrong() {
 }
 window.addEventListener('load', () => passwordInput.focus());
 
+// --- Accounts: the owner, and anyone the administrators added (Settings > Users) ---
+let selectedUserId = 'owner';
+let loginUsers = [];
+function avatarUrl(id) { return '/api/users/avatar/' + encodeURIComponent(id) + '?ts=' + Date.now(); }
+function selectUser(id, animate) {
+  const user = loginUsers.find(u => u.id === id) || loginUsers[0];
+  if (!user) return;
+  selectedUserId = user.id;
+  try { localStorage.setItem('loginLastUser', user.id); } catch (e) {}
+  document.getElementById('loginName').textContent = loginUsers.length > 1 ? user.username : '';
+  const avatar = document.querySelector('.avatar');
+  avatar.style.backgroundImage = `url("${avatarUrl(user.id)}")`;
+  if (animate) { avatar.classList.remove('swap'); void avatar.offsetWidth; avatar.classList.add('swap'); }
+  // Recovery resets the owner's password; other accounts ask an administrator.
+  document.getElementById('forgotPassword').hidden = !user.owner;
+  document.querySelectorAll('.user-choice').forEach(b => { b.classList.toggle('active', b.dataset.id === user.id); b.setAttribute('aria-selected', String(b.dataset.id === user.id)); });
+  passwordInput.value = '';
+  loginStatus.textContent = '';
+  passwordInput.focus();
+}
+async function loadLoginUsers() {
+  try {
+    const data = await (await fetch('/api/users/login-list', { cache: 'no-store' })).json();
+    loginUsers = Array.isArray(data.users) ? data.users : [];
+  } catch (e) { loginUsers = []; }
+  if (!loginUsers.length) return;
+  const box = document.getElementById('userSwitcher');
+  box.replaceChildren(...loginUsers.map(user => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'user-choice'; b.dataset.id = user.id; b.setAttribute('role', 'option');
+    const img = document.createElement('img'); img.alt = ''; img.src = avatarUrl(user.id);
+    const text = document.createElement('span'); text.textContent = user.username;
+    const role = document.createElement('small'); role.textContent = user.admin ? mariowOSI18n.t('login.role-admin', 'Administrator') : mariowOSI18n.t('login.role-standard', 'Standard');
+    text.append(role);
+    b.append(img, text);
+    b.addEventListener('click', () => selectUser(user.id, true));
+    return b;
+  }));
+  box.hidden = loginUsers.length < 2;
+  let last = null; try { last = localStorage.getItem('loginLastUser'); } catch (e) {}
+  selectUser(loginUsers.some(u => u.id === last) ? last : loginUsers[0].id, false);
+}
+loadLoginUsers();
+
 const popupOverlay = document.getElementById('popupOverlay');
 const closePopup = document.getElementById('closePopup');
 const redirectPopup = document.getElementById('redirectPopup');
 
 window.addEventListener('keydown', (e) => {
-  if (e.code === 'Space' && !popupOverlay.style.display) {
+  // Not while typing a password (spaces are allowed) or pressing an account button.
+  if (e.code === 'Space' && !popupOverlay.style.display && !e.target.closest('input, button')) {
     e.preventDefault();
     popupOverlay.style.display = 'flex';
   }
@@ -339,12 +402,9 @@ window.addEventListener("DOMContentLoaded", () => {
       document.body.style.backgroundImage = `url('${wallpaper}')`;
     }
 
+    // The picture is the selected account's (loadLoginUsers); this is the fallback.
     const avatar = document.querySelector('.avatar');
-    const userAvatarUrl = `/desktop/assets/avatar.user.png?ts=${Date.now()}`;
-    const userAvatar = new Image();
-    userAvatar.onload = () => { avatar.style.backgroundImage = `url("${userAvatarUrl}")`; };
-    userAvatar.onerror = () => { avatar.style.backgroundImage = 'url("/desktop/assets/avatar.png")'; };
-    userAvatar.src = userAvatarUrl;
+    if (!avatar.style.backgroundImage) avatar.style.backgroundImage = `url("${avatarUrl(selectedUserId)}")`;
 });
 
 function applyForcedLightMode() {

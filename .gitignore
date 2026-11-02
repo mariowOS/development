@@ -212,3 +212,6 @@ system/config.json
 system/config.json
 node_modules/
 node_modules/
+
+# Other accounts' home folders (Settings > Users): personal files, never pushed.
+system/user-homes/

@@ -4,6 +4,13 @@ contextBridge.exposeInMainWorld('mariowOSElectron', Object.freeze({
     shutdown: () => ipcRenderer.invoke('mariowos:shutdown'),
     reboot: () => ipcRenderer.invoke('mariowos:reboot'),
     clearBrowserData: () => ipcRenderer.invoke('mariowos:clear-browser-data'),
+    browserExtensions: Object.freeze({
+        list: () => ipcRenderer.invoke('mariowos:extensions-list'),
+        install: input => ipcRenderer.invoke('mariowos:extensions-install', String(input)),
+        loadUnpacked: () => ipcRenderer.invoke('mariowos:extensions-load-unpacked'),
+        setEnabled: (id, enabled) => ipcRenderer.invoke('mariowos:extensions-set-enabled', String(id), !!enabled),
+        remove: id => ipcRenderer.invoke('mariowos:extensions-remove', String(id))
+    }),
     onBrowserOpenTab: callback => ipcRenderer.on('browser:open-tab', (_event, url) => callback(String(url))),
     onBrowserShortcut: callback => ipcRenderer.on('browser:shortcut', (_event, name) => callback(String(name))),
     // Only answered for the local kernel-recovery.html screen (checked in launcher.js).

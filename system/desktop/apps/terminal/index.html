@@ -539,6 +539,15 @@ This project use open source and free fonts sourced from Google Fonts. Google Fo
 
     // --- INITIALIZATION ---
     fetch("/get-settings").then(res => res.json()).then(config => {
+        // Terminal is for administrators (Settings > Users); the server refuses commands too.
+        if (config.currentUser && !config.currentUser.admin) {
+            terminalsContainer.innerHTML = `
+                <div style="padding: 20px; font-size: 14px;">
+                    ${escapeHtml(mariowOSI18n.t("terminal.admin-only", "Terminal is only available to administrators. Ask an administrator to change your account type in Settings > Users."))}
+                </div>
+            `;
+            return;
+        }
         // Developer Options Verification
         if (config.developer === false) {
             terminalsContainer.innerHTML = `

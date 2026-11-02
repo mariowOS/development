@@ -9,6 +9,7 @@ Licensed under the Apache License, Version 2.0
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="/desktop/assets/i18n-data.js"></script>
 <script src="/desktop/assets/i18n.js"></script>
+<script src="/api/users/me.js"></script>
 <script src="/desktop/assets/accent.js"></script>
 <title data-i18n="explorer.title">Files</title>
 <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
@@ -181,6 +182,107 @@ Licensed under the Apache License, Version 2.0
     .ab .txt { display: none; }
   }
   * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.15) transparent; }
+
+  /* ── HarmonyOS-style layout, in the mariowOS dark glass ── */
+  .sidebar { width: 236px; flex-basis: 236px; padding: 12px 10px; gap: 1px; }
+  .side-item { padding: 8px 10px; font-size: 13.5px; border-radius: 11px; position: relative; }
+  .side-item.home-item { margin-bottom: 6px; padding: 10px; font-weight: 500; }
+  .side-item.active { background: color-mix(in srgb, var(--accent) 22%, rgba(255,255,255,.04)); font-weight: 500; }
+  .side-item .txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side-pin { width: 24px; height: 24px; flex: 0 0 24px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: var(--dim); cursor: pointer; opacity: .65; transition: opacity .15s, background .15s; }
+  .side-pin .ms { font-size: 15px; width: auto; color: inherit; font-variation-settings: 'FILL' 1; }
+  .side-pin:hover { opacity: 1; background: var(--hover); color: #fff; }
+  .side-tree-toggle { width: 18px; height: 18px; flex: 0 0 18px; display: flex; align-items: center; justify-content: center; margin-left: -4px; border: 0; background: transparent; color: var(--dim); cursor: pointer; transition: transform .25s var(--spring); }
+  .side-tree-toggle .ms { font-size: 18px; width: auto; color: inherit; }
+  .side-tree-toggle.open { transform: rotate(90deg); }
+  .side-children { padding-left: 18px; display: flex; flex-direction: column; gap: 1px; }
+  .side-children .side-item { padding: 6px 10px; font-size: 12.5px; }
+  .side-section { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 8px; padding: 10px 10px 6px; border: 0; background: transparent; color: var(--dim); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; cursor: pointer; }
+  .side-section:hover { color: var(--muted); }
+  .side-section .ms { font-size: 18px; transition: transform .3s var(--spring); }
+  .side-section.collapsed .ms { transform: rotate(180deg); }
+  /* The sidebar scrolls; its sections never squash to fit it. */
+  .side-group { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+  .sidebar > * { flex-shrink: 0; }
+  .side-group.collapsed { display: none; }
+  .side-item.pinned { cursor: pointer; }
+  .side-item.pin-dragging { opacity: .4; }
+  .side-item.pin-before { box-shadow: inset 0 2px 0 var(--sys-accent-text); }
+  .side-item.pin-after { box-shadow: inset 0 -2px 0 var(--sys-accent-text); }
+
+  .topbar { gap: 6px; padding: 10px 12px 8px; border-bottom: 0; background: transparent; }
+  .address { flex: 1; min-width: 0; height: 36px; display: flex; align-items: center; gap: 4px; padding: 0 4px 0 10px; border-radius: 11px; background: rgba(255,255,255,.06); border: 1px solid transparent; }
+  .address:focus-within { border-color: var(--sys-accent-text); }
+  .address-icon { display: flex; }
+  .address-icon .icon-bg { width: 20px; height: 20px; flex: 0 0 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .address-icon .icon-bg .ms { font-size: 13px; color: #fff; }
+  .address .crumbs { height: 34px; border: 0; background: transparent; padding: 0 2px; }
+  .ib.small { width: 28px; height: 28px; flex-basis: 28px; }
+  .ib.small .ms { font-size: 17px; }
+  .search { width: 260px; height: 36px; border-radius: 11px; background: rgba(255,255,255,.06); border-color: transparent; }
+  .actionbar { gap: 2px; padding: 4px 12px 8px; border-bottom: 1px solid var(--border); flex-wrap: nowrap; overflow: hidden; }
+  .ab { height: 32px; padding: 0 8px; border-radius: 9px; color: rgba(255,255,255,.78); }
+  .ab .caret { font-size: 18px; margin: 0 -4px 0 -4px; opacity: .7; }
+  .ab.on { background: color-mix(in srgb, var(--accent) 20%, transparent); color: #fff; }
+  .sep { margin: 0 6px; }
+
+  .body-row { flex: 1; min-height: 0; display: flex; }
+  .body-row .content { flex: 1; min-width: 0; }
+  .pane { width: 0; flex: 0 0 auto; overflow: hidden; border-left: 1px solid transparent; transition: width .35s var(--spring), border-color .35s; }
+  .pane.open { width: 260px; border-left-color: var(--border); }
+  .pane-inner { width: 260px; height: 100%; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .pane-thumb { height: 150px; border-radius: 14px; background: rgba(255,255,255,.04); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .pane-thumb img { width: 100%; height: 100%; object-fit: contain; }
+  .pane-thumb .fchip { width: 72px; height: 72px; border-radius: 18px; }
+  .pane-thumb .fchip .ms { font-size: 40px; }
+  .pane-thumb .fchip.c-folder .ms { font-size: 96px; }
+  .pane-name { font-size: 14px; font-weight: 600; word-break: break-word; user-select: text; }
+  .pane-props { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 12px; }
+  .pane-props span:nth-child(odd) { color: var(--muted); }
+  .pane-props span:nth-child(even) { text-align: right; word-break: break-all; user-select: text; }
+  .pane-empty { margin: auto; text-align: center; color: var(--dim); font-size: 12.5px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .pane-empty .ms { font-size: 40px; opacity: .5; }
+
+  .status { justify-content: center; padding: 7px 14px; }
+
+  /* Tabs: in the window title bar inside mariowOS; this strip is for the page on its own. */
+  body.embedded .tabbar { display: none; }
+  .tabbar { display: flex; align-items: center; gap: 4px; padding: 8px 10px 0; min-width: 0; }
+  .tabs { display: flex; align-items: center; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .ftab { position: relative; display: flex; align-items: center; gap: 8px; flex: 0 1 190px; min-width: 64px; max-width: 190px; height: 32px; padding: 0 4px 0 8px; border-radius: 10px; color: rgba(255,255,255,.66); font-size: 12.5px; cursor: pointer; transition: background .18s, color .18s; overflow: hidden; }
+  .ftab:hover { background: rgba(255,255,255,.05); color: #fff; }
+  .ftab.active { background: rgba(255,255,255,.09); color: #fff; }
+  .ftab.drop-target { background: color-mix(in srgb, var(--accent) 26%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); color: #fff; }
+  .ftab .icon-bg { width: 18px; height: 18px; flex: 0 0 18px; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .ftab .icon-bg .ms { font-size: 12px; color: #fff; }
+  .ftab .ftab-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ftab .ftab-close { width: 22px; height: 22px; flex: 0 0 22px; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; background: transparent; color: inherit; cursor: pointer; opacity: 0; transition: opacity .15s, background .15s; }
+  .ftab:hover .ftab-close, .ftab.active .ftab-close { opacity: .7; }
+  .ftab .ftab-close:hover { opacity: 1; background: rgba(255,255,255,.12); }
+  .ftab .ftab-close .ms { font-size: 15px; }
+  .tabs.single .ftab-close { display: none; }
+
+  /* Home page */
+  .home-view { padding: 6px 14px 20px; }
+  .home-head { display: flex; align-items: center; gap: 8px; padding: 12px 6px 10px; font-size: 12.5px; color: var(--muted); }
+  .home-head b { color: rgba(255,255,255,.88); font-weight: 500; }
+  .home-head .bar { width: 1px; height: 11px; background: rgba(255,255,255,.2); }
+  .home-quick { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .quick-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.04); cursor: pointer; transition: background .15s, transform .3s var(--spring); font-size: 13px; min-width: 0; }
+  .quick-card:hover { background: rgba(255,255,255,.08); }
+  .quick-card:active { transform: scale(.97); }
+  .quick-card .icon-bg { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .quick-card .icon-bg .ms { font-size: 18px; color: #fff; }
+  .quick-card span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 6px 12px; }
+  .chip { height: 28px; padding: 0 14px; border: 0; border-radius: 8px; background: rgba(255,255,255,.07); color: rgba(255,255,255,.82); font-size: 12.5px; cursor: pointer; transition: background .15s, color .15s; }
+  .chip:hover { background: rgba(255,255,255,.12); }
+  .chip.on { background: color-mix(in srgb, var(--accent) 26%, transparent); color: #fff; font-weight: 500; }
+  .home-empty { padding: 60px 20px; text-align: center; color: var(--dim); font-size: 12.5px; }
+  .home-view .list-head { position: static; background: transparent; border-bottom: 0; padding: 4px 16px 6px; }
+  .home-view .grid { padding: 0; }
+  @media (max-width: 720px) { .search { width: 140px; } .pane.open { width: 0; } }
 </style>
 </head>
 <body>
@@ -188,36 +290,49 @@ Licensed under the Apache License, Version 2.0
 <aside class="sidebar" id="sidebar"></aside>
 
 <main class="main">
+  <div class="tabbar" id="tabbar"><div class="tabs" id="tabs"></div><button class="ib small" id="newTabBtn" title="New tab (Ctrl+T)" data-i18n-title="explorer.tabs.new-hint"><span class="ms">add</span></button></div>
   <div class="topbar">
-    <button class="ib" id="backBtn" title="Back (Alt+Left)" data-i18n-title="explorer.nav.back"><span class="ms">arrow_back</span></button>
-    <button class="ib" id="fwdBtn" title="Forward (Alt+Right)" data-i18n-title="explorer.nav.forward"><span class="ms">arrow_forward</span></button>
-    <button class="ib" id="upBtn" title="Up (Alt+Up)" data-i18n-title="explorer.nav.up"><span class="ms">arrow_upward</span></button>
-    <button class="ib" id="refreshBtn" title="Refresh (F5)" data-i18n-title="explorer.nav.refresh"><span class="ms">refresh</span></button>
-    <div class="crumbs" id="crumbs" title="Click to type a path (Ctrl+L)" data-i18n-title="explorer.nav.type-path"></div>
+    <button class="ib" id="backBtn" title="Back (Alt+Left)" data-i18n-title="explorer.nav.back"><span class="ms">chevron_left</span></button>
+    <button class="ib" id="fwdBtn" title="Forward (Alt+Right)" data-i18n-title="explorer.nav.forward"><span class="ms">chevron_right</span></button>
+    <button class="ib" id="upBtn" title="Up (Alt+Up)" data-i18n-title="explorer.nav.up"><span class="ms">keyboard_arrow_up</span></button>
+    <div class="address">
+      <span class="address-icon" id="addressIcon"></span>
+      <div class="crumbs" id="crumbs" title="Click to type a path (Ctrl+L)" data-i18n-title="explorer.nav.type-path"></div>
+      <button class="ib small" id="refreshBtn" title="Refresh (F5)" data-i18n-title="explorer.nav.refresh"><span class="ms">refresh</span></button>
+    </div>
     <label class="search"><span class="ms">search</span><input id="searchInput" placeholder="Search" data-i18n-placeholder="common.search" spellcheck="false" autocomplete="off"></label>
   </div>
   <div class="actionbar" id="actionbar">
-    <button class="ab primary" id="newFolderBtn" title="New folder (Ctrl+Shift+N)" data-i18n-title="explorer.action.new-folder-hint"><span class="ms">create_new_folder</span><span class="txt" data-i18n="explorer.new-folder">New folder</span></button>
-    <button class="ab" id="newFileBtn" title="New text file" data-i18n-title="explorer.new-text-file"><span class="ms">note_add</span><span class="txt" data-i18n="explorer.action.new-file">New file</span></button>
-    <button class="ab" id="uploadBtn" title="Upload files" data-i18n-title="explorer.action.upload-files"><span class="ms">upload</span><span class="txt" data-i18n="explorer.action.upload">Upload</span></button>
+    <button class="ab" id="newBtn" title="New" data-i18n-title="explorer.action.new"><span class="ms">create_new_folder</span><span class="txt" data-i18n="explorer.action.new">New</span><span class="ms caret">arrow_drop_down</span></button>
     <div class="sep"></div>
     <button class="ab" id="cutBtn" title="Cut (Ctrl+X)" data-i18n-title="explorer.action.cut-hint"><span class="ms">content_cut</span></button>
     <button class="ab" id="copyBtn" title="Copy (Ctrl+C)" data-i18n-title="explorer.action.copy-hint"><span class="ms">content_copy</span></button>
     <button class="ab" id="pasteBtn" title="Paste (Ctrl+V)" data-i18n-title="explorer.action.paste-hint"><span class="ms">content_paste</span></button>
     <button class="ab" id="renameBtn" title="Rename (F2)" data-i18n-title="explorer.action.rename-hint"><span class="ms">drive_file_rename_outline</span></button>
     <button class="ab" id="deleteBtn" title="Move to trash (Delete)"><span class="ms">delete</span></button>
+    <button class="ab" id="selectAllBtn" title="Select all (Ctrl+A)" data-i18n-title="explorer.action.select-all-hint"><span class="ms">check_box</span></button>
+    <div class="sep"></div>
+    <button class="ab" id="sortBtn" title="Sort by" data-i18n-title="explorer.action.sort-by"><span class="ms">swap_vert</span><span class="txt" data-i18n="explorer.action.sort-by">Sort by</span><span class="ms caret">arrow_drop_down</span></button>
+    <button class="ab" id="viewBtn" title="View" data-i18n-title="explorer.action.view"><span class="ms" id="viewIcon">grid_view</span><span class="txt" data-i18n="explorer.action.view">View</span><span class="ms caret">arrow_drop_down</span></button>
+    <div class="sep"></div>
+    <button class="ab" id="moreBtn" title="More" data-i18n-title="explorer.action.more"><span class="ms">more_horiz</span></button>
     <div class="grow"></div>
     <span class="readonly-pill" id="readonlyPill"><span class="ms">lock</span><span data-i18n="explorer.read-only">Read-only</span></span>
-    <button class="ab" id="sortBtn" title="Sort" data-i18n-title="explorer.sort"><span class="ms">sort</span><span class="txt" data-i18n="explorer.sort">Sort</span></button>
-    <button class="ib" id="viewBtn" title="Switch view" data-i18n-title="explorer.action.switch-view"><span class="ms">grid_view</span></button>
+    <button class="ab" id="paneBtn" title="Preview pane" data-i18n-title="explorer.action.preview-pane"><span class="ms">vertical_split</span><span class="txt" data-i18n="explorer.action.preview">Preview</span></button>
   </div>
-  <div class="content" id="content" tabindex="0" data-drop-text="Drop files to upload them here"></div>
-  <div class="status"><span id="statusLeft"></span><span class="grow"></span><span id="statusRight"></span></div>
+  <div class="body-row">
+    <div class="content" id="content" tabindex="0" data-drop-text="Drop files to upload them here"></div>
+    <aside class="pane" id="pane"></aside>
+  </div>
+  <div class="status"><span class="grow"></span><span id="statusLeft"></span><span class="grow"></span><span id="statusRight"></span></div>
   <div class="toasts" id="toasts"></div>
 </main>
 
 <div class="menu" id="ctxMenu"></div>
 <div class="menu" id="sortMenu"></div>
+<div class="menu" id="newMenu"></div>
+<div class="menu" id="viewMenu"></div>
+<div class="menu" id="moreMenu"></div>
 <div class="preview" id="preview">
   <div class="preview-box">
     <div class="preview-head"><span class="title" id="previewTitle"></span>
@@ -236,6 +351,11 @@ Licensed under the Apache License, Version 2.0
 const $ = id => document.getElementById(id);
 const IS_EMBEDDED = window.parent !== window;
 const TRASH = 'trash:';
+// The start page: quick access and recent files, like the Home page of HarmonyOS Files.
+const HOME_VIEW = 'home:';
+const isVirtual = p => p === TRASH || p === HOME_VIEW;
+const RECENT_FILTERS = [['all', 'explorer.filter.all', 'All', null], ['image', 'explorer.filter.image', 'Image', ['image']], ['video', 'explorer.filter.videos', 'Videos', ['video']],
+  ['doc', 'explorer.filter.document', 'Document', ['doc', 'pdf', 'code']], ['audio', 'explorer.filter.audio', 'Audio', ['audio']], ['archive', 'explorer.filter.archives', 'Archives', ['archive']], ['other', 'explorer.filter.others', 'Others', ['file', 'exe']]];
 const HOME_FOLDERS = [
   { name: mariowOSI18n.t("explorer.home", "Home"), path: '/home', icon: 'home', color: 'home' },
   { name: mariowOSI18n.t("explorer.folder.desktop", "Desktop"), path: '/home/Desktop', icon: 'desktop_windows', color: 'desktop' },
@@ -274,9 +394,13 @@ function kindOf(item) {
   for (const [kind, exts] of Object.entries(TYPES)) if (exts.includes(item.ext)) return kind;
   return 'file';
 }
+// Tabs, pins, the clipboard and recent files point into the signed-in account's own home,
+// so they are kept per account (all accounts share this browser's storage).
+const PER_ACCOUNT = new Set(['files-tabs', 'files-pinned', 'files-clipboard', 'mariowos_recent_files']);
+const storeKey = k => PER_ACCOUNT.has(k) && window.mariowOSUserKey ? window.mariowOSUserKey(k) : k;
 const store = {
-  get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  get(k, d) { try { const v = JSON.parse(localStorage.getItem(storeKey(k))); return v ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(storeKey(k), JSON.stringify(v)); } catch (e) {} }
 };
 
 let currentPath = '/home';
@@ -290,6 +414,12 @@ let sortKey = store.get('files-sort', 'name');
 let sortDir = store.get('files-sort-dir', 1);
 let showHidden = store.get('files-hidden', false);
 let searchQuery = '';
+let recentFilter = 'all';
+let paneOpen = store.get('files-pane', false);
+let pinned = store.get('files-pinned', ['/home/Desktop', '/home/Documents', '/home/Downloads', '/home/Pictures', '/home/Music', '/home/Videos', TRASH]);
+let sideCollapsed = store.get('files-side-collapsed', {});
+// Tabs: each keeps its own folder and back/forward history; the active one lives in currentPath/history.
+let tabs = [], activeTab = 0, nextTabId = 1;
 let searchResults = null;
 const history = { back: [], fwd: [] };
 let loadToken = 0;
@@ -301,7 +431,7 @@ function icon(name, cls = '') { return el('span', 'ms ' + cls, name); }
 function fileIconChip(kind) { const chip = el('div', 'icon-bg fchip c-' + kind); chip.append(icon(TYPE_ICON[kind])); return chip; }
 function joinPath(dir, name) { return (dir === '/' ? '' : dir.replace(/\/$/, '')) + '/' + name; }
 function parentOf(p) {
-  if (p === '/' || p === TRASH) return null;
+  if (p === '/' || isVirtual(p)) return null;
   if (p === '/device') return '/';
   const up = p.replace(/\/[^/]*\/?$/, '') || '/';
   return /^\/device\/[A-Za-z]:?$/.test(p) ? '/device' : up;
@@ -357,6 +487,14 @@ function sideItem(label, iconName, pathValue, extra = '', color = '') {
   const tile = el('div', 'icon-bg' + (color ? ' ic-' + color : ''));
   tile.append(icon(iconName));
   item.append(tile, el('span', 'txt', label));
+  if (extra.includes('pinned')) {
+    makePinDraggable(item, pathValue);
+    const pin = el('button', 'side-pin');
+    pin.title = mariowOSI18n.t("explorer.unpin", "Unpin from Quick access");
+    pin.append(icon('keep'));
+    pin.onclick = e => { e.stopPropagation(); togglePin(pathValue); };
+    item.append(pin);
+  }
   item.title = label;
   item.onclick = () => navigate(pathValue);
   if (pathValue !== TRASH && isHome(pathValue)) makeDropTarget(item, () => pathValue);
@@ -367,17 +505,120 @@ function sideItem(label, iconName, pathValue, extra = '', color = '') {
   }
   return item;
 }
+// What a folder looks like in the sidebar and on the Home page.
+function folderLook(p) {
+  if (p === TRASH) return { name: mariowOSI18n.t("explorer.trash", "Trash"), icon: 'delete', color: 'trash' };
+  const known = HOME_FOLDERS.find(f => f.path === p);
+  if (known) return { name: known.name, icon: known.icon, color: known.color };
+  return { name: p.split('/').filter(Boolean).pop() || '/', icon: 'folder', color: 'documents' };
+}
+function pinnedFolders() { return pinned.map(p => ({ path: p, ...folderLook(p) })); }
+// Pinned folders are dragged into any order; the others slide out of the way.
+let draggingPin = null;
+function makePinDraggable(item, pathValue) {
+  item.draggable = true;
+  item.addEventListener('dragstart', e => {
+    draggingPin = pathValue;
+    item.classList.add('pin-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'files-pin');
+  });
+  item.addEventListener('dragend', () => {
+    draggingPin = null;
+    document.querySelectorAll('.pin-dragging, .pin-before, .pin-after').forEach(n => n.classList.remove('pin-dragging', 'pin-before', 'pin-after'));
+  });
+  const after = e => { const r = item.getBoundingClientRect(); return e.clientY > r.top + r.height / 2; };
+  item.addEventListener('dragover', e => {
+    if (!draggingPin) return;
+    e.stopImmediatePropagation();
+    if (draggingPin === pathValue) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    item.classList.toggle('pin-after', after(e));
+    item.classList.toggle('pin-before', !after(e));
+  });
+  item.addEventListener('dragleave', e => { if (!item.contains(e.relatedTarget)) item.classList.remove('pin-before', 'pin-after'); });
+  item.addEventListener('drop', e => {
+    if (!draggingPin) return;
+    // A pin being moved is never a file drop on that folder.
+    e.preventDefault(); e.stopImmediatePropagation();
+    const moving = draggingPin, below = after(e);
+    draggingPin = null;
+    if (moving === pathValue) return;
+    const before = new Map([...document.querySelectorAll('.side-item.pinned')].map(n => [n.dataset.path, n.getBoundingClientRect().top]));
+    const rest = pinned.filter(p => p !== moving);
+    rest.splice(rest.indexOf(pathValue) + (below ? 1 : 0), 0, moving);
+    pinned = rest;
+    store.set('files-pinned', pinned);
+    renderSidebar();
+    document.querySelectorAll('.side-item.pinned').forEach(n => {
+      const dy = (before.get(n.dataset.path) ?? n.getBoundingClientRect().top) - n.getBoundingClientRect().top;
+      if (dy) n.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 320, easing: 'cubic-bezier(.16,1,.3,1)' });
+    });
+    if (currentPath === HOME_VIEW) render();
+  });
+}
+function togglePin(p) {
+  pinned = pinned.includes(p) ? pinned.filter(x => x !== p) : [...pinned, p];
+  store.set('files-pinned', pinned);
+  renderSidebar();
+  if (currentPath === HOME_VIEW) render();
+}
+// A section title that folds its group away, remembered per section.
+function sideSection(key, label, group) {
+  const head = el('button', 'side-section' + (sideCollapsed[key] ? ' collapsed' : ''));
+  head.append(el('span', null, label), icon('keyboard_arrow_up'));
+  group.classList.toggle('collapsed', !!sideCollapsed[key]);
+  head.onclick = () => {
+    sideCollapsed[key] = !sideCollapsed[key];
+    store.set('files-side-collapsed', sideCollapsed);
+    head.classList.toggle('collapsed', sideCollapsed[key]);
+    group.classList.toggle('collapsed', sideCollapsed[key]);
+  };
+  return head;
+}
+// Home in the storage tree opens to its own folders.
+function treeItem(label, iconName, pathValue, color) {
+  const item = sideItem(label, iconName, pathValue, '', color);
+  const toggle = el('button', 'side-tree-toggle');
+  toggle.append(icon('chevron_right'));
+  const children = el('div', 'side-children');
+  children.hidden = true;
+  toggle.onclick = async e => {
+    e.stopPropagation();
+    const open = children.hidden;
+    toggle.classList.toggle('open', open);
+    children.hidden = !open;
+    if (open && !children.childElementCount) {
+      try {
+        const d = await api('/api/system/files?path=' + encodeURIComponent(pathValue));
+        (d.contents || []).filter(i => i.type === 'folder' && !i.name.startsWith('.')).forEach(f => {
+          const look = folderLook(joinPath(pathValue, f.name));
+          children.append(sideItem(f.name, look.icon, joinPath(pathValue, f.name), '', look.color));
+        });
+        highlightSidebar();
+      } catch (err) {}
+    }
+  };
+  item.prepend(toggle);
+  const wrap = el('div');
+  wrap.append(item, children);
+  return wrap;
+}
 async function renderSidebar() {
   const side = $('sidebar');
-  side.replaceChildren(el('div', 'side-label', mariowOSI18n.t("explorer.side.quick-access", "Quick access")));
-  HOME_FOLDERS.forEach(f => side.append(sideItem(f.name, f.icon, f.path, '', f.color)));
-  side.append(sideItem(mariowOSI18n.t("explorer.trash", "Trash"), 'delete', TRASH, 'trash', 'trash'));
-  side.append(el('div', 'side-label', mariowOSI18n.t("explorer.side.locations", "Locations")));
-  side.append(sideItem(mariowOSI18n.t("explorer.side.system", "System"), 'dns', '/', '', 'system'));
+  side.replaceChildren(sideItem(mariowOSI18n.t("explorer.home", "Home"), 'home', HOME_VIEW, 'home-item', 'home'));
+  const quick = el('div', 'side-group');
+  pinnedFolders().forEach(f => quick.append(sideItem(f.name, f.icon, f.path, 'pinned' + (f.path === TRASH ? ' trash' : ''), f.color)));
+  side.append(sideSection('quick', mariowOSI18n.t("explorer.side.quick-access", "Quick access"), quick), quick);
+  const places = el('div', 'side-group');
+  places.append(treeItem(mariowOSI18n.t("explorer.side.home-folder", "Home folder"), 'folder_shared', '/home', 'home'));
+  places.append(sideItem(mariowOSI18n.t("explorer.side.system", "System"), 'dns', '/', '', 'system'));
+  side.append(sideSection('storage', mariowOSI18n.t("explorer.side.storage-location", "Storage location"), places), places);
   try {
     const data = await api('/api/system/files?path=/device');
-    (data.contents || []).forEach(v => side.append(sideItem(v.name, 'hard_drive', '/device/' + v.name, '', 'drive')));
-  } catch (e) { side.append(sideItem(mariowOSI18n.t("explorer.side.this-pc", "This PC"), 'computer', '/device', '', 'drive')); }
+    (data.contents || []).filter(v => v.isVolume || v.type === 'folder').forEach(v => places.append(sideItem(v.name, 'hard_drive', '/device/' + v.name, '', 'drive')));
+  } catch (e) { places.append(sideItem(mariowOSI18n.t("explorer.side.this-pc", "This PC"), 'computer', '/device', '', 'drive')); }
   const storage = el('div', 'storage');
   storage.id = 'storage';
   side.append(storage);
@@ -398,7 +639,7 @@ function highlightSidebar() {
   document.querySelectorAll('.side-item').forEach(i => {
     i.classList.remove('active');
     const p = i.dataset.path;
-    if (currentPath === p || (p !== '/' && p !== TRASH && currentPath.startsWith(p + '/'))) { if (!best || p.length > best.dataset.path.length) best = i; }
+    if (currentPath === p || (p !== '/' && !isVirtual(p) && currentPath.startsWith(p + '/'))) { if (!best || p.length > best.dataset.path.length) best = i; }
   });
   best?.classList.add('active');
 }
@@ -406,7 +647,7 @@ function highlightSidebar() {
 /* ───────────────────────── Navigation ───────────────────────── */
 function normalizePath(p) {
   if (!p) return '/home';
-  if (p === TRASH) return TRASH;
+  if (p === TRASH || p === HOME_VIEW) return p;
   p = String(p).trim().replace(/\\/g, '/');
   if (p === '~' || p.startsWith('~/')) p = '/home' + p.slice(1);
   if (!p.startsWith('/')) p = '/' + p;
@@ -432,7 +673,11 @@ async function load() {
   highlightSidebar();
   updateNavButtons();
   try {
-    if (currentPath === TRASH) {
+    if (currentPath === HOME_VIEW) {
+      items = await loadRecents();
+      if (token !== loadToken) return;
+      readOnly = false;
+    } else if (currentPath === TRASH) {
       const d = await api('/api/system/files/trash');
       if (token !== loadToken) return;
       items = d.items.map(t => ({ name: t.name, type: t.isFolder ? 'folder' : 'file', ext: t.isFolder ? '' : (t.name.match(/\.[^.]+$/) || [''])[0].toLowerCase(), bytes: -1, mtime: t.deletedAt, trashId: t.id, from: t.from }));
@@ -464,7 +709,14 @@ $('refreshBtn').onclick = () => { load(); };
 function renderCrumbs() {
   const box = $('crumbs');
   box.replaceChildren();
-  if (currentPath === TRASH) { const c = el('span', 'crumb last', mariowOSI18n.t("explorer.trash", "Trash")); box.append(icon('delete', 'crumb-sep'), c); return; }
+  const look = currentPath === HOME_VIEW ? { icon: 'home', color: 'home' } : currentPath === TRASH ? folderLook(TRASH) : folderLook(currentPath);
+  const tile = el('div', 'icon-bg ic-' + look.color); tile.append(icon(look.icon));
+  $('addressIcon').replaceChildren(tile);
+  const where = currentPath === HOME_VIEW ? mariowOSI18n.t("explorer.home", "Home") : currentPath === TRASH ? mariowOSI18n.t("explorer.trash", "Trash") : currentPath === '/home' ? mariowOSI18n.t("explorer.side.home-folder", "Home folder") : (currentPath.split('/').filter(Boolean).pop() || '/');
+  $('searchInput').placeholder = mariowOSI18n.t("explorer.search-in", "Search \"{folder}\"", { folder: where });
+  if (tabs[activeTab]) { saveTabs(); renderTabs(); }
+  if (currentPath === HOME_VIEW) { box.append(el('span', 'crumb last', mariowOSI18n.t("explorer.home", "Home"))); return; }
+  if (currentPath === TRASH) { box.append(el('span', 'crumb last', mariowOSI18n.t("explorer.trash", "Trash"))); return; }
   const parts = currentPath.split('/').filter(Boolean);
   const root = el('span', 'crumb' + (parts.length ? '' : ' last'), '/');
   root.onclick = e => { e.stopPropagation(); navigate('/'); };
@@ -485,7 +737,7 @@ function editAddress() {
   const box = $('crumbs');
   if (box.querySelector('input')) return;
   const input = el('input');
-  input.value = currentPath === TRASH ? '' : currentPath;
+  input.value = isVirtual(currentPath) ? '' : currentPath;
   input.spellcheck = false;
   box.replaceChildren(input);
   input.focus();
@@ -502,6 +754,11 @@ $('crumbs').onclick = editAddress;
 function visibleItems() {
   let list = searchResults || items;
   if (!showHidden) list = list.filter(i => !i.name.startsWith('.'));
+  // Home lists recent files newest first, narrowed by the chip that is on.
+  if (currentPath === HOME_VIEW && !searchResults) {
+    const kinds = RECENT_FILTERS.find(f => f[0] === recentFilter)?.[3];
+    return list.filter(i => !kinds || kinds.includes(kindOf(i))).sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
+  }
   const dir = sortDir;
   const cmp = {
     name: (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
@@ -528,9 +785,34 @@ function render() {
   const box = $('content');
   const list = visibleItems();
   box.replaceChildren();
-  $('readonlyPill').classList.toggle('show', readOnly && currentPath !== TRASH && !searchResults);
-  $('viewBtn').querySelector('.ms').textContent = viewMode === 'list' ? 'grid_view' : 'view_list';
-  if (!list.length) {
+  $('readonlyPill').classList.toggle('show', readOnly && !isVirtual(currentPath) && !searchResults);
+  $('viewIcon').textContent = viewMode === 'list' ? 'view_list' : 'grid_view';
+  renderPane();
+  let host = box;
+  if (currentPath === HOME_VIEW && !searchResults) {
+    host = el('div', 'home-view');
+    box.append(host);
+    const folders = pinnedFolders();
+    host.append(homeHead(mariowOSI18n.t("explorer.side.quick-access", "Quick access"), folders.length));
+    const quick = el('div', 'home-quick');
+    folders.forEach(f => {
+      const card = el('div', 'quick-card');
+      const tile = el('div', 'icon-bg ic-' + f.color); tile.append(icon(f.icon));
+      card.append(tile, el('span', null, f.name));
+      card.onclick = () => navigate(f.path);
+      if (f.path !== TRASH) makeDropTarget(card, () => f.path);
+      quick.append(card);
+    });
+    host.append(quick, homeHead(mariowOSI18n.t("explorer.recents", "Recents"), list.length));
+    const chips = el('div', 'chips');
+    RECENT_FILTERS.forEach(([id, key, fallback]) => {
+      const chip = el('button', 'chip' + (id === recentFilter ? ' on' : ''), mariowOSI18n.t(key, fallback));
+      chip.onclick = () => { recentFilter = id; selection.clear(); render(); };
+      chips.append(chip);
+    });
+    host.append(chips);
+    if (!list.length) { host.append(el('div', 'home-empty', mariowOSI18n.t("explorer.recents-empty", "Recently opened or created files will appear here"))); updateStatus(); updateActions(); return; }
+  } else if (!list.length) {
     renderMessage(searchResults ? mariowOSI18n.t("explorer.empty.no-results", "No results for \"{query}\"", { query: searchQuery })
       : currentPath === TRASH ? mariowOSI18n.t("explorer.empty.trash", "The trash is empty")
       : readOnly ? mariowOSI18n.t("explorer.empty.folder", "This folder is empty") : mariowOSI18n.t("explorer.empty.folder-drop", "This folder is empty · drop files here to upload"),
@@ -545,7 +827,7 @@ function render() {
       h.onclick = () => { if (sortKey === key) sortDir = -sortDir; else { sortKey = key; sortDir = 1; } store.set('files-sort', sortKey); store.set('files-sort-dir', sortDir); render(); };
       head.append(h);
     });
-    box.append(head);
+    host.append(head);
   }
   const container = viewMode === 'grid' ? el('div', 'grid') : el('div');
   const cutSet = clipboard?.mode === 'cut' && clipboard.fromPath === currentPath ? new Set(clipboard.names) : null;
@@ -572,12 +854,13 @@ function render() {
       const name = el('div', 'name');
       name.append(iconEl, el('span', null, item.name));
       const date = el('div', 'meta m-date', formatDate(item.mtime, item.date));
-      const type = el('div', 'meta m-type', searchResults ? (item.dir === '/home' ? mariowOSI18n.t("explorer.home", "Home") : item.dir.replace('/home/', '')) : currentPath === TRASH ? (item.from || '') : TYPE_LABEL[kind]);
+      const type = el('div', 'meta m-type', searchResults || currentPath === HOME_VIEW ? (item.dir === '/home' ? mariowOSI18n.t("explorer.side.home-folder", "Home folder") : item.dir.replace('/home/', '')) : currentPath === TRASH ? (item.from || '') : TYPE_LABEL[kind]);
       const size = el('div', 'meta right', item.type === 'folder' ? '' : formatSize(item.bytes));
       node.append(name, date, type, size);
     }
     node.addEventListener('mousedown', e => onItemMouseDown(e, item));
     node.addEventListener('dblclick', () => openItem(item));
+    if (item.type === 'folder' && !item.trashId) node.addEventListener('auxclick', e => { if (e.button === 1) { e.preventDefault(); openTab(item.isVolume ? '/device/' + item.name : joinPath(item.dir || currentPath, item.name), false); } });
     node.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); if (!selection.has(itemKey(item))) selectOnly(item); openContextMenu(e.clientX, e.clientY, item); });
     if (!readOnly && !item.trashId) {
       node.draggable = true;
@@ -587,12 +870,58 @@ function render() {
     }
     container.append(node);
   });
-  box.append(container);
+  host.append(container);
   updateStatus();
   updateActions();
 }
+function homeHead(label, count) {
+  const head = el('div', 'home-head');
+  head.append(el('b', null, label), el('span', 'bar'), el('span', null, plural(count, mariowOSI18n.t("explorer.status.items-one", "{count} item", { count }), mariowOSI18n.t("explorer.status.items-other", "{count} items", { count }))));
+  return head;
+}
+// Recents: files opened from the desktop, plus the newest files in the Home folders.
+async function loadRecents() {
+  const found = new Map();
+  const add = item => { const key = item.dir + '\u0000' + item.name; const old = found.get(key); if (!old || (item.mtime || 0) > (old.mtime || 0)) found.set(key, { ...old, ...item, mtime: Math.max(item.mtime || 0, old?.mtime || 0) }); };
+  const opened = store.get('mariowos_recent_files', []);
+  (Array.isArray(opened) ? opened : []).forEach(f => {
+    if (!f || typeof f.path !== 'string' || typeof f.name !== 'string' || !isHome(f.path)) return;
+    add({ name: f.name, type: 'file', ext: (f.name.match(/\.[^.]+$/) || [''])[0].toLowerCase(), bytes: -1, mtime: f.at, dir: f.path });
+  });
+  const lists = await Promise.all(HOME_FOLDERS.map(f => api('/api/system/files?path=' + encodeURIComponent(f.path)).then(d => ({ dir: f.path, list: d.contents || [] }), () => ({ dir: f.path, list: [] }))));
+  lists.forEach(({ dir, list }) => list.filter(i => i.type !== 'folder' && !i.name.startsWith('.')).forEach(i => add({ ...i, dir })));
+  return [...found.values()].sort((a, b) => (b.mtime || 0) - (a.mtime || 0)).slice(0, 60);
+}
+// The preview pane shows the selected item, or the folder itself.
+function renderPane() {
+  const pane = $('pane');
+  pane.classList.toggle('open', paneOpen);
+  $('paneBtn').classList.toggle('on', paneOpen);
+  if (!paneOpen) return;
+  const inner = el('div', 'pane-inner');
+  const sel = selectedItems();
+  if (sel.length !== 1) {
+    const empty = el('div', 'pane-empty');
+    empty.append(icon(sel.length ? 'library_add_check' : 'touch_app'), el('div', null, sel.length ? mariowOSI18n.t("explorer.status.selected-other", "{count} selected", { count: sel.length }) : mariowOSI18n.t("explorer.pane.pick", "Select a file to see it here")));
+    inner.append(empty);
+    pane.replaceChildren(inner);
+    return;
+  }
+  const item = sel[0], kind = kindOf(item), dir = item.dir || currentPath;
+  const thumb = el('div', 'pane-thumb');
+  if (kind === 'image' && isHome(dir) && !item.trashId) { const img = el('img'); img.alt = ''; img.src = rawUrl(item); img.onerror = () => img.replaceWith(fileIconChip(kind)); thumb.append(img); }
+  else thumb.append(fileIconChip(kind));
+  const props = el('div', 'pane-props');
+  [[mariowOSI18n.t("explorer.column.type", "Type"), TYPE_LABEL[kind] + (item.ext ? ` (${item.ext})` : '')],
+   [mariowOSI18n.t("explorer.column.size", "Size"), item.bytes >= 0 && item.type !== 'folder' ? formatSize(item.bytes) : '—'],
+   [mariowOSI18n.t("explorer.column.modified", "Modified"), formatDate(item.mtime, item.date) || '—'],
+   [mariowOSI18n.t("explorer.props.location", "Location"), dir === TRASH ? (item.from || '') : dir]].forEach(([k, v]) => props.append(el('span', null, k), el('span', null, v)));
+  inner.append(thumb, el('div', 'pane-name', item.name), props);
+  pane.replaceChildren(inner);
+}
 function refreshSelectionClasses() {
   document.querySelectorAll('[data-key]').forEach(n => n.classList.toggle('selected', selection.has(n.dataset.key)));
+  renderPane();
   updateStatus();
   updateActions();
 }
@@ -600,19 +929,19 @@ function updateStatus() {
   const list = items.length || searchResults ? visibleItems() : [];
   const sel = selectedItems();
   const folder = currentPath === '/home' ? mariowOSI18n.t("explorer.home", "Home") : currentPath;
+  const folders = list.filter(i => i.type === 'folder').length, files = list.length - folders;
   $('statusLeft').textContent = searchResults
     ? plural(list.length, mariowOSI18n.t("explorer.status.found-one", "{count} item found in {folder}", { count: list.length, folder }), mariowOSI18n.t("explorer.status.found-other", "{count} items found in {folder}", { count: list.length, folder }))
-    : plural(list.length, mariowOSI18n.t("explorer.status.items-one", "{count} item", { count: list.length }), mariowOSI18n.t("explorer.status.items-other", "{count} items", { count: list.length }));
+    : mariowOSI18n.t("explorer.status.files-folders", "{files} files, {folders} folders", { files, folders });
   const bytes = sel.reduce((s, i) => s + (i.bytes > 0 ? i.bytes : 0), 0);
   $('statusRight').textContent = sel.length ? `${plural(sel.length, mariowOSI18n.t("explorer.status.selected-one", "{count} selected", { count: sel.length }), mariowOSI18n.t("explorer.status.selected-other", "{count} selected", { count: sel.length }))}${bytes ? ' · ' + formatSize(bytes) : ''}` : '';
 }
 function updateActions() {
   const sel = selectedItems();
-  const writable = !readOnly && currentPath !== TRASH;
+  const writable = !readOnly && !isVirtual(currentPath);
   const homeSel = sel.length && sel.every(i => isHome(i.dir || currentPath)) && !sel.some(i => i.trashId);
-  $('newFolderBtn').disabled = !writable || Boolean(searchResults);
-  $('newFileBtn').disabled = !writable || Boolean(searchResults);
-  $('uploadBtn').disabled = !writable || Boolean(searchResults);
+  $('newBtn').disabled = !writable || Boolean(searchResults);
+  $('selectAllBtn').disabled = !visibleItems().length;
   $('cutBtn').disabled = !homeSel || readOnly;
   $('copyBtn').disabled = !homeSel;
   $('pasteBtn').disabled = !writable || !clipboard || Boolean(searchResults);
@@ -679,6 +1008,7 @@ function openItem(item) {
   if (item.trashId) { restoreItems([item]); return; }
   const dir = item.dir || currentPath;
   if (item.type === 'folder') { navigate(item.isVolume ? '/device/' + item.name : joinPath(dir, item.name)); return; }
+  if (item.ext === '.mwapp' && IS_EMBEDDED && isHome(dir)) { window.parent.postMessage({ type: 'open-app-shortcut', path: dir, name: item.name }, location.origin); return; }
   const kind = kindOf(item);
   // Images and videos open in the dedicated Pictures / Video Player apps (not the inline
   // preview). Only within Home, where /api/system/files/raw can serve the file.
@@ -752,7 +1082,7 @@ $('previewOpen').onclick = () => { const item = previewList[previewIndex]; close
 
 /* ───────────────────────── File operations ───────────────────────── */
 async function createFolder() {
-  if (readOnly || currentPath === TRASH) return;
+  if (readOnly || isVirtual(currentPath)) return;
   const name = await mDialog.prompt(mariowOSI18n.t("explorer.prompt.folder-name", "Folder name"), { title: mariowOSI18n.t("explorer.new-folder", "New folder"), defaultValue: uniqueLocal(mariowOSI18n.t("explorer.new-folder", "New folder")), okText: mariowOSI18n.t("explorer.prompt.create", "Create") });
   if (!name) return;
   try {
@@ -764,7 +1094,7 @@ async function createFolder() {
   } catch (e) { toast(e.message, { error: true }); }
 }
 async function createFile() {
-  if (readOnly || currentPath === TRASH) return;
+  if (readOnly || isVirtual(currentPath)) return;
   const name = await mDialog.prompt(mariowOSI18n.t("explorer.prompt.file-name", "File name"), { title: mariowOSI18n.t("explorer.new-text-file", "New text file"), defaultValue: uniqueLocal(mariowOSI18n.t("explorer.prompt.default-file-name", "New file.txt")), okText: mariowOSI18n.t("explorer.prompt.create", "Create") });
   if (!name) return;
   try {
@@ -899,7 +1229,7 @@ function setClipboard(mode) {
   render();
 }
 async function paste(toPath = currentPath) {
-  if (!clipboard || readOnly || currentPath === TRASH) return;
+  if (!clipboard || readOnly || isVirtual(currentPath)) return;
   await transfer(clipboard.fromPath, toPath, clipboard.names, clipboard.mode === 'cut' ? 'move' : 'copy');
   if (clipboard.mode === 'cut') { clipboard = null; store.set('files-clipboard', null); }
 }
@@ -926,7 +1256,7 @@ async function reload() {
 
 /* ── Uploads with progress (raw binary, no base64) ── */
 function uploadFiles(files, toPath = currentPath) {
-  if (readOnly || currentPath === TRASH || !files.length) return;
+  if ((readOnly || isVirtual(currentPath)) && toPath === currentPath || !files.length) return;
   const list = [...files];
   const t = toast(plural(list.length, mariowOSI18n.t("explorer.upload.uploading-one", "Uploading {count} file…", { count: list.length }), mariowOSI18n.t("explorer.upload.uploading-other", "Uploading {count} files…", { count: list.length })), { progress: true });
   const total = list.reduce((s, f) => s + f.size, 0) || 1;
@@ -950,7 +1280,6 @@ function uploadFiles(files, toPath = currentPath) {
   };
   next(0);
 }
-$('uploadBtn').onclick = () => $('uploadInput').click();
 $('uploadInput').onchange = e => { uploadFiles(e.target.files); e.target.value = ''; };
 
 /* ── Drag and drop: internal moves and external uploads ── */
@@ -967,6 +1296,7 @@ function onDragStart(e, item) {
 }
 function makeDropTarget(node, getPath) {
   node.addEventListener('dragover', e => {
+    if (draggingPin) return;
     const target = getPath();
     if (dragData ? (dragData.names.length && !(dragData.fromPath === parentOf(target) && dragData.names.includes(target.split('/').pop())) && target !== dragData.fromPath) : e.dataTransfer.types.includes('Files')) {
       e.preventDefault();
@@ -987,17 +1317,206 @@ function makeDropTarget(node, getPath) {
 }
 const content = $('content');
 content.addEventListener('dragover', e => {
-  if (dragData || readOnly || currentPath === TRASH || !e.dataTransfer.types.includes('Files')) return;
+  if (readOnly || isVirtual(currentPath)) return;
+  // Files dragged in from another tab (or folder) can be dropped anywhere in this one.
+  if (dragData ? dragData.fromPath === currentPath : !e.dataTransfer.types.includes('Files')) return;
   e.preventDefault();
+  if (dragData) e.dataTransfer.dropEffect = e.ctrlKey || e.altKey ? 'copy' : 'move';
   content.classList.add('drag-over');
 });
 content.addEventListener('dragleave', e => { if (e.target === content) content.classList.remove('drag-over'); });
 content.addEventListener('drop', e => {
   content.classList.remove('drag-over');
-  if (dragData) return;
   e.preventDefault();
+  if (dragData) {
+    const d = dragData; dragData = null;
+    if (d.fromPath !== currentPath && !readOnly && !isVirtual(currentPath)) transfer(d.fromPath, currentPath, d.names, e.ctrlKey || e.altKey ? 'copy' : 'move');
+    return;
+  }
   if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
 });
+// A drag whose source row went away (the tab changed under it) never gets its dragend.
+document.addEventListener('dragend', () => { dragData = null; document.querySelectorAll('.drop-target').forEach(n => n.classList.remove('drop-target')); }, true);
+document.addEventListener('drop', () => setTimeout(() => { dragData = null; clearTimeout(tabHoverTimer); }, 0), true);
+
+/* ───────────────────────── Tabs ───────────────────────── */
+let tabHoverTimer = null;
+function tabLook(p) {
+  if (p === HOME_VIEW) return { name: mariowOSI18n.t("explorer.home", "Home"), icon: 'home', color: 'home' };
+  if (p === '/home') return { name: mariowOSI18n.t("explorer.side.home-folder", "Home folder"), icon: 'folder_shared', color: 'home' };
+  return folderLook(p);
+}
+function saveTabs() {
+  if (tabs[activeTab]) Object.assign(tabs[activeTab], { path: currentPath, back: history.back, fwd: history.fwd });
+  store.set('files-tabs', { paths: tabs.map(t => t.path), active: activeTab });
+}
+// Inside mariowOS the tabs live in the window's own title bar, the way Terminal does it:
+// the strip goes in before the window buttons, styled from the desktop page.
+let tabsHost = null, tabsHostActions = null, draggingTabId = null;
+function setupHeaderTabs() {
+  let header = null;
+  try { header = IS_EMBEDDED && window.frameElement?.closest('.popup')?.querySelector('.popup-header'); } catch (e) {}
+  if (!header) { tabsHost = $('tabs'); return; }
+  const doc = header.ownerDocument;
+  document.body.classList.add('embedded');
+  if (!doc.getElementById('files-os-styles')) {
+    const style = doc.createElement('style');
+    style.id = 'files-os-styles';
+    // Same tab look as Terminal's (term-os-styles), so the two windows match.
+    style.textContent = `
+      .notes-tab-btn { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-bottom: none; border-radius: 12px 12px 0 0; padding: 6px 14px; color: rgba(255, 255, 255, 0.55); font-size: 12px; font-weight: 500; cursor: pointer; position: relative; height: 28px; box-sizing: border-box; transition: all 0.2s; font-family: 'Poppins', sans-serif !important; user-select: none; overflow: hidden; margin-top: 8px; }
+      .notes-tab-btn span { font-family: 'Poppins', sans-serif !important; }
+      .notes-tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+      .notes-tab-btn.active { background: color-mix(in srgb, var(--sys-accent) 18%, transparent); color: #fff; height: 34px; border-color: color-mix(in srgb, var(--sys-accent) 30%, transparent); margin-top: 2px; }
+      .notes-tab-btn.active::before { content: ''; position: absolute; inset: 0; border-radius: 12px 12px 0 0; border: 2px solid var(--sys-accent-text); border-bottom: none; pointer-events: none; }
+      .notes-tab-close { background: none; border: none; color: inherit; opacity: 0.6; cursor: pointer; padding: 0; font-size: 15px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-left: 2px; z-index: 3; position: relative;}
+      .notes-tab-close:hover { opacity: 1; color: #ff453a; }
+      .notes-tab-btn.dragging { opacity: 0.4; }
+      .notes-tab-btn.drag-over { transform: translateX(2px); background: rgba(255,255,255,0.1); }
+      #os-files-tabs .notes-tab-btn { flex: 0 1 auto; max-width: 200px; min-width: 64px; }
+      #os-files-tabs .notes-tab-btn > span:first-of-type { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #os-files-tabs .files-tab-icon { font-family: 'Material Symbols Outlined' !important; font-size: 15px; opacity: .8; font-variation-settings: 'FILL' 1; }
+      #os-files-tabs.single .notes-tab-close { display: none; }
+      #os-files-tabs .notes-tab-btn.file-drop { background: color-mix(in srgb, var(--sys-accent) 30%, transparent); color: #fff; border-color: var(--sys-accent-text); }
+    `;
+    doc.head.appendChild(style);
+  }
+  header.querySelector('#os-files-tabs')?.remove();
+  header.querySelector('#os-files-actions')?.remove();
+  tabsHost = doc.createElement('div');
+  tabsHost.id = 'os-files-tabs';
+  tabsHost.style.cssText = 'display: flex; gap: 4px; flex: 1; overflow-x: auto; align-items: flex-end; height: 100%; margin-left: 12px; cursor: move; scrollbar-width: none;';
+  tabsHostActions = doc.createElement('div');
+  tabsHostActions.id = 'os-files-actions';
+  tabsHostActions.style.cssText = 'display: flex; align-items: center; gap: 5px; flex-shrink: 0; margin-right: 8px; margin-top: 4px;';
+  const add = doc.createElement('button');
+  add.className = 'browser-nav-btn';
+  add.title = mariowOSI18n.t("explorer.tabs.new-hint", "New tab (Ctrl+T)");
+  add.style.cssText = 'background:transparent; border:none; color:rgba(255,255,255,0.7); cursor:pointer; padding:4px; display:flex; align-items:center; border-radius:4px;';
+  add.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">add</span>';
+  add.addEventListener('click', () => openTab(HOME_VIEW));
+  tabsHostActions.append(add);
+  const actions = header.querySelector('.window-actions');
+  header.insertBefore(tabsHost, actions);
+  header.insertBefore(tabsHostActions, actions);
+  // The window outlives this page (closing it only blanks the frame): take the strip along.
+  window.addEventListener('pagehide', () => { tabsHost.remove(); tabsHostActions.remove(); });
+}
+
+function renderTabs() {
+  if (!tabsHost) setupHeaderTabs();
+  const box = tabsHost, doc = box.ownerDocument;
+  const existing = new Map([...box.children].map(n => [Number(n.dataset.id), n]));
+  box.classList.toggle('single', tabs.length === 1);
+  tabs.forEach((tab, i) => {
+    let node = existing.get(tab.id);
+    if (!node) {
+      node = doc.createElement('div');
+      node.className = 'notes-tab-btn';
+      node.dataset.id = tab.id;
+      const glyph = doc.createElement('span'); glyph.className = 'files-tab-icon';
+      const title = doc.createElement('span'); title.className = 'files-tab-title';
+      const close = doc.createElement('button'); close.className = 'notes-tab-close'; close.textContent = '×';
+      close.title = mariowOSI18n.t("explorer.tabs.close", "Close tab");
+      close.addEventListener('click', e => { e.stopPropagation(); closeTab(tabs.findIndex(t => t.id === tab.id)); });
+      node.append(glyph, title, close);
+      node.addEventListener('click', () => switchTab(tabs.findIndex(t => t.id === tab.id)));
+      node.addEventListener('auxclick', e => { if (e.button === 1) { e.preventDefault(); closeTab(tabs.findIndex(t => t.id === tab.id)); } });
+      makeTabDropTarget(node, tab);
+      node.animate([{ maxWidth: '0px', minWidth: '0px', opacity: 0 }, { maxWidth: '200px', minWidth: '64px', opacity: 1 }], { duration: 240, easing: 'cubic-bezier(.16,1,.3,1)' });
+    }
+    existing.delete(tab.id);
+    const look = tabLook(tab.path);
+    node.querySelector('.files-tab-icon').textContent = look.icon;
+    node.querySelector('.files-tab-title').textContent = look.name;
+    node.title = isVirtual(tab.path) ? look.name : tab.path;
+    node.classList.toggle('active', i === activeTab);
+    box.append(node);
+    if (i === activeTab) node.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  });
+  existing.forEach(node => node.remove());
+}
+function openTab(p = currentPath, activate = true) {
+  saveTabs();
+  tabs.splice(activeTab + 1, 0, { id: nextTabId++, path: normalizePath(p), back: [], fwd: [] });
+  if (activate) switchTab(activeTab + 1, true);
+  else { renderTabs(); saveTabs(); }
+}
+function switchTab(index, fresh = false) {
+  if (index < 0 || index >= tabs.length || (index === activeTab && !fresh)) return;
+  if (!fresh) saveTabs();
+  activeTab = index;
+  const tab = tabs[index];
+  history.back = tab.back; history.fwd = tab.fwd;
+  renderTabs();
+  navigate(tab.path, { push: false });
+  saveTabs();
+}
+function closeTab(index) {
+  if (tabs.length < 2 || index < 0) return;
+  const wasActive = index === activeTab;
+  saveTabs();
+  tabs.splice(index, 1);
+  if (wasActive) { activeTab = Math.min(index, tabs.length - 1); switchTab(activeTab, true); }
+  else { if (index < activeTab) activeTab--; renderTabs(); saveTabs(); }
+}
+// A tab takes two kinds of drag: another tab (reorder, like Terminal) and files.
+// Files dropped on it move into its folder; held over it, the tab opens so they can go
+// into a subfolder or anywhere in its list.
+function makeTabDropTarget(node, tab) {
+  node.draggable = true;
+  node.addEventListener('dragstart', e => {
+    draggingTabId = tab.id;
+    node.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'files-tab');
+  });
+  node.addEventListener('dragend', () => {
+    draggingTabId = null;
+    tabsHost.querySelectorAll('.notes-tab-btn').forEach(n => n.classList.remove('dragging', 'drag-over', 'file-drop'));
+  });
+  const accepts = e => dragData ? tab.path !== HOME_VIEW && tab.path !== dragData.fromPath && (tab.path === TRASH || !isVirtual(tab.path))
+    : e.dataTransfer.types.includes('Files') && !isVirtual(tab.path);
+  node.addEventListener('dragenter', e => {
+    if (draggingTabId !== null || (!dragData && !e.dataTransfer.types.includes('Files'))) return;
+    clearTimeout(tabHoverTimer);
+    if (tabs.indexOf(tab) !== activeTab) tabHoverTimer = setTimeout(() => switchTab(tabs.indexOf(tab)), 650);
+  });
+  node.addEventListener('dragover', e => {
+    if (draggingTabId !== null) {
+      e.preventDefault();
+      if (draggingTabId !== tab.id) node.classList.add('drag-over');
+      return;
+    }
+    if (!dragData && !e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = accepts(e) ? (dragData && !(e.ctrlKey || e.altKey) ? 'move' : 'copy') : 'none';
+    node.classList.toggle('file-drop', accepts(e));
+  });
+  node.addEventListener('dragleave', e => { if (!node.contains(e.relatedTarget)) { node.classList.remove('drag-over', 'file-drop'); clearTimeout(tabHoverTimer); } });
+  node.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation();
+    node.classList.remove('drag-over', 'file-drop'); clearTimeout(tabHoverTimer);
+    if (draggingTabId !== null) {
+      const from = tabs.findIndex(t => t.id === draggingTabId), to = tabs.indexOf(tab);
+      draggingTabId = null;
+      if (from < 0 || from === to) return;
+      const active = tabs[activeTab];
+      const [moved] = tabs.splice(from, 1);
+      tabs.splice(to, 0, moved);
+      activeTab = tabs.indexOf(active);
+      renderTabs(); saveTabs();
+      return;
+    }
+    if (!accepts(e)) return;
+    if (dragData) {
+      const d = dragData; dragData = null;
+      if (tab.path === TRASH) trashItems(d.names, d.fromPath);
+      else transfer(d.fromPath, tab.path, d.names, e.ctrlKey || e.altKey ? 'copy' : 'move');
+    } else if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files, tab.path);
+  });
+}
+$('newTabBtn').onclick = () => openTab(HOME_VIEW);
 
 /* ───────────────────────── Search ───────────────────────── */
 let searchTimer = null;
@@ -1048,14 +1567,14 @@ function openMenu(menu, x, y) {
   menu.style.top = Math.max(6, Math.min(y, innerHeight - r.height - 6)) + 'px';
 }
 function closeMenus() { document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open')); }
-document.addEventListener('mousedown', e => { if (!e.target.closest('.menu') && !e.target.closest('#sortBtn')) closeMenus(); });
+document.addEventListener('mousedown', e => { if (!e.target.closest('.menu') && !e.target.closest('#sortBtn, #newBtn, #viewBtn, #moreBtn')) closeMenus(); });
 window.addEventListener('blur', closeMenus);
 
 function openContextMenu(x, y, item) {
   const menu = $('ctxMenu');
   menu.replaceChildren();
   const sel = selectedItems();
-  const writable = !readOnly && currentPath !== TRASH;
+  const writable = !readOnly && !isVirtual(currentPath);
   if (currentPath === TRASH) {
     if (sel.length) menu.append(menuItem('restore_from_trash', mariowOSI18n.t("explorer.menu.restore", "Restore"), () => restoreItems(sel)), menuItem('delete_forever', mariowOSI18n.t("explorer.delete-forever", "Delete forever"), () => deleteSelection(), { danger: true }));
     else menu.append(menuItem('delete_sweep', mariowOSI18n.t("explorer.empty-trash", "Empty trash"), emptyTrash, { danger: true, disabled: !items.length }));
@@ -1063,13 +1582,18 @@ function openContextMenu(x, y, item) {
     const kind = kindOf(item);
     const inHome = isHome(item.dir || currentPath);
     menu.append(menuItem(item.type === 'folder' ? 'folder_open' : 'open_in_new', mariowOSI18n.t("common.open", "Open"), () => openItem(item), { kbd: 'Enter' }));
+    if (item.type === 'folder' && !item.trashId) menu.append(menuItem('tab', mariowOSI18n.t("explorer.tabs.open-in-new", "Open in new tab"), () => openTab(item.isVolume ? '/device/' + item.name : joinPath(item.dir || currentPath, item.name))));
     if (item.type === 'file' && inHome) {
       if (['image', 'audio', 'video', 'pdf'].includes(kind) || TEXT_EXT.has(item.ext)) menu.append(menuItem('visibility', mariowOSI18n.t("explorer.menu.quick-look", "Quick look"), () => openPreview(item), { kbd: 'Space' }));
       if (TEXT_EXT.has(item.ext) || !item.ext) menu.append(menuItem('edit_note', mariowOSI18n.t("explorer.menu.edit-in-notes", "Edit in Notes"), () => openInNotes(item)));
       menu.append(menuItem('download', mariowOSI18n.t("explorer.download", "Download"), () => sel.forEach(download)));
     }
     if (searchResults) menu.append(menuItem('folder', mariowOSI18n.t("explorer.menu.show-in-folder", "Show in folder"), () => { const d = item.dir; navigate(d).then(() => { const f = items.find(i => i.name === item.name); if (f) selectOnly(f); }); }));
-    if (item.type === 'folder') menu.append(menuItem('terminal', mariowOSI18n.t("explorer.menu.open-in-terminal", "Open in Terminal"), () => openTerminal(joinPath(item.dir || currentPath, item.name))));
+    if (item.type === 'folder') {
+      const folderPath = joinPath(item.dir || currentPath, item.name);
+      menu.append(menuItem('terminal', mariowOSI18n.t("explorer.menu.open-in-terminal", "Open in Terminal"), () => openTerminal(folderPath)));
+      if (isHome(folderPath)) menu.append(menuItem('keep', pinned.includes(folderPath) ? mariowOSI18n.t("explorer.unpin", "Unpin from Quick access") : mariowOSI18n.t("explorer.pin", "Pin to Quick access"), () => togglePin(folderPath)));
+    }
     menu.append(hr(),
       menuItem('content_cut', mariowOSI18n.t("explorer.menu.cut", "Cut"), () => setClipboard('cut'), { kbd: 'Ctrl+X', disabled: !inHome || readOnly }),
       menuItem('content_copy', mariowOSI18n.t("explorer.menu.copy", "Copy"), () => setClipboard('copy'), { kbd: 'Ctrl+C', disabled: !inHome }),
@@ -1111,9 +1635,34 @@ $('sortBtn').onclick = () => {
   const r = $('sortBtn').getBoundingClientRect();
   openMenu(menu, r.left, r.bottom + 6);
 };
-$('viewBtn').onclick = () => { viewMode = viewMode === 'list' ? 'grid' : 'list'; store.set('files-view', viewMode); render(); };
-$('newFolderBtn').onclick = createFolder;
-$('newFileBtn').onclick = createFile;
+function openToolbarMenu(menuId, buttonId, entries) {
+  const menu = $(menuId);
+  menu.replaceChildren(...entries);
+  const r = $(buttonId).getBoundingClientRect();
+  openMenu(menu, r.left, r.bottom + 6);
+}
+const setView = mode => { viewMode = mode; store.set('files-view', mode); render(); };
+$('newBtn').onclick = () => openToolbarMenu('newMenu', 'newBtn', [
+  menuItem('create_new_folder', mariowOSI18n.t("explorer.new-folder", "New folder"), createFolder, { kbd: 'Ctrl+Shift+N' }),
+  menuItem('note_add', mariowOSI18n.t("explorer.new-text-file", "New text file"), createFile),
+  hr(),
+  menuItem('upload', mariowOSI18n.t("explorer.menu.upload-files", "Upload files…"), () => $('uploadInput').click())]);
+$('viewBtn').onclick = () => openToolbarMenu('viewMenu', 'viewBtn', [
+  menuItem('view_list', mariowOSI18n.t("explorer.view.list", "List"), () => setView('list'), { checked: viewMode === 'list' }),
+  menuItem('grid_view', mariowOSI18n.t("explorer.view.grid", "Icons"), () => setView('grid'), { checked: viewMode === 'grid' }),
+  hr(),
+  menuItem('vertical_split', mariowOSI18n.t("explorer.action.preview-pane", "Preview pane"), togglePane, { checked: paneOpen }),
+  menuItem('visibility', mariowOSI18n.t("explorer.menu.show-hidden", "Show hidden files"), toggleHidden, { checked: showHidden })]);
+$('moreBtn').onclick = () => openToolbarMenu('moreMenu', 'moreBtn', [
+  menuItem('refresh', mariowOSI18n.t("explorer.menu.refresh", "Refresh"), load, { kbd: 'F5' }),
+  menuItem('terminal', mariowOSI18n.t("explorer.menu.open-in-terminal", "Open in Terminal"), () => openTerminal(isVirtual(currentPath) ? '/home' : currentPath)),
+  ...(isHome(currentPath) ? [menuItem('keep', pinned.includes(currentPath) ? mariowOSI18n.t("explorer.unpin", "Unpin from Quick access") : mariowOSI18n.t("explorer.pin", "Pin to Quick access"), () => togglePin(currentPath))] : []),
+  menuItem('content_copy', mariowOSI18n.t("explorer.menu.copy-path", "Copy path"), () => navigator.clipboard?.writeText(currentPath), { disabled: isVirtual(currentPath) }),
+  hr(),
+  menuItem('delete_sweep', mariowOSI18n.t("explorer.empty-trash", "Empty trash"), emptyTrash, { danger: true })]);
+function togglePane() { paneOpen = !paneOpen; store.set('files-pane', paneOpen); renderPane(); }
+$('paneBtn').onclick = togglePane;
+$('selectAllBtn').onclick = selectAll;
 $('cutBtn').onclick = () => setClipboard('cut');
 $('copyBtn').onclick = () => setClipboard('copy');
 $('pasteBtn').onclick = () => paste();
@@ -1142,6 +1691,9 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'Escape') { closeMenus(); if (!inField) { selection.clear(); refreshSelectionClasses(); } return; }
   if (ctrl && e.key.toLowerCase() === 'l') { e.preventDefault(); editAddress(); return; }
+  if (ctrl && e.key.toLowerCase() === 't') { e.preventDefault(); openTab(isVirtual(currentPath) ? HOME_VIEW : currentPath); return; }
+  if (ctrl && e.key.toLowerCase() === 'w') { e.preventDefault(); closeTab(activeTab); return; }
+  if (ctrl && e.key === 'Tab') { e.preventDefault(); if (tabs.length > 1) switchTab((activeTab + (e.shiftKey ? -1 : 1) + tabs.length) % tabs.length); return; }
   if (ctrl && e.key.toLowerCase() === 'f') { e.preventDefault(); $('searchInput').focus(); $('searchInput').select(); return; }
   if (e.key === 'F5') { e.preventDefault(); load(); return; }
   if (e.altKey && e.key === 'ArrowLeft') { e.preventDefault(); $('backBtn').click(); return; }
@@ -1195,9 +1747,16 @@ window.addEventListener('message', e => {
 
 /* ───────────────────────── Boot ───────────────────────── */
 $('content').dataset.dropText = mariowOSI18n.t("explorer.drop-hint", "Drop files to upload them here");
-const startPath = new URLSearchParams(location.search).get('path') || '/home';
+const askedPath = new URLSearchParams(location.search).get('path');
+const savedTabs = store.get('files-tabs', null);
+const restored = Array.isArray(savedTabs?.paths) ? savedTabs.paths.filter(p => typeof p === 'string').slice(0, 12) : [];
+tabs = (restored.length ? restored : [HOME_VIEW]).map(p => ({ id: nextTabId++, path: normalizePath(p), back: [], fwd: [] }));
+activeTab = Math.min(Math.max(0, Number(savedTabs?.active) || 0), tabs.length - 1);
+// Opened on a folder (from the desktop): that folder gets its own tab.
+if (askedPath) { tabs.push({ id: nextTabId++, path: normalizePath(askedPath), back: [], fwd: [] }); activeTab = tabs.length - 1; }
 renderSidebar();
-navigate(startPath, { push: false });
+renderTabs();
+navigate(tabs[activeTab].path, { push: false });
 setInterval(loadStorage, 60000);
 </script>
 </body>

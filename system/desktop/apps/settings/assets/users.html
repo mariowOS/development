@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/desktop/assets/i18n-data.js"></script>
+  <script src="/desktop/assets/i18n.js"></script>
+  <script src="/desktop/assets/accent.js"></script>
+  <script src="/desktop/assets/mariowos-dialogs.js"></script>
+  <title data-i18n="settings.nav.users">Users</title>
+  <link href="/desktop/assets/fonts/fonts.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; color: #fff; margin: 0; padding: 10px 0; background: transparent; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    .container { width: 100%; padding: 0 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; }
+    .section-title { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); margin: 0 0 -12px 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .panel { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+    .user { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .user:last-child { border-bottom: none; }
+    .user img { width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; object-fit: cover; background: rgba(255,255,255,0.1); }
+    .user-text { flex: 1; min-width: 0; }
+    .user-name { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+    .user-name span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-role { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .tag { flex: 0 0 auto; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,0.1); font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,0.7); }
+    .tag.you { background: color-mix(in srgb, var(--sys-accent) 30%, transparent); color: #fff; }
+    .actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    button, select { font: 500 12.5px 'Poppins', sans-serif; color: #fff; }
+    .btn { padding: 7px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.08); cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: rgba(255,255,255,0.15); }
+    .btn.primary { background: var(--sys-accent); color: var(--sys-accent-on); border-color: transparent; }
+    .btn.primary:hover { background: color-mix(in srgb, var(--sys-accent) 85%, black); }
+    .btn.danger { color: #ff6961; }
+    .btn.danger:hover { background: rgba(255,69,58,0.16); }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    select { padding: 7px 30px 7px 10px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none;
+      background: rgba(0,0,0,0.3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff99' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 8px center; }
+    select option { background: #1c1e24; }
+    .form { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 12px 16px; align-items: center; padding: 16px; }
+    .form label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
+    .form input[type=text], .form input[type=password] { padding: 9px 12px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; font: 13px 'Poppins', sans-serif; outline: none; }
+    .form input:focus { border-color: var(--sys-accent-text); }
+    .form .check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.8); cursor: pointer; }
+    .form .check input { width: 18px; height: 18px; accent-color: var(--sys-accent); }
+    .form-foot { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+    .status { font-size: 12px; color: rgba(255,255,255,0.55); flex: 1; }
+    .status.error { color: #ff8a80; }
+    .status.ok { color: #30d158; }
+    .note { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; font-size: 12.5px; color: rgba(255,255,255,0.6); line-height: 1.45; }
+    .note .material-symbols-outlined { font-size: 20px; color: rgba(255,255,255,0.5); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="section-title" data-i18n="settings.users.accounts">Accounts on this computer</div>
+  <div class="panel" id="userList"></div>
+  <div class="panel" id="standardNote" hidden>
+    <div class="note"><span class="material-symbols-outlined">shield_person</span><span data-i18n="settings.users.standard-note">You are using a standard account. Only administrators can add accounts, change them, install apps or use Terminal.</span></div>
+  </div>
+
+  <div id="addSection" hidden>
+    <div class="section-title" data-i18n="settings.users.add">Add a user</div>
+    <div class="panel" style="margin-top: 20px;">
+      <form class="form" id="addForm" autocomplete="off">
+        <label for="newName" data-i18n="settings.users.name">Name</label><input type="text" id="newName" maxlength="32" spellcheck="false">
+        <label for="newPassword" data-i18n="settings.users.password">Password</label><input type="password" id="newPassword" autocomplete="new-password">
+        <label for="newPassword2" data-i18n="settings.users.confirm">Confirm password</label><input type="password" id="newPassword2" autocomplete="new-password">
+        <span></span><label class="check"><input type="checkbox" id="newAdmin"><span data-i18n="settings.users.make-admin">Administrator: can install apps, use Terminal and manage users</span></label>
+        <div class="form-foot"><span class="status" id="addStatus"></span><button class="btn primary" type="submit" data-i18n="settings.users.create">Create account</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-title" data-i18n="settings.users.your-password">Your password</div>
+    <div class="panel" style="margin-top: 20px;">
+      <form class="form" id="passwordForm" autocomplete="off">
+        <label for="currentPassword" data-i18n="settings.users.current">Current password</label><input type="password" id="currentPassword" autocomplete="current-password">
+        <label for="ownNew" data-i18n="settings.users.new">New password</label><input type="password" id="ownNew" autocomplete="new-password">
+        <label for="ownNew2" data-i18n="settings.users.confirm">Confirm password</label><input type="password" id="ownNew2" autocomplete="new-password">
+        <div class="form-foot"><span class="status" id="passwordStatus"></span><button class="btn primary" type="submit" data-i18n="settings.users.change-password">Change password</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const t = (key, fallback, vars) => mariowOSI18n.t(key, fallback, vars);
+let me = null, accounts = [];
+
+// Admin actions confirm the password first, like the rest of Settings.
+const confirmWithPassword = () => new Promise(resolve => {
+  if (window.parent && window.parent.requirePassword) window.parent.requirePassword(() => resolve(true), () => resolve(false));
+  else resolve(true);
+});
+async function post(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success) throw new Error(data.error || t('settings.users.failed', 'That did not work.'));
+  return data;
+}
+function setStatus(id, text, kind) {
+  const el = document.getElementById(id);
+  el.textContent = text || '';
+  el.className = 'status' + (kind ? ' ' + kind : '');
+}
+const roleLabel = user => user.owner ? t('settings.users.role-owner', 'Owner · Administrator') : user.admin ? t('settings.users.role-admin', 'Administrator') : t('settings.users.role-standard', 'Standard');
+
+function render() {
+  const list = document.getElementById('userList');
+  list.replaceChildren(...accounts.map(user => {
+    const row = document.createElement('div'); row.className = 'user';
+    const img = document.createElement('img'); img.alt = ''; img.src = '/api/users/avatar/' + encodeURIComponent(user.id) + '?ts=' + Date.now();
+    const text = document.createElement('div'); text.className = 'user-text';
+    const name = document.createElement('div'); name.className = 'user-name';
+    const nameText = document.createElement('span'); nameText.textContent = user.username;
+    name.append(nameText);
+    if (user.id === me.id) { const you = document.createElement('span'); you.className = 'tag you'; you.textContent = t('settings.users.you', 'You'); name.append(you); }
+    const role = document.createElement('div'); role.className = 'user-role'; role.textContent = roleLabel(user);
+    text.append(name, role);
+    row.append(img, text);
+    // The owner is always an administrator; nobody removes the account they are using.
+    if (me.admin && !user.owner) {
+      const actions = document.createElement('div'); actions.className = 'actions';
+      const select = document.createElement('select');
+      [['admin', t('settings.users.role-admin', 'Administrator')], ['standard', t('settings.users.role-standard', 'Standard')]].forEach(([value, label]) => {
+        const option = document.createElement('option'); option.value = value; option.textContent = label; select.append(option);
+      });
+      select.value = user.admin ? 'admin' : 'standard';
+      select.title = t('settings.users.role', 'Account type');
+      select.onchange = async () => {
+        const admin = select.value === 'admin';
+        if (!(await confirmWithPassword())) { select.value = user.admin ? 'admin' : 'standard'; return; }
+        try { await post('/api/users/update', { id: user.id, admin }); }
+        catch (e) { await mDialog.alert(e.message); }
+        load();
+      };
+      const reset = document.createElement('button'); reset.type = 'button'; reset.className = 'btn'; reset.textContent = t('settings.users.reset-password', 'Reset password');
+      reset.onclick = async () => {
+        const password = await mDialog.prompt(t('settings.users.new-password-for', 'New password for {name}', { name: user.username }), { type: 'password' });
+        if (!password) return;
+        if (!(await confirmWithPassword())) return;
+        try { await post('/api/users/reset-password', { id: user.id, password }); await mDialog.alert(t('settings.users.password-reset', 'Password changed. {name} can sign in with it now.', { name: user.username })); }
+        catch (e) { await mDialog.alert(e.message); }
+      };
+      actions.append(select, reset);
+      if (user.id !== me.id) {
+        const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'btn danger'; remove.textContent = t('settings.users.remove', 'Remove');
+        remove.onclick = async () => {
+          if (!(await mDialog.confirm(t('settings.users.remove-confirm', 'Remove {name}? They will not be able to sign in any more.', { name: user.username }), { danger: true }))) return;
+          const deleteFiles = await mDialog.confirm(t('settings.users.remove-files', 'Also delete {name}\'s files? Choose No to keep them on this computer.', { name: user.username }), { danger: true });
+          if (!(await confirmWithPassword())) return;
+          try { await post('/api/users/delete', { id: user.id, deleteFiles }); }
+          catch (e) { await mDialog.alert(e.message); }
+          load();
+        };
+        actions.append(remove);
+      }
+      row.append(actions);
+    }
+    return row;
+  }));
+  document.getElementById('addSection').hidden = !me.admin;
+  document.getElementById('standardNote').hidden = me.admin;
+}
+
+async function load() {
+  try {
+    const data = await (await fetch('/api/users', { cache: 'no-store' })).json();
+    accounts = data.users || [];
+    me = data.me || accounts[0];
+    render();
+  } catch (e) {}
+}
+
+document.getElementById('addForm').onsubmit = async e => {
+  e.preventDefault();
+  const username = document.getElementById('newName').value.trim();
+  const password = document.getElementById('newPassword').value;
+  if (!username) return setStatus('addStatus', t('settings.users.need-name', 'Give the account a name.'), 'error');
+  if (password !== document.getElementById('newPassword2').value) return setStatus('addStatus', t('settings.users.mismatch', 'The passwords do not match.'), 'error');
+  if (!(await confirmWithPassword())) return;
+  try {
+    await post('/api/users/create', { username, password, admin: document.getElementById('newAdmin').checked });
+    e.target.reset();
+    setStatus('addStatus', t('settings.users.created', '{name} can now sign in from the login screen.', { name: username }), 'ok');
+    load();
+  } catch (err) { setStatus('addStatus', err.message, 'error'); }
+};
+
+document.getElementById('passwordForm').onsubmit = async e => {
+  e.preventDefault();
+  const newPassword = document.getElementById('ownNew').value;
+  if (newPassword !== document.getElementById('ownNew2').value) return setStatus('passwordStatus', t('settings.users.mismatch', 'The passwords do not match.'), 'error');
+  try {
+    await post('/api/users/password', { currentPassword: document.getElementById('currentPassword').value, newPassword });
+    e.target.reset();
+    setStatus('passwordStatus', t('settings.users.password-changed', 'Password changed.'), 'ok');
+  } catch (err) { setStatus('passwordStatus', err.message, 'error'); }
+};
+
+load();
+</script>
+</body>
+</html>

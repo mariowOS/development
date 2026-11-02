@@ -53,8 +53,10 @@ function createSessions({ keyFile, leakedKeyHashes, secureCookie = false }) {
   };
   const decode = payloadB64 => JSON.parse(Buffer.from(payloadB64, "base64url").toString());
 
-  function issueSession(res) {
+  // uid: which account signed in (see lib/users.js). Sessions from before accounts carry none: the owner.
+  function issueSession(res, uid) {
     const payload = { exp: Date.now() + SESSION_TTL_MS, nonce: crypto.randomBytes(8).toString("hex") };
+    if (typeof uid === "string" && uid) payload.uid = uid;
     const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
     res.setHeader("Set-Cookie",
       `${SESSION_COOKIE}=${payloadB64}.${hmac("", payloadB64)}; HttpOnly; SameSite=Strict; Path=/; ` +
@@ -65,16 +67,19 @@ function createSessions({ keyFile, leakedKeyHashes, secureCookie = false }) {
     res.setHeader("Set-Cookie", `${SESSION_COOKIE}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`);
   }
 
-  function hasValidSession(req) {
+  // The session's payload when its signature and expiry check out, otherwise null.
+  function readSession(req) {
     const token = parseCookies(req)[SESSION_COOKIE];
-    if (!token || token.indexOf(".") < 0) return false;
+    if (!token || token.indexOf(".") < 0) return null;
     const [payloadB64, sig] = token.split(".");
-    if (!signedEquals(sig, hmac("", payloadB64))) return false;
+    if (!signedEquals(sig, hmac("", payloadB64))) return null;
     try {
       const payload = decode(payloadB64);
-      return typeof payload.exp === "number" && Date.now() < payload.exp;
-    } catch (e) { return false; }
+      return typeof payload.exp === "number" && Date.now() < payload.exp ? payload : null;
+    } catch (e) { return null; }
   }
+
+  const hasValidSession = req => readSession(req) !== null;
 
   // Per-app tokens for the endpoint permission model (see app-permissions.json).
   function signAppToken(appId) {
@@ -89,7 +94,7 @@ function createSessions({ keyFile, leakedKeyHashes, secureCookie = false }) {
     try { return decode(payloadB64); } catch (e) { return null; }
   }
 
-  return { issueSession, clearSession, hasValidSession, signAppToken, verifyAppToken };
+  return { issueSession, clearSession, hasValidSession, readSession, signAppToken, verifyAppToken };
 }
 
 // Brute-force protection for every account-password check: after 5 consecutive

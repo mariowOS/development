@@ -115,6 +115,16 @@
     input:checked + .slider { background-color: #34c759; }
     input:checked + .slider:before { transform: translateX(20px); }
 
+    /* Developer diagnostics, under Performance Tuning while Developer Options is on. */
+    .dev-stats { padding: 4px 16px 16px 58px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+    .dev-stats[hidden] { display: none; }
+    .dev-stats-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .dev-stats-title .material-symbols-outlined { font-size: 17px; color: #30d158; }
+    .dev-stats-tag { margin-left: auto; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,0.55); }
+    .dev-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .dev-stats-grid div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.25); font-size: 11px; color: rgba(255,255,255,0.5); }
+    .dev-stats-grid b { font: 600 15px 'JetBrains Mono', Consolas, monospace; color: #30d158; }
+    .dev-stats-grid b.bad { color: #ff6961; }
     html { scrollbar-width: none; }
     html::-webkit-scrollbar { display: none; }
   </style>
@@ -180,6 +190,15 @@
         <input type="checkbox" id="tog-performance" onchange="toggleLab('performance', this)">
         <span class="slider"></span>
       </label>
+    </div>
+    <div class="dev-stats" id="devStats" hidden>
+      <div class="dev-stats-title"><span class="material-symbols-outlined">monitoring</span><span data-i18n="settings.lab.diagnostics">Live diagnostics</span><span class="dev-stats-tag" data-i18n="settings.lab.developer">Developer Options</span></div>
+      <div class="dev-stats-grid">
+        <div><span data-i18n="settings.lab.stat-fps">Frame rate</span><b id="statFps">–</b></div>
+        <div><span data-i18n="settings.lab.stat-heap">Memory</span><b id="statHeap">–</b></div>
+        <div><span data-i18n="settings.lab.stat-apps">Open apps</span><b id="statApps">–</b></div>
+        <div><span data-i18n="settings.lab.stat-kernel">Kernel</span><b id="statKernel">–</b></div>
+      </div>
     </div>
 
     <div class="list-item" onclick="toggleSwitch('tog-animations')">
@@ -252,13 +271,14 @@ fetch('/get-settings')
       if (tog) {
         if (config[key] !== undefined) {
           tog.checked = config[key];
-          localStorage.setItem('lab-' + key, config[key]); 
+          localStorage.setItem('lab-' + key, config[key]);
         } else {
           const saved = localStorage.getItem('lab-' + key);
           if (saved === 'true') tog.checked = true;
         }
       }
     });
+    showDevStats();
   })
   .catch(() => {
     labs.forEach(key => {
@@ -287,6 +307,7 @@ function toggleLab(key, inputEl) {
     }
     inputEl.checked = desiredState;
     localStorage.setItem('lab-' + key, desiredState);
+    if (key === 'developer') showDevStats();
     try { window.top.postMessage({ type: 'apply-lab-flags' }, '*'); } catch (e) {}
 
     const names = {
@@ -309,6 +330,22 @@ function toggleLab(key, inputEl) {
     // Action cancelled
   });
 }
+
+// The desktop measures (window.mariowOSDevStats); this page only shows the numbers.
+function showDevStats() {
+  document.getElementById('devStats').hidden = !document.getElementById('tog-developer').checked;
+}
+setInterval(() => {
+  if (document.getElementById('devStats').hidden) return;
+  let s = null;
+  try { s = window.top.mariowOSDevStats; } catch (e) {}
+  if (!s) return;
+  const set = (id, text, bad) => { const b = document.getElementById(id); b.textContent = text; b.classList.toggle('bad', !!bad); };
+  set('statFps', s.fps + ' fps', s.fps < 30);
+  set('statHeap', s.heapMB == null ? 'n/a' : s.heapMB + ' MB');
+  set('statApps', String(s.apps));
+  set('statKernel', s.kernel, s.kernel !== 'online');
+}, 1000);
 
 const bootLogoInput = document.getElementById('bootLogoInput');
 const uploadBootLogoButton = document.getElementById('uploadBootLogoButton');

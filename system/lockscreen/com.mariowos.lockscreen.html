@@ -545,6 +545,11 @@ passwordInput.addEventListener('keydown', (e) => {
 });
 
 let wrongTimeout = null;
+// The desktop's lock screen unlocks the account that locked it, never another one
+// (switching accounts happens on the login screen).
+let lockedUserId = 'owner';
+fetch('/api/users/me', { cache: 'no-store' }).then(r => r.json()).then(({ user }) => { if (user && user.id) lockedUserId = user.id; }).catch(() => {});
+
 async function attemptUnlock() {
   const pass = passwordInput.value;
   if (pass.length === 0) return;
@@ -554,7 +559,7 @@ async function attemptUnlock() {
     const resp = await fetch('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ password: pass })
+      body: new URLSearchParams({ password: pass, userId: lockedUserId })
     });
     if (resp.status === 401) {
       showWrong();
@@ -786,7 +791,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   const avatar = document.querySelector('.avatar');
-  const userAvatarUrl = `/desktop/assets/avatar.user.png?ts=${Date.now()}`;
+  const userAvatarUrl = `/api/users/avatar/me?ts=${Date.now()}`;
   const userAvatar = new Image();
   userAvatar.onload = () => { avatar.style.backgroundImage = `url("${userAvatarUrl}")`; };
   userAvatar.onerror = () => { avatar.style.backgroundImage = 'url("/desktop/assets/avatar.png")'; };

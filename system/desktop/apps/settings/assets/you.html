@@ -252,7 +252,7 @@
   <!-- Header: Avatar, Name, Email -->
   <div class="header-panel">
     <div class="avatar-wrapper" onclick="document.getElementById('pfpUpload').click()">
-      <img src="/desktop/assets/avatar.user.png" id="pfpPreview" class="avatar-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
+      <img src="/api/users/avatar/me" id="pfpPreview" class="avatar-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTEyIDJDMiAxMiA2LjQ4IDEyIDEyIDEyIDEyczEwLTQuNDggMTAtMTAgMTAuNDgtMTAgMTItMTB6IiBvcGFjaXR5PSIwLjMiLz48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+'">
       <div class="avatar-edit-overlay" data-i18n="common.edit">Edit</div>
       <input type="file" id="pfpUpload" accept="image/png, image/jpeg" style="display: none;" onchange="previewAvatar(this)">
     </div>
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderVerified(cfg.email, cfg.verified === true);
 
     // Cache-bust the avatar preview
-    document.getElementById('pfpPreview').src = `/desktop/assets/avatar.user.png?t=${new Date().getTime()}`;
+    document.getElementById('pfpPreview').src = `/api/users/avatar/me?t=${new Date().getTime()}`;
 
   } catch (err) {
     console.warn('Settings check failed:', err);
@@ -559,7 +559,7 @@ async function saveAvatarOnly() {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || mariowOSI18n.t("settings.you.avatar-upload-failed", "Avatar upload failed"));
       avatarChanged = false;
-      document.getElementById('pfpPreview').src = `/desktop/assets/avatar.user.png?t=${Date.now()}`;
+      document.getElementById('pfpPreview').src = `/api/users/avatar/me?t=${Date.now()}`;
       if (window.parent && typeof window.parent.fetchServerInfo === 'function') {
         window.parent.fetchServerInfo(); 
       }
